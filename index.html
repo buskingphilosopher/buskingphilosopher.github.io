@@ -70,9 +70,12 @@
     fetch('data.json')
       .then(response => response.json())
       .then(data => {
-        const items = data.map(item =>
-          `${item.name}: ${item.percentage}% (${item.change})`
-        ).join('  —  ');
+        const items = data.flatMap(poll =>
+          poll.parties.map(party => {
+            const arrow = party.direction === 'up' ? '▲' : '▼';
+            return `${poll.pollster} — ${party.code}: ${party.pct}% ${arrow}${party.movement}`;
+          })
+        ).join('   |   ');
         document.getElementById('ticker-text').textContent = items;
       })
       .catch(err => console.error('Failed to load data.json:', err));
