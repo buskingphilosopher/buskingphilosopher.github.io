@@ -65,40 +65,30 @@
   <div class="footer">
     <p>coded in vscode.dev</p>
   </div>
-  
+
   <script>
-  fetch('data.json')
-    .then(res => res.json())
-    .then(data => {
-      const row = document.getElementById('ticker-row');
-      row.innerHTML = ''; // clear
+  async function loadPollingTicker() {
+      // 1. Fetch the JSON
+      const res = await fetch('data.json');
+      const polls = await res.json();
   
-      data.forEach(poll => {
-        const group = document.createElement('div');
-        group.className = 'ticker-group';
+      // 2. Create a scrolling string
+      const tickerSpan = document.getElementById('ticker-content');
+      tickerSpan.innerHTML = polls.map(p => `${p.pollster}: ${p.candidate} ${p.pct}% (${p.state})`).join(' — ');
   
-        let html = `<span class="pollster">${poll.pollster}:</span> `;
+      // 3. Simple scrolling
+      let pos = tickerSpan.offsetWidth;
+      function scroll() {
+          pos--;
+          tickerSpan.style.transform = `translateX(-${pos}px)`;
+          if (pos < -tickerSpan.offsetWidth) pos = window.innerWidth;
+          requestAnimationFrame(scroll);
+      }
+      scroll();
+  }
   
-        poll.parties.forEach((p, i) => {
-          const arrow = p.direction === "up"
-            ? `↑${p.movement}`
-            : `↓${p.movement}`;
-  
-          const dirClass = p.direction === "up" ? "up" : "down";
-  
-          html += `<span class="party">${p.code} ${p.pct}</span> `;
-          html += `<span class="movement ${dirClass}">${arrow}</span>`;
-  
-          if (i < poll.parties.length - 1) {
-            html += `<span class="sep">|</span>`;
-          }
-        });
-  
-        group.innerHTML = html;
-        row.appendChild(group);
-      });
-    })
-    .catch(err => console.error('Ticker failed:', err));
+  // Run the ticker
+  loadPollingTicker();
   </script>
     
 </body>
