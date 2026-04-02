@@ -8,8 +8,8 @@
 </head>
 <body>
 
-  <div id="polling-ticker">
-    <span id="ticker-content"></span>
+  <div class="ticker-wrapper">
+    <div class="ticker-content" id="ticker-text">Loading...</div>
   </div>
   
   <div class="header">
@@ -67,28 +67,15 @@
   </div>
 
   <script>
-  async function loadPollingTicker() {
-      // 1. Fetch the JSON
-      const res = await fetch('data.json');
-      const polls = await res.json();
-  
-      // 2. Create a scrolling string
-      const tickerSpan = document.getElementById('ticker-content');
-      tickerSpan.innerHTML = polls.map(p => `${p.pollster}: ${p.candidate} ${p.pct}% (${p.state})`).join(' — ');
-  
-      // 3. Simple scrolling
-      let pos = tickerSpan.offsetWidth;
-      function scroll() {
-          pos--;
-          tickerSpan.style.transform = `translateX(-${pos}px)`;
-          if (pos < -tickerSpan.offsetWidth) pos = window.innerWidth;
-          requestAnimationFrame(scroll);
-      }
-      scroll();
-  }
-  
-  // Run the ticker
-  loadPollingTicker();
+    fetch('data.json')
+      .then(response => response.json())
+      .then(data => {
+        const items = data.map(item =>
+          `${item.name}: ${item.percentage}% (${item.change})`
+        ).join('  —  ');
+        document.getElementById('ticker-text').textContent = items;
+      })
+      .catch(err => console.error('Failed to load data.json:', err));
   </script>
     
 </body>
