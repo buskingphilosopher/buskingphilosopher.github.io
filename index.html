@@ -67,64 +67,17 @@
   </div>
 
   <script>
-  let lastData = {}; // store last poll percentages for arrows
-
-  async function loadPollingTicker() {
-    // Add timestamp to prevent caching
-    const res = await fetch('https://buskingphilosopher.github.io/polling-ticker/data.json?t=' + new Date().getTime());
-    const polls = await res.json();
-
-    const tickerSpan = document.getElementById('ticker-content');
-    tickerSpan.innerHTML = ''; // clear old content
-
-    polls.forEach(p => {
-        const span = document.createElement('span');
-
-        // Determine color based on candidate
-        let cls = 'poll-neutral';
-        if (p.candidate.toLowerCase().includes('biden') || p.candidate.toLowerCase().includes('labour')) cls = 'poll-blue';
-        if (p.candidate.toLowerCase().includes('trump') || p.candidate.toLowerCase().includes('conservative')) cls = 'poll-red';
-
-        // Determine movement arrow
-        let arrow = '';
-        if (lastData[p.candidate] !== undefined) {
-            if (p.pct > lastData[p.candidate]) arrow = ' ↑';
-            else if (p.pct < lastData[p.candidate]) arrow = ' ↓';
-        }
-
-        lastData[p.candidate] = p.pct; // update latest value
-
-        span.className = cls;
-        span.textContent = `${p.pollster}: ${p.candidate} ${p.pct}% (${p.state})${arrow}`;
-        tickerSpan.appendChild(span);
-    });
-  }
-
-  // Smooth scrolling
-  function startTicker() {
-    const tickerSpan = document.getElementById('ticker-content');
-    const tickerDiv = document.getElementById('polling-ticker');
-    let pos = tickerDiv.offsetWidth;
-    let speed = 2; // higher = faster
-
-    function scroll() {
-        pos -= speed;
-        tickerSpan.style.transform = `translateX(${pos}px)`;
-
-        if (pos < -tickerSpan.offsetWidth) pos = tickerDiv.offsetWidth;
-        requestAnimationFrame(scroll);
-    }
-
-    tickerSpan.style.display = 'inline-block';
-    scroll();
-  }
-
-  // Initial load
-  loadPollingTicker();
-  startTicker();
-
-  // Refresh data every 60 seconds
-  setInterval(loadPollingTicker, 60000);
+  fetch('data.json')
+    .then(response => response.json())
+    .then(data => {
+      const ticker = document.getElementById('polling-ticker');
+      data.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = `${item.candidate} ${item.pct} ${item.pollster}`;
+          ticker.appendChild(li);
+      });
+    })
+    .catch(err => console.error('Failed to load polling data:', err));
   </script>
     
 </body>
