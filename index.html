@@ -65,25 +65,35 @@
   <div class="footer">
     <p>coded in vscode.dev</p>
   </div>
-
+  
   <script>
   fetch('data.json')
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
       const row = document.getElementById('ticker-row');
   
-      data.forEach(item => {
-        const div = document.createElement('div');
-        div.className = `ticker-item ${item.candidate}`;
-        
-        let arrow = item.direction === "up" ? `↑${item.movement}` : `↓${item.movement}`;
-        let arrowClass = item.direction === "up" ? "up" : "down";
+      data.forEach(poll => {
+        const group = document.createElement('div');
+        group.className = 'ticker-group';
   
-        div.innerHTML = `${item.candidate} ${item.pct} <span class="movement ${arrowClass}">${arrow}</span> (${item.source})`;
-        row.appendChild(div);
+        let html = `<span class="pollster">${poll.pollster}:</span> `;
+  
+        poll.parties.forEach((p, i) => {
+          const arrow = p.direction === "up" ? `↑${p.movement}` : `↓${p.movement}`;
+          const dirClass = p.direction === "up" ? "up" : "down";
+  
+          html += `<span class="party ${p.code}">${p.code} ${p.pct}</span> `;
+          html += `<span class="movement ${dirClass}">${arrow}</span>`;
+  
+          if (i < poll.parties.length - 1) {
+            html += ` <span class="sep">|</span> `;
+          }
+        });
+  
+        group.innerHTML = html;
+        row.appendChild(group);
       });
-    })
-    .catch(err => console.error("Failed to load polling data:", err));
+    });
   </script>
     
 </body>
