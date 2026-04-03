@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Polling Tracker</title>
+  <title>Vote Intention Tracker</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -18,23 +18,26 @@
   </div>
 
   <script>
-    const parties = [
-      { key: 'RFM', color: '#7B2FBE' },
-      { key: 'LAB', color: '#E4003B' },
-      { key: 'CON', color: '#0087DC' },
-      { key: 'GRN', color: '#00B140' },
-      { key: 'LDM', color: '#FAA61A' },
-      { key: 'SNP', color: '#FDF38E' }
-    ];
-
-    fetch('polling-history.json')
+    fetch('data.json')
       .then(r => r.json())
       .then(data => {
-        const labels = data.map(d => d.date);
-
+        const parties = [
+          { key: 'RFM', color: '#7B2FBE' },
+          { key: 'LAB', color: '#E4003B' },
+          { key: 'CON', color: '#0087DC' },
+          { key: 'GRN', color: '#00B140' },
+          { key: 'LDM', color: '#FAA61A' },
+          { key: 'SNP', color: '#FDF38E' }
+        ];
+    
+        const labels = data.map(d => `${d.pollster} (${d.date})`);
+    
         const datasets = parties.map(party => ({
           label: party.key,
-          data: data.map(d => d[party.key] ?? null),
+          data: data.map(d => {
+            const found = d.parties.find(p => p.code === party.key);
+            return found ? found.pct : null;
+          }),
           borderColor: party.color,
           backgroundColor: party.color,
           borderWidth: 2.5,
@@ -43,7 +46,7 @@
           tension: 0.3,
           spanGaps: true
         }));
-
+    
         new Chart(document.getElementById('pollChart'), {
           type: 'line',
           data: { labels, datasets },
