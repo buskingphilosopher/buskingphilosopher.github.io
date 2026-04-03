@@ -72,7 +72,8 @@
     fetch('data.json')
       .then(response => response.json())
       .then(data => {
-        const recent = data.slice(-5);
+        const ticker = document.getElementById('ticker-text');
+    
         const items = data.map(poll => {
           const parties = poll.parties.map(party => {
             const arrow = party.direction === 'up' ? '▲' : party.direction === 'down' ? '▼' : '–';
@@ -81,7 +82,15 @@
           }).join('  ');
           return `${poll.pollster} (${poll.date}): ${parties}`;
         }).join('   |   ');
-        document.getElementById('ticker-text').textContent = items;
+    
+        // Set content first, THEN start animation
+        ticker.textContent = items;
+    
+        // Force a reflow so the browser registers the content width before animating
+        void ticker.offsetWidth;
+    
+        // Now apply the animation
+        ticker.style.animation = 'ticker-scroll 45s linear infinite';
       })
       .catch(err => console.error('Failed to load data.json:', err));
   </script>
