@@ -92,5 +92,33 @@
         });
       });
   </script>
+  
+  <script>
+    fetch('data.json')
+      .then(response => response.json())
+      .then(data => {
+        const ticker = document.getElementById('ticker-text');
+    
+        const items = data.map(poll => {
+          const parties = poll.parties.map(party => {
+            const arrow = party.direction === 'up' ? '▲' : party.direction === 'down' ? '▼' : '–';
+            const change = party.movement > 0 ? arrow + party.movement : arrow;
+            return `${party.code} ${party.pct}% ${change}`;
+          }).join('  ');
+          return `${poll.pollster} (${poll.date}): ${parties}`;
+        }).join('   |   ');
+    
+        // Set content first, THEN start animation
+        ticker.textContent = items;
+    
+        // Force a reflow so the browser registers the content width before animating
+        void ticker.offsetWidth;
+    
+        // Now apply the animation
+        ticker.style.animation = 'ticker-scroll 45s linear infinite';
+      })
+      .catch(err => console.error('Failed to load data.json:', err));
+  </script>
+  
 </body>
 </html>
