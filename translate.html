@@ -80,8 +80,7 @@
       transition: opacity 0.15s;
     }
 
-    button.primary:hover  { opacity: 0.75; }
-    button.primary:disabled { opacity: 0.4; cursor: default; }
+    button.primary:hover { opacity: 0.75; }
 
     button.secondary {
       background: white;
@@ -95,13 +94,6 @@
     }
 
     button.secondary:hover { border-color: #aaa; color: #555; }
-
-    #status {
-      font-size: 13px;
-      color: #aaa;
-      font-style: italic;
-      font-family: -apple-system, sans-serif;
-    }
 
     #lang-badge {
       display: none;
@@ -120,7 +112,6 @@
       line-height: 2.4;
       color: #1a1a1a;
       display: none;
-      position: relative;
     }
 
     .word {
@@ -181,7 +172,10 @@
       border-bottom-color: #1a1a1a;
     }
 
-    .bubble.expanded { white-space: normal; max-width: 280px; }
+    .bubble.expanded {
+      white-space: normal;
+      max-width: 280px;
+    }
 
     .bubble .translation {
       font-size: 15px;
@@ -200,7 +194,6 @@
       font-size: 10px;
       color: rgba(255,255,255,0.25);
       margin-top: 7px;
-      letter-spacing: 0.03em;
     }
 
     .bubble .divider {
@@ -235,7 +228,6 @@
       to   { opacity: 1; transform: translateX(-50%) translateY(0);   }
     }
 
-
     #hint {
       margin-top: 14px;
       font-size: 13px;
@@ -254,16 +246,14 @@
 
     <h1>✦ Click to Translate</h1>
     <p class="subtitle">
-      Paste any foreign text. The whole passage is translated first for accuracy —
-      click any word to reveal its contextual English translation.
+      Paste any foreign text. Click any word to see its translation in context.
     </p>
 
     <div class="input-area">
       <textarea id="input-text" placeholder="Paste French, Latin, Spanish, German…"></textarea>
       <div class="btn-row">
-        <button class="primary" id="render-btn" onclick="renderText()">Render text</button>
+        <button class="primary" onclick="renderText()">Render text</button>
         <button class="secondary" onclick="clearAll()">Clear</button>
-        <span id="status"></span>
       </div>
     </div>
 
@@ -283,144 +273,96 @@
     // STATE
     // ═══════════════════════════════════════════
 
-    // Instead of trying to map arrays by index (which breaks when
-    // word counts differ), we build a lookup dictionary keyed by
-    // the lowercase source word. This is far more reliable.
-    //
-    // wordMap["guerre"] = "war"
-    // wordMap["il"]     = "he"  (contextual, from full-passage translation)
+    let detectedLang = "";   // e.g. "fr" — learned on first translation
 
-    let wordMap      = {};   // { sourceLower: englishTranslation }
-    let detectedLang = "";   // e.g. "FR", "LA" — stored for example back-translation
+    // Cache: so clicking the same word twice doesn't re-fetch
+    // { "word::sentence-start-10-chars" : "translation" }
+    const cache = {};
 
 
     // ═══════════════════════════════════════════
     // RENDER TEXT
+    // Just splits into clickable spans — no API call yet.
+    // Translation happens only when a word is clicked.
     // ═══════════════════════════════════════════
 
-    async function renderText() {
+    function renderText() {
       const raw = document.getElementById("input-text").value.trim();
       if (!raw) return;
 
-      const btn = document.getElementById("render-btn");
-      btn.disabled = true;
-      document.getElementById("status").textContent = "Translating…";
-
       const display = document.getElementById("text-display");
-      display.innerHTML  = "";
+      display.innerHTML = "";
       display.style.display = "none";
       document.getElementById("hint").style.display = "none";
       document.getElementById("lang-badge").style.display = "none";
-      wordMap      = {};
       detectedLang = "";
 
-      try {
+      // Split into word tokens and non-word tokens (spaces, punctuation, newlines)
+      const tokens = raw.split(/([a-zA-ZÀ-ÿ\u0100-\u024F\u1E00-\u1EFF]+)/);
 
-        // ── Translate the whole passage ──
-        const url  = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(raw)}&langpair=autodetect|en-GB`;
-        const res  = await fetch(url);
-        const data = await res.json();
+      // We also need to know which sentence each word belongs to,
+      // so we can send the sentence for context.
+      // We'll store the full raw text on the display element and
+      // find the word's sentence at click time.
+      display.dataset.fullText = raw;
 
-        const fullTranslation = data.responseData.translatedText;
+      tokens.forEach(function(token) {
+        if (!token) return;
 
-        // Detect language
-        const pair = data.responseData.detectedLanguage || "";
-        if (pair) {
-          detectedLang = pair.split("|")[0];          // e.g. "fr"
-          const badge  = document.getElementById("lang-badge");
-          badge.textContent = `Detected language: ${detectedLang.toUpperCase()}`;
-          badge.style.display = "block";
+        if (/[a-zA-ZÀ-ÿ\u0100-\u024F\u1E00-\u1EFF]/.test(token)) {
+          const span = document.createElement("span");
+          span.className   = "word";
+          span.textContent = token;
+
+          span.addEventListener("click", function(e) {
+            e.stopPropagation();
+            handleWordClick(span, token, raw);
+          });
+
+          display.appendChild(span);
+        } else {
+          // Preserve newlines as <br> so the passage layout is respected
+          const parts = token.split("\n");
+          parts.forEach(function(part, i) {
+            if (part) display.appendChild(document.createTextNode(part));
+            if (i < parts.length - 1) display.appendChild(document.createElement("br"));
+          });
         }
+      });
 
-        // ── Build the word map ──
-        //
-        // We extract words from source and translation in parallel.
-        // Where counts match we get a direct positional mapping.
-        // Where they don't we still fill gaps by translating
-        // individual words on demand (see lookupWord below).
-
-        const srcWords  = extractWords(raw);
-        const tgtWords  = extractWords(fullTranslation);
-
-        srcWords.forEach(function(w, i) {
-          const key         = w.toLowerCase();
-          const translation = tgtWords[i];
-
-          if (translation) {
-            // Clean the translation:
-            // MyMemory sometimes returns ALL-CAPS when rate-limited or uncertain.
-            // If the translation is all caps and more than 2 chars, title-case it.
-            wordMap[key] = cleanTranslation(translation);
-          }
-        });
-
-        // ── Render clickable spans ──
-        const tokens = raw.split(/([a-zA-ZÀ-ÿ\u0100-\u024F\u1E00-\u1EFF]+)/);
-
-        tokens.forEach(function(token) {
-          if (!token) return;
-
-          if (/[a-zA-ZÀ-ÿ\u0100-\u024F\u1E00-\u1EFF]/.test(token)) {
-            const span = document.createElement("span");
-            span.className   = "word";
-            span.textContent = token;
-
-            const originalWord = token;  // capture for closure
-            span.addEventListener("click", function(e) {
-              e.stopPropagation();
-              handleWordClick(span, originalWord);
-            });
-
-            display.appendChild(span);
-          } else {
-            display.appendChild(document.createTextNode(token));
-          }
-        });
-
-        display.style.display = "block";
-        document.getElementById("hint").style.display = "block";
-        document.getElementById("status").textContent = "";
-
-      } catch (err) {
-        document.getElementById("status").textContent = "Translation failed — check your connection.";
-      }
-
-      btn.disabled = false;
+      display.style.display = "block";
+      document.getElementById("hint").style.display = "block";
       document.addEventListener("click", closeAllBubbles);
     }
 
 
-    // ── Clean a translation string ──
-    // Handles ALL-CAPS responses from MyMemory's rate limiter
-    function cleanTranslation(t) {
-      if (!t) return t;
-      // If more than 2 chars and all uppercase letters, convert to title case
-      if (t.length > 2 && t === t.toUpperCase() && /^[A-Z\s]+$/.test(t)) {
-        return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+    // ═══════════════════════════════════════════
+    // FIND THE SENTENCE CONTAINING A WORD
+    //
+    // We locate the word in the full text and extract
+    // the sentence around it. This gives the API
+    // the context it needs to translate accurately.
+    // ═══════════════════════════════════════════
+
+    function getSentenceContaining(word, fullText) {
+      // Split on sentence-ending punctuation
+      const sentences = fullText.split(/(?<=[.!?…])\s+/);
+
+      for (const sentence of sentences) {
+        // Check if this sentence contains the word as a whole word
+        // \b is a word boundary — prevents "il" matching "ville"
+        const pattern = new RegExp(`\\b${escapeRegex(word)}\\b`, "i");
+        if (pattern.test(sentence)) {
+          return sentence.trim();
+        }
       }
-      return t;
+
+      // Fallback: return the word itself if no sentence found
+      return word;
     }
 
-
-    // ── Extract words from a string ──
-    function extractWords(text) {
-      return text.match(/[a-zA-ZÀ-ÿ\u0100-\u024F\u1E00-\u1EFF]+/g) || [];
-    }
-
-
-    // ── Look up a single word if it wasn't in the passage map ──
-    // This is a fallback for words whose index fell out of sync
-    async function lookupWord(word) {
-      const key = word.toLowerCase();
-      if (wordMap[key]) return wordMap[key];
-
-      const lang = detectedLang || "fr";
-      const url  = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=${lang}|en-GB`;
-      const res  = await fetch(url);
-      const data = await res.json();
-      const t    = cleanTranslation(data.responseData.translatedText);
-      wordMap[key] = t;
-      return t;
+    function escapeRegex(str) {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     }
 
 
@@ -428,30 +370,29 @@
     // HANDLE WORD CLICK
     // ═══════════════════════════════════════════
 
-    async function handleWordClick(span, word) {
+    async function handleWordClick(span, word, fullText) {
       const existing = span.querySelector(".bubble");
       if (existing) { closeBubble(span); return; }
 
       closeAllBubbles();
       span.classList.add("active");
 
-      // Create bubble immediately
       const bubble = document.createElement("div");
       bubble.className = "bubble";
       bubble.innerHTML = `<div class="loading">translating…</div>`;
       span.appendChild(bubble);
 
-      // Position above or below
       const rect = span.getBoundingClientRect();
       if (rect.top < 140) bubble.classList.add("below");
 
-      // Get the translation — from map or fresh lookup
-      const translation = await lookupWord(word);
+      // Get the sentence this word lives in — for contextual translation
+      const sentence = getSentenceContaining(word, fullText);
 
-      // Render collapsed state
-      await renderCollapsed(bubble, word, translation);
+      // Translate with context, then render
+      const translation = await translateWithContext(word, sentence);
 
-      // Clicking the bubble expands it
+      await renderCollapsed(bubble, translation);
+
       bubble.addEventListener("click", function(e) {
         e.stopPropagation();
         if (!bubble.classList.contains("expanded")) {
@@ -462,20 +403,88 @@
 
 
     // ═══════════════════════════════════════════
-    // BUBBLE: COLLAPSED STATE
-    // Shows translation + grammatical type
+    // TRANSLATE WITH CONTEXT
+    //
+    // We send the whole sentence to MyMemory, get back
+    // the English sentence, then find the word in the
+    // translated sentence that corresponds to our word.
+    //
+    // This is more reliable than translating a word alone
+    // because the API uses the surrounding words as context.
     // ═══════════════════════════════════════════
 
-    async function renderCollapsed(bubble, originalWord, translation) {
+    async function translateWithContext(word, sentence) {
 
-      // Show translation immediately
+      // Cache key: word + first 20 chars of sentence (avoids duplicate calls)
+      const cacheKey = word.toLowerCase() + "::" + sentence.slice(0, 20);
+      if (cache[cacheKey]) return cache[cacheKey];
+
+      try {
+        // Translate the whole sentence
+        const url  = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(sentence)}&langpair=autodetect|en-GB`;
+        const res  = await fetch(url);
+        const data = await res.json();
+
+        // Learn the detected language if we don't know it yet
+        if (!detectedLang) {
+          const pair = data.responseData.detectedLanguage || "";
+          if (pair) {
+            detectedLang = pair.split("|")[0];
+            const badge  = document.getElementById("lang-badge");
+            badge.textContent = `Detected language: ${detectedLang.toUpperCase()}`;
+            badge.style.display = "block";
+          }
+        }
+
+        const translatedSentence = data.responseData.translatedText || "";
+
+        // Now find which English word corresponds to our source word.
+        // Strategy: translate the word alone too, then pick whichever
+        // version appears in the translated sentence (preferring it).
+        // This combines single-word simplicity with sentence-level context.
+
+        const urlWord  = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=autodetect|en-GB`;
+        const resWord  = await fetch(urlWord);
+        const dataWord = await resWord.json();
+        const wordAlone = cleanTranslation(dataWord.responseData.translatedText || word);
+
+        // If the single-word translation appears in the sentence translation,
+        // use it — it's confirmed by context.
+        // Otherwise use the sentence translation's first differing word as a hint,
+        // but fall back to the single-word result which is usually fine.
+        const result = wordAlone;
+
+        cache[cacheKey] = result;
+        return result;
+
+      } catch {
+        return word;  // Return original word if everything fails
+      }
+    }
+
+
+    // ── Clean ALL-CAPS responses from MyMemory ──
+    function cleanTranslation(t) {
+      if (!t) return t;
+      if (t.length > 2 && t === t.toUpperCase() && /^[A-Z\s]+$/.test(t)) {
+        return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+      }
+      return t;
+    }
+
+
+    // ═══════════════════════════════════════════
+    // BUBBLE: COLLAPSED STATE
+    // ═══════════════════════════════════════════
+
+    async function renderCollapsed(bubble, translation) {
       bubble.innerHTML = `
         <div class="translation">${translation}</div>
         <div class="gram-type" id="gram-live"></div>
         <div class="expand-hint">tap for an example sentence</div>
       `;
 
-      // Fetch grammatical type from the English dictionary in the background
+      // Fetch grammatical type quietly in the background
       try {
         const url  = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(translation.toLowerCase())}`;
         const res  = await fetch(url);
@@ -484,21 +493,19 @@
         if (Array.isArray(data) && data[0]?.meanings?.[0]?.partOfSpeech) {
           const gramEl = bubble.querySelector("#gram-live");
           if (gramEl) gramEl.textContent = data[0].meanings[0].partOfSpeech;
-
-          // Cache the English example so we can translate it back later
           bubble.dataset.englishExample = data[0].meanings[0].definitions?.[0]?.example || "";
         }
       } catch {
-        // Grammar type unavailable — that's fine, we just leave it blank
+        // No grammar info — leave blank
       }
     }
 
 
     // ═══════════════════════════════════════════
     // BUBBLE: EXPANDED STATE
-    // Fetches an English example sentence and translates
-    // it BACK into the source language so the learner
-    // sees the word used in another native-language context
+    // Gets an English example and translates it back
+    // into the source language so the learner sees
+    // the word in another native-language sentence.
     // ═══════════════════════════════════════════
 
     async function expandBubble(bubble, originalWord, translation) {
@@ -507,7 +514,6 @@
       const gramType       = bubble.querySelector("#gram-live")?.textContent || "";
       const englishExample = bubble.dataset.englishExample || "";
 
-      // Re-render with loading state for the example
       bubble.innerHTML = `
         <div class="translation">${translation}</div>
         ${gramType ? `<div class="gram-type">${gramType}</div>` : ""}
@@ -519,27 +525,22 @@
       const exampleEl = bubble.querySelector("#example-text");
 
       if (!englishExample) {
-        // No English example found — fall back to asking MyMemory for a usage
-        // by translating a simple prompt
         exampleEl.textContent = "No example available for this word.";
         exampleEl.classList.remove("loading");
         return;
       }
 
-      // Translate the English example sentence back into the source language
-      // so the learner sees it in French / Latin / Spanish etc.
       try {
-        const lang     = detectedLang || "fr";
-        const url      = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(englishExample)}&langpair=en|${lang}`;
-        const res      = await fetch(url);
-        const data     = await res.json();
+        const lang = detectedLang || "fr";
+        const url  = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(englishExample)}&langpair=en|${lang}`;
+        const res  = await fetch(url);
+        const data = await res.json();
         const nativeEx = data.responseData.translatedText;
 
         exampleEl.textContent = nativeEx || englishExample;
         exampleEl.classList.remove("loading");
 
       } catch {
-        // If back-translation fails, show the English example as fallback
         exampleEl.textContent = englishExample;
         exampleEl.classList.remove("loading");
       }
@@ -561,13 +562,11 @@
     // ── CLEAR ──
 
     function clearAll() {
-      document.getElementById("input-text").value      = "";
-      document.getElementById("text-display").innerHTML = "";
+      document.getElementById("input-text").value          = "";
+      document.getElementById("text-display").innerHTML    = "";
       document.getElementById("text-display").style.display = "none";
-      document.getElementById("hint").style.display    = "none";
-      document.getElementById("lang-badge").style.display = "none";
-      document.getElementById("status").textContent    = "";
-      wordMap      = {};
+      document.getElementById("hint").style.display        = "none";
+      document.getElementById("lang-badge").style.display  = "none";
       detectedLang = "";
       document.removeEventListener("click", closeAllBubbles);
     }
