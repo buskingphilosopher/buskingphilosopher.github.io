@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShowMePoetry</title>
+
+  <style>
+
+    body {
+      font-family: Georgia, serif;
+      background: #f5f3ef;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+      margin: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+    }
+
+    #carousel {
+      width: 100%;
+      height: 280px;
+      position: relative;
+      overflow: hidden;
+      background: #1a1a1a;
+    }
+
+    .painting {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;        /* fills the frame without distorting */
+      object-position: center top;
+      opacity: 0;               /* invisible by default */
+      transition: opacity 1.2s ease;  /* fade transition */
+    }
+
+    .painting.active {
+      opacity: 1;
+    }
+
+    #carousel-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.55));
+      color: white;
+      font-size: 12px;
+      padding: 24px 14px 10px;
+      font-style: italic;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+ 
+    #carousel-caption.active {
+      opacity: 1;
+    }
+
+    #carousel-dots {
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      display: flex;
+      gap: 5px;
+    }
+ 
+    .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      transition: background 0.3s;
+    }
+ 
+    .dot.active {
+      background: white;
+    }
+ 
+    .search-section {
+      padding: 28px 20px 0;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: normal;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+
+    p.subtitle {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 24px;
+    }
+
+    /* Search input */
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 16px;
+      font-family: Georgia, serif;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: white;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #888;
+    }
+
+    /* ── MOOD CHIPS ── */
+    #chips {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      margin-top: 14px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: none;
+    }
+
+    .chip {
+      padding: 5px 13px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-family: Georgia, serif;
+      border: 1px solid #ddd;
+      background: white;
+      color: #555;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip.active {
+      background: #1a1a1a;
+      color: white;
+      border-color: #1a1a1a;
+    }
+
+    .chip:hover:not(.active) {
+      border-color: #aaa;
+      color: #222;
+    }
+
+    /* Results */
+    #results {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .card:hover {
+      border-color: #aaa;
+    }
+
+    .card .quote {
+      font-size: 15px;
+      font-style: italic;
+      color: #222;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .card .poet {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .card .tags {
+      margin-top: 8px;
+      display: none;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .tag {
+      font-size: 11px;
+      color: #aaa;
+      background: #f5f3ef;
+      border-radius: 4px;
+      padding: 2px 7px;
+    }
+
+    .copied-msg {
+      text-align: center;
+      font-size: 13px;
+      color: #555;
+      margin-top: 12px;
+      min-height: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <div id="carousel">
+      <div id="carousel-caption"></div>
+      <div id="carousel-dots"></div>
+    </div>
+
+    <div class="search-section">
+
+      <h1>✦ ShowMePoetry ✦</h1>
+      <p class="subtitle">Type in an emotion to see how poets have worded it.</p>
+  
+      <input
+        type="text"
+        id="search"
+        placeholder="Type a feeling — happy, anxious, grateful…"
+      />
+  
+      <div id="chips"></div>
+      <div id="results"></div>
+      <p class="copied-msg" id="copied-msg"></p>
+  
+    </div>
+    
+  </div>
+  
+  <script>
+
+    const paintings = [
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/2/2c/Edvard_Munch_-_Melancholy_%281894-96%29.jpg",
+        title: "Melancholy",
+        artist: "Edvard Munch, 1894-6"
+      },
+      {
+        url: "https://upload.wikimedia.org/wikipedia/commons/0/0a/Matisse-The-Dessert-Harmony-in-Red-Henri-1908-fast.jpg",
+        title: "The Dessert: Harmony in Red (The Red Room)",
+        artist: "Henri Matisse, 1908"
+      },
+    ];
+    
+    const carousel    = document.getElementById("carousel");
+    const captionEl   = document.getElementById("carousel-caption");
+    const dotsEl      = document.getElementById("carousel-dots");
+    let currentSlide  = 0;
+ 
+    // Create an <img> element for each painting and add it to the carousel
+    paintings.forEach(function(painting, index) {
+      const img = document.createElement("img");
+      img.className = "painting";
+      img.src = painting.url;
+      img.alt = painting.title;
+ 
+      // Insert image BEFORE the caption and dots so it sits behind them
+      carousel.insertBefore(img, captionEl);
+ 
+      // Create a dot for this slide
+      const dot = document.createElement("div");
+      dot.className = "dot";
+      dotsEl.appendChild(dot);
+    });
+ 
+    // This function switches to a given slide number
+    function goToSlide(index) {
+      // Get all painting images and dots
+      const imgs = carousel.querySelectorAll(".painting");
+      const dots = dotsEl.querySelectorAll(".dot");
+ 
+      // Remove "active" from all of them
+      imgs.forEach(img => img.classList.remove("active"));
+      dots.forEach(dot => dot.classList.remove("active"));
+      captionEl.classList.remove("active");
+ 
+      // Add "active" to the current slide
+      imgs[index].classList.add("active");
+      dots[index].classList.add("active");
+ 
+      // Update the caption text
+      captionEl.textContent = `${paintings[index].title} — ${paintings[index].artist}`;
+ 
+      // A tiny delay before fading the caption in looks nicer
+      setTimeout(() => captionEl.classList.add("active"), 100);
+    }
+ 
+    // Show the first slide immediately
+    goToSlide(0);
+ 
+    // Then advance every 7 seconds automatically
+    // setInterval runs a function repeatedly on a timer
+    setInterval(function() {
+      // Move to next slide; wrap back to 0 when we reach the end
+      // The % symbol is "modulo" — it gives the remainder after division
+      // e.g. (5 + 1) % 6 = 0, so it loops back to the start
+      currentSlide = (currentSlide + 1) % paintings.length;
+      goToSlide(currentSlide);
+    }, 7000);
+
+    const synonyms = {
+      "angry":     "anger",
+      "anger":     "anger", 
+      "furious":   "fury",
+      "mad":       "anger",
+      "upset":     "frustrated",
+      "sadness":   "sad",
+      "unhappy":   "sad",
+      "depressed": "sad",
+      "lonesome":  "lonely",
+      "alone":     "lonely",
+      "happiness": "happy",
+      "joyful":    "joy",
+      "hopeless":  "lost",
+      "worried":   "anxious",
+      "nervous":   "anxious",
+      "thankful":  "grateful",
+      "devoted":   "devotion",
+      "fed up":    "exhausted",
+      "tired":     "exhausted",
+      "unfair":    "wronged",
+      "unfairness":"wronged",
+    };
+
+    // Each poem now has "moods" — an ARRAY (list) of tags, using square brackets
+    const poems = [
+      {
+        moods: ["happy", "joy", "light", "love"],
+        quote: "I am so happy, so happy and careless and gay!",
+        poet: "W.H. Davies"
+      },
+      {
+        moods: ["happy", "love", "nature", "beauty"],
+        quote: "O, my luve is like a red, red rose, that's newly sprung in June.",
+        poet: "Robert Burns"
+      },
+      {
+        moods: ["happy", "joy", "fleeting"],
+        quote: "Joy, whose hand is ever at his lips / Bidding adieu.",
+        poet: "John Keats"
+      },
+      {
+        moods: ["beauty", "mortal"],
+        quote: "She dwells with Beauty — Beauty that must die.",
+        poet: "John Keats"
+      },
+      {
+        moods: ["sad", "night", "alone", "quiet"],
+        quote: "I have been one acquainted with the night.",
+        poet: "Robert Frost"
+      },
+      {
+        moods: ["sad", "pain", "mind", "numb"],
+        quote: "After great pain, a formal feeling comes.",
+        poet: "Emily Dickinson"
+      },
+      {
+        moods: ["sad", "hope", "nature", "quiet"],
+        quote: "There is another sky, ever serene and fair.",
+        poet: "Emily Dickinson"
+      },
+      {
+        moods: ["lost", "choice", "path", "mind"],
+        quote: "Two roads diverged in a wood, and I took the one less travelled by.",
+        poet: "Robert Frost"
+      },
+      {
+        moods: ["lost", "searching", "self", "mind"],
+        quote: "I am out with lanterns, looking for myself.",
+        poet: "Emily Dickinson"
+      },
+      {
+        moods: ["lost", "mind", "searching", "journey"],
+        quote: "We shall not cease from exploration, and the end of all our exploring will be to arrive where we started.",
+        poet: "T.S. Eliot"
+      },
+      {
+        moods: ["love", "devotion", "romantic"],
+        quote: "How do I love thee? Let me count the ways.",
+        poet: "Elizabeth Barrett Browning"
+      },
+      {
+        moods: ["love", "soul", "connection", "deep"],
+        quote: "Whatever our souls are made of, his and mine are the same.",
+        poet: "Emily Brontë"
+      },
+      {
+        moods: ["love", "tender", "heart", "connection"],
+        quote: "I carry your heart with me. I carry it in my heart.",
+        poet: "E.E. Cummings"
+      },
+      {
+        moods: ["lonely", "self", "acceptance", "mind"],
+        quote: "I exist as I am — that is enough.",
+        poet: "Walt Whitman"
+      },
+      {
+        moods: ["grateful", "wonder", "joy", "light"],
+        quote: "I thank you God for this most amazing day.",
+        poet: "E.E. Cummings"
+      },
+      {
+        moods: ["grateful", "beauty", "truth", "wonder"],
+        quote: "Beauty is truth, truth beauty — that is all ye know on earth.",
+        poet: "John Keats"
+      },
+      {
+        moods: ["anxious", "mind", "doubt", "searching"],
+        quote: "Do I dare disturb the universe?",
+        poet: "T.S. Eliot"
+      },
+      {
+        moods: ["anxious", "brave", "hopeful", "strength"],
+        quote: "I am not afraid of storms, for I am learning how to sail my ship.",
+        poet: "Louisa May Alcott"
+      },
+      {
+        moods: ["frustrated", "self", "mind", "complex"],
+        quote: "I am large, I contain multitudes.",
+        poet: "Walt Whitman"
+      },
+      {
+        moods: ["frustrated", "fury", "chaos", "mind", "lost"],
+        quote: "Turning and turning in the widening gyre, the falcon cannot hear the falconer.",
+        poet: "W.B. Yeats"
+      },
+      {
+        moods: ["hopeful", "strength", "soul", "resilience"],
+        quote: "Hope is the thing with feathers / That perches in the soul, / And sings the tune without the words, / And never stops at all.",
+        poet: "Emily Dickinson, <i>Hope is the thing with feathers (254)</i> (c. 1861)"
+      },
+      {
+        moods: ["hopeful", "resilience", "strength", "light"],
+        quote: "In the middle of winter I found there was, within me, an invincible summer.",
+        poet: "Albert Camus, <i>Return to Tipasa</i> (1954)"
+      },
+      {
+        moods: ["fury", "vicious", "vindictive"],
+        quote: "Vice Is like a fury to the vicious mind, / And turns delight itself to punishment.",
+        poet: "Ben Jonson, <i>Cynthia's Revels</i> (c. 1600)"
+      },
+      {
+        moods: ["delight", "melancholy"],
+        quote: "Ay, in the very temple of Delight / Veil'd Melancholy has her sovran shrine, / Though seen of none save him whose strenuous tongue / Can burst Joy's grape against his palate fine.",
+        poet: "John Keats, <i>Ode on Melancholy</i> (1819)"
+      },
+      {
+        moods: ["overworked", "exhausted", "wronged"],
+        quote: "Why should I let the toad work / Squat on my life? / Can't I use my wit as a pitchfork / And drive the brute off?",
+        poet: "Philip Larkin, <i>Toads</i> (1954)"
+      }
+    ];
+
+
+    // ── BUILD MOOD CHIPS ──
+
+    // Collect every unique mood across all poems using a Set
+    // A Set is like an array but it never stores the same value twice
+    const allMoods = new Set();
+    poems.forEach(function(poem) {
+      poem.moods.forEach(function(mood) {
+        allMoods.add(mood);
+      });
+    });
+
+    // Sort alphabetically and build a button for each
+    const sortedMoods = [...allMoods].sort();
+    const chipsDiv = document.getElementById("chips");
+    let activeChip = null;
+
+    sortedMoods.forEach(function(mood) {
+      const chip = document.createElement("button");
+      chip.className = "chip";
+      chip.textContent = mood;
+
+      chip.addEventListener("click", function() {
+        // Clicking an active chip again deselects it
+        if (activeChip === mood) {
+          activeChip = null;
+          chip.classList.remove("active");
+          clearResults();
+          searchBox.value = "";
+          return;
+        }
+        // Deselect all chips, then activate this one
+        document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+        activeChip = mood;
+        chip.classList.add("active");
+        searchBox.value = mood;
+        runSearch(mood);
+      });
+
+      chipsDiv.appendChild(chip);
+    });
+
+
+    // ── SEARCH ──
+
+    const searchBox = document.getElementById("search");
+    const resultsDiv = document.getElementById("results");
+    const copiedMsg  = document.getElementById("copied-msg");
+
+    searchBox.addEventListener("input", function() {
+      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      activeChip = null;
+      const query = searchBox.value.toLowerCase().trim();
+      if (query.length < 2) { clearResults(); return; }
+      runSearch(query);
+    });
+
+    function runSearch(query) {
+      clearResults();
+    
+      // Translate via synonym map, or keep original if not found
+      const translated = synonyms[query] || query;
+    
+      const matches = poems.filter(function(poem) {
+        // Check both directions: does mood contain query, or query contain mood?
+        const moodMatch = poem.moods.some(m => 
+          m.includes(translated) || translated.includes(m)
+        );
+        const quoteMatch = poem.quote.toLowerCase().includes(translated);
+        return moodMatch || quoteMatch;
+      });
+
+      if (matches.length === 0) {
+        resultsDiv.innerHTML = "<p style='color:#aaa; font-size:14px;'>No lines found — try another feeling.</p>";
+        return;
+      }
+
+      matches.forEach(function(poem) {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const tagsHTML = poem.moods
+          .map(m => `<span class="tag">${m}</span>`)
+          .join("");
+
+        card.innerHTML = `
+          <div class="quote">"${poem.quote}"</div>
+          <div class="poet">— ${poem.poet}</div>
+          <div class="tags">${tagsHTML}</div>
+        `;
+
+        card.addEventListener("click", function() {
+          navigator.clipboard.writeText(`"${poem.quote}" — ${poem.poet}`);
+          copiedMsg.textContent = "Copied! Paste it anywhere ✓";
+        });
+
+        resultsDiv.appendChild(card);
+      });
+    }
+
+    function clearResults() {
+      resultsDiv.innerHTML = "";
+      copiedMsg.textContent = "";
+    }
+
+  </script>
+
+</body>
+</html>
