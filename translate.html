@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Translate</title>
+
+  <style>
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Georgia, serif;
+      background: #f5f3ef;
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 680px;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: normal;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+
+    p.subtitle {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 28px;
+    }
+
+
+    /* ─────────────────────────────────────
+       INPUT AREA
+    ───────────────────────────────────── */
+
+    .input-area {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    textarea {
+      width: 100%;
+      font-family: Georgia, serif;
+      font-size: 16px;
+      padding: 14px 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: white;
+      resize: vertical;
+      outline: none;
+      line-height: 1.6;
+      color: #1a1a1a;
+      min-height: 130px;
+    }
+
+    textarea:focus { border-color: #888; }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    button.primary {
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      font-size: 14px;
+      font-family: Georgia, serif;
+      padding: 11px 22px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    button.primary:hover { opacity: 0.75; }
+
+    button.secondary {
+      background: white;
+      color: #888;
+      border: 1px solid #ddd;
+      border-radius: 7px;
+      font-size: 14px;
+      font-family: Georgia, serif;
+      padding: 11px 18px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    button.secondary:hover { border-color: #aaa; color: #555; }
+
+
+    /* ─────────────────────────────────────
+       RENDERED TEXT AREA
+       This is where the clickable words appear
+    ───────────────────────────────────── */
+
+    #text-display {
+      background: white;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      padding: 24px;
+      font-size: 18px;
+      line-height: 2.1;        /* generous line height gives room for pop-ups */
+      color: #1a1a1a;
+      display: none;           /* hidden until text is submitted */
+      position: relative;
+    }
+
+    /* Each individual word is wrapped in a <span class="word"> */
+    .word {
+      cursor: pointer;
+      border-radius: 3px;
+      padding: 1px 0;
+      transition: background 0.12s;
+      position: relative;      /* needed so the pop-up positions relative to it */
+      display: inline-block;
+    }
+
+    .word:hover {
+      background: #f0ede8;
+    }
+
+    /* A word that has been clicked and is "active" */
+    .word.active {
+      background: #1a1a1a;
+      color: white;
+    }
+
+
+    /* ─────────────────────────────────────
+       POP-UP BUBBLE
+    ───────────────────────────────────── */
+
+    .bubble {
+      position: absolute;
+      bottom: calc(100% + 8px);  /* sits above the word */
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a1a;
+      color: white;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-family: -apple-system, sans-serif;
+      white-space: nowrap;
+      z-index: 10;
+      pointer-events: none;      /* clicks pass through the bubble */
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      animation: pop 0.15s ease;
+    }
+
+    /* Small downward-pointing triangle at the bottom of the bubble */
+    .bubble::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #1a1a1a;
+    }
+
+    .bubble .translation {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 3px;
+    }
+
+    .bubble .gram-type {
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Loading state inside the bubble */
+    .bubble .loading {
+      color: rgba(255,255,255,0.5);
+      font-style: italic;
+    }
+
+    /* The small pop animation when bubble appears */
+    @keyframes pop {
+      from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* A bubble that appears below the word (for words near the top) */
+    .bubble.below {
+      bottom: auto;
+      top: calc(100% + 8px);
+    }
+
+    .bubble.below::after {
+      top: auto;
+      bottom: 100%;
+      border-top-color: transparent;
+      border-bottom-color: #1a1a1a;
+    }
+
+
+    /* ─────────────────────────────────────
+       LANGUAGE BADGE
+    ───────────────────────────────────── */
+
+    #lang-badge {
+      display: none;
+      font-size: 12px;
+      color: #aaa;
+      font-family: -apple-system, sans-serif;
+      margin-bottom: 14px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ─────────────────────────────────────
+       HINT BAR at the bottom
+    ───────────────────────────────────── */
+
+    #hint {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #bbb;
+      font-style: italic;
+      text-align: center;
+      display: none;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <h1>✦ Click to Translate</h1>
+    <p class="subtitle">Paste any foreign text. Click any word to see its translation.</p>
+
+    <!-- INPUT AREA -->
+    <div class="input-area">
+      <textarea
+        id="input-text"
+        placeholder="Paste French, Latin, Spanish, German… anything. The language is detected automatically."
+      ></textarea>
+
+      <div class="btn-row">
+        <button class="primary" onclick="renderText()">Render text</button>
+        <button class="secondary" onclick="clearAll()">Clear</button>
+      </div>
+    </div>
+
+    <!-- LANGUAGE BADGE: shows detected language after first click -->
+    <div id="lang-badge"></div>
+
+    <!-- THE CLICKABLE TEXT DISPLAY -->
+    <div id="text-display"></div>
+
+    <!-- HINT -->
+    <p id="hint">Click any word for its translation — click again to close</p>
+
+  </div>
+
+
+  <script>
+
+    // ═══════════════════════════════════════════
+    // RENDER TEXT
+    //
+    // Takes the pasted text and wraps every word
+    // in a clickable <span> element.
+    // Punctuation and spaces are kept as plain text
+    // so the passage reads naturally.
+    // ═══════════════════════════════════════════
+
+    function renderText() {
+      const raw = document.getElementById("input-text").value.trim();
+      if (!raw) return;
+
+      const display = document.getElementById("text-display");
+      display.innerHTML = "";
+      display.style.display = "block";
+      document.getElementById("hint").style.display = "block";
+      document.getElementById("lang-badge").style.display = "none";
+
+      // Split the text into tokens: words and non-words (punctuation, spaces)
+      // The regex /([a-zA-ZÀ-ÿ\u0100-\u024F\u1E00-\u1EFF]+)/ captures
+      // letters including accented characters used in French, Latin, etc.
+      // The outer () in split() keeps the separators in the resulting array
+      const tokens = raw.split(/([a-zA-ZÀ-ÿ\u0100-\u024F\u1E00-\u1EFF]+)/);
+
+      tokens.forEach(function(token) {
+        if (!token) return;
+
+        // Check if this token is a word (contains letters)
+        const isWord = /[a-zA-ZÀ-ÿ\u0100-\u024F\u1E00-\u1EFF]/.test(token);
+
+        if (isWord) {
+          // Wrap it in a clickable span
+          const span = document.createElement("span");
+          span.className = "word";
+          span.textContent = token;
+          span.addEventListener("click", function(e) {
+            e.stopPropagation(); // prevent the click reaching the document
+            handleWordClick(span, token);
+          });
+          display.appendChild(span);
+        } else {
+          // Keep punctuation and whitespace as plain text
+          // preserveWhitespace: use a text node so spaces render correctly
+          display.appendChild(document.createTextNode(token));
+        }
+      });
+
+      // Clicking anywhere outside a word closes any open bubble
+      document.addEventListener("click", closeAllBubbles);
+    }
+
+
+    // ═══════════════════════════════════════════
+    // HANDLE A WORD CLICK
+    //
+    // If this word already has an open bubble, close it.
+    // Otherwise, close any other open bubble and open one here.
+    // ═══════════════════════════════════════════
+
+    function handleWordClick(span, word) {
+      const existing = span.querySelector(".bubble");
+
+      if (existing) {
+        // Already open — close it
+        closeBubble(span);
+        return;
+      }
+
+      // Close any other open bubbles first
+      closeAllBubbles();
+
+      // Mark this word as active
+      span.classList.add("active");
+
+      // Create a bubble with a loading state
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.innerHTML = `<div class="loading">looking up…</div>`;
+      span.appendChild(bubble);
+
+      // Fetch the translation, then update the bubble
+      translateWord(word, bubble, span);
+    }
+
+
+    // ═══════════════════════════════════════════
+    // TRANSLATE A WORD
+    //
+    // This is where we talk to the outside world.
+    // fetch() sends an HTTP request to the MyMemory API
+    // and waits for a JSON response.
+    //
+    // We also call the Free Dictionary API for grammatical type.
+    // ═══════════════════════════════════════════
+
+    // We'll store the detected language so we can show it as a badge
+    let detectedLang = "";
+
+    async function translateWord(word, bubble, span) {
+      // "async" means this function can pause and wait (using "await")
+      // without freezing the rest of the page
+
+      try {
+        // ── STEP 1: Translate using MyMemory ──
+        // We ask for auto-detect → English (en-GB)
+        // encodeURIComponent makes the word safe to put in a URL
+        const translateURL = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=autodetect|en-GB`;
+
+        // fetch() sends the request; await pauses until it comes back
+        const translateRes  = await fetch(translateURL);
+
+        // .json() reads the response body as a JavaScript object
+        const translateData = await translateRes.json();
+
+        const translation = translateData.responseData.translatedText;
+
+        // MyMemory tells us the detected language in the response
+        // It comes back like "fr|en-GB" — we just want "fr"
+        const detectedPair = translateData.responseData.detectedLanguage || "";
+        if (detectedPair && !detectedLang) {
+          detectedLang = detectedPair.split("|")[0].toUpperCase();
+          const badge = document.getElementById("lang-badge");
+          badge.textContent = `Detected language: ${detectedLang}`;
+          badge.style.display = "block";
+        }
+
+        // If the translation is the same as the input, it's probably
+        // already English — show a note rather than repeating the word
+        const cleanTranslation = (translation.toLowerCase() === word.toLowerCase())
+          ? word
+          : translation;
+
+        // ── STEP 2: Look up grammatical type via Free Dictionary ──
+        // This only works well for the TARGET language (English),
+        // so we look up the TRANSLATED word, not the original
+        let gramType = "";
+
+        try {
+          const dictURL  = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(cleanTranslation.toLowerCase())}`;
+          const dictRes  = await fetch(dictURL);
+          const dictData = await dictRes.json();
+
+          // The API returns an array of entries; the first entry has meanings
+          // Each meaning has a partOfSpeech — we grab the first one
+          if (Array.isArray(dictData) && dictData[0]?.meanings?.[0]?.partOfSpeech) {
+            gramType = dictData[0].meanings[0].partOfSpeech;
+          }
+        } catch {
+          // Dictionary lookup failed — that's fine, we just won't show a type
+        }
+
+        // ── STEP 3: Update the bubble with the result ──
+        bubble.innerHTML = `
+          <div class="translation">${cleanTranslation}</div>
+          ${gramType ? `<div class="gram-type">${gramType}</div>` : ""}
+        `;
+
+        // Check if the bubble is near the top of the page
+        // If so, show it below the word instead of above
+        const rect = span.getBoundingClientRect();
+        if (rect.top < 120) {
+          bubble.classList.add("below");
+        }
+
+      } catch (err) {
+        // If anything goes wrong, show an error in the bubble
+        bubble.innerHTML = `<div class="loading">couldn't translate</div>`;
+      }
+    }
+
+
+    // ── CLOSE HELPERS ──
+
+    function closeBubble(span) {
+      const bubble = span.querySelector(".bubble");
+      if (bubble) bubble.remove();
+      span.classList.remove("active");
+    }
+
+    function closeAllBubbles() {
+      document.querySelectorAll(".word.active").forEach(closeBubble);
+    }
+
+
+    // ── CLEAR EVERYTHING ──
+
+    function clearAll() {
+      document.getElementById("input-text").value = "";
+      document.getElementById("text-display").innerHTML = "";
+      document.getElementById("text-display").style.display = "none";
+      document.getElementById("hint").style.display = "none";
+      document.getElementById("lang-badge").style.display = "none";
+      detectedLang = "";
+      document.removeEventListener("click", closeAllBubbles);
+    }
+
+
+    // Allow Ctrl+Enter or Cmd+Enter in the textarea to render
+    document.getElementById("input-text").addEventListener("keydown", function(e) {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) renderText();
+    });
+
+  </script>
+
+</body>
+</html>
