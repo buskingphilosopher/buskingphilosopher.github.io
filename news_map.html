@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World News Heatmap</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #080c14;
+    color: #d4ccbc;
+    font-family: 'Georgia', serif;
+    min-height: 100vh;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.07);
+    background: #0a0e1a;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e05c3a;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+  .site-title {
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    color: #e8e0d0;
+  }
+
+  .last-updated {
+    font-size: 11px;
+    color: #504838;
+    font-family: monospace;
+  }
+
+  #map-container {
+    position: relative;
+    width: 100%;
+    background: #080c14;
+  }
+
+  #map svg {
+    display: block;
+    width: 100%;
+  }
+
+  .country {
+    cursor: pointer;
+    transition: opacity 0.12s;
+    stroke: #080c14;
+    stroke-width: 0.4;
+  }
+
+  .country:hover {
+    opacity: 0.7;
+    stroke: rgba(255,255,255,0.5);
+    stroke-width: 0.8;
+  }
+
+  #tooltip {
+    display: none;
+    position: absolute;
+    background: #12172a;
+    border: 0.5px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 20;
+    min-width: 160px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+
+  #tt-name {
+    font-size: 13px;
+    font-weight: bold;
+    color: #e8e0d0;
+    margin-bottom: 3px;
+  }
+
+  #tt-stories { color: #a09880; }
+
+  #legend {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 24px;
+    border-top: 0.5px solid rgba(255,255,255,0.05);
+    background: #0a0e1a;
+  }
+
+  .legend-label {
+    font-size: 10px;
+    color: #504838;
+    font-family: monospace;
+    margin-right: 4px;
+  }
+
+  .legend-swatch {
+    width: 20px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  #panel {
+    display: none;
+    padding: 20px 24px;
+    background: #0d1120;
+    border-top: 0.5px solid rgba(255,255,255,0.08);
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .panel-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #panel-flag { font-size: 20px; }
+
+  #panel-name {
+    font-size: 17px;
+    color: #e8e0d0;
+  }
+
+  #panel-count {
+    font-size: 11px;
+    color: #a09880;
+    background: rgba(255,255,255,0.06);
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-family: monospace;
+  }
+
+  #close-btn {
+    background: none;
+    border: 0.5px solid rgba(255,255,255,0.12);
+    color: #a09880;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Georgia', serif;
+  }
+
+  #close-btn:hover { background: rgba(255,255,255,0.05); }
+
+  #headlines { display: flex; flex-direction: column; gap: 8px; }
+
+  .headline-link {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 0.5px solid rgba(255,255,255,0.07);
+    border-radius: 7px;
+    text-decoration: none;
+    transition: background 0.1s;
+  }
+
+  .headline-link:hover { background: rgba(255,255,255,0.07); }
+
+  .hl-arrow {
+    color: #e05c3a;
+    font-size: 10px;
+    margin-top: 3px;
+    flex-shrink: 0;
+  }
+
+  .hl-title {
+    color: #d4ccbc;
+    font-size: 13px;
+    line-height: 1.55;
+    flex: 1;
+  }
+
+  .hl-source {
+    font-size: 11px;
+    color: #605848;
+    font-family: monospace;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  #loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: #504838;
+    font-family: monospace;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+
+  #api-notice {
+    display: none;
+    background: rgba(224, 92, 58, 0.08);
+    border: 0.5px solid rgba(224, 92, 58, 0.3);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 16px 24px;
+    font-size: 13px;
+    color: #c09070;
+    line-height: 1.6;
+  }
+
+  #api-notice a { color: #e05c3a; }
+
+  #api-key-form {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  #api-key-input {
+    flex: 1;
+    background: rgba(0,0,0,0.3);
+    border: 0.5px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding: 7px 12px;
+    color: #e8e0d0;
+    font-family: monospace;
+    font-size: 12px;
+    outline: none;
+  }
+
+  #api-key-input:focus { border-color: rgba(224,92,58,0.5); }
+
+  #api-key-submit {
+    background: #e05c3a;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 16px;
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Georgia', serif;
+  }
+
+  #api-key-submit:hover { background: #c84e30; }
+
+  .no-stories {
+    color: #504838;
+    font-size: 13px;
+    padding: 10px 0;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="live-dot"></div>
+    <span class="site-title">World News Heatmap</span>
+  </div>
+  <span class="last-updated" id="last-updated">Loading...</span>
+</header>
+
+<div id="api-notice">
+  <strong>Add your NewsAPI key to see live data.</strong>
+  Get a free key at <a href="https://newsapi.org" target="_blank">newsapi.org</a> — takes 2 minutes. The map below shows demo data until you add one.<br><br>
+  Note: NewsAPI free keys only work from <strong>localhost</strong> (open this file directly in your browser). For a hosted site you'd need their paid plan or a proxy.
+  <div id="api-key-form">
+    <input id="api-key-input" type="text" placeholder="Paste your NewsAPI key here..." />
+    <button id="api-key-submit">Load live data</button>
+  </div>
+</div>
+
+<div id="map-container">
+  <div id="loading">Rendering map...</div>
+  <div id="map"></div>
+  <div id="tooltip">
+    <div id="tt-name"></div>
+    <div id="tt-stories"></div>
+  </div>
+</div>
+
+<div id="legend">
+  <span class="legend-label">quiet</span>
+  <div class="legend-swatch" style="background:#111825"></div>
+  <div class="legend-swatch" style="background:#162030"></div>
+  <div class="legend-swatch" style="background:#1e4068"></div>
+  <div class="legend-swatch" style="background:#8b5e10"></div>
+  <div class="legend-swatch" style="background:#c47a1a"></div>
+  <div class="legend-swatch" style="background:#e05c3a"></div>
+  <div class="legend-swatch" style="background:#ff2020"></div>
+  <span class="legend-label" style="margin-left:2px;">breaking</span>
+</div>
+
+<div id="panel">
+  <div class="panel-header">
+    <div class="panel-title-row">
+      <span id="panel-flag"></span>
+      <span id="panel-name"></span>
+      <span id="panel-count"></span>
+    </div>
+    <button id="close-btn" onclick="closePanel()">✕ close</button>
+  </div>
+  <div id="headlines"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script>
+
+// ─────────────────────────────────────────────
+// CONFIGURATION
+// ─────────────────────────────────────────────
+
+// Paste your NewsAPI key here, OR enter it in the box above at runtime
+const HARDCODED_API_KEY = "";
+
+// Countries to fetch news for (ISO 2-letter codes supported by NewsAPI)
+// Full list: https://newsapi.org/docs/endpoints/top-headlines
+const COUNTRIES = [
+  { code: "us", name: "United States of America", flag: "🇺🇸" },
+  { code: "gb", name: "United Kingdom", flag: "🇬🇧" },
+  { code: "de", name: "Germany", flag: "🇩🇪" },
+  { code: "fr", name: "France", flag: "🇫🇷" },
+  { code: "cn", name: "China", flag: "🇨🇳" },
+  { code: "ru", name: "Russia", flag: "🇷🇺" },
+  { code: "in", name: "India", flag: "🇮🇳" },
+  { code: "br", name: "Brazil", flag: "🇧🇷" },
+  { code: "au", name: "Australia", flag: "🇦🇺" },
+  { code: "ca", name: "Canada", flag: "🇨🇦" },
+  { code: "jp", name: "Japan", flag: "🇯🇵" },
+  { code: "kr", name: "South Korea", flag: "🇰🇷" },
+  { code: "mx", name: "Mexico", flag: "🇲🇽" },
+  { code: "za", name: "South Africa", flag: "🇿🇦" },
+  { code: "ar", name: "Argentina", flag: "🇦🇷" },
+  { code: "sa", name: "Saudi Arabia", flag: "🇸🇦" },
+  { code: "il", name: "Israel", flag: "🇮🇱" },
+  { code: "tr", name: "Turkey", flag: "🇹🇷" },
+  { code: "ng", name: "Nigeria", flag: "🇳🇬" },
+  { code: "pk", name: "Pakistan", flag: "🇵🇰" },
+  { code: "id", name: "Indonesia", flag: "🇮🇩" },
+  { code: "eg", name: "Egypt", flag: "🇪🇬" },
+  { code: "se", name: "Sweden", flag: "🇸🇪" },
+  { code: "no", name: "Norway", flag: "🇳🇴" },
+  { code: "nl", name: "Netherlands", flag: "🇳🇱" },
+  { code: "it", name: "Italy", flag: "🇮🇹" },
+  { code: "pl", name: "Poland", flag: "🇵🇱" },
+  { code: "ua", name: "Ukraine", flag: "🇺🇦" },
+  { code: "ve", name: "Venezuela", flag: "🇻🇪" },
+  { code: "ph", name: "Philippines", flag: "🇵🇭" },
+  { code: "th", name: "Thailand", flag: "🇹🇭" },
+  { code: "my", name: "Malaysia", flag: "🇲🇾" },
+  { code: "at", name: "Austria", flag: "🇦🇹" },
+  { code: "be", name: "Belgium", flag: "🇧🇪" },
+  { code: "ch", name: "Switzerland", flag: "🇨🇭" },
+  { code: "nz", name: "New Zealand", flag: "🇳🇿" },
+  { code: "gr", name: "Greece", flag: "🇬🇷" },
+  { code: "hu", name: "Hungary", flag: "🇭🇺" },
+  { code: "cz", name: "Czechia", flag: "🇨🇿" },
+  { code: "ro", name: "Romania", flag: "🇷🇴" },
+  { code: "pt", name: "Portugal", flag: "🇵🇹" },
+];
+
+// ─────────────────────────────────────────────
+// DEMO DATA (shown when no API key is set)
+// ─────────────────────────────────────────────
+
+const DEMO_DATA = {
+  "United States of America": { score: 88, totalResults: 218, articles: [
+    { title: "Federal Reserve holds rates steady, signals caution ahead", url: "#", source: { name: "Reuters" } },
+    { title: "Senate passes border security bill in narrow vote", url: "#", source: { name: "AP News" } },
+    { title: "Tech sector layoffs hit 40,000 in April alone", url: "#", source: { name: "Bloomberg" } },
+  ]},
+  "United Kingdom": { score: 40, totalResults: 47, articles: [
+    { title: "Bank of England holds base rate at 4.5%", url: "#", source: { name: "BBC" } },
+    { title: "Government announces NHS reform package", url: "#", source: { name: "The Guardian" } },
+  ]},
+  "China": { score: 82, totalResults: 167, articles: [
+    { title: "Taiwan Strait tensions rise after military drills", url: "#", source: { name: "Reuters" } },
+    { title: "GDP growth misses forecast at 4.2% for Q1", url: "#", source: { name: "FT" } },
+  ]},
+  "Russia": { score: 78, totalResults: 134, articles: [
+    { title: "Kremlin rejects ceasefire terms proposed by mediators", url: "#", source: { name: "BBC" } },
+    { title: "Ruble stabilises after central bank intervention", url: "#", source: { name: "Reuters" } },
+  ]},
+  "Israel": { score: 91, totalResults: 189, articles: [
+    { title: "Hostage negotiations reach critical phase in Cairo", url: "#", source: { name: "AP News" } },
+    { title: "UN Security Council meets over Gaza humanitarian corridor", url: "#", source: { name: "Reuters" } },
+  ]},
+  "India": { score: 55, totalResults: 71, articles: [
+    { title: "Modi visits Central Asia ahead of SCO summit", url: "#", source: { name: "Times of India" } },
+  ]},
+  "Germany": { score: 44, totalResults: 53, articles: [
+    { title: "Coalition government agrees energy subsidy extension", url: "#", source: { name: "Der Spiegel" } },
+  ]},
+  "France": { score: 36, totalResults: 39, articles: [
+    { title: "Macron calls for stronger EU defence pact", url: "#", source: { name: "Le Monde" } },
+  ]},
+  "Brazil": { score: 38, totalResults: 42, articles: [
+    { title: "Amazon deforestation rate drops 45% year-on-year", url: "#", source: { name: "Reuters" } },
+  ]},
+  "Ukraine": { score: 95, totalResults: 142, articles: [
+    { title: "Peace talks resume in Istanbul amid ceasefire pressure", url: "#", source: { name: "Reuters" } },
+    { title: "EU announces €8bn reconstruction package", url: "#", source: { name: "Politico" } },
+  ]},
+  "Pakistan": { score: 62, totalResults: 84, articles: [
+    { title: "IMF disbursement delayed over fiscal targets miss", url: "#", source: { name: "Dawn" } },
+  ]},
+  "Turkey": { score: 46, totalResults: 52, articles: [
+    { title: "Erdoğan faces opposition coalition in local elections", url: "#", source: { name: "Reuters" } },
+  ]},
+  "Argentina": { score: 48, totalResults: 55, articles: [
+    { title: "Milei's austerity plan passes congress amid protests", url: "#", source: { name: "Reuters" } },
+  ]},
+  "South Korea": { score: 30, totalResults: 33, articles: [
+    { title: "Constitutional court rules on presidential powers", url: "#", source: { name: "Yonhap" } },
+  ]},
+  "Saudi Arabia": { score: 50, totalResults: 58, articles: [
+    { title: "OPEC+ output cut extended by three months", url: "#", source: { name: "Bloomberg" } },
+  ]},
+};
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+
+let newsStore = {};   // { countryName: { score, totalResults, articles: [...] } }
+let mapReady = false;
+let dataReady = false;
+let apiKey = HARDCODED_API_KEY;
+
+// Map: numeric ISO → country name
+const ID_TO_NAME = {
+  "004":"Afghanistan","008":"Albania","012":"Algeria","024":"Angola","032":"Argentina",
+  "036":"Australia","040":"Austria","050":"Bangladesh","056":"Belgium","076":"Brazil",
+  "100":"Bulgaria","116":"Cambodia","120":"Cameroon","124":"Canada","144":"Sri Lanka",
+  "152":"Chile","156":"China","170":"Colombia","191":"Croatia","192":"Cuba",
+  "203":"Czechia","208":"Denmark","218":"Ecuador","818":"Egypt","231":"Ethiopia",
+  "246":"Finland","250":"France","276":"Germany","288":"Ghana","300":"Greece",
+  "332":"Haiti","348":"Hungary","356":"India","360":"Indonesia","364":"Iran",
+  "368":"Iraq","372":"Ireland","376":"Israel","380":"Italy","392":"Japan",
+  "398":"Kazakhstan","404":"Kenya","408":"North Korea","410":"South Korea",
+  "418":"Laos","422":"Lebanon","434":"Libya","484":"Mexico","496":"Mongolia",
+  "504":"Morocco","516":"Namibia","524":"Nepal","528":"Netherlands","554":"New Zealand",
+  "566":"Nigeria","578":"Norway","586":"Pakistan","616":"Poland","620":"Portugal",
+  "634":"Qatar","642":"Romania","643":"Russia","682":"Saudi Arabia","700":"Serbia",
+  "694":"Sierra Leone","703":"Slovakia","706":"Somalia","710":"South Africa",
+  "724":"Spain","736":"Sudan","752":"Sweden","756":"Switzerland","158":"Taiwan",
+  "764":"Thailand","792":"Turkey","800":"Uganda","804":"Ukraine",
+  "784":"United Arab Emirates","826":"United Kingdom",
+  "840":"United States of America","858":"Uruguay","862":"Venezuela",
+  "704":"Vietnam","887":"Yemen","894":"Zambia","716":"Zimbabwe",
+  "180":"DR Congo","188":"Costa Rica","320":"Guatemala","340":"Honduras",
+  "388":"Jamaica","400":"Jordan","414":"Kuwait","426":"Lesotho","430":"Liberia",
+  "591":"Panama","598":"Papua New Guinea","600":"Paraguay","604":"Peru",
+  "608":"Philippines","630":"Puerto Rico","760":"Syria","834":"Tanzania",
+  "716":"Zimbabwe","608":"Philippines","608":"Philippines",
+  "032":"Argentina","068":"Bolivia",
+};
+
+// ─────────────────────────────────────────────
+// COLOUR SCALE
+// ─────────────────────────────────────────────
+
+function scoreToColor(score) {
+  if (!score || score <= 0)  return "#0f1520";
+  if (score < 15)            return "#111825";
+  if (score < 30)            return "#162030";
+  if (score < 45)            return "#1a3050";
+  if (score < 58)            return "#1e4068";
+  if (score < 68)            return "#8b5e10";
+  if (score < 78)            return "#c47a1a";
+  if (score < 88)            return "#e05c3a";
+  return                            "#ff2828";
+}
+
+// ─────────────────────────────────────────────
+// NEWS FETCHING
+// ─────────────────────────────────────────────
+
+async function fetchCountry(country, key) {
+  const url = `https://newsapi.org/v2/top-headlines?country=${country.code}&pageSize=5&apiKey=${key}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.status !== "ok") throw new Error(data.message || "API error");
+  const score = Math.min(99, Math.round((data.totalResults || 0) * 2.2));
+  return {
+    score,
+    totalResults: data.totalResults || 0,
+    articles: (data.articles || []).slice(0, 6),
+  };
+}
+
+async function loadAllNews(key) {
+  document.getElementById('last-updated').textContent = "Fetching live data...";
+  const results = await Promise.allSettled(
+    COUNTRIES.map(c => fetchCountry(c, key).then(d => ({ name: c.name, flag: c.flag, ...d })))
+  );
+  let loaded = 0;
+  results.forEach(r => {
+    if (r.status === "fulfilled") {
+      const { name, flag, score, totalResults, articles } = r.value;
+      newsStore[name] = { score, totalResults, articles, flag };
+      loaded++;
+    }
+  });
+  if (loaded === 0) throw new Error("All requests failed — check your API key");
+  const now = new Date();
+  document.getElementById('last-updated').textContent =
+    `Updated ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')} · ${loaded} countries`;
+  return loaded;
+}
+
+// ─────────────────────────────────────────────
+// MAP RENDERING
+// ─────────────────────────────────────────────
+
+const W = 960, H = 500;
+
+function initMap() {
+  const svg = d3.select('#map')
+    .append('svg')
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('width', '100%');
+
+  const projection = d3.geoNaturalEarth1()
+    .scale(153)
+    .translate([W / 2, H / 2 + 20]);
+
+  const pathGen = d3.geoPath(projection);
+  const mapContainer = document.getElementById('map-container');
+  const tooltip = document.getElementById('tooltip');
+
+  d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(world => {
+    document.getElementById('loading').style.display = 'none';
+
+    const features = topojson.feature(world, world.objects.countries).features;
+
+    svg.selectAll('.country')
+      .data(features)
+      .join('path')
+      .attr('class', 'country')
+      .attr('id', d => 'c' + d.id)
+      .attr('d', pathGen)
+      .attr('fill', d => {
+        const name = ID_TO_NAME[String(d.id).padStart(3,'0')];
+        return scoreToColor(newsStore[name]?.score);
+      })
+      .on('mousemove', function(event, d) {
+        const name = ID_TO_NAME[String(d.id).padStart(3,'0')];
+        const entry = name && newsStore[name];
+        const rect = mapContainer.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        tooltip.style.display = 'block';
+        tooltip.style.left = Math.min(x + 14, W - 180) + 'px';
+        tooltip.style.top = Math.max(y - 60, 8) + 'px';
+        document.getElementById('tt-name').textContent =
+          (entry?.flag ? entry.flag + ' ' : '') + (name || 'Unknown');
+        document.getElementById('tt-stories').textContent =
+          entry ? `${entry.totalResults} stories · score ${entry.score}` : 'No data';
+      })
+      .on('mouseleave', () => { tooltip.style.display = 'none'; })
+      .on('click', function(event, d) {
+        const name = ID_TO_NAME[String(d.id).padStart(3,'0')];
+        if (name) openPanel(name);
+      });
+
+    // Borders overlay
+    svg.append('path')
+      .datum(topojson.mesh(world, world.objects.countries, (a, b) => a !== b))
+      .attr('d', pathGen)
+      .attr('fill', 'none')
+      .attr('stroke', '#080c14')
+      .attr('stroke-width', 0.5);
+
+    mapReady = true;
+  }).catch(err => {
+    document.getElementById('loading').textContent = 'Map failed to load: ' + err.message;
+  });
+}
+
+function refreshColors() {
+  d3.selectAll('.country').attr('fill', d => {
+    const name = ID_TO_NAME[String(d.id).padStart(3,'0')];
+    return scoreToColor(newsStore[name]?.score);
+  });
+}
+
+// ─────────────────────────────────────────────
+// PANEL
+// ─────────────────────────────────────────────
+
+function openPanel(name) {
+  const entry = newsStore[name];
+  const panel = document.getElementById('panel');
+  document.getElementById('panel-flag').textContent = entry?.flag || '';
+  document.getElementById('panel-name').textContent = name;
+  document.getElementById('panel-count').textContent =
+    entry ? `${entry.totalResults} stories` : 'no data';
+
+  const hl = document.getElementById('headlines');
+  if (!entry || !entry.articles || entry.articles.length === 0) {
+    hl.innerHTML = `<p class="no-stories">No headlines available for this country.</p>`;
+  } else {
+    hl.innerHTML = entry.articles.map(a => `
+      <a class="headline-link" href="${a.url}" target="_blank" rel="noopener">
+        <span class="hl-arrow">▶</span>
+        <span class="hl-title">${a.title || 'No title'}</span>
+        <span class="hl-source">${a.source?.name || ''}</span>
+      </a>
+    `).join('');
+  }
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closePanel() {
+  document.getElementById('panel').style.display = 'none';
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+
+function startWithKey(key) {
+  apiKey = key.trim();
+  localStorage.setItem('newsmap_apikey', apiKey);
+  document.getElementById('api-notice').style.display = 'none';
+  loadAllNews(apiKey)
+    .then(() => { if (mapReady) refreshColors(); dataReady = true; })
+    .catch(err => {
+      document.getElementById('last-updated').textContent = 'Error: ' + err.message;
+      alert('Could not load news data: ' + err.message + '\n\nCheck your API key and make sure you are opening this file locally (file://).');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Check for saved key
+  const savedKey = localStorage.getItem('newsmap_apikey') || HARDCODED_API_KEY;
+
+  // Init map immediately (doesn't need API key)
+  initMap();
+
+  if (savedKey) {
+    apiKey = savedKey;
+    loadAllNews(apiKey)
+      .then(() => { if (mapReady) refreshColors(); dataReady = true; })
+      .catch(err => {
+        document.getElementById('last-updated').textContent = 'Live data unavailable';
+        document.getElementById('api-notice').style.display = 'block';
+        // Fall back to demo
+        Object.assign(newsStore, DEMO_DATA);
+        if (mapReady) refreshColors();
+      });
+  } else {
+    // Show demo data + notice
+    document.getElementById('api-notice').style.display = 'block';
+    document.getElementById('last-updated').textContent = 'Demo mode — add API key for live data';
+    Object.assign(newsStore, DEMO_DATA);
+    // Colors applied once map is ready — poll briefly
+    const check = setInterval(() => {
+      if (mapReady) { refreshColors(); clearInterval(check); }
+    }, 200);
+  }
+
+  // API key form
+  document.getElementById('api-key-submit').addEventListener('click', () => {
+    const val = document.getElementById('api-key-input').value;
+    if (val.trim()) startWithKey(val);
+  });
+  document.getElementById('api-key-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const val = e.target.value;
+      if (val.trim()) startWithKey(val);
+    }
+  });
+
+  // Auto-refresh every 15 minutes if key is set
+  setInterval(() => {
+    if (apiKey) {
+      loadAllNews(apiKey)
+        .then(() => { if (mapReady) refreshColors(); })
+        .catch(() => {});
+    }
+  }, 15 * 60 * 1000);
+});
+</script>
+</body>
+</html>
