@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocab Mirabilis</title>
+
+  <style>
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Georgia, serif;
+      background: #f5f3ef;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+
+    /* ─────────────────────────────────────
+       TOP HALF — the random word display
+    ───────────────────────────────────── */
+
+    .stage {
+      background: #1a1a1a;
+      color: white;
+      flex: 0 0 auto;
+      min-height: 52vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 30px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    /* Small hint at the top */
+    .stage-hint {
+      position: absolute;
+      top: 18px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* The word type badge — e.g. "noun" */
+    #display-type {
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 14px;
+      font-family: -apple-system, sans-serif;
+      min-height: 16px;
+    }
+
+    /* The main word */
+    #display-word {
+      font-size: clamp(32px, 8vw, 64px); /* scales with screen width */
+      font-weight: normal;
+      letter-spacing: -0.01em;
+      margin-bottom: 18px;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* The definition */
+    #display-definition {
+      font-size: 16px;
+      font-style: italic;
+      color: rgba(255,255,255,0.65);
+      max-width: 380px;
+      line-height: 1.6;
+      min-height: 50px;
+    }
+
+    /* "Click anywhere for another" nudge */
+    .stage-footer {
+      position: absolute;
+      bottom: 16px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.2);
+      font-family: -apple-system, sans-serif;
+    }
+
+    /* Fade animation — we toggle this class to trigger it */
+    .fade-out { opacity: 0; transition: opacity 0.25s ease; }
+    .fade-in  { opacity: 1; transition: opacity 0.4s ease; }
+
+
+    /* ─────────────────────────────────────
+       BOTTOM HALF — the word list
+    ───────────────────────────────────── */
+
+    .list-section {
+      padding: 28px 20px 60px;
+      max-width: 540px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .list-section h2 {
+      font-size: 15px;
+      font-weight: normal;
+      color: #aaa;
+      margin-bottom: 18px;
+      letter-spacing: 0.04em;
+    }
+
+    /* Add-word form */
+    .add-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    /* Row for word + type inputs side by side */
+    .add-form .row {
+      display: flex;
+      gap: 8px;
+    }
+
+    input, select, textarea {
+      font-family: Georgia, serif;
+      font-size: 15px;
+      padding: 10px 13px;
+      border: 1px solid #ddd;
+      border-radius: 7px;
+      background: white;
+      color: #1a1a1a;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #888;
+    }
+
+    /* The word input takes more space than the type dropdown */
+    #input-word       { flex: 2; }
+    #input-type       { flex: 1; }
+    #input-definition { width: 100%; resize: none; }
+
+    button.add-btn {
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      font-size: 14px;
+      font-family: Georgia, serif;
+      padding: 11px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    button.add-btn:hover { opacity: 0.8; }
+
+    /* The list of saved words */
+    #word-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .word-row {
+      background: white;
+      border: 1px solid #e8e8e8;
+      border-radius: 7px;
+      padding: 11px 14px;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .word-row .w {
+      font-size: 16px;
+      color: #1a1a1a;
+      flex-shrink: 0;
+    }
+
+    .word-row .t {
+      font-size: 11px;
+      color: #bbb;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+      font-family: -apple-system, sans-serif;
+    }
+
+    .word-row .d {
+      font-size: 13px;
+      font-style: italic;
+      color: #888;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    /* Delete button — small x on the right */
+    .word-row .delete {
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0 0 0 6px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .word-row .delete:hover { color: #888; }
+
+    .empty-msg {
+      font-size: 14px;
+      color: #bbb;
+      font-style: italic;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP: random word stage — click anywhere to get a new word -->
+  <div class="stage" id="stage">
+    <span class="stage-hint">✦ word of the moment</span>
+    <div id="display-type"></div>
+    <div id="display-word">—</div>
+    <div id="display-definition"></div>
+    <span class="stage-footer">click anywhere for another</span>
+  </div>
+
+
+  <!-- BOTTOM: add words and browse the list -->
+  <div class="list-section">
+
+    <h2>My Favourite Words</h2>
+
+    <!-- The form to add a new word -->
+    <div class="add-form">
+
+      <div class="row">
+        <!-- Word input -->
+        <input type="text" id="input-word" placeholder="Word" />
+
+        <!-- Type dropdown — a fixed list of options -->
+        <select id="input-type">
+          <option value="noun">noun</option>
+          <option value="verb">verb</option>
+          <option value="adjective">adjective</option>
+          <option value="adverb">adverb</option>
+          <option value="phrase">phrase</option>
+          <option value="other">other</option>
+        </select>
+      </div>
+
+      <!-- Definition textarea — taller than a normal input, for longer text -->
+      <textarea id="input-definition" rows="2" placeholder="Definition…"></textarea>
+
+      <button class="add-btn" onclick="addWord()">Add word</button>
+    </div>
+
+    <!-- Words appear here -->
+    <div id="word-list"></div>
+
+  </div>
+
+
+  <script>
+
+    // ═══════════════════════════════════════════
+    // STORAGE
+    //
+    // localStorage is like a tiny filing cabinet
+    // built into your browser. It remembers data
+    // even after you close the tab.
+    //
+    // We store one item: a JSON string called "words"
+    // which we convert to/from a JavaScript array.
+    // ═══════════════════════════════════════════
+
+    function loadWords() {
+      // Get the "words" item from localStorage
+      // If nothing is saved yet, use an empty array as the default
+      const saved = localStorage.getItem("words");
+      return saved ? JSON.parse(saved) : [];
+    }
+
+    function saveWords(words) {
+      // JSON.stringify converts a JavaScript array into a string
+      // so it can be stored — localStorage only stores strings
+      localStorage.setItem("words", JSON.stringify(words));
+    }
+
+
+    // ── DISPLAY A RANDOM WORD ON THE STAGE ──
+
+    function showRandomWord() {
+      const words = loadWords();
+
+      // If no words saved yet, show a placeholder
+      if (words.length === 0) {
+        document.getElementById("display-word").textContent       = "add a word";
+        document.getElementById("display-type").textContent       = "";
+        document.getElementById("display-definition").textContent = "use the form below to add your first favourite word";
+        return;
+      }
+
+      // Pick a random index using Math.random()
+      // Math.random() gives a decimal between 0 and 1 (e.g. 0.73)
+      // Multiplying by the array length and flooring gives a whole number index
+      const index      = Math.floor(Math.random() * words.length);
+      const word       = words[index];
+
+      // Fade out, swap content, fade back in
+      const stage = document.getElementById("stage");
+      stage.classList.add("fade-out");
+
+      setTimeout(function() {
+        document.getElementById("display-word").textContent       = word.word;
+        document.getElementById("display-type").textContent       = word.type;
+        document.getElementById("display-definition").textContent = word.definition;
+        stage.classList.remove("fade-out");
+        stage.classList.add("fade-in");
+      }, 250);
+    }
+
+    // Click anywhere on the stage to get a new word
+    document.getElementById("stage").addEventListener("click", showRandomWord);
+
+
+    // ── RENDER THE WORD LIST ──
+
+    function renderList() {
+      const words   = loadWords();
+      const listDiv = document.getElementById("word-list");
+
+      // If empty, show a message
+      if (words.length === 0) {
+        listDiv.innerHTML = "<p class='empty-msg'>No words yet — add your first one above.</p>";
+        return;
+      }
+
+      // Clear the list, then rebuild it fresh
+      listDiv.innerHTML = "";
+
+      // Loop through every saved word and create a row for it
+      words.forEach(function(word, index) {
+        const row = document.createElement("div");
+        row.className = "word-row";
+
+        row.innerHTML = `
+          <span class="w">${word.word}</span>
+          <span class="t">${word.type}</span>
+          <span class="d">${word.definition}</span>
+          <button class="delete" onclick="deleteWord(${index})">×</button>
+        `;
+
+        listDiv.appendChild(row);
+      });
+    }
+
+
+    // ── ADD A WORD ──
+
+    function addWord() {
+      // Read values from the three inputs
+      const wordVal = document.getElementById("input-word").value.trim();
+      const typeVal = document.getElementById("input-type").value;
+      const defVal  = document.getElementById("input-definition").value.trim();
+
+      // Don't add if the word or definition field is empty
+      if (!wordVal || !defVal) {
+        alert("Please fill in both the word and its definition.");
+        return;
+      }
+
+      // Load existing words, add the new one, save back
+      const words = loadWords();
+      words.push({ word: wordVal, type: typeVal, definition: defVal });
+      saveWords(words);
+
+      // Clear the inputs ready for the next word
+      document.getElementById("input-word").value       = "";
+      document.getElementById("input-definition").value = "";
+
+      // Refresh the list and show the new word on the stage
+      renderList();
+      showRandomWord();
+    }
+
+    // Allow pressing Enter in the word input to submit
+    document.getElementById("input-word").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") addWord();
+    });
+
+
+    // ── DELETE A WORD ──
+
+    function deleteWord(index) {
+      const words = loadWords();
+
+      // .splice(index, 1) removes 1 item at the given position
+      words.splice(index, 1);
+      saveWords(words);
+
+      renderList();
+      showRandomWord();
+    }
+
+
+    // ── START ──
+    // Run both functions when the page first loads
+
+    renderList();
+    showRandomWord();
+
+  </script>
+
+</body>
+</html>
