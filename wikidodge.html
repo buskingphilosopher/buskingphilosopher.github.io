@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WikiDodge</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f5f5f0;color:#1a1a18;padding:2rem 1rem}
+h1{font-size:22px;font-weight:500;margin-bottom:4px}
+.subtitle{font-size:14px;color:#666;margin-bottom:1.5rem}
+.controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:1rem;align-items:center}
+input{flex:1;min-width:200px;padding:8px 12px;font-size:14px;border:1px solid #ccc;border-radius:8px;background:#fff}
+input:focus{outline:none;border-color:#888}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem}
+.tab{font-size:12px;padding:4px 10px;border:1px solid #ccc;border-radius:20px;cursor:pointer;background:#fff;color:#555}
+.tab:hover,.tab.active{background:#1a1a18;color:#fff;border-color:#1a1a18}
+.counter{font-size:13px;color:#666;margin-bottom:1rem}
+.card{background:#fff;border:1px solid #e0e0d8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:10px}
+.card-header{display:flex;gap:10px;align-items:flex-start;margin-bottom:6px}
+.num{font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;flex-shrink:0;margin-top:2px}
+.card-title{font-size:14px;font-weight:500}
+.card-cat{font-size:11px;color:#888;margin-bottom:8px;margin-left:42px}
+.card-def{font-size:13px;color:#555;line-height:1.6;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #eee}
+.ex-label{font-size:10px;font-weight:600;color:#aaa;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px}
+.ex-who{font-size:12px;font-weight:600;color:#1a1a18;margin-bottom:2px}
+.ex-q{font-size:12px;color:#777;line-height:1.5;margin-bottom:4px;font-style:italic}
+.ex-a{font-size:12px;color:#1a1a18;line-height:1.5;padding:6px 10px;background:#f8f8f5;border-radius:6px;border-left:2px solid #ccc;margin-bottom:6px}
+.ex-note{font-size:11px;color:#888;line-height:1.5}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle}
+.badge-r{background:#e8f5e9;color:#2e7d32}
+.badge-c{background:#e3f2fd;color:#1565c0}
+.no-results{text-align:center;padding:3rem 1rem;color:#888;font-size:14px}
+</style>
+</head>
+<body>
+<h1>WikiDodge</h1>
+<p class="subtitle">A dictionary of methods for not answering questions, following Peter Bull's 12 superordinate categories and 35 subcategories, complete with real examples. Filter by category or search by keyword.</p>
+<div class="controls">
+  <input id="search" placeholder="Search by technique, politician, or keyword..." oninput="render()">
+</div>
+<div class="tabs" id="tabs"></div>
+<div class="counter" id="counter"></div>
+<div id="cards"></div>
+
+<script>
+const CATS=[
+  {id:'all',label:'All 35'},
+  {id:'1',label:'1. Ignores'},
+  {id:'2',label:'2. Acknowledges'},
+  {id:'3',label:'3. Questions it'},
+  {id:'4',label:'4. Attacks it'},
+  {id:'5',label:'5. Attacks interviewer'},
+  {id:'6',label:'6. Declines'},
+  {id:'7',label:'7. Political point'},
+  {id:'8',label:'8. Incomplete'},
+  {id:'9',label:'9. Repeats prior'},
+  {id:'10',label:'10. Already answered'},
+  {id:'11',label:'11. Apologises'},
+  {id:'12',label:'12. Literalism'},
+];
+const NBGS={
+  '1':['#dbeafe','#1e40af'],
+  '2':['#dcfce7','#166534'],
+  '3':['#ede9fe','#4c1d95'],
+  '4':['#fee2e2','#7f1d1d'],
+  '5':['#ffedd5','#7c2d12'],
+  '6':['#fef9c3','#713f12'],
+  '7':['#fce7f3','#831843'],
+  '8':['#ccfbf1','#134e4a'],
+  '9':['#dbeafe','#1e40af'],
+  '10':['#dcfce7','#166534'],
+  '11':['#fef9c3','#713f12'],
+  '12':['#ede9fe','#4c1d95'],
+};
+const DATA=[
+  {n:1,cat:'1',catName:'Ignores the question',title:'Ignores the question entirely',def:'The politician says nothing related to the question — no acknowledgement, no pivot, just proceeds as if it was never asked.',who:'Boris Johnson, PMQs, 2019',recent:true,q:'How many children do you have?',a:'(No response) "What people want to see is us getting on with the programme they voted for..."',note:'Bull identified Johnson as particularly prone to this — he would bulldoze over questions with prepared material, especially personal ones.'},
+  {n:2,cat:'1',catName:'Ignores the question',title:'Non-verbal dismissal',def:'The question is physically brushed aside — a wave, turning away, or simply walking off — with no verbal response at all.',who:'Rishi Sunak, Downing Street, November 2023',recent:false,q:'(Journalists call questions on Rwanda policy)',a:'(Turns and walks back inside without speaking)',note:'Sunak was criticised multiple times for physically walking away from press questions. The most extreme form of ignoring — refusing even a verbal non-answer.'},
+  {n:3,cat:'2',catName:'Acknowledges without answering',title:'Acknowledges and then pivots',def:'The politician registers that a question has been asked — sometimes even complimenting it — then speaks at length about something else entirely.',who:'Tony Blair, 1997 election interview',recent:false,q:'Are there any circumstances under which you would raise income tax?',a:'"That\'s a very important question. What I can tell you is that Britain needs economic stability..."',note:'Bull and Mayer (1993) documented this as one of Blair\'s most characteristic moves. The acknowledgement lulls the interviewer before the pivot.'},
+  {n:4,cat:'2',catName:'Acknowledges without answering',title:'Thanks the questioner',def:'The politician thanks the interviewer for the question — a delay tactic that also flatters, making follow-up pursuit socially awkward.',who:'Keir Starmer, Labour leadership hustings, 2020',recent:false,q:'Will you reverse all cuts to the welfare budget?',a:'"That\'s exactly the right question to be asking — it reflects real concerns. Let me talk about our values..."',note:'Common in audience-question formats where social courtesy can be weaponised to soften interrogation before redirecting.'},
+  {n:5,cat:'3',catName:'Questions the question',title:'Asks for clarification',def:'The politician requests the question be rephrased or clarified — consuming interview time and sometimes reframing what they will then answer.',who:'Jeremy Corbyn, Andrew Neil interview, 2019',recent:false,q:'What exactly do you mean by "a new kind of politics"?',a:'"Can I ask what you mean specifically? Are you talking about process or policy? Those are quite different things..."',note:'Often a stalling tactic. Bull notes it works best when the original question was genuinely ambiguous — it lets the politician take control of the definition.'},
+  {n:6,cat:'3',catName:'Questions the question',title:'Challenges the question\'s accuracy',def:'The politician claims the question contains a factual error and corrects it, spending the answer time on the correction rather than the substance.',who:'Theresa May, Andrew Marr interview, September 2016',recent:false,q:'You said the UK would definitely leave the single market — is that right?',a:'"I don\'t think I used those exact words. What I said was that we would look at what arrangements best serve Britain\'s interests..."',note:'May\'s reply rate in this interview was just 14% — far below the average of 46%. Challenging the question\'s framing was a core part of her approach.'},
+  {n:7,cat:'3',catName:'Questions the question',title:'Queries the question\'s presupposition',def:'The politician disputes the premise embedded in the question — the assumption it takes for granted — rather than answering what was asked.',who:'Nigel Farage, Sky News, 2018',recent:false,q:'Isn\'t it true that Brexit has damaged the economy?',a:'"That question assumes Brexit has happened and the economy is damaged. Neither of those things is self-evidently true..."',note:'One of the more intellectually sophisticated evasions — it forces the interviewer to defend their premise before any substantive debate can begin.'},
+  {n:8,cat:'4',catName:'Attacks the question',title:'Question is hypothetical or speculative',def:'The politician refuses to engage on the grounds that the question involves an imagined future scenario — "I don\'t deal in hypotheticals."',who:'Kemi Badenoch, multiple interviews, 2024–25',recent:true,q:'If you become PM, would you reverse the two-child benefit cap?',a:'"I\'m not going to get into hypotheticals about policy before we\'ve even set out our full programme..."',note:'Bull found this was the single most common evasion technique across his dataset. Almost any policy question can be recast as speculation, making it near-universal.'},
+  {n:9,cat:'4',catName:'Attacks the question',title:'Question is based on a false premise',def:'The politician argues the entire question rests on an incorrect assumption and therefore cannot be answered as posed.',who:'Margaret Thatcher, 1987 election interviews',recent:false,q:'Do you accept that your cuts to public services have hurt the poorest?',a:'"The question contains an assumption I entirely reject. There have been no cuts — spending in real terms has risen every year of this government..."',note:'Thatcher was particularly skilled here. By attacking the premise, she avoided engaging with the evaluative core of the question entirely.'},
+  {n:10,cat:'4',catName:'Attacks the question',title:'Question includes a misquotation',def:'The politician claims the interviewer has misquoted them and uses the correction to take the conversation off-topic.',who:'David Cameron, Paxman interview, 2015',recent:false,q:'You said there\'d be no top-down reorganisation of the NHS — wasn\'t that a lie?',a:'"I don\'t think that\'s quite what I said. The quote is taken out of context — what I actually said was..."',note:'Often technically true but functionally evasive: the "correction" absorbs interview time without engaging the underlying accountability question.'},
+  {n:11,cat:'4',catName:'Attacks the question',title:'Question is based on media misrepresentation',def:'The politician dismisses the question by blaming the media for distortion, positioning the question itself as a product of bad journalism.',who:'Boris Johnson, lobby briefing, November 2021',recent:false,q:'Did you say "let the bodies pile high"?',a:'"That\'s a fabrication being peddled by newspapers with a clear agenda. I don\'t recognise that characterisation at all..."',note:'Johnson deployed this throughout the "bodies pile high" scandal. Attacks on media credibility shift the subject from the allegation to press integrity.'},
+  {n:12,cat:'4',catName:'Attacks the question',title:'Question is tendentious or politically motivated',def:'The politician alleges the question is not journalistic but is framed to serve a political opponent\'s interests.',who:'Mike Waltz, ABC This Week, April 2026',recent:true,q:'Would bombing every bridge and power plant in Iran be a war crime?',a:'"I find that question frankly irresponsible — it\'s the narrative being pushed by Democratic politicians, not serious foreign policy analysis..."',note:'By impugning the question\'s motives, the politician avoids engaging with its substance while appearing robust rather than evasive.'},
+  {n:13,cat:'4',catName:'Attacks the question',title:'Question is improper or premature',def:'The politician says it would be wrong or unfair to answer now — citing an ongoing investigation, legal process, or upcoming announcement.',who:'Keir Starmer, Paris press conference, April 2026',recent:true,q:'Will you resign over the Mandelson vetting scandal?',a:'"I will set out all the relevant facts in full transparency to Parliament on Monday."',note:'Starmer reserved his answer for a controlled parliamentary setting rather than a hostile press scrum — Parliament allows fewer follow-up questions.'},
+  {n:14,cat:'4',catName:'Attacks the question',title:'Question is trivial or beside the point',def:'The politician implies the interviewer is asking about something unimportant, often with a slight air of condescension, then moves to "what really matters."',who:'Gordon Brown, various PMQs, 2008–09',recent:false,q:'Why do you keep saying "I saved the world" — isn\'t that embarrassing?',a:'"The British people are more concerned about their mortgages and jobs than a slip of the tongue..."',note:'Redirects the question as trivial while pivoting to the politician\'s preferred ground. The "what really matters" gambit.'},
+  {n:15,cat:'4',catName:'Attacks the question',title:'Treats question as not deserving a response',def:'A withering dismissal — the question is beneath the level of the interview — sometimes accompanied by silence, a sigh, or raised eyebrow.',who:'Margaret Thatcher, various 1980s interviews',recent:false,q:'Some say you\'re the most divisive PM since the war — how do you respond?',a:'"(Long pause) I think that speaks for itself, don\'t you?"',note:'High-risk — can appear arrogant. But Thatcher deployed it effectively against what she framed as loaded or unserious questions.'},
+  {n:16,cat:'5',catName:'Attacks the interviewer',title:'Criticises the interviewer\'s manner',def:'The politician responds to the question by challenging how it was asked — the tone, aggression, or style — rather than its content.',who:'Peter Mandelson vs Jeremy Paxman, Newsnight 2010',recent:false,q:'Is there anything that\'s the responsibility of the government?',a:'"Just calm down, Jeremy. Just calm down a minute and listen to the answer."',note:'Bull and Waddle (2016) documented Mandelson\'s repeated "calm down" as a personalised form of equivocation. It reframes the dynamic — the interviewer becomes the problem.'},
+  {n:17,cat:'5',catName:'Attacks the interviewer',title:'Questions the interviewer\'s competence',def:'The politician implies the interviewer lacks the expertise to ask the question properly, undermining their authority.',who:'Margaret Thatcher vs Robin Day, BBC 1983',recent:false,q:'Prime Minister, how can you justify the Falklands cost in lives?',a:'"With great respect, I think you need to understand the strategic and diplomatic context before asking that question."',note:'Thatcher was more likely than any other leader in Bull\'s studies to make personal attacks on interviewers — appearing in 13% of her equivocal responses.'},
+  {n:18,cat:'5',catName:'Attacks the interviewer',title:'Accuses the interviewer of institutional bias',def:'The politician claims the interviewer is not neutral — representing a media organisation with an agenda against them.',who:'Nigel Farage, BBC Panorama, 2019',recent:false,q:'Are you comfortable with some of your candidates\' racist social media posts?',a:'"This is exactly the kind of question I\'d expect from a BBC that has been running a campaign against us from day one..."',note:'Attacking the broadcaster\'s institutional bias rather than the question. Especially common among politicians who position themselves as anti-establishment.'},
+  {n:19,cat:'5',catName:'Attacks the interviewer',title:'Comments on the interviewer\'s state of mind',def:'The politician suggests the interviewer is emotional, confused, or agitated — using this as an excuse not to engage with the substance.',who:'Peter Mandelson vs Adam Boulton, Sky News press conference 2010',recent:false,q:'(Boulton pressing on electoral reform)',a:'"Adam, I think you need to just calm down a little bit. I know you\'re excited..."',note:'Waddle and Bull (2016) highlighted this as Mandelson\'s most distinctive equivocation style — deployed so frequently it was documented as a technique in its own right.'},
+  {n:20,cat:'6',catName:'Declines to answer',title:'States cannot answer for another person',def:'The politician is asked to comment on a colleague\'s or opponent\'s position and declines on grounds they cannot speak for someone else.',who:'Liz Truss, Conservative leadership hustings, 2022',recent:false,q:'Does Rishi Sunak have the right values to be Prime Minister?',a:'"I\'m not going to put words in my opponent\'s mouth or claim to know his values. I can only speak for myself..."',note:'Technically reasonable but functionally evasive — the question was about her judgement of Sunak, not about Sunak\'s own views.'},
+  {n:21,cat:'6',catName:'Declines to answer',title:'Cannot answer at the present time',def:'The politician claims they are unable to answer now, citing an ongoing process, a future statement, or incomplete information.',who:'Keir Starmer, April 2026 (Mandelson vetting)',recent:true,q:'Why didn\'t you know Mandelson failed his security vetting?',a:'"I will set out all the relevant facts to Parliament on Monday in full transparency."',note:'The "I\'ll answer it then, not now" gambit. Bull identifies this as a way of surviving an immediate hostile encounter while deferring accountability.'},
+  {n:22,cat:'6',catName:'Declines to answer',title:'Refuses on grounds of confidentiality',def:'The politician says the matter involves security, legal privilege, or commercial sensitivity — information they are not at liberty to share.',who:'Tony Blair, during Hutton Inquiry period, 2003',recent:false,q:'Did you personally authorise David Kelly\'s name being released?',a:'"There are aspects of how government operates internally that I\'m not going to discuss publicly while proper processes are underway..."',note:'Confidentiality claims are almost impossible for interviewers to overcome, making this one of the most effective evasions in the typology.'},
+  {n:23,cat:'6',catName:'Declines to answer',title:'Refuses to speculate on figures or outcomes',def:'The politician refuses to name numbers, dates, or predictions — framing speculation as irresponsible or premature.',who:'Ed Miliband, Jeremy Paxman interview, April 2015',recent:false,q:'What is the right level of the deficit? Give me a figure.',a:'"I\'m not going to pluck a figure out of the air. That\'s not how serious economic policy is made."',note:'Common when politicians sense any number they give will be used against them. The refusal is framed as prudence rather than evasion.'},
+  {n:24,cat:'7',catName:'Makes a political point',title:'Attacks the opposition',def:'Instead of answering the question, the politician uses it as an opportunity to criticise their opponents.',who:'Rishi Sunak, PMQs, throughout 2023–24',recent:false,q:'Why has the NHS waiting list hit record levels under your government?',a:'"Under the last Labour government, waiting lists were already rising and they left us with the biggest deficit in our peacetime history..."',note:'Bull found "making a political point" was the single most common superordinate form of non-reply across his entire dataset. Attacking the opposition is its most frequent subform.'},
+  {n:25,cat:'7',catName:'Makes a political point',title:'Justifies own or party\'s policy',def:'The politician sidesteps the question by restating their policy rationale — answering the question they wish they\'d been asked.',who:'Mike Waltz, Meet the Press, April 2026',recent:true,q:'Will Trump extend the Iran ceasefire past Wednesday?',a:'"What this administration has done is bring Iran to the table in a way no previous administration managed. The president\'s strategy is working..."',note:'Answers a tactical question about an immediate decision with a broader justification of the overall policy approach — a classic pivot to preferred ground.'},
+  {n:26,cat:'7',catName:'Makes a political point',title:'Self-justification',def:'The politician responds by defending their personal record or character rather than engaging with the substance of the question.',who:'Boris Johnson, November 2021 (sleaze questions)',recent:false,q:'Are you personally honest?',a:'"I have given everything to this job. My entire career has been about public service and I make no apology for that..."',note:'A personal integrity question is answered with a personal legacy claim. No actual engagement with the honesty question occurs.'},
+  {n:27,cat:'8',catName:'Gives incomplete reply',title:'Addresses only part of a multi-part question',def:'When asked a complex question with several components, the politician answers only the least damaging part.',who:'Theresa May, Andrew Marr, October 2016',recent:false,q:'Will the UK stay in the single market, and will you trigger Article 50 before Parliament votes?',a:'"We will be triggering Article 50 before the end of March..."',note:'May answered the Article 50 timing question but said nothing about the single market — the more politically explosive element. Characteristic of her non-specific response style.'},
+  {n:28,cat:'8',catName:'Gives incomplete reply',title:'Gives deliberately vague or non-specific answer',def:'The politician answers in terms so general they commit to nothing — Bull\'s added category specifically for Theresa May\'s Brexit-era style.',who:'Theresa May, Brexit interviews, 2016–17',recent:false,q:'Should Britain stay in or leave the single market?',a:'"Brexit means Brexit. We will seek the best possible deal for Britain."',note:'Bull had to create a new subcategory — "gives non-specific response to a specific question" — because May deployed it in 88% of her non-replies. The answer is polite and relevant but contains zero information.'},
+  {n:29,cat:'8',catName:'Gives incomplete reply',title:'Begins to answer then trails off',def:'The politician starts engaging with the question, then diverts mid-answer, leaving the substantive response incomplete.',who:'Nick Clegg, coalition negotiations interviews, May 2010',recent:false,q:'So will you support Labour or the Conservatives?',a:'"Well, what I\'ve always said is that the party with the largest mandate... look, what really matters here is what\'s best for the country..."',note:'The trail-off mid-answer can seem natural and even candid, making it one of the harder evasions to detect in real time.'},
+  {n:30,cat:'9',catName:'Repeats prior answer',title:'Repeats earlier answer verbatim or near-verbatim',def:'When pressed for more detail, the politician simply says the same thing again — sometimes in identical words, sometimes paraphrased.',who:'Nick Clegg, ITV Leaders\' Debate, 2015',recent:false,q:'But which party WILL you support? You haven\'t answered.',a:'"What we need, as I\'ve said, is the party with the biggest mandate to have the first right to govern..."',note:'Bull documents this as a "stuck record" technique — effective at signalling there will be no new information forthcoming without having to explicitly refuse.'},
+  {n:31,cat:'9',catName:'Repeats prior answer',title:'Refers back to earlier statement in the same interview',def:'Rather than re-engaging, the politician points the interviewer back to something they said earlier in the same encounter.',who:'Rishi Sunak, various 2023 interviews',recent:false,q:'You still haven\'t said whether you\'ll cut public services.',a:'"As I said earlier, my first priority is halving inflation — I set out our approach quite clearly at the start."',note:'The referral technique exerts subtle social pressure on the interviewer — implying they weren\'t paying attention — while providing no new substance.'},
+  {n:32,cat:'10',catName:'States/implies already answered',title:'States the question has been answered',def:'The politician flatly asserts — sometimes accurately, sometimes not — that this question has already been addressed.',who:'David Cameron, EU referendum campaign, 2016',recent:false,q:'You haven\'t actually said what happens to the economy if we vote Leave.',a:'"We\'ve set this out extensively in the Treasury analysis — this has been very thoroughly answered."',note:'Deflects by appealing to a document or prior statement. Forces the interviewer to dispute the claim that an answer already exists.'},
+  {n:33,cat:'10',catName:'States/implies already answered',title:'Implies the question is repetitive or time-wasting',def:'The politician signals mild exasperation that this has been asked before — positioning the questioner as unreasonable.',who:'Boris Johnson, Downing Street press conferences, 2020–21',recent:false,q:'Why don\'t the rules apply to you at Downing Street parties?',a:'"I think I\'ve been very clear about this — these questions have been asked and answered and I want to move forward..."',note:'Johnson used this technique extensively during Partygate. The implication that re-asking is improper subtly delegitimises press scrutiny itself.'},
+  {n:34,cat:'11',catName:'Apologises',title:'Apologises instead of explaining',def:'The politician offers an apology for past behaviour which emotionally satisfies some of the question\'s weight without providing an explanation or committing to change.',who:'Keir Starmer, on the Mandelson appointment, early 2026',recent:true,q:'Why did you appoint Mandelson given what you knew about his Epstein links?',a:'"I have already apologised to the public and to Epstein\'s victims for placing my trust in Peter Mandelson\'s account of events."',note:'The apology displaces the explanatory question — why did you do it — with an emotional resolution that closes off further inquiry without answering it.'},
+  {n:35,cat:'12',catName:'Literalism',title:'Exploits ambiguity via deliberate literalism',def:'The politician answers with a technically accurate but deliberately narrow interpretation — responding to the letter, not the spirit, of what was asked.',who:'Bill Clinton (studied by Bull), 1998 / Michael Gove, various UK interviews',recent:false,q:'Have you had a sexual relationship with Monica Lewinsky?',a:'"There is no improper relationship." (Present tense — technically true at the moment of denial)',note:'Bull studied Clinton\'s testimony as a case study in literalism. The precise tense "is" (not "was") made the statement technically defensible while being substantively misleading. In UK politics, Michael Gove has been documented using similarly precise language to avoid committing to positions.'},
+];
+
+let activeCat='all';
+function buildTabs(){
+  document.getElementById('tabs').innerHTML=CATS.map(c=>
+    `<button class="tab${c.id===activeCat?' active':''}" onclick="setTab('${c.id}')">${c.label}</button>`
+  ).join('');
+}
+function setTab(id){activeCat=id;buildTabs();render();}
+function render(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const f=DATA.filter(d=>{
+    const mc=activeCat==='all'||d.cat===activeCat;
+    const ms=!q||[d.title,d.def,d.who,d.a,d.note,d.catName].some(s=>s.toLowerCase().includes(q));
+    return mc&&ms;
+  });
+  document.getElementById('counter').textContent=`Showing ${f.length} of 35 techniques`;
+  const cc=document.getElementById('cards');
+  if(!f.length){cc.innerHTML='<div class="no-results">No techniques match your search.</div>';return;}
+  cc.innerHTML=f.map(d=>{
+    const [bg,tc]=NBGS[d.cat]||['#eee','#333'];
+    const badge=d.recent?'<span class="badge badge-r">2026 example</span>':'<span class="badge badge-c">Classic example</span>';
+    return `<div class="card">
+      <div class="card-header">
+        <span class="num" style="background:${bg};color:${tc}">#${d.n}</span>
+        <div style="flex:1"><span class="card-title">${d.title}</span>${badge}</div>
+      </div>
+      <div class="card-cat">Superordinate category ${d.cat}: ${d.catName}</div>
+      <div class="card-def">${d.def}</div>
+      <div class="ex-label">Example</div>
+      <div class="ex-who">${d.who}</div>
+      <div class="ex-q">Q: "${d.q}"</div>
+      <div class="ex-a">${d.a}</div>
+      <div class="ex-note">${d.note}</div>
+    </div>`;
+  }).join('');
+}
+buildTabs();render();
+</script>
+</body>
+</html>
