@@ -128,30 +128,30 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <script>
 /* ================================================================
-   ARCHITECTURE (final, reliable version)
-   ----------------------------------------------------------------
-   HEATMAP:  We call GDELT artlist in CSV mode (not JSON).
-             CSV mode is simpler — no JSON shape ambiguity.
-             We request 250 articles, parse sourcecountry from CSV,
-             count per-country and colour the map.
+   DEFINITIVE COLUMN MAP (from gdelt-doc-api Python library source):
+   GDELT artlist CSV columns (0-indexed, with header row):
+     0: url
+     1: url_mobile
+     2: title
+     3: seendate
+     4: socialimage
+     5: domain
+     6: language
+     7: sourcecountry   ← this is what we need
 
-   PROXY:    api.codetabs.com/v1/proxy?quest= is the most reliable
-             free CORS proxy for GDELT specifically. We try direct
-             first (works on GitHub Pages), then codetabs, then
-             corsproxy.io as last resort.
+   Previous versions were reading column 3 (seendate/title area).
+   Now we skip the header row and read column 7 for country.
 
-   HEADLINES: On country click we make a targeted GDELT artlist
-              query filtered to that country's FIPS code, with a
-              curated domain allowlist for major countries so you
-              get BBC/Guardian/FT for UK, NYT/WaPo/AP for US, etc.
-              Falls back to unfiltered if no curated list exists.
+   HEATMAP: We use GDELT GEO 2.0 API in sourcecountry mode.
+   URL: /api/v2/geo/geo?query=news&mode=sourcecountry&format=csv&timespan=1d
+   This returns pre-aggregated counts per source country — much faster
+   and lighter than parsing 250 individual article rows.
+   GEO API CSV columns: Name, Count, ... (country name then count)
 
-   FIPS note: GDELT sourcecountry uses FIPS-10-4 codes.
-              Key differences from ISO-2:
-              US=US, UK=GB, GM=DE, JA=JP, RS=RU, IZ=IQ, KS=KR etc.
+   HEADLINES: artlist CSV with sourcecountry:FIPS filter + curated domains.
 ================================================================ */
 
-/* ---- FIPS-10-4 → ISO-2 ---- */
+/* FIPS-10-4 → ISO-2 */
 const F2I = {
   "AF":"AF","AL":"AL","AG":"DZ","AO":"AO","AR":"AR","AM":"AM","AS":"AU",
   "AU":"AT","AJ":"AZ","BA":"BH","BG":"BD","BO":"BY","BE":"BE","BN":"BJ",
@@ -174,14 +174,55 @@ const F2I = {
   "TS":"TN","TU":"TR","TX":"TM","UG":"UG","UP":"UA","AE":"AE","UK":"GB",
   "US":"US","UY":"UY","UZ":"UZ","VE":"VE","VM":"VN","YM":"YE","ZA":"ZM",
   "ZI":"ZW","IC":"IS","CY":"CY","MT":"MT","SI":"SI","SK":"SK","LT":"LT",
-  "EE":"EE","LI":"LI","MG":"MG","SN":"SG","TT":"TT","JN":"JE","BB":"BB"
+  "EE":"EE","LV":"LV","SN":"SG","TT":"TT","MG":"MG","SB":"SB"
 };
 
-/* ISO-2 → FIPS (for per-country headline queries) */
+/* Also build a name→ISO lookup for GEO API which returns country names */
+const NAME2ISO = {
+  "united states":"US","united states of america":"US","usa":"US",
+  "united kingdom":"GB","uk":"GB","great britain":"GB",
+  "germany":"DE","france":"FR","russia":"RU","china":"CN","japan":"JP",
+  "india":"IN","brazil":"BR","canada":"CA","australia":"AU","italy":"IT",
+  "spain":"ES","mexico":"MX","south korea":"KR","indonesia":"ID","turkey":"TR",
+  "netherlands":"NL","saudi arabia":"SA","switzerland":"CH","poland":"PL",
+  "argentina":"AR","sweden":"SE","belgium":"BE","norway":"NO","austria":"AT",
+  "ukraine":"UA","israel":"IL","iran":"IR","iraq":"IQ","egypt":"EG",
+  "pakistan":"PK","nigeria":"NG","south africa":"ZA","kenya":"KE",
+  "ethiopia":"ET","ghana":"GH","tanzania":"TZ","uganda":"UG","algeria":"DZ",
+  "morocco":"MA","tunisia":"TN","libya":"LY","sudan":"SD","somalia":"SO",
+  "afghanistan":"AF","syria":"SY","yemen":"YE","lebanon":"LB","jordan":"JO",
+  "qatar":"QA","kuwait":"KW","bahrain":"BH","oman":"OM","uae":"AE",
+  "united arab emirates":"AE","malaysia":"MY","thailand":"TH","taiwan":"TW",
+  "philippines":"PH","vietnam":"VN","myanmar":"MM","cambodia":"KH",
+  "bangladesh":"BD","sri lanka":"LK","nepal":"NP","singapore":"SG",
+  "new zealand":"NZ","ireland":"IE","portugal":"PT","greece":"GR",
+  "czech republic":"CZ","hungary":"HU","romania":"RO","denmark":"DK",
+  "finland":"FI","slovakia":"SK","croatia":"HR","serbia":"RS",
+  "colombia":"CO","venezuela":"VE","peru":"PE","chile":"CL","ecuador":"EC",
+  "cuba":"CU","bolivia":"BO","paraguay":"PY","uruguay":"UY","panama":"PA",
+  "costa rica":"CR","guatemala":"GT","honduras":"HN","el salvador":"SV",
+  "nicaragua":"NI","haiti":"HT","jamaica":"JM","cameroon":"CM",
+  "ivory coast":"CI","cote d'ivoire":"CI","senegal":"SN","mali":"ML",
+  "niger":"NE","burkina faso":"BF","zimbabwe":"ZW","zambia":"ZM",
+  "mozambique":"MZ","angola":"AO","democratic republic of the congo":"CD",
+  "dr congo":"CD","congo":"CG","rwanda":"RW","burundi":"BI","malawi":"MW",
+  "namibia":"NA","botswana":"BW","kazakhstan":"KZ","uzbekistan":"UZ",
+  "azerbaijan":"AZ","georgia":"GE","armenia":"AM","tajikistan":"TJ",
+  "kyrgyzstan":"KG","turkmenistan":"TM","belarus":"BY","moldova":"MD",
+  "north korea":"KP","south sudan":"SS","eritrea":"ER","gabon":"GA",
+  "benin":"BJ","togo":"TG","sierra leone":"SL","guinea":"GN","liberia":"LR",
+  "laos":"LA","mongolia":"MN","papua new guinea":"PG","albania":"AL",
+  "north macedonia":"MK","kosovo":"XK","bosnia and herzegovina":"BA",
+  "bosnia":"BA","iceland":"IS","cyprus":"CY","malta":"MT","luxembourg":"LU",
+  "slovenia":"SI","bulgaria":"BG","latvia":"LV","lithuania":"LT","estonia":"EE",
+  "macedonia":"MK","myanmar (burma)":"MM","timor-leste":"TL","east timor":"TL"
+};
+
+/* ISO-2 → FIPS */
 const I2F = {};
 Object.entries(F2I).forEach(([f,i]) => { if(!I2F[i]) I2F[i]=f; });
 
-/* TopoJSON properties.name → ISO-2 */
+/* TopoJSON properties.name → ISO-2 (exact names from world-atlas 110m) */
 const T2I = {
   "Afghanistan":"AF","Albania":"AL","Algeria":"DZ","Angola":"AO","Argentina":"AR",
   "Armenia":"AM","Australia":"AU","Austria":"AT","Azerbaijan":"AZ","Bahrain":"BH",
@@ -214,14 +255,13 @@ const T2I = {
   "United Arab Emirates":"AE","United Kingdom":"GB","United States of America":"US",
   "Uruguay":"UY","Uzbekistan":"UZ","Venezuela":"VE","Vietnam":"VN","Yemen":"YE",
   "Zambia":"ZM","Zimbabwe":"ZW","Iceland":"IS","Cyprus":"CY","Malta":"MT",
-  "Slovenia":"SI","Slovakia":"SK","Kosovo":"XK","Estonia":"EE","W. Sahara":"EH",
-  "Somaliland":"SO","New Caledonia":"NC"
+  "Slovenia":"SI","Slovakia":"SK","Kosovo":"XK","Estonia":"EE"
 };
 
-/* Display names for panel header */
+/* Display names */
 const DNAME = {
   "US":"United States","GB":"United Kingdom","CD":"DR Congo","KP":"North Korea",
-  "KR":"South Korea","SS":"South Sudan","MK":"North Macedonia","AE":"United Arab Emirates",
+  "KR":"South Korea","SS":"South Sudan","MK":"North Macedonia","AE":"UAE",
   "BA":"Bosnia & Herzegovina","CF":"Central African Rep.","CZ":"Czech Republic",
   "DO":"Dominican Republic"
 };
@@ -231,76 +271,49 @@ function dname(iso2) {
   return e ? e[0] : iso2;
 }
 
-/* ================================================================
-   CURATED DOMAIN LISTS per country
-   These ensure clicks show reputable national outlets, not noise.
-   GDELT query syntax: domain:bbc.co.uk OR domain:theguardian.com
-   If a country has no curated list we fall back to sourcecountry filter only.
-================================================================ */
+/* Curated domain lists per country for quality headlines */
 const DOMAINS = {
-  "GB": ["bbc.co.uk","theguardian.com","ft.com","thetimes.co.uk","telegraph.co.uk",
-         "independent.co.uk","reuters.com","sky.com","thesun.co.uk","dailymail.co.uk"],
-  "US": ["apnews.com","reuters.com","nytimes.com","washingtonpost.com","wsj.com",
-         "npr.org","politico.com","cnn.com","nbcnews.com","abcnews.go.com",
-         "cbsnews.com","theatlantic.com","bloomberg.com","axios.com"],
-  "DE": ["spiegel.de","faz.net","zeit.de","sueddeutsche.de","dw.com","welt.de",
-         "handelsblatt.com","focus.de","bild.de","tagesschau.de"],
-  "FR": ["lemonde.fr","lefigaro.fr","liberation.fr","lexpress.fr","france24.com",
-         "rfi.fr","lepoint.fr","leparisien.fr","nouvelobs.com"],
-  "JP": ["japantimes.co.jp","nhk.or.jp","mainichi.jp","yomiuri.co.jp","asahi.com",
-         "kyodonews.net","nikkei.com","japantoday.com"],
-  "CN": ["xinhuanet.com","chinadaily.com.cn","globaltimes.cn","scmp.com",
-         "cgtn.com","sixthtone.com","caixin.com"],
-  "IN": ["thehindu.com","hindustantimes.com","ndtv.com","timesofindia.indiatimes.com",
-         "indianexpress.com","theprint.in","scroll.in","wire.in","livemint.com"],
-  "RU": ["rt.com","tass.com","themoscowtimes.com","interfax.ru","rbc.ru","meduza.io"],
-  "AU": ["abc.net.au","smh.com.au","theaustralian.com.au","theage.com.au",
-         "afr.com","news.com.au","theguardian.com"],
-  "CA": ["cbc.ca","globeandmail.com","nationalpost.com","thestar.com",
-         "torontosun.com","macleans.ca","ottawacitizen.com"],
-  "BR": ["folha.uol.com.br","oglobo.globo.com","agenciabrasil.ebc.com.br",
-         "g1.globo.com","valor.com.br","uol.com.br"],
-  "MX": ["eluniversal.com.mx","reforma.com","jornada.com.mx","milenio.com",
-         "proceso.com.mx","elfinanciero.com.mx"],
-  "ZA": ["dailymaverick.co.za","mg.co.za","timeslive.co.za","news24.com",
-         "thesouthafrican.com","businesslive.co.za"],
-  "NG": ["punchng.com","theguardian.ng","vanguardngr.com","premiumtimesng.com",
-         "thecable.ng","channelstv.com"],
-  "KE": ["nation.africa","standardmedia.co.ke","capitalfm.co.ke","businessdailyafrica.com"],
-  "EG": ["ahram.org.eg","egyptindependent.com","madamasr.com","dailynewsegypt.com"],
-  "IL": ["haaretz.com","timesofisrael.com","jpost.com","ynetnews.com","i24news.tv"],
-  "SA": ["arabnews.com","saudigazette.com.sa","aljazeera.com","gulfnews.com"],
-  "PK": ["dawn.com","geo.tv","thenews.com.pk","arynews.tv","tribune.com.pk"],
-  "TR": ["hurriyet.com.tr","dailysabah.com","trtworld.com","bianet.org","ahval.com"],
-  "UA": ["kyivpost.com","ukrinform.net","thekyivindependent.com","pravda.com.ua"],
-  "IR": ["presstv.ir","tehrantimes.com","iranintl.com","radiofarda.com"],
-  "IQ": ["rudaw.net","iraqinews.com","shafaq.com","alsumaria.tv"],
-  "AF": ["tolonews.com","khaama.com","arianagroupmedia.com"],
-  "SY": ["syriahr.com","alaraby.co.uk","syriandirect.com"],
-  "YE": ["saba.ye","almashhadalarabi.com","yementimes.com"],
-  "KR": ["koreaherald.com","koreatimes.co.kr","yonhapnewsagency.com","arirang.com"],
-  "ID": ["kompas.com","thejakartapost.com","tempo.co","detik.com"],
-  "PH": ["rappler.com","philstar.com","inquirer.net","abs-cbn.com","gmanetwork.com"],
-  "MY": ["malaymail.com","thestar.com.my","freemalaysiatoday.com","malaysiakini.com"],
-  "TH": ["bangkokpost.com","nationthailand.com","thaipbsworld.com"],
-  "VN": ["vietnamnews.vn","thanhniennews.com","tuoitrenews.vn"],
-  "NL": ["nltimes.nl","dutchnews.nl","nu.nl","telegraaf.nl","trouw.nl"],
-  "SE": ["thelocal.se","svt.se","dn.se","svd.se","expressen.se"],
-  "NO": ["thelocal.no","aftenposten.no","nrk.no","vg.no","dagbladet.no"],
-  "PL": ["notesfrompoland.com","polskieradio.pl","tvn24.pl","wyborcza.pl"],
-  "CH": ["swissinfo.ch","rts.ch","nzz.ch","blick.ch","srf.ch"],
-  "ES": ["elpais.com","elmundo.es","abc.es","lavanguardia.com","elconfidencial.com"],
-  "IT": ["ansa.it","corriere.it","repubblica.it","lastampa.it","sole24ore.com"],
-  "GR": ["ekathimerini.com","thenationalherald.com","protothema.gr","iefimerida.gr"],
-  "AR": ["lanacion.com.ar","clarin.com","infobae.com","pagina12.com.ar","ambito.com"],
-  "VE": ["eluniversal.com","lapatilla.com","el-nacional.com","talcualdigital.com"],
-  "CO": ["eltiempo.com","semana.com","elespectador.com","caracol.com.co"],
-  "CL": ["emol.com","latercera.com","biobiochile.cl","df.cl"],
-  "ET": ["ethiopianmonitor.com","addisfortune.net","fanabc.com","thereporterethiopia.com"],
-  "TZ": ["thecitizen.co.tz","dailynews.co.tz","mwananchi.co.tz"],
-  "GH": ["ghanaiantimes.com.gh","graphic.com.gh","ghanaweb.com","myjoyonline.com"],
-  "QA": ["aljazeera.com","thepeninsulaqatar.com","gulf-times.com"],
-  "AE": ["thenationalnews.com","gulfnews.com","khaleejtimes.com","arabianbusiness.com"],
+  "GB":["bbc.co.uk","theguardian.com","ft.com","thetimes.co.uk","telegraph.co.uk","independent.co.uk","reuters.com","sky.com"],
+  "US":["apnews.com","reuters.com","nytimes.com","washingtonpost.com","wsj.com","npr.org","bloomberg.com","axios.com","politico.com"],
+  "DE":["spiegel.de","faz.net","zeit.de","sueddeutsche.de","dw.com","welt.de","handelsblatt.com"],
+  "FR":["lemonde.fr","lefigaro.fr","liberation.fr","france24.com","rfi.fr","lexpress.fr"],
+  "JP":["japantimes.co.jp","nhk.or.jp","mainichi.jp","kyodonews.net","nikkei.com","japantoday.com"],
+  "CN":["xinhuanet.com","chinadaily.com.cn","globaltimes.cn","scmp.com","cgtn.com"],
+  "IN":["thehindu.com","hindustantimes.com","ndtv.com","timesofindia.indiatimes.com","indianexpress.com","theprint.in","livemint.com"],
+  "RU":["rt.com","tass.com","themoscowtimes.com","meduza.io","interfax.com"],
+  "AU":["abc.net.au","smh.com.au","theaustralian.com.au","theage.com.au","afr.com","theguardian.com"],
+  "CA":["cbc.ca","globeandmail.com","nationalpost.com","thestar.com","macleans.ca"],
+  "BR":["folha.uol.com.br","oglobo.globo.com","g1.globo.com","valor.com.br","agenciabrasil.ebc.com.br"],
+  "MX":["eluniversal.com.mx","reforma.com","jornada.com.mx","milenio.com","proceso.com.mx"],
+  "ZA":["dailymaverick.co.za","news24.com","timeslive.co.za","mg.co.za","businesslive.co.za"],
+  "NG":["punchng.com","theguardian.ng","vanguardngr.com","premiumtimesng.com","channelstv.com"],
+  "KE":["nation.africa","standardmedia.co.ke","businessdailyafrica.com"],
+  "EG":["ahram.org.eg","egyptindependent.com","madamasr.com","dailynewsegypt.com"],
+  "IL":["haaretz.com","timesofisrael.com","jpost.com","ynetnews.com","i24news.tv"],
+  "SA":["arabnews.com","saudigazette.com.sa","aljazeera.com","gulfnews.com"],
+  "PK":["dawn.com","geo.tv","thenews.com.pk","tribune.com.pk","arynews.tv"],
+  "TR":["hurriyet.com.tr","dailysabah.com","trtworld.com","bianet.org"],
+  "UA":["kyivpost.com","ukrinform.net","thekyivindependent.com"],
+  "IR":["presstv.ir","tehrantimes.com","iranintl.com","radiofarda.com"],
+  "KR":["koreaherald.com","koreatimes.co.kr","yonhapnewsagency.com","arirang.com"],
+  "ID":["thejakartapost.com","kompas.com","tempo.co"],
+  "PH":["rappler.com","inquirer.net","philstar.com","gmanetwork.com"],
+  "MY":["malaymail.com","thestar.com.my","malaysiakini.com","freemalaysiatoday.com"],
+  "TH":["bangkokpost.com","nationthailand.com","thaipbsworld.com"],
+  "NL":["nltimes.nl","dutchnews.nl","nu.nl","telegraaf.nl"],
+  "SE":["thelocal.se","dn.se","svd.se","svt.se"],
+  "NO":["thelocal.no","aftenposten.no","nrk.no"],
+  "PL":["notesfrompoland.com","wyborcza.pl","tvn24.pl"],
+  "CH":["swissinfo.ch","nzz.ch","srf.ch"],
+  "ES":["elpais.com","elmundo.es","lavanguardia.com","abc.es"],
+  "IT":["ansa.it","corriere.it","repubblica.it","lastampa.it"],
+  "GR":["ekathimerini.com","protothema.gr"],
+  "AR":["lanacion.com.ar","clarin.com","infobae.com","ambito.com"],
+  "CO":["eltiempo.com","semana.com","elespectador.com"],
+  "QA":["aljazeera.com","thepeninsulaqatar.com","gulf-times.com"],
+  "AE":["thenationalnews.com","gulfnews.com","khaleejtimes.com","arabianbusiness.com"],
+  "IQ":["rudaw.net","iraqinews.com","shafaq.com"],
+  "SY":["syriahr.com","syriandirect.com"],
 };
 
 /* ---- App state ---- */
@@ -314,22 +327,10 @@ function setStatus(msg, cls) {
   document.getElementById('status-dot').className = cls || '';
 }
 function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-/* ---- Fetch with timeout ---- */
-async function ftch(url, ms=12000) {
-  const ctrl = new AbortController();
-  const t = setTimeout(()=>ctrl.abort(), ms);
-  try {
-    const r = await fetch(url, {signal:ctrl.signal, cache:'no-store'});
-    clearTimeout(t);
-    return r;
-  } catch(e) { clearTimeout(t); throw e; }
-}
-
-/* Try direct, then two proxies */
+/* ---- Fetch with timeout, trying direct then proxies ---- */
 async function fetchText(rawUrl) {
   const proxies = [
     rawUrl,
@@ -338,31 +339,40 @@ async function fetchText(rawUrl) {
   ];
   for (const url of proxies) {
     try {
-      const r = await ftch(url, 12000);
-      if (r.ok) return await r.text();
-    } catch(e) { /* next */ }
+      const ctrl = new AbortController();
+      const t = setTimeout(()=>ctrl.abort(), 12000);
+      const r = await fetch(url, {signal:ctrl.signal, cache:'no-store'});
+      clearTimeout(t);
+      if (r.ok) {
+        const text = await r.text();
+        if (text && text.trim().length > 10) return text;
+      }
+    } catch(e) { /* try next proxy */ }
   }
   return null;
 }
 
-/* ---- Parse GDELT CSV artlist ----
-   Columns (0-indexed): DATE(0) TITLE(1) URL(2) SOURCECOUNTRY(3) SOURCELANG(4) DOMAIN(5)
-   Note: GDELT CSV has no header row in artlist mode. */
-function parseCSV(text) {
-  if (!text || !text.trim()) return [];
+/* ---- Parse CSV properly ----
+   Handles quoted fields. Skips header row (first line). */
+function parseCSVRows(text) {
+  if (!text) return [];
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return []; /* need at least header + 1 data row */
   const rows = [];
-  for (const line of text.trim().split('\n')) {
-    // Basic CSV split respecting quoted fields
+  /* Start at index 1 to skip header row */
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
     const cols = [];
     let cur = '', inQ = false;
-    for (let i=0; i<line.length; i++) {
-      const c = line[i];
-      if (c==='"') { inQ=!inQ; }
-      else if (c===',' && !inQ) { cols.push(cur); cur=''; }
-      else { cur+=c; }
+    for (let j = 0; j < line.length; j++) {
+      const c = line[j];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += c; }
     }
-    cols.push(cur);
-    if (cols.length >= 4) rows.push(cols);
+    cols.push(cur.trim());
+    rows.push(cols);
   }
   return rows;
 }
@@ -374,9 +384,7 @@ function makeScale() {
   const max = Math.max(...vals);
   return d3.scaleSequential()
     .domain([0, max])
-    .interpolator(d3.interpolateRgbBasis([
-      '#1a0808','#4a1212','#7b1c1c','#c0392b','#e74c3c','#ff6b6b'
-    ]));
+    .interpolator(d3.interpolateRgbBasis(['#1a0808','#4a1212','#7b1c1c','#c0392b','#e74c3c','#ff6b6b']));
 }
 
 function colorMap() {
@@ -390,87 +398,102 @@ function colorMap() {
 }
 
 /* ================================================================
-   HEATMAP FETCH — artlist CSV, 250 articles, 24h window
-   We parse sourcecountry (column 3) from each row.
+   HEATMAP — GEO 2.0 API in sourcecountry mode
+   Returns CSV with columns: Name (country name), Count
+   The country "Name" is a full English name like "United States"
+   which we resolve via NAME2ISO.
+   Fallback: artlist CSV reading column 7 (sourcecountry).
 ================================================================ */
 async function fetchHeatmap() {
   setStatus('Fetching GDELT…', '');
 
-  /* CSV mode: no JSON shape issues, simpler parsing */
-  const url = 'https://api.gdeltproject.org/api/v2/doc/doc?query=sourcelang:english&mode=artlist&format=csv&maxrecords=250&timespan=24h&sort=DateDesc';
-  const text = await fetchText(url);
+  /* Primary: GEO 2.0 sourcecountry mode — fastest, pre-aggregated */
+  const geoUrl = 'https://api.gdeltproject.org/api/v2/geo/geo?query=news&mode=sourcecountry&format=csv&timespan=1d';
+  let text = await fetchText(geoUrl);
+  let resolved = false;
 
-  if (!text) {
+  if (text) {
+    const rows = parseCSVRows(text);
+    const tally = {};
+    rows.forEach(cols => {
+      /* GEO API CSV: col 0 = country name, col 1 = count */
+      const name  = (cols[0]||'').toLowerCase().replace(/"/g,'').trim();
+      const count = parseInt((cols[1]||'0').replace(/"/g,''), 10);
+      if (!name || !count) return;
+      const iso2 = NAME2ISO[name];
+      if (iso2) tally[iso2] = (tally[iso2]||0) + count;
+    });
+    if (Object.keys(tally).length > 5) {
+      countryScores = tally;
+      resolved = true;
+    }
+  }
+
+  /* Fallback: artlist CSV — col 7 is sourcecountry (FIPS code) */
+  if (!resolved) {
+    const artUrl = 'https://api.gdeltproject.org/api/v2/doc/doc?query=sourcelang:english&mode=artlist&format=csv&maxrecords=250&timespan=1d&sort=DateDesc';
+    text = await fetchText(artUrl);
+    if (text) {
+      const rows = parseCSVRows(text);
+      const tally = {};
+      rows.forEach(cols => {
+        /* col 7 = sourcecountry in FIPS */
+        const fips = (cols[7]||'').replace(/"/g,'').trim().toUpperCase();
+        if (!fips || fips.length < 2) return;
+        const iso2 = F2I[fips] || (fips.length === 2 ? fips : null);
+        if (iso2) tally[iso2] = (tally[iso2]||0) + 1;
+      });
+      if (Object.keys(tally).length > 0) {
+        countryScores = tally;
+        resolved = true;
+      }
+    }
+  }
+
+  if (!resolved) {
     setStatus('GDELT unavailable — retrying in 90 s', 'error');
     setTimeout(fetchHeatmap, 90000);
     return;
   }
 
-  const rows = parseCSV(text);
-  if (!rows.length) {
-    setStatus('No data returned — retrying in 90 s', 'error');
-    setTimeout(fetchHeatmap, 90000);
-    return;
-  }
-
-  /* Tally by ISO-2 */
-  const tally = {};
-  let mapped = 0;
-  rows.forEach(cols => {
-    /* cols[3] = sourcecountry in FIPS, cols[4] = lang */
-    const raw = (cols[3]||'').replace(/"/g,'').trim().toUpperCase();
-    if (!raw) return;
-    /* Try FIPS lookup; also try direct ISO-2 passthrough */
-    const iso2 = F2I[raw] || (raw.length===2 ? raw : null);
-    if (!iso2) return;
-    tally[iso2] = (tally[iso2]||0) + 1;
-    mapped++;
-  });
-
-  if (!Object.keys(tally).length) {
-    /* Dump what we got for debugging */
-    const sample = rows.slice(0,5).map(r=>r[3]||'?').join(', ');
-    setStatus(`Parsed ${rows.length} rows but no countries matched. Sample codes: ${sample}`, 'error');
-    setTimeout(fetchHeatmap, 90000);
-    return;
-  }
-
-  countryScores = tally;
-  const cc  = Object.keys(tally).length;
+  const cc  = Object.keys(countryScores).length;
   const now = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-  setStatus(`Live · ${rows.length} articles · ${cc} countries · ${now}`, 'ok');
+  setStatus(`Live · ${cc} countries · updated ${now}`, 'ok');
   colorMap();
   setTimeout(fetchHeatmap, 15*60*1000);
 }
 
 /* ================================================================
-   HEADLINES FETCH — per country click
-   Uses sourcecountry:FIPS filter + optional curated domain list.
-   Falls back to no domain filter if curated list returns nothing.
+   HEADLINES — artlist CSV filtered by sourcecountry:FIPS
+   GDELT artlist CSV columns (verified):
+     0:url  1:url_mobile  2:title  3:seendate  4:socialimage
+     5:domain  6:language  7:sourcecountry
+   We read: title=col2, url=col0, domain=col5, date=col3
 ================================================================ */
 async function fetchHeadlines(iso2) {
   const fips   = I2F[iso2] || iso2;
   const doms   = DOMAINS[iso2];
   const domStr = doms ? ' (' + doms.map(d=>`domain:${d}`).join(' OR ') + ')' : '';
-  const base   = `https://api.gdeltproject.org/api/v2/doc/doc?mode=artlist&format=csv&maxrecords=20&timespan=24h&sort=DateDesc`;
-  const query  = `sourcelang:english sourcecountry:${fips}${domStr}`;
-  const url    = `${base}&query=${encodeURIComponent(query)}`;
+  const base   = 'https://api.gdeltproject.org/api/v2/doc/doc?mode=artlist&format=csv&maxrecords=20&timespan=1d&sort=DateDesc';
+  const q      = `sourcelang:english sourcecountry:${fips}${domStr}`;
+  const url    = `${base}&query=${encodeURIComponent(q)}`;
 
   let text = await fetchText(url);
-  let rows = text ? parseCSV(text) : [];
+  let rows = text ? parseCSVRows(text) : [];
 
-  /* If curated list returned nothing, retry without domain filter */
+  /* If curated domains return nothing, retry without domain filter */
   if (doms && rows.length === 0) {
-    const url2 = `${base}&query=${encodeURIComponent(`sourcelang:english sourcecountry:${fips}`)}`;
+    const q2   = `sourcelang:english sourcecountry:${fips}`;
+    const url2 = `${base}&query=${encodeURIComponent(q2)}`;
     text = await fetchText(url2);
-    rows = text ? parseCSV(text) : [];
+    rows = text ? parseCSVRows(text) : [];
   }
 
   return rows.map(cols => ({
-    date:   cols[0] || '',
-    title:  (cols[1]||'').replace(/"/g,''),
-    url:    (cols[2]||'').replace(/"/g,''),
-    source: (cols[5]||'').replace(/"/g,'')
+    url:    (cols[0]||'').replace(/"/g,''),
+    title:  (cols[2]||'').replace(/"/g,''),
+    date:   (cols[3]||'').replace(/"/g,''),
+    domain: (cols[5]||'').replace(/"/g,'')
   })).filter(a => a.title && a.url);
 }
 
@@ -483,28 +506,30 @@ async function openPanel(iso2) {
   document.getElementById('panel').classList.add('open');
   document.getElementById('panel-country').textContent = dname(iso2);
   document.getElementById('panel-count').textContent   = 'Loading…';
-  document.getElementById('panel-articles').innerHTML  = '<div class="status-msg">Fetching headlines from GDELT…</div>';
+  document.getElementById('panel-articles').innerHTML  = '<div class="status-msg">Fetching headlines…</div>';
 
   const arts = await fetchHeadlines(iso2);
-  if (activeISO2 !== iso2) return; /* user switched */
+  if (activeISO2 !== iso2) return;
 
+  const curated = DOMAINS[iso2] ? ' · curated sources' : '';
   document.getElementById('panel-count').textContent = arts.length
-    ? `${arts.length} articles · last 24 h · ${DOMAINS[iso2]?'curated sources':'all sources'}`
+    ? `${arts.length} articles · last 24 h${curated}`
     : 'No headlines available right now';
 
   const box = document.getElementById('panel-articles');
   if (!arts.length) {
-    box.innerHTML = `<div class="status-msg">GDELT returned no articles for this country right now. The service may be temporarily slow — try again in a moment.</div>`;
+    box.innerHTML = `<div class="status-msg">GDELT returned no articles for this country. The service may be temporarily slow — try again shortly.</div>`;
     return;
   }
 
   box.innerHTML = arts.map(a => {
+    /* seendate format: 20250425T123045Z */
     const raw = (a.date||'').replace(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z/,'$1-$2-$3T$4:$5:$6Z');
     const dt  = new Date(raw);
     const t   = isNaN(dt.getTime()) ? '' : dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     return `<div class="article">
       <a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.title)}</a>
-      <div class="article-meta">${esc(a.source)}${t?' · '+t:''}</div>
+      <div class="article-meta">${esc(a.domain)}${t?' · '+t:''}</div>
     </div>`;
   }).join('');
 }
@@ -524,13 +549,9 @@ async function buildMap() {
     const col = document.getElementById('map-col');
     const W = col.clientWidth - 12, H = col.clientHeight - 12;
     d3.select('#map').selectAll('*').remove();
-
-    const proj = d3.geoNaturalEarth1()
-      .scale(Math.min(W/5.8, H/3.1))
-      .translate([W/2, H/2]);
+    const proj   = d3.geoNaturalEarth1().scale(Math.min(W/5.8,H/3.1)).translate([W/2,H/2]);
     const pathFn = d3.geoPath(proj);
-
-    const svg = d3.select('#map').append('svg').attr('width',W).attr('height',H);
+    const svg    = d3.select('#map').append('svg').attr('width',W).attr('height',H);
 
     svg.selectAll('.country')
       .data(topoFeatures).join('path')
