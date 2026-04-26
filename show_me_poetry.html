@@ -290,6 +290,12 @@
       // Create a dot for this slide
       const dot = document.createElement("div");
       dot.className = "dot";
+      const dotIndex = index;
+      dot.addEventListener("click", function() {
+        currentSlide = dotIndex;
+        goToSlide(currentSlide);
+      });
+      dot.style.cursor = "pointer";
       dotsEl.appendChild(dot);
     });
  
@@ -327,6 +333,26 @@
       currentSlide = (currentSlide + 1) % paintings.length;
       goToSlide(currentSlide);
     }, 7000);
+
+    // Swipe detection for mobile
+    let touchStartX = 0;
+    
+    document.getElementById("carousel").addEventListener("touchstart", function(e) {
+      touchStartX = e.touches[0].clientX;
+    });
+    
+    document.getElementById("carousel").addEventListener("touchend", function(e) {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) < 40) return; // ignore tiny movements
+      if (diff > 0) {
+        // swiped left — go forward
+        currentSlide = (currentSlide + 1) % paintings.length;
+      } else {
+        // swiped right — go back
+        currentSlide = (currentSlide - 1 + paintings.length) % paintings.length;
+      }
+      goToSlide(currentSlide);
+    });
 
     const synonyms = {
       "angry":     "anger",
