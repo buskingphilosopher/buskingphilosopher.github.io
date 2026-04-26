@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Theory Compendium</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f7f7f5;
+    --bg3: #f1efea;
+    --text: #1a1a18;
+    --text2: #5f5e5a;
+    --text3: #888780;
+    --border: rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --info: #185fa5;
+    --info-bg: #e6f1fb;
+    --warn: #ba7517;
+    --warn-bg: #faeeda;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a;
+      --bg2: #252523;
+      --bg3: #2e2e2b;
+      --text: #f0efe9;
+      --text2: #a8a79f;
+      --text3: #6e6d67;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.18);
+      --info: #85b7eb;
+      --info-bg: #0c3060;
+      --warn: #ef9f27;
+      --warn-bg: #412402;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg3);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+    line-height: 1.6;
+  }
+
+  .page-header {
+    max-width: 760px;
+    margin: 0 auto 24px;
+  }
+
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: var(--text2);
+  }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  /* Family filter bar */
+  .family-bar {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .jump-btn {
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border2);
+    background: var(--bg2);
+    cursor: pointer;
+    color: var(--text2);
+    transition: background .15s, color .15s;
+  }
+
+  .jump-btn:hover { background: var(--bg3); color: var(--text); }
+  .jump-btn.active-fam { background: var(--bg3); color: var(--text); border-color: var(--border2); font-weight: 500; }
+
+  /* Navigation */
+  .nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .nav-btn {
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 8px 18px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text);
+    transition: background .15s;
+  }
+
+  .nav-btn:hover { background: var(--bg3); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+  .dots { display: flex; justify-content: center; gap: 5px; margin-bottom: 3px; flex-wrap: wrap; }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--border2); display: inline-block;
+    transition: background .2s; cursor: pointer;
+  }
+  .dot.on { background: var(--text); }
+  .counter { font-size: 11px; color: var(--text3); text-align: center; }
+
+  /* Game card */
+  .game-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+  }
+
+  .family-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    letter-spacing: .05em;
+    margin-bottom: 6px;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-right: 6px;
+    margin-bottom: 10px;
+  }
+
+  .game-title { font-size: 17px; font-weight: 500; margin-bottom: 4px; }
+  .game-sub { font-size: 13px; color: var(--text2); margin-bottom: 16px; }
+
+  /* Matrix */
+  .matrix-wrap { display: flex; justify-content: center; margin: 14px 0; overflow-x: auto; }
+
+  table.matrix {
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  table.matrix th {
+    padding: 6px 14px;
+    font-weight: 500;
+    font-size: 11px;
+    color: var(--text2);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  table.matrix td {
+    padding: 10px 16px;
+    text-align: center;
+    border: 0.5px solid var(--border);
+    min-width: 100px;
+    vertical-align: middle;
+  }
+
+  table.matrix td.nash { outline: 2px solid var(--info); outline-offset: -2px; border-radius: 4px; }
+  table.matrix td.nash-mixed { outline: 2px dashed var(--warn); outline-offset: -2px; border-radius: 4px; }
+
+  .pay-a { font-weight: 500; font-size: 13px; color: var(--text); display: block; }
+  .pay-b { font-size: 12px; color: var(--text2); display: block; }
+
+  .legend-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin: 6px 0 16px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
+  .lbox { width: 16px; height: 12px; border-radius: 2px; }
+  .lbox-solid { outline: 2px solid var(--info); border-radius: 2px; }
+  .lbox-dashed { outline: 2px dashed var(--warn); border-radius: 2px; }
+
+  /* Sections */
+  .section { margin-top: 14px; padding-top: 14px; border-top: 0.5px solid var(--border); }
+  .section-label { font-size: 11px; font-weight: 500; color: var(--text3); letter-spacing: .05em; margin-bottom: 8px; }
+  .section-body { font-size: 13px; color: var(--text); line-height: 1.6; }
+
+  /* Examples grid */
+  .examples-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .ex-card {
+    background: var(--bg2);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+  }
+
+  .ex-title { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .ex-body { font-size: 11px; color: var(--text2); line-height: 1.45; }
+
+  /* Insight box */
+  .insight-box {
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-left: 2px solid var(--info);
+    background: var(--bg2);
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+
+  .insight-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+  /* Footer */
+  .page-footer {
+    max-width: 760px;
+    margin: 24px auto 0;
+    font-size: 12px;
+    color: var(--text3);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1>Game theory compendium</h1>
+  <p>13 classic games — payoff matrices, Nash equilibria, and real-world examples. Use the family buttons to jump by category, or step through with prev / next.</p>
+</header>
+
+<main class="container">
+  <div class="family-bar" id="famBar"></div>
+
+  <div class="nav-row">
+    <button class="nav-btn" id="prev" onclick="go(-1)" disabled>← prev</button>
+    <div>
+      <div class="dots" id="dots"></div>
+      <div class="counter" id="ctr"></div>
+    </div>
+    <button class="nav-btn" id="next" onclick="go(1)">next →</button>
+  </div>
+
+  <div class="game-card" id="card" role="region" aria-live="polite"></div>
+</main>
+
+<footer class="page-footer">
+  <p>Payoffs are ordinal unless otherwise noted. Top number in each cell = row player · Bottom = column player.</p>
+</footer>
+
+<script>
+const games = [
+  {
+    family: "Social dilemma",
+    name: "Prisoner's dilemma",
+    sub: "Individual incentives undermine collective benefit",
+    tags: [{t:"dominant strategy exists",bg:"#EEEDFE",c:"#3C3489"},{t:"one Nash equilibrium",bg:"#E1F5EE",c:"#085041"}],
+    p1:"Prisoner A", p2:"Prisoner B",
+    r1:["Stay silent","Betray"], r2:["Stay silent","Betray"],
+    cells:[
+      [{a:-1,b:-1,ne:false},{a:-3,b:0,ne:false}],
+      [{a:0,b:-3,ne:false},{a:-2,b:-2,ne:true}]
+    ],
+    eq:"Nash equilibrium: (Betray, Betray) → (–2, –2). Both players have a dominant strategy to betray regardless of the other's choice. Yet mutual silence (–1, –1) is better for everyone — the tragedy of self-interest.",
+    examples:[
+      {t:"Arms race", b:"Nations build weapons even though mutual disarmament leaves both safer and richer."},
+      {t:"Price war", b:"Competing supermarkets slash prices, destroying margin for both sides."},
+      {t:"Doping in sport", b:"Athletes use drugs because rivals might, even though all prefer a clean field."},
+      {t:"Littering", b:"Everyone dumps rubbish because cleanup costs fall on others, so the park ends up filthy."}
+    ],
+    insight:"Repetition dissolves the dilemma. In iterated play, tit-for-tat and similar cooperative strategies can sustain (Silence, Silence) indefinitely."
+  },
+  {
+    family: "Social dilemma",
+    name: "Public goods game",
+    sub: "Free-riding is individually rational but collectively ruinous",
+    tags: [{t:"n-player prisoner's dilemma",bg:"#EEEDFE",c:"#3C3489"},{t:"one Nash equilibrium",bg:"#FAECE7",c:"#712B13"}],
+    p1:"You", p2:"Everyone else",
+    r1:["Contribute","Free-ride"], r2:["Contribute","Free-ride"],
+    cells:[
+      [{a:2,b:2,ne:false},{a:-1,b:3,ne:false}],
+      [{a:3,b:-1,ne:false},{a:0,b:0,ne:true}]
+    ],
+    eq:"Nash equilibrium: (Free-ride, Free-ride) → (0, 0). Free-riding is dominant for every individual, so the public good collapses — identical logic to the Prisoner's Dilemma, scaled to any group size.",
+    examples:[
+      {t:"Vaccination", b:"Each person prefers others bear the small risk while enjoying herd immunity for free."},
+      {t:"Open-source code", b:"Firms benefit from shared codebases but prefer others to do the maintenance work."},
+      {t:"Office kitchen", b:"Everyone wants a clean kitchen; nobody wants to be the one who cleans it."},
+      {t:"Carbon emissions", b:"Each country benefits from others decarbonising while continuing to emit freely."}
+    ],
+    insight:"Solutions include: punishment mechanisms, selective incentives for contributors, government provision, or community norms — all of which change the effective payoff matrix."
+  },
+  {
+    family: "Social dilemma",
+    name: "Volunteer's dilemma",
+    sub: "Someone must act for all to benefit — but who pays the cost?",
+    tags: [{t:"diffusion of responsibility",bg:"#FAEEDA",c:"#633806"},{t:"mixed-strategy NE",bg:"#EEEDFE",c:"#3C3489"}],
+    p1:"You", p2:"At least one other",
+    r1:["Volunteer","Don't volunteer"], r2:["Someone steps up","Nobody steps up"],
+    cells:[
+      [{a:3,b:3,ne:false},{a:2,b:4,ne:false}],
+      [{a:4,b:2,ne:true},{a:0,b:0,ne:false}]
+    ],
+    eq:"No dominant strategy. Pure Nash equilibria are asymmetric (one volunteers, others free-ride). In the mixed-strategy NE each player randomises, and — crucially — the probability of volunteering decreases as group size increases: with more people, each reasons someone else will step up.",
+    examples:[
+      {t:"Bystander effect", b:"38 witnesses in the Kitty Genovese case — nobody called police because each assumed another would."},
+      {t:"Bug reports", b:"Developers spot a software bug but assume a colleague will file the ticket."},
+      {t:"Whistleblowing", b:"Many employees know of misconduct; each hopes someone else takes the career risk."},
+      {t:"Neighbourhood watch", b:"Everyone wants crime reported but hopes the next-door neighbour makes the call."}
+    ],
+    insight:"The volunteer's dilemma explains why large groups can be less reliable than small ones — the bystander effect has formal game-theoretic foundations."
+  },
+  {
+    family: "Coordination",
+    name: "Coordination game",
+    sub: "Players benefit from matching — any match is equally good",
+    tags: [{t:"two pure Nash equilibria",bg:"#E6F1FB",c:"#0C447C"},{t:"no conflict of interest",bg:"#EAF3DE",c:"#27500A"}],
+    p1:"Driver A", p2:"Driver B",
+    r1:["Drive left","Drive right"], r2:["Drive left","Drive right"],
+    cells:[
+      [{a:1,b:1,ne:true},{a:-5,b:-5,ne:false}],
+      [{a:-5,b:-5,ne:false},{a:1,b:1,ne:true}]
+    ],
+    eq:"Nash equilibria: (Left, Left) and (Right, Right). No conflict of interest — both players simply want to match. Either equilibrium is stable once established; the problem is purely getting there without prior communication.",
+    examples:[
+      {t:"Side of the road", b:"All countries standardised on left or right — both are stable, but switching mid-way is catastrophic."},
+      {t:"File formats", b:"QWERTY, PDF, MP3 — everyone uses what everyone else uses, not necessarily the objectively best option."},
+      {t:"Meeting time zones", b:"Two global teams must pick a shared meeting hour — any slot works, any mismatch wastes everyone's time."},
+      {t:"Language", b:"English as a global lingua franca emerged through pure coordination pressure, not inherent linguistic superiority."}
+    ],
+    insight:"History, convention, and Schelling focal points break the symmetry. Whichever equilibrium gets established first tends to stick — path dependence in action."
+  },
+  {
+    family: "Coordination",
+    name: "Battle of the sexes",
+    sub: "Players prefer coordination but disagree on which outcome",
+    tags: [{t:"two pure Nash equilibria",bg:"#FBEAF0",c:"#72243E"},{t:"conflict of interest",bg:"#E1F5EE",c:"#085041"}],
+    p1:"Alex", p2:"Blake",
+    r1:["Opera","Football"], r2:["Opera","Football"],
+    cells:[
+      [{a:2,b:1,ne:true},{a:0,b:0,ne:false}],
+      [{a:0,b:0,ne:false},{a:1,b:2,ne:true}]
+    ],
+    eq:"Nash equilibria: (Opera, Opera) — Alex's preference — and (Football, Football) — Blake's preference. Both hate mismatching more than attending their non-preferred event together. A mixed-strategy NE also exists.",
+    examples:[
+      {t:"Date night", b:"One partner wants cinema, the other dinner — both prefer being together over their favourite event alone."},
+      {t:"Tech standards", b:"Two firms prefer interoperability but each wants their own format (USB-A vs USB-C) to win."},
+      {t:"Meeting place", b:"Two friends lose mobile signal before agreeing a bar — each heads to the spot they think the other would pick."},
+      {t:"Alliance doctrine", b:"NATO allies must agree on rules of engagement despite different national risk tolerances."}
+    ],
+    insight:"Focal points and pre-commitment resolve this. If one player habitually concedes, that pattern becomes the stable equilibrium — at the cost of fairness over time."
+  },
+  {
+    family: "Coordination",
+    name: "Stag hunt",
+    sub: "Mutual trust enables the best outcome — but defection is safe",
+    tags: [{t:"assurance game",bg:"#EAF3DE",c:"#27500A"},{t:"two pure Nash equilibria",bg:"#E6F1FB",c:"#0C447C"}],
+    p1:"Hunter A", p2:"Hunter B",
+    r1:["Hunt stag","Hunt hare"], r2:["Hunt stag","Hunt hare"],
+    cells:[
+      [{a:4,b:4,ne:true},{a:0,b:2,ne:false}],
+      [{a:2,b:0,ne:false},{a:2,b:2,ne:true}]
+    ],
+    eq:"Nash equilibria: (Stag, Stag) — Pareto-optimal — and (Hare, Hare) — the safe fallback. Unlike the Prisoner's Dilemma, cooperation is individually rational if you trust the other player. The risk is uncertainty about commitment, not selfish temptation.",
+    examples:[
+      {t:"Startup co-founders", b:"Both must go all-in for the venture to work — one half-hearted founder sinks the ship."},
+      {t:"Climate agreements", b:"Full decarbonisation only pays off if all major emitters join; unilateral cuts are costly without the payoff."},
+      {t:"Mutual defence pact", b:"A military alliance deters aggression only if all members are credibly committed to respond."},
+      {t:"Open-source projects", b:"A shared codebase flourishes when all contribute; free-riding collapses the collective effort."}
+    ],
+    insight:"Trust, communication, and repeated interaction shift players toward stag. Institutions exist partly to make the cooperative equilibrium the obvious focal point."
+  },
+  {
+    family: "Anti-coordination",
+    name: "Chicken (Hawk–Dove)",
+    sub: "Two players race toward collision — who swerves first?",
+    tags: [{t:"two pure Nash equilibria",bg:"#FAEEDA",c:"#633806"},{t:"anti-coordination",bg:"#FAECE7",c:"#712B13"}],
+    p1:"Driver A", p2:"Driver B",
+    r1:["Swerve","Straight"], r2:["Swerve","Straight"],
+    cells:[
+      [{a:0,b:0,ne:false},{a:-1,b:1,ne:true}],
+      [{a:1,b:-1,ne:true},{a:-10,b:-10,ne:false}]
+    ],
+    eq:"Nash equilibria: (Swerve, Straight) and (Straight, Swerve) — one backs down, the other wins. Both going straight is catastrophic. A mixed-strategy NE also exists. Key insight: credible commitment to not swerving forces the opponent to swerve.",
+    examples:[
+      {t:"Nuclear brinkmanship", b:"Cuban Missile Crisis: each superpower threatened escalation hoping the other would blink first."},
+      {t:"Salary negotiation", b:"Both sides hold firm — one eventually concedes or the hire falls through entirely."},
+      {t:"Merging traffic", b:"Two cars approach the same gap — one yields, or both crash."},
+      {t:"Startup vs incumbent", b:"Both threaten a costly price war; the weaker player usually backs off before it starts."}
+    ],
+    insight:"Credible commitment changes everything. Visibly removing your ability to retreat — burning the boats — forces the opponent to be the one who swerves."
+  },
+  {
+    family: "Anti-coordination",
+    name: "Hawk–Dove (evolutionary)",
+    sub: "Two animals contest a resource — fight or display?",
+    tags: [{t:"evolutionary game theory",bg:"#EAF3DE",c:"#27500A"},{t:"evolutionarily stable strategy",bg:"#FAEEDA",c:"#633806"}],
+    p1:"Animal A", p2:"Animal B",
+    r1:["Hawk (fight)","Dove (display)"], r2:["Hawk (fight)","Dove (display)"],
+    cells:[
+      [{a:-2,b:-2,ne:false},{a:4,b:0,ne:false}],
+      [{a:0,b:4,ne:false},{a:2,b:2,ne:false}]
+    ],
+    eq:"No pure Nash equilibrium is evolutionarily stable on its own. The ESS is a mixed population — a stable ratio of hawks and doves — where neither a pure-hawk nor pure-dove population can be invaded by the other type. The exact ratio depends on resource value vs. injury cost.",
+    examples:[
+      {t:"Animal territories", b:"Male deer clash antlers or perform ritual display — most conflicts end in display, not injury."},
+      {t:"Business competition", b:"Aggressive market entry vs. peaceful niche-seeking — industries reach a stable mix over time."},
+      {t:"Workplace conflict", b:"Confrontational vs. diplomatic colleagues — organisations tend toward a functional mix."},
+      {t:"Legal disputes", b:"Litigate aggressively vs. settle out of court — law firms develop reputations and opponents respond."}
+    ],
+    insight:"This is the foundation of evolutionary game theory. Stable animal behaviours like dominance hierarchies emerge from this logic without any conscious strategic reasoning."
+  },
+  {
+    family: "Zero-sum",
+    name: "Matching pennies",
+    sub: "Pure zero-sum: one player always wins, one always loses",
+    tags: [{t:"no pure Nash equilibrium",bg:"#FCEBEB",c:"#791F1F"},{t:"mixed-strategy NE only",bg:"#FAEEDA",c:"#633806"}],
+    p1:"Row player", p2:"Column player",
+    r1:["Heads","Tails"], r2:["Heads","Tails"],
+    cells:[
+      [{a:1,b:-1,ne:false,mixed:true},{a:-1,b:1,ne:false}],
+      [{a:-1,b:1,ne:false},{a:1,b:-1,ne:false,mixed:true}]
+    ],
+    eq:"No pure-strategy Nash equilibrium exists. Unique NE: each player randomises 50/50. Any predictable pattern gets exploited by the opponent. Payoffs always sum to zero — a strictly zero-sum game.",
+    examples:[
+      {t:"Penalty kicks", b:"Goalkeeper and striker each randomise direction — any predictable pattern is instantly exploitable."},
+      {t:"Military feints", b:"Attacker picks a flank; defender allocates troops. Both benefit from being unpredictable."},
+      {t:"Tax auditing", b:"Authority randomises which returns to audit; filers randomise whether to under-report."},
+      {t:"Hide-and-seek", b:"Both hider and seeker benefit from randomising their choice of location."}
+    ],
+    insight:"Mixed-strategy NE means deliberate optimal randomisation — not arbitrary. The correct mix makes the opponent indifferent between their own options, eliminating any exploitable pattern."
+  },
+  {
+    family: "Zero-sum",
+    name: "Colonel Blotto",
+    sub: "Allocate forces across battlefields — win more fields to win the war",
+    tags: [{t:"zero-sum",bg:"#FCEBEB",c:"#791F1F"},{t:"resource allocation",bg:"#EEEDFE",c:"#3C3489"}],
+    p1:"Commander A", p2:"Commander B",
+    r1:["Heavy–Light–Light","Even split","Light–Heavy–Light"],
+    r2:["Heavy–Light–Light","Even split","Light–Heavy–Light"],
+    cells:[
+      [{a:0,b:0,ne:false},{a:1,b:-1,ne:false},{a:1,b:-1,ne:false}],
+      [{a:-1,b:1,ne:false},{a:0,b:0,ne:false},{a:-1,b:1,ne:false}],
+      [{a:-1,b:1,ne:false},{a:1,b:-1,ne:false},{a:0,b:0,ne:false}]
+    ],
+    eq:"No pure-strategy Nash equilibrium in the general case. The mixed-strategy NE involves randomising over many allocation patterns. A weaker player can sometimes win by exploiting battlefield mismatches — brute quantity doesn't guarantee victory.",
+    examples:[
+      {t:"Political campaigning", b:"Candidates allocate time and money across constituencies — neglect a battleground and lose it."},
+      {t:"Advertising spend", b:"Brands allocate budget across media channels, each competing for audience attention in each channel."},
+      {t:"Network defence", b:"Defenders distribute security resources; attackers probe for the under-guarded endpoint."},
+      {t:"Sports selection", b:"Managers build strong lineups in key positions, knowing the opponent is solving the same problem."}
+    ],
+    insight:"Blotto captures why asymmetric conflicts are interesting — a smaller, smarter allocation can beat a larger but uniformly spread force."
+  },
+  {
+    family: "Sequential",
+    name: "Ultimatum game",
+    sub: "Propose a split; the other accepts or both get nothing",
+    tags: [{t:"fairness vs. rationality",bg:"#FAEEDA",c:"#633806"},{t:"behavioural game theory",bg:"#FBEAF0",c:"#72243E"}],
+    p1:"Proposer", p2:"Responder",
+    r1:["Fair split (50/50)","Unfair split (80/20)"], r2:["Accept","Reject"],
+    cells:[
+      [{a:5,b:5,ne:true},{a:0,b:0,ne:false}],
+      [{a:8,b:2,ne:false},{a:0,b:0,ne:true}]
+    ],
+    eq:"Classical theory: any offer above zero gets accepted (something beats nothing). Reality: offers below ~30% are routinely rejected at personal cost — people punish perceived unfairness. This falsifies the rational-actor assumption and is a cornerstone of behavioural economics.",
+    examples:[
+      {t:"Wage offers", b:"Take-it-or-leave-it salary offers — workers reject insultingly low ones even when any job beats unemployment."},
+      {t:"House sales", b:"Vendor sets a price; buyer accepts or walks. Lowball offers often get rejected on principle, not calculation."},
+      {t:"Inheritance disputes", b:"One sibling controls the estate — others reject unfair splits even at significant cost to themselves."},
+      {t:"Plea bargains", b:"Prosecutor offers a deal; defendant accepts or risks trial. Unjust offers get rejected despite the risk."}
+    ],
+    insight:"Real humans care about fairness, not just personal payoff. The threshold for a 'fair' offer varies significantly across cultures — some societies accept highly unequal splits as normal."
+  },
+  {
+    family: "Sequential",
+    name: "Centipede game",
+    sub: "Stop now for a sure gain, or pass for a bigger pot — if the other doesn't stop first",
+    tags: [{t:"backward induction paradox",bg:"#EEEDFE",c:"#3C3489"},{t:"sequential game",bg:"#EAF3DE",c:"#27500A"}],
+    p1:"Player A", p2:"Player B",
+    r1:["Stop early","Continue"], r2:["Stop","Continue"],
+    cells:[
+      [{a:2,b:0,ne:false},{a:1,b:3,ne:false}],
+      [{a:3,b:1,ne:false},{a:4,b:4,ne:false}]
+    ],
+    eq:"Backward induction predicts Player A stops at move 1 — yet continuing grows the pot for everyone. Rational analysis produces the worst collective outcome; real players almost never stop immediately, generating far more value before someone eventually takes.",
+    examples:[
+      {t:"Business partnerships", b:"Each partner could exit for a guaranteed payout, but staying grows the firm — both know the other might exit first."},
+      {t:"Negotiation deadlines", b:"Each side could close now for a modest deal, or hold out for a better one that might never materialise."},
+      {t:"Investment rounds", b:"A VC could exit at a solid return now or wait for a larger IPO — knowing other investors face the same temptation."},
+      {t:"Treaty talks", b:"Nations could lock in modest gains now or hold out for a comprehensive deal that might collapse entirely."}
+    ],
+    insight:"The centipede game shows backward induction can be collectively catastrophic. Mutual optimism and trust generate surplus that pure rationality destroys."
+  },
+  {
+    family: "Sequential",
+    name: "Trust game",
+    sub: "Send money to a stranger who can repay generously — or keep it all",
+    tags: [{t:"social preferences",bg:"#E1F5EE",c:"#085041"},{t:"sequential game",bg:"#E6F1FB",c:"#0C447C"}],
+    p1:"Investor", p2:"Trustee",
+    r1:["Send (trusts)","Keep (doesn't trust)"], r2:["Return (reciprocates)","Keep (defects)"],
+    cells:[
+      [{a:3,b:3,ne:false},{a:0,b:6,ne:false}],
+      [{a:1,b:1,ne:true},{a:1,b:1,ne:false}]
+    ],
+    eq:"Classical NE: investor keeps the money, knowing the trustee will defect. Actual experiments: ~50% of investors send money; ~30–40% of trustees return more than received. Trust and reciprocity are real behavioural forces not captured by standard rational-actor models.",
+    examples:[
+      {t:"Lending to friends", b:"Giving a loan with no contract — you trust they'll repay; they could simply pocket it."},
+      {t:"Hiring", b:"Employer offers a job before seeing full work quality; employee decides how much effort to actually give."},
+      {t:"Airbnb", b:"Guest pays before seeing the property; host decides whether the listing description was honest."},
+      {t:"Crowdfunding", b:"Backers send money to a stranger's project, trusting they'll deliver what was promised."}
+    ],
+    insight:"The trust game shows why institutions — contracts, reputation systems, platforms, escrow — exist: to transform a risky sequential game into something closer to the cooperative outcome."
+  }
+];
+
+let cur = 0;
+const families = [...new Set(games.map(g => g.family))];
+
+function fmt(v) {
+  if (v === 0) return '0';
+  return v > 0 ? `+${v}` : `${v}`;
+}
+
+function cellClass(cell) {
+  if (cell.ne) return 'nash';
+  if (cell.mixed) return 'nash-mixed';
+  return '';
+}
+
+function renderCard() {
+  const g = games[cur];
+  document.getElementById('ctr').textContent = `${cur + 1} / ${games.length}`;
+
+  // Tags
+  const tagHtml = g.tags.map(t =>
+    `<span class="tag" style="background:${t.bg};color:${t.c}">${t.t}</span>`
+  ).join('');
+
+  // Matrix
+  let mat = `<div class="matrix-wrap"><table class="matrix">
+    <thead>
+      <tr>
+        <th></th>
+        <th colspan="${g.r2.length}" style="text-align:center;color:var(--text2)">${g.p2}</th>
+      </tr>
+      <tr>
+        <th style="text-align:right;padding-right:12px;color:var(--text2)">${g.p1}</th>
+        ${g.r2.map(r => `<th>${r}</th>`).join('')}
+      </tr>
+    </thead>
+    <tbody>`;
+
+  g.cells.forEach((row, ri) => {
+    mat += `<tr>
+      <th style="text-align:right;padding-right:12px;font-size:11px;color:var(--text2);white-space:nowrap">${g.r1[ri]}</th>`;
+    row.forEach(cell => {
+      mat += `<td class="${cellClass(cell)}">
+        <span class="pay-a">${fmt(cell.a)}</span>
+        <span class="pay-b">${fmt(cell.b)}</span>
+      </td>`;
+    });
+    mat += `</tr>`;
+  });
+  mat += `</tbody></table></div>`;
+
+  const hasMixed = g.cells.flat().some(c => c.mixed);
+  const legend = `<div class="legend-row">
+    <div class="legend-item"><div class="lbox lbox-solid"></div>Nash equilibrium</div>
+    ${hasMixed ? '<div class="legend-item"><div class="lbox lbox-dashed"></div>Mixed-strategy NE</div>' : ''}
+    <div class="legend-item" style="font-style:italic">Top = ${g.p1} &nbsp;·&nbsp; Bottom = ${g.p2}</div>
+  </div>`;
+
+  const exHtml = g.examples.map(e =>
+    `<div class="ex-card"><div class="ex-title">${e.t}</div><div class="ex-body">${e.b}</div></div>`
+  ).join('');
+
+  document.getElementById('card').innerHTML = `
+    <div class="family-label">${g.family.toUpperCase()}</div>
+    <div>${tagHtml}</div>
+    <h2 class="game-title">${g.name}</h2>
+    <p class="game-sub">${g.sub}</p>
+    ${mat}
+    ${legend}
+    <div class="section">
+      <div class="section-label">EQUILIBRIUM LOGIC</div>
+      <div class="section-body">${g.eq}</div>
+    </div>
+    <div class="section">
+      <div class="section-label">REAL-WORLD EXAMPLES</div>
+      <div class="examples-grid">${exHtml}</div>
+    </div>
+    <div class="insight-box">
+      <p class="insight-text">${g.insight}</p>
+    </div>`;
+
+  // Dots
+  document.getElementById('dots').innerHTML = games.map((_, i) =>
+    `<span class="dot${i === cur ? ' on' : ''}" onclick="jumpTo(${i})" title="Game ${i + 1}"></span>`
+  ).join('');
+
+  // Nav buttons
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').disabled = cur === games.length - 1;
+
+  // Family bar active state
+  document.querySelectorAll('.jump-btn').forEach(btn => {
+    btn.classList.toggle('active-fam', btn.dataset.fam === g.family);
+  });
+}
+
+function go(d) {
+  cur = Math.max(0, Math.min(games.length - 1, cur + d));
+  renderCard();
+}
+
+function jumpTo(i) {
+  cur = i;
+  renderCard();
+}
+
+// Build family bar
+const famBar = document.getElementById('famBar');
+families.forEach(fam => {
+  const btn = document.createElement('button');
+  btn.className = 'jump-btn';
+  btn.dataset.fam = fam;
+  btn.textContent = fam;
+  btn.onclick = () => { cur = games.findIndex(g => g.family === fam); renderCard(); };
+  famBar.appendChild(btn);
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(-1);
+});
+
+renderCard();
+</script>
+</body>
+</html>
