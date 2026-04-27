@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vocab Mirabilis</title>
+  <title>My Favourite Words</title>
 
   <style>
 
@@ -19,12 +19,57 @@
 
 
     /* ─────────────────────────────────────
-       TOP HALF — random word display
-       Click anywhere on it for a new word
+       TAB SWITCHER
+       Sits at the very top of the stage,
+       letting you switch between lists.
+    ───────────────────────────────────── */
+
+    .tab-bar {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 18px 20px 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-family: -apple-system, sans-serif;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    .tab:hover {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .tab.active {
+      background: white;
+      color: #1a1a1a;
+      border-color: white;
+      font-weight: 500;
+    }
+
+
+    /* ─────────────────────────────────────
+       STAGE — full screen, colour changes
+       per active list
     ───────────────────────────────────── */
 
     .stage {
-      background: #1a1a1a;
       color: white;
       flex: 0 0 auto;
       min-height: 100vh;
@@ -32,16 +77,17 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 40px 30px;
+      padding: 80px 30px 40px;
       text-align: center;
       cursor: pointer;
       position: relative;
       user-select: none;
+      transition: background-color 0.5s ease;
     }
 
     .stage-hint {
       position: absolute;
-      top: 18px;
+      top: 72px;        /* sits just below the tab bar */
       font-size: 11px;
       color: rgba(255,255,255,0.25);
       letter-spacing: 0.1em;
@@ -76,12 +122,12 @@
     #display-example {
       font-size: 14px;
       font-style: italic;
-      color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.32);
       max-width: 400px;
       line-height: 1.65;
       margin-top: 14px;
     }
-  
+
     .stage-footer {
       position: absolute;
       bottom: 16px;
@@ -92,11 +138,11 @@
 
     /* Fade transition */
     .stage.fading { opacity: 0; transition: opacity 0.2s ease; }
-    .stage        { opacity: 1; transition: opacity 0.35s ease; }
+    .stage        { opacity: 1; transition: opacity 0.35s ease, background-color 0.5s ease; }
 
 
     /* ─────────────────────────────────────
-       BOTTOM HALF — the full word list
+       WORD LIST
     ───────────────────────────────────── */
 
     .list-section {
@@ -122,8 +168,8 @@
       border-radius: 8px;
       padding: 13px 16px;
       display: flex;
-      flex-wrap: wrap;
       align-items: baseline;
+      flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 8px;
       cursor: pointer;
@@ -153,6 +199,15 @@
       color: #888;
       flex: 1;
       line-height: 1.4;
+      min-width: 100%;   /* forces definition onto its own line */
+    }
+
+    .word-row .ex {
+      font-size: 12px;
+      font-style: italic;
+      color: #bbb;
+      width: 100%;
+      line-height: 1.5;
     }
 
   </style>
@@ -160,20 +215,24 @@
 
 <body>
 
-  <!-- TOP: click anywhere to see a new random word -->
+  <!-- STAGE: full-screen colour block with random word -->
   <div class="stage" id="stage">
-    <span class="stage-hint">✦ vocab mirabilis ✦</span>
+
+    <!-- Tab switcher sits inside the stage so it floats over it -->
+    <div class="tab-bar" id="tab-bar"></div>
+
+    <span class="stage-hint" id="stage-hint">✦ word of the moment</span>
     <div id="display-type"></div>
     <div id="display-word"></div>
     <div id="display-definition"></div>
     <div id="display-example"></div>
-    <span class="stage-footer">click for another · scroll down for all words</span>
+    <span class="stage-footer">click anywhere for another · scroll down for all words</span>
   </div>
 
 
-  <!-- BOTTOM: full list of all words -->
+  <!-- WORD LIST: always beige regardless of active list -->
   <div class="list-section">
-    <h2>All Words</h2>
+    <h2 id="list-heading">All Words</h2>
     <div id="word-list"></div>
   </div>
 
@@ -181,136 +240,198 @@
   <script>
 
     // ═══════════════════════════════════════════
-    // YOUR WORDS
+    // LISTS
     //
-    // To add a new word: copy one block and fill in
-    // word, type, and definition. Save and push to GitHub.
+    // Each list has:
+    //   label     — shown on the tab button
+    //   color     — the stage background when active
+    //   words     — array of word objects
     //
-    // type options: noun, verb, adjective, adverb, phrase
+    // To add a new list: copy one list block,
+    // give it a new label and color, add your words.
+    //
+    // To add a word: copy a word block into the
+    // relevant list's words array.
+    // example is optional — leave it out if you don't have one.
     // ═══════════════════════════════════════════
 
-    const words = [
+    const lists = [
+
       {
-        word: "Obstreperous",
-        type: "adjective",
-        definition: "Noisy, unruly and difficult to control or manage, often describing defiant behaviour."
+        label: "English",
+        color: "#1a1a1a",
+        words: [
+          {
+            word: "ephemeral",
+            type: "adjective",
+            definition: "Lasting for a very short time.",
+            example: "The ephemeral beauty of cherry blossoms makes them all the more precious."
+          },
+          {
+            word: "lucid",
+            type: "adjective",
+            definition: "Expressed clearly; easy to understand.",
+            example: "Despite the complexity of the subject, her explanation was remarkably lucid."
+          },
+          {
+            word: "susurrus",
+            type: "noun",
+            definition: "A whispering or rustling sound.",
+          },
+          {
+            word: "liminal",
+            type: "adjective",
+            definition: "Occupying a position at or on both sides of a boundary or threshold.",
+          },
+          {
+            word: "mellifluous",
+            type: "adjective",
+            definition: "Sweet or musical; pleasant to hear.",
+          },
+        ]
       },
+
       {
-        word: "Pusillanimous",
-        type: "adjective",
-        definition: "Lacking courage, resolution or strength, often acting in a contemptibly timid, cowardly or small-minded manner."
+        label: "French",
+        color: "#2c4a6e",   /* deep blue — change to any colour you like */
+        words: [
+          {
+            word: "dépaysement",
+            type: "nom masculin",
+            definition: "The feeling of being a foreigner; disorientation from being away from home.",
+            example: "Elle ressentait un profond dépaysement en arrivant dans cette ville inconnue."
+          },
+          {
+            word: "flâner",
+            type: "verbe",
+            definition: "To stroll or wander without purpose, taking in one's surroundings.",
+            example: "Il aimait flâner le long de la Seine le dimanche matin."
+          },
+          {
+            word: "soupçon",
+            type: "nom masculin",
+            definition: "A very small amount; a hint or trace of something.",
+          },
+        ]
       },
+
       {
-        word: "Susurrous",
-        type: "adjective",
-        definition: "Describes a soft, whispering, rustling, or murmuring sound, often found in nature like wind through leaves or water lapping."
+        label: "Rhetorical Devices",
+        color: "#3d2645",   /* deep purple — change to any colour you like */
+        words: [
+          {
+            word: "anaphora",
+            type: "noun",
+            definition: "The repetition of a word or phrase at the beginning of successive clauses.",
+            example: "We shall fight on the beaches, we shall fight on the landing grounds, we shall fight in the fields."
+          },
+          {
+            word: "chiasmus",
+            type: "noun",
+            definition: "A rhetorical device in which two clauses are related by reversal of structure.",
+            example: "Ask not what your country can do for you — ask what you can do for your country."
+          },
+          {
+            word: "synecdoche",
+            type: "noun",
+            definition: "A figure of speech in which a part represents the whole, or vice versa.",
+            example: "All hands on deck."
+          },
+          {
+            word: "litotes",
+            type: "noun",
+            definition: "Understatement using a negative to affirm a positive.",
+            example: "It's not rocket science."
+          },
+        ]
       },
-      {
-        word: "Garrulous",
-        type: "adjective",
-        definition: "Excessively talkative, especially regarding trivial or unimportant matters, often in a rambling or wordy manner."
-      },
-      {
-        word: "Mellifluous",
-        type: "adjective",
-        definition: "Sweet or musical; pleasant to hear."
-      },
-      {
-        word: "Ebullience",
-        type: "noun",
-        definition: "High-spirited enthusiasm or energy."
-      },
-      {
-        word: "Obseqious",
-        type: "adjective",
-        definition: "Excessively eager to please, praise or obey, often in a servile or fawning manner to gain favour."
-      },
-      {
-        word: "Temerarious",
-        type: "adjective",
-        definition: "Presumptuously daring, recklessly bold, rash, or unreasonably adventurous, describing actions taken with little regard for danger or consequences."
-      },
-      {
-        word: "Vituperative",
-        type: "adjective",
-        definition: "Harsh, abusive, intensely scathing language, characterised as abusive, vitriolic and castigating."
-      },
-      {
-        word: "Loquacious",
-        type: "adjective",
-        definition: "excessively talkative, chatty or wordy."
-      },
-      {
-        word: "Adynaton",
-        type: "noun",
-        definition: "A declaration of impossibility, usually in terms of an exaggerated comparison. Sometimes, the expression of the impossibility of expression.",
-        example: "'I will sooner have a beard grow in the palm of my hand than he shall get one of his cheek' —Shakespeare, 2 Henry IV 1.2.20-22"
-      },
-      {
-        word: "Anacoluthon",
-        type: "noun",
-        definition: "A grammatical interruption or lack of implied sequence within a sentence.",
-        example: "Athletes convicted of drug-related crimes — are they to be forgiven with just a slap on the wrist?"
-      },
-      {
-        word: "Polysyndeton",
-        type: "noun",
-        definition: "Employing many conjunctions between clauses, often slowing the tempo or rhythm.",
-        example: "I said, 'Who killed him?' and he said, 'I don't know who killed him but he's dead all right,' and it was dark and there was water standing in the street and no lights and windows broke and boats all up in the town and trees blown down and everything all blown and I got a skiff and went out and found my boat where I had her inside Mango Key and she was all right only she was full of water. —Ernest Hemingway, After the Storm"
-      },
-      {
-        word: "Prosopopoeia",
-        type: "noun",
-        definition: "Personification."
-      },
-      {
-        word: "Pleonasm",
-        type: "noun",
-        definition: "Use of more words than is necessary semantically. Rhetorical repetition that is grammatically superfluous."
-      },
-      {
-        word: "Prozeugma",
-        type: "noun",
-        definition: "	A series of clauses in which the verb employed in the first is ellided (and thus implied) in the others."
-      },
-      {
-        word: "Polyptoton",
-        type: "noun",
-        definition: "Repeating a word, but in a different form. Using a cognate of a given word in close proximity."
-      },
-      {
-        word: "Inter se pugnantia",
-        type: "noun",
-        definition: "Using direct address to reprove someone before an audience, pointing out the contradictions in that person's character, often between what a person does and says."
-      },
+
     ];
 
 
-    // ── Show a random word on the stage ──
+    // ═══════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════
 
-    let lastIndex = -1;
+    let activeListIndex = 0;   // which list is currently shown
+    let lastWordIndex   = -1;  // prevents showing same word twice in a row
+
+
+    // ═══════════════════════════════════════════
+    // BUILD TABS
+    // One button per list, generated automatically
+    // ═══════════════════════════════════════════
+
+    const tabBar = document.getElementById("tab-bar");
+
+    lists.forEach(function(list, index) {
+      const tab = document.createElement("button");
+      tab.className  = "tab";
+      tab.textContent = list.label;
+
+      tab.addEventListener("click", function(e) {
+        e.stopPropagation();   // prevent click reaching stage (which would randomise)
+        switchList(index);
+      });
+
+      tabBar.appendChild(tab);
+    });
+
+
+    // ═══════════════════════════════════════════
+    // SWITCH LIST
+    // Updates the active list, stage colour, and word display
+    // ═══════════════════════════════════════════
+
+    function switchList(index) {
+      activeListIndex = index;
+      lastWordIndex   = -1;
+
+      // Update tab appearances
+      document.querySelectorAll(".tab").forEach(function(tab, i) {
+        tab.classList.toggle("active", i === index);
+      });
+
+      // Update stage colour
+      document.getElementById("stage").style.backgroundColor = lists[index].color;
+
+      // Update list heading
+      document.getElementById("list-heading").textContent = lists[index].label;
+
+      // Show a random word from the new list
+      showRandom();
+
+      // Rebuild the word list below
+      renderList();
+    }
+
+
+    // ═══════════════════════════════════════════
+    // SHOW RANDOM WORD
+    // Picks from the currently active list only
+    // ═══════════════════════════════════════════
 
     function showRandom() {
+      const words = lists[activeListIndex].words;
       if (words.length === 0) return;
 
-      // Pick a random index that isn't the same as the last one
       let index;
       do {
         index = Math.floor(Math.random() * words.length);
-      } while (words.length > 1 && index === lastIndex);
-      lastIndex = index;
+      } while (words.length > 1 && index === lastWordIndex);
+      lastWordIndex = index;
 
       const word  = words[index];
       const stage = document.getElementById("stage");
 
-      // Fade out, swap, fade back in
       stage.classList.add("fading");
 
       setTimeout(function() {
         document.getElementById("display-word").textContent       = word.word;
-        document.getElementById("display-type").textContent       = word.type;
+        document.getElementById("display-type").textContent       = word.type || "";
         document.getElementById("display-definition").textContent = word.definition;
-        document.getElementById("display-example").textContent = word.example ? `"${word.example}"` : "";        stage.classList.remove("fading");
+        document.getElementById("display-example").textContent    = word.example ? `"${word.example}"` : "";
+        stage.classList.remove("fading");
       }, 200);
     }
 
@@ -318,13 +439,16 @@
     document.getElementById("stage").addEventListener("click", showRandom);
 
 
-    // ── Build the word list ──
+    // ═══════════════════════════════════════════
+    // RENDER WORD LIST
+    // Shows all words in the active list, sorted A–Z
+    // ═══════════════════════════════════════════
 
     function renderList() {
       const listDiv = document.getElementById("word-list");
       listDiv.innerHTML = "";
 
-      // Sort alphabetically
+      const words  = lists[activeListIndex].words;
       const sorted = [...words].sort((a, b) => a.word.localeCompare(b.word));
 
       sorted.forEach(function(word) {
@@ -333,16 +457,17 @@
 
         row.innerHTML = `
           <span class="w">${word.word}</span>
-          <span class="t">${word.type}</span>
+          <span class="t">${word.type || ""}</span>
           <span class="d">${word.definition}</span>
           ${word.example ? `<span class="ex">"${word.example}"</span>` : ""}
         `;
 
-        // Clicking a word in the list shows it on the stage
+        // Clicking a word in the list spotlights it on the stage
         row.addEventListener("click", function() {
           document.getElementById("display-word").textContent       = word.word;
-          document.getElementById("display-type").textContent       = word.type;
+          document.getElementById("display-type").textContent       = word.type || "";
           document.getElementById("display-definition").textContent = word.definition;
+          document.getElementById("display-example").textContent    = word.example ? `"${word.example}"` : "";
           window.scrollTo({ top: 0, behavior: "smooth" });
         });
 
@@ -351,9 +476,8 @@
     }
 
 
-    // ── Start ──
-    showRandom();
-    renderList();
+    // ── Start on the first list ──
+    switchList(0);
 
   </script>
 
