@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lewin's Lexicon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Share+Tech+Mono&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:       #0d1b2a;
+    --navy-mid:   #162333;
+    --navy-light: #1e3048;
+    --brass:      #b8973a;
+    --brass-pale: #d4b96a;
+    --cream:      #f5efdf;
+    --cream-dim:  #e8dfc8;
+    --signal-green: #4caf7d;
+    --signal-red:   #c0392b;
+    --text-main:  #d6cdb8;
+    --text-dim:   #8a8070;
+    --text-bright:#f0e8d0;
+    --border:     rgba(184,151,58,0.25);
+    --border-strong: rgba(184,151,58,0.55);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--navy);
+    color: var(--text-main);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  /* Subtle background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.012) 40px, rgba(255,255,255,0.012) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.012) 40px, rgba(255,255,255,0.012) 41px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    border-bottom: 1px solid var(--border-strong);
+    padding: 52px 0 32px;
+    margin-bottom: 40px;
+    position: relative;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .header-kicker {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--brass);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-family: 'IM Fell English', Georgia, serif;
+    font-size: clamp(26px, 5vw, 44px);
+    font-weight: 400;
+    color: var(--cream);
+    line-height: 1.15;
+    margin-bottom: 14px;
+    letter-spacing: 0.01em;
+  }
+
+  .header-sub {
+    font-size: 15px;
+    color: var(--text-dim);
+    font-style: italic;
+    max-width: 580px;
+    line-height: 1.6;
+  }
+
+  .header-rule {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 28px;
+  }
+  .header-rule span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--text-dim);
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+  .header-rule hr {
+    flex: 1;
+    border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ─── CONTROLS ─── */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .filter-btn:hover { border-color: var(--brass); color: var(--brass-pale); }
+  .filter-btn.active { border-color: var(--brass); color: var(--brass); background: rgba(184,151,58,0.08); }
+
+  .expand-btn {
+    margin-left: auto;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .expand-btn:hover { border-color: var(--signal-green); color: var(--signal-green); }
+
+  /* ─── PLAY BLOCK ─── */
+  .play-block {
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .play-block:hover { border-color: var(--border-strong); }
+
+  .play-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    background: var(--navy-mid);
+    transition: background 0.18s;
+    user-select: none;
+  }
+  .play-header:hover { background: var(--navy-light); }
+
+  .play-title {
+    font-family: 'IM Fell English', Georgia, serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--cream);
+    letter-spacing: 0.01em;
+  }
+
+  .play-abbr {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--brass);
+    border: 1px solid var(--border-strong);
+    padding: 2px 7px;
+    border-radius: 2px;
+    letter-spacing: 0.06em;
+  }
+
+  .play-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-left: 4px;
+  }
+
+  .play-chevron {
+    margin-left: auto;
+    color: var(--text-dim);
+    font-size: 12px;
+    transition: transform 0.25s;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .play-block.open .play-chevron { transform: rotate(180deg); }
+
+  /* ─── PLAY BODY ─── */
+  .play-body {
+    display: none;
+    padding: 0 20px 20px;
+    background: var(--navy-mid);
+    border-top: 1px solid var(--border);
+  }
+  .play-block.open .play-body { display: block; }
+
+  /* ─── SCENE ─── */
+  .scene {
+    border-left: 2px solid var(--border-strong);
+    padding: 16px 0 16px 18px;
+    margin-top: 18px;
+    position: relative;
+  }
+  .scene::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 20px;
+    width: 8px;
+    height: 8px;
+    border: 1px solid var(--brass);
+    background: var(--navy-mid);
+    transform: rotate(45deg);
+  }
+
+  .scene-ref {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--brass);
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+
+  .scene-title {
+    font-family: 'IM Fell English', Georgia, serif;
+    font-size: 17px;
+    color: var(--text-bright);
+    margin-bottom: 6px;
+    font-weight: 400;
+  }
+
+  .scene-desc {
+    font-size: 15px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+
+  /* ─── SIGNAL BOX ─── */
+  .signal-box {
+    background: var(--navy);
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .signal-box::before {
+    content: 'SIGNAL';
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    color: rgba(184,151,58,0.3);
+  }
+
+  .signal-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .signal-code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 16px;
+    color: var(--signal-green);
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  .signal-quote {
+    font-family: 'IM Fell English', Georgia, serif;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--cream-dim);
+    border-left: 2px solid var(--brass);
+    padding-left: 12px;
+    margin-bottom: 10px;
+    line-height: 1.55;
+  }
+
+  .signal-sense-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .signal-sense {
+    font-size: 14px;
+    color: var(--text-main);
+    line-height: 1.6;
+  }
+
+  /* ─── DIRECT ORDER ─── */
+  .direct-order {
+    background: rgba(192,57,43,0.07);
+    border: 1px solid rgba(192,57,43,0.35);
+    border-radius: 3px;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .direct-order::before {
+    content: 'DIRECT ORDER';
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    color: rgba(192,57,43,0.4);
+  }
+
+  .do-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(192,57,43,0.7);
+    margin-bottom: 6px;
+  }
+
+  .do-code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 16px;
+    color: var(--signal-red);
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+
+  .do-quote {
+    font-family: 'IM Fell English', Georgia, serif;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--cream-dim);
+    border-left: 2px solid var(--signal-red);
+    padding-left: 12px;
+    margin-bottom: 10px;
+    line-height: 1.55;
+  }
+
+  .do-order-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(192,57,43,0.6);
+    margin-bottom: 4px;
+  }
+
+  .do-order {
+    font-size: 14px;
+    color: var(--text-main);
+    line-height: 1.6;
+  }
+
+  /* ─── LEGEND ─── */
+  .legend {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 1px;
+    flex-shrink: 0;
+  }
+  .legend-dot.green { background: var(--signal-green); opacity: 0.8; }
+  .legend-dot.red   { background: var(--signal-red); opacity: 0.8; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-dim);
+    font-style: italic;
+    line-height: 1.7;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    .page-wrap { padding: 0 14px 60px; }
+    .expand-btn { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <header>
+    <div class="header-kicker">Royal Navy · HMS Corunna · 1950s Signal Codebook</div>
+    <h1>Lewin's Lexicon</h1>
+    <p class="header-sub">Admiral of the Fleet Lord Lewin KG was known to issue orders and convey situations by quoting Shakespeare — citing act, scene, and line. Recipients had to look up the reference to decode the message.</p>
+    <div class="header-rule">
+      <span>Reference document</span><hr>
+    </div>
+  </header>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot green"></div> Situational signal — parallel to current scenario</div>
+    <div class="legend-item"><div class="legend-dot red"></div> Direct order — the line itself is the command</div>
+  </div>
+
+  <div class="controls">
+    <div class="filter-group">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All plays</button>
+      <button class="filter-btn" onclick="setFilter('tragedy', this)">Tragedies</button>
+      <button class="filter-btn" onclick="setFilter('history', this)">Histories</button>
+      <button class="filter-btn" onclick="setFilter('comedy', this)">Comedies</button>
+    </div>
+    <button class="expand-btn" id="expandAllBtn" onclick="toggleAll()">Expand all</button>
+  </div>
+
+  <div id="plays-container"></div>
+
+  <footer>
+    <p>Sources: Guardian obituary of Admiral Lord Lewin; Lewin, T.T. — naval papers; Shakespeare, W. — Complete Works. The direct-order signals (marked in red) are lesser-known lines that function as literal commands to the addressee. The situational signals (in green) draw a parallel between the scene's famous dramatic moment and the current naval circumstance.</p>
+  </footer>
+
+</div>
+
+<script>
+const plays = [
+  {
+    title: "Hamlet", abbr: "Ham.", tag: "tragedy",
+    scenes: [
+      {
+        ref: "Ham. I.v", name: "The Ghost's Revelation",
+        desc: "Hamlet learns his father was murdered by Claudius. The private intelligence that changes everything.",
+        signal: "'Ham. I.v'",
+        quote: "The serpent that did sting thy father's life / Now wears his crown.",
+        sense: "Intelligence received of treachery at the highest level. Decisive action required. The chain of command cannot be trusted.",
+        directOrders: []
+      },
+      {
+        ref: "Ham. III.i", name: "To be or not to be",
+        desc: "Hamlet's soliloquy on action versus inaction, courage versus paralysis. The most famous speech in English literature.",
+        signal: "'Ham. III.i'",
+        quote: "To be, or not to be — that is the question.",
+        sense: "Pause before engagement. Strategic hesitation. The next move demands moral clarity, not reflex.",
+        directOrders: []
+      },
+      {
+        ref: "Ham. III.ii", name: "The Play Within the Play",
+        desc: "Hamlet stages 'The Mousetrap' to confirm Claudius's guilt by watching his reaction.",
+        signal: "'Ham. III.ii'",
+        quote: "The play's the thing / Wherein I'll catch the conscience of the king.",
+        sense: "Intelligence operation underway. Observe the enemy's response; the action itself is the test.",
+        directOrders: [
+          {
+            ref: "Ham. III.ii.87", signal: "'Ham. III.ii.87'",
+            quote: "Begin, murderer; leave thy damnable faces, and begin.",
+            order: "Stop stalling. Commence the operation as ordered."
+          }
+        ]
+      },
+      {
+        ref: "Ham. V.ii", name: "The Final Duel",
+        desc: "Poisoned sword, poisoned cup; Gertrude, Laertes, Claudius, and Hamlet all die. The reckoning arrives.",
+        signal: "'Ham. V.ii'",
+        quote: "The rest is silence.",
+        sense: "Engagement concluded. All objectives — and costs — now apparent. No further signals required.",
+        directOrders: []
+      }
+    ]
+  },
+  {
+    title: "Macbeth", abbr: "Mac.", tag: "tragedy",
+    scenes: [
+      {
+        ref: "Mac. I.iii", name: "The Witches' Prophecy",
+        desc: "Macbeth and Banquo hear the witches' predictions. Ambition is ignited; fate or free will begins its argument.",
+        signal: "'Mac. I.iii'",
+        quote: "All hail, Macbeth, that shalt be king hereafter!",
+        sense: "Intelligence suggests opportunity of the highest order. But beware — the prize may corrupt the man who seizes it.",
+        directOrders: []
+      },
+      {
+        ref: "Mac. II.i", name: "The Dagger Soliloquy",
+        desc: "Macbeth, about to murder Duncan, sees a vision of a dagger. The last moment before the point of no return.",
+        signal: "'Mac. II.i'",
+        quote: "Is this a dagger which I see before me, / The handle toward my hand?",
+        sense: "The order has not yet been given. The officer stands at the moment of commitment. There is still time to stand down.",
+        directOrders: []
+      },
+      {
+        ref: "Mac. II.ii", name: "Duncan's Murder",
+        desc: "The king is killed. Macbeth is shattered; Lady Macbeth steels him. They are irrevocably bound to the act.",
+        signal: "'Mac. II.ii'",
+        quote: "Will all great Neptune's ocean wash this blood / Clean from my hand?",
+        sense: "The strike has been executed. The situation is irreversible. Guilt and full consequence will follow.",
+        directOrders: []
+      },
+      {
+        ref: "Mac. III.iv", name: "Banquo's Ghost at the Banquet",
+        desc: "Macbeth sees Banquo's ghost and loses control before his assembled court. The famous 'Avaunt' scene — the documented source of the Lewin signal.",
+        signal: "'Mac. III.iv'",
+        quote: "Hence, horrible shadow! Unreal mockery, hence!",
+        sense: "The situation is untenable and is disturbing good order. Retreat from this position is required.",
+        directOrders: [
+          {
+            ref: "Mac. III.iv.93", signal: "'Mac. III.iv.93'",
+            quote: "Avaunt and quit my sight!",
+            order: "Leave the formation immediately. Documented: Lewin used this exact reference to order a ship to detach — recipients had to look up the line to receive the order."
+          }
+        ]
+      },
+      {
+        ref: "Mac. V.v", name: "Tomorrow and Tomorrow",
+        desc: "Lady Macbeth is dead; Macbeth contemplates the emptiness of ambition — 'a tale told by an idiot, full of sound and fury, signifying nothing.'",
+        signal: "'Mac. V.v'",
+        quote: "Tomorrow, and tomorrow, and tomorrow / Creeps in this petty pace from day to day.",
+        sense: "The campaign has achieved nothing of lasting worth. Morale and purpose have collapsed. Fundamental reassessment required.",
+        directOrders: []
+      }
+    ]
+  },
+  {
+    title: "Othello", abbr: "Oth.", tag: "tragedy",
+    scenes: [
+      {
+        ref: "Oth. I.iii", name: "Othello Before the Senate",
+        desc: "Othello defends his marriage with eloquence. His reputation and honour are unimpeachable — for now.",
+        signal: "'Oth. I.iii'",
+        quote: "I have done the state some service, and they know't.",
+        sense: "Record of service speaks for itself. Commander's position is justified. No further defence required.",
+        directOrders: []
+      },
+      {
+        ref: "Oth. III.iii", name: "Iago Plants the Doubt",
+        desc: "Iago slowly, deliberately poisons Othello's trust in Desdemona. The 'green-eyed monster' scene. Jealousy takes hold.",
+        signal: "'Oth. III.iii'",
+        quote: "O, beware, my lord, of jealousy! / It is the green-eyed monster which doth mock the meat it feeds on.",
+        sense: "Warning: internal suspicion or misinformation is distorting command judgement. Verify all intelligence before acting.",
+        directOrders: [
+          {
+            ref: "Oth. III.iii.179", signal: "'Oth. III.iii.179'",
+            quote: "Villain, be sure thou prove my love a whore.",
+            order: "Do not bring me this intelligence again unless you can substantiate it. Bring proof or be silent."
+          }
+        ]
+      },
+      {
+        ref: "Oth. V.ii", name: "Othello Kills Desdemona",
+        desc: "Othello smothers Desdemona, then learns the truth. A noble man destroyed by manipulated intelligence.",
+        signal: "'Oth. V.ii'",
+        quote: "I kissed thee ere I killed thee: no way but this, / Killing myself, to die upon a kiss.",
+        sense: "Fatal action taken on false intelligence. The loss is irretrievable. Command has destroyed what it most sought to protect.",
+        directOrders: []
+      }
+    ]
+  },
+  {
+    title: "King Lear", abbr: "Lr.", tag: "tragedy",
+    scenes: [
+      {
+        ref: "Lr. I.i", name: "The Division of the Kingdom",
+        desc: "Lear divides his kingdom based on flattery; disowns Cordelia who speaks the truth. A catastrophic structural decision.",
+        signal: "'Lr. I.i'",
+        quote: "Nothing will come of nothing.",
+        sense: "The plan has no sound foundation. Reorganisation based on flattery rather than merit will produce exactly nothing.",
+        directOrders: [
+          {
+            ref: "Lr. I.i.163", signal: "'Lr. I.i.163'",
+            quote: "Out of my sight!",
+            order: "Dismiss this officer from my presence. Immediately."
+          }
+        ]
+      },
+      {
+        ref: "Lr. III.ii", name: "Lear on the Heath",
+        desc: "The storm. Lear, stripped of power and sanity, confronts nature and his own folly. Full exposure.",
+        signal: "'Lr. III.ii'",
+        quote: "Blow, winds, and crack your cheeks! Rage! Blow!",
+        sense: "Command is exposed, unsupported, and in disorder. Systems have failed. We are now in the consequences phase.",
+        directOrders: []
+      },
+      {
+        ref: "Lr. V.iii", name: "Cordelia's Death",
+        desc: "Lear enters carrying the dead Cordelia. 'Never, never, never, never, never.' The most devastating close in Shakespeare.",
+        signal: "'Lr. V.iii'",
+        quote: "Never, never, never, never, never.",
+        sense: "The one thing most worth protecting has been lost. No recovery is possible. The price of the original error has been paid in full.",
+        directOrders: []
+      }
+    ]
+  },
+  {
+    title: "Romeo and Juliet", abbr: "RJ.", tag: "tragedy",
+    scenes: [
+      {
+        ref: "RJ. II.ii", name: "The Balcony Scene",
+        desc: "Romeo and Juliet declare their love. The most famous romantic scene in the English language.",
+        signal: "'RJ. II.ii'",
+        quote: "What's in a name? That which we call a rose / By any other name would smell as sweet.",
+        sense: "The designation matters less than the substance. Do not be distracted by nomenclature or protocol.",
+        directOrders: []
+      },
+      {
+        ref: "RJ. III.i", name: "Mercutio's Death",
+        desc: "Tybalt kills Mercutio; Romeo kills Tybalt and is banished. The point at which the tragedy becomes inevitable.",
+        signal: "'RJ. III.i'",
+        quote: "A plague on both your houses!",
+        sense: "Both sides have suffered casualties. Escalation has passed the point of resolution. Third parties are now the victims.",
+        directOrders: [
+          {
+            ref: "RJ. III.i.87", signal: "'RJ. III.i.87'",
+            quote: "Romeo, away, be gone!",
+            order: "Withdraw immediately. Do not engage further. Departure is the order."
+          }
+        ]
+      },
+      {
+        ref: "RJ. V.iii", name: "The Tomb — Both Deaths",
+        desc: "Romeo takes poison believing Juliet dead; Juliet wakes and kills herself. Catastrophe caused by failed communications.",
+        signal: "'RJ. V.iii'",
+        quote: "For never was a story of more woe / Than this of Juliet and her Romeo.",
+        sense: "Catastrophe caused by a failure of communications, not of will or courage. Review all signal procedures immediately.",
+        directOrders: []
+      }
+    ]
+  },
+  {
+    title: "Henry V", abbr: "H5.", tag: "history",
+    scenes: [
+      {
+        ref: "H5. III.i", name: "Once More unto the Breach",
+        desc: "Henry rallies his men to renew the assault on Harfleur. The supreme speech of martial leadership.",
+        signal: "'H5. III.i'",
+        quote: "Once more unto the breach, dear friends, once more.",
+        sense: "The attack is to be renewed. Expect stiff resistance. Courage and discipline required. The commander leads from the front.",
+        directOrders: [
+          {
+            ref: "H5. III.i.1", signal: "'H5. III.i.1'",
+            quote: "Once more unto the breach, dear friends, once more.",
+            order: "Resume the assault on the same objective. The line that is both signal and direct order — the most famous of all Lewin's usable references."
+          }
+        ]
+      },
+      {
+        ref: "H5. IV.iii", name: "St Crispin's Day Speech",
+        desc: "Outnumbered five to one at Agincourt, Henry tells his men they are few enough to share the glory.",
+        signal: "'H5. IV.iii'",
+        quote: "We few, we happy few, we band of brothers.",
+        sense: "Our forces are small; the enemy is numerous. This is not a reason for despair. Those present will be honoured for it.",
+        directOrders: []
+      },
+      {
+        ref: "H5. IV.i", name: "Henry in Disguise Among the Troops",
+        desc: "Henry walks his camp at night, anonymous, listening to his men. He hears their fears and reflects on the burden of command.",
+        signal: "'H5. IV.i'",
+        quote: "Every subject's duty is the king's; but every subject's soul is his own.",
+        sense: "The order is the commander's responsibility alone. The conscience of each man below decks remains his own.",
+        directOrders: []
+      }
+    ]
+  },
+  {
+    title: "Julius Caesar", abbr: "JC.", tag: "history",
+    scenes: [
+      {
+        ref: "JC. I.ii", name: "Cassius Seduces Brutus",
+        desc: "Cassius plants the seeds of conspiracy. 'The fault, dear Brutus, is not in our stars, but in ourselves.'",
+        signal: "'JC. I.ii'",
+        quote: "The fault, dear Brutus, is not in our stars, / But in ourselves.",
+        sense: "Failure cannot be attributed to circumstance or fortune. The responsibility lies with those who command.",
+        directOrders: []
+      },
+      {
+        ref: "JC. II.ii", name: "Calpurnia's Warning",
+        desc: "Caesar's wife begs him not to go to the Senate; he dismisses her omens and goes. He is killed.",
+        signal: "'JC. II.ii'",
+        quote: "Cowards die many times before their deaths; / The valiant never taste of death but once.",
+        sense: "Commander is about to dismiss a legitimate warning as timidity. This signal is itself the warning. Reassess.",
+        directOrders: []
+      },
+      {
+        ref: "JC. III.i", name: "The Assassination",
+        desc: "Caesar is stabbed in the Senate. 'Et tu, Bruté?' The decisive stroke — and its immediate aftermath of chaos.",
+        signal: "'JC. III.i'",
+        quote: "Et tu, Bruté? Then fall, Caesar!",
+        sense: "The decisive strike has been executed by those closest to the command. Situation volatile. Succession unclear.",
+        directOrders: [
+          {
+            ref: "JC. III.i.77", signal: "'JC. III.i.77'",
+            quote: "Fly hence!",
+            order: "Withdraw from the position at speed. Get clear now."
+          }
+        ]
+      },
+      {
+        ref: "JC. III.ii", name: "Antony's Funeral Oration",
+        desc: "Antony turns the crowd with 'Friends, Romans, countrymen' and savage irony: 'Brutus is an honourable man.'",
+        signal: "'JC. III.ii'",
+        quote: "Friends, Romans, countrymen, lend me your ears.",
+        sense: "The information battle is now the critical theatre. Public narrative is shifting. The initiative is being lost to the enemy.",
+        directOrders: []
+      }
+    ]
+  },
+  {
+    title: "The Tempest", abbr: "Tmp.", tag: "comedy",
+    scenes: [
+      {
+        ref: "Tmp. I.i", name: "The Storm",
+        desc: "A ship in a tempest. Sailors and nobles in equal terror. Power and rank count for nothing against the sea.",
+        signal: "'Tmp. I.i'",
+        quote: "What care these roarers for the name of king?",
+        sense: "The sea does not respect rank. Neither will the enemy. Conditions are equalising all parties.",
+        directOrders: [
+          {
+            ref: "Tmp. I.i.15", signal: "'Tmp. I.i.15'",
+            quote: "You mar our labour: keep your cabins!",
+            order: "Senior officers are interfering with the working of the ship. Stand clear and let the men do their jobs."
+          }
+        ]
+      },
+      {
+        ref: "Tmp. I.ii", name: "Prospero Explains All",
+        desc: "Prospero reveals to Miranda the full history of their exile. Intelligence and context finally shared with those who need it.",
+        signal: "'Tmp. I.ii'",
+        quote: "I have done nothing but in care of thee.",
+        sense: "Full operational context is now being passed to subordinates. Everything done hitherto was in service of this moment.",
+        directOrders: []
+      },
+      {
+        ref: "Tmp. V.i", name: "Prospero Breaks his Staff",
+        desc: "'Our revels now are ended.' Prospero renounces his magic, forgives his enemies, returns to the world.",
+        signal: "'Tmp. V.i'",
+        quote: "We are such stuff / As dreams are made on.",
+        sense: "The operation is concluded. Extraordinary measures are stood down. Time to return to normal command.",
+        directOrders: []
+      }
+    ]
+  },
+  {
+    title: "A Midsummer Night's Dream", abbr: "MND.", tag: "comedy",
+    scenes: [
+      {
+        ref: "MND. II.i", name: "Oberon and Puck's Plot",
+        desc: "Oberon orders Puck to apply the love-potion. Control at the top; chaos delivered by a subordinate.",
+        signal: "'MND. II.i'",
+        quote: "I'll put a girdle round about the earth / In forty minutes.",
+        sense: "Rapid redeployment ordered. The subordinate has the capability. The timeline is tighter than it appears.",
+        directOrders: []
+      },
+      {
+        ref: "MND. III.ii", name: "Maximum Confusion",
+        desc: "All four lovers are bewitched and love the wrong person. Oberon realises Puck has erred catastrophically.",
+        signal: "'MND. III.ii'",
+        quote: "Lord, what fools these mortals be!",
+        sense: "The situation is in full confusion. A subordinate acted without sufficient precision. Reassert command immediately.",
+        directOrders: [
+          {
+            ref: "MND. III.ii.88", signal: "'MND. III.ii.88'",
+            quote: "About the wood go swifter than the wind, / And Helena of Athens look thou find.",
+            order: "Search the area and locate the missing officer or asset. Move at best speed."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "The Merchant of Venice", abbr: "MV.", tag: "comedy",
+    scenes: [
+      {
+        ref: "MV. IV.i", name: "The Quality of Mercy",
+        desc: "Portia's great speech: mercy is above justice, a virtue of kings and of God.",
+        signal: "'MV. IV.i'",
+        quote: "The quality of mercy is not strained; / It droppeth as the gentle rain from heaven.",
+        sense: "The letter of the law permits a severe course. The commander is reminded that discretion and clemency are also available.",
+        directOrders: []
+      },
+      {
+        ref: "MV. III.ii", name: "Bassanio Chooses the Lead Casket",
+        desc: "Bassanio rejects gold and silver and chooses lead. Substance over glittering appearance.",
+        signal: "'MV. III.ii'",
+        quote: "All that glisters is not gold.",
+        sense: "The apparently impressive option should be viewed with scepticism. The sound choice is the one that shows its true value.",
+        directOrders: []
+      }
+    ]
+  },
+  {
+    title: "Richard III", abbr: "R3.", tag: "history",
+    scenes: [
+      {
+        ref: "R3. I.i", name: "Richard's Opening Soliloquy",
+        desc: "'Now is the winter of our discontent.' Richard announces his villainy with magnificent self-awareness.",
+        signal: "'R3. I.i'",
+        quote: "Now is the winter of our discontent / Made glorious summer by this sun of York.",
+        sense: "The period of difficulty is declared over. A new phase begins. The change in strategic weather should be noted.",
+        directOrders: []
+      },
+      {
+        ref: "R3. V.iv", name: "A Horse! A Horse!",
+        desc: "Richard at Bosworth, unhorsed, still fighting. His kingdom, his life — all offered for a horse.",
+        signal: "'R3. V.iv'",
+        quote: "A horse! A horse! My kingdom for a horse!",
+        sense: "Commander is in the field, position critical, seeking the one asset that can change the outcome. Urgent resupply required.",
+        directOrders: [
+          {
+            ref: "R3. V.iii.341", signal: "'R3. V.iii.341'",
+            quote: "March on, join bravely, let us to it pell-mell.",
+            order: "Advance at all speed. Engage the enemy without further delay or formation. Headlong."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Antony and Cleopatra", abbr: "AC.", tag: "tragedy",
+    scenes: [
+      {
+        ref: "AC. II.ii", name: "The Description of Cleopatra",
+        desc: "Enobarbus describes Cleopatra on her barge — the most intoxicating account of a command distraction in all literature.",
+        signal: "'AC. II.ii'",
+        quote: "Age cannot wither her, nor custom stale / Her infinite variety.",
+        sense: "The commanding officer has been captured by an asset that is not the mission. Recall strongly recommended.",
+        directOrders: []
+      },
+      {
+        ref: "AC. III.viii", name: "Antony Follows Cleopatra at Actium",
+        desc: "Antony abandons the sea battle to follow Cleopatra's retreating ships. The catastrophic strategic error.",
+        signal: "'AC. III.viii'",
+        quote: "I have fled myself, and have instructed cowards / To run and show their heels.",
+        sense: "The commanding officer has abandoned the engagement. This signal does not need paraphrase. The situation is exactly as stated.",
+        directOrders: [
+          {
+            ref: "AC. III.xi.7", signal: "'AC. III.xi.7'",
+            quote: "Hark! the land bids me tread no more upon't, / It is ashamed to bear me!",
+            order: "Embark all forces immediately. Evacuate the position. We are leaving by sea."
+          }
+        ]
+      },
+      {
+        ref: "AC. V.ii", name: "Cleopatra's Death",
+        desc: "Cleopatra kills herself with an asp rather than be paraded in Rome. 'I am fire and air.'",
+        signal: "'AC. V.ii'",
+        quote: "I am fire and air; my other elements / I give to baser life.",
+        sense: "The officer has chosen death over dishonourable capture. Honour is preserved. The enemy has been denied the trophy.",
+        directOrders: []
+      }
+    ]
+  }
+];
+
+let allExpanded = false;
+const container = document.getElementById('plays-container');
+
+function buildPlays() {
+  plays.forEach((play, pi) => {
+    const block = document.createElement('div');
+    block.className = 'play-block';
+    block.dataset.tag = play.tag;
+    block.dataset.pi = pi;
+
+    const header = document.createElement('div');
+    header.className = 'play-header';
+    header.innerHTML = `
+      <span class="play-title">${play.title}</span>
+      <span class="play-abbr">${play.abbr}</span>
+      <span class="play-tag">${play.tag}</span>
+      <span class="play-chevron">▼</span>`;
+    header.addEventListener('click', () => {
+      block.classList.toggle('open');
+    });
+
+    const body = document.createElement('div');
+    body.className = 'play-body';
+
+    play.scenes.forEach(sc => {
+      const sceneDiv = document.createElement('div');
+      sceneDiv.className = 'scene';
+
+      let directOrderHTML = '';
+      if (sc.directOrders && sc.directOrders.length > 0) {
+        sc.directOrders.forEach(d => {
+          directOrderHTML += `
+            <div class="direct-order" style="margin-top:10px;">
+              <div class="do-label">Lewin signals — direct order:</div>
+              <div class="do-code">${d.signal}</div>
+              <div class="do-quote">${d.quote}</div>
+              <div class="do-order-label">The order:</div>
+              <div class="do-order">${d.order}</div>
+            </div>`;
+        });
+      }
+
+      sceneDiv.innerHTML = `
+        <div class="scene-ref">${sc.ref}</div>
+        <div class="scene-title">${sc.name}</div>
+        <div class="scene-desc">${sc.desc}</div>
+        <div class="signal-box">
+          <div class="signal-label">Lewin signals:</div>
+          <div class="signal-code">${sc.signal}</div>
+          <div class="signal-quote">${sc.quote}</div>
+          <div class="signal-sense-label">Signal sense:</div>
+          <div class="signal-sense">${sc.sense}</div>
+        </div>
+        ${directOrderHTML}`;
+
+      body.appendChild(sceneDiv);
+    });
+
+    block.appendChild(header);
+    block.appendChild(body);
+    container.appendChild(block);
+  });
+}
+
+function setFilter(tag, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.play-block').forEach(el => {
+    el.style.display = (tag === 'all' || el.dataset.tag === tag) ? '' : 'none';
+  });
+}
+
+function toggleAll() {
+  allExpanded = !allExpanded;
+  document.querySelectorAll('.play-block').forEach(el => {
+    if (allExpanded) el.classList.add('open');
+    else el.classList.remove('open');
+  });
+  document.getElementById('expandAllBtn').textContent = allExpanded ? 'Collapse all' : 'Expand all';
+}
+
+buildPlays();
+</script>
+</body>
+</html>
