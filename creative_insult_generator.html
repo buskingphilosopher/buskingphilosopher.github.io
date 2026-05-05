@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boris Johnson Insult Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f0eeeb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .card {
+      width: 100%;
+      background: #fff;
+      border-radius: 16px;
+      padding: 3rem 2.5rem;
+      text-align: center;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .insult-text {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      font-weight: 700;
+      line-height: 1.3;
+      color: #111;
+      transition: opacity 0.15s;
+    }
+    .insult-text.fade { opacity: 0; }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .chip {
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 1.5px solid;
+      cursor: pointer;
+      transition: opacity 0.1s, transform 0.1s;
+      background: transparent;
+    }
+    .chip:hover { opacity: 0.75; transform: scale(0.98); }
+    .chip:active { transform: scale(0.95); }
+
+    .chip-int  { border-color: #9b8fcf; color: #4a3d8f; background: #f0eeff; }
+    .chip-adj1 { border-color: #6dbfa0; color: #1a5e42; background: #eafaf3; }
+    .chip-adj2 { border-color: #d4907a; color: #7a2e16; background: #fdf0ec; }
+    .chip-noun { border-color: #7aaad4; color: #1a3f6b; background: #edf4fc; }
+
+    .definition {
+      width: 100%;
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #333;
+      display: none;
+    }
+    .definition.visible { display: block; }
+    .definition strong { color: #111; font-size: 1rem; }
+    .definition em { color: #888; font-size: 0.85rem; }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button.action {
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 12px 32px;
+      border-radius: 999px;
+      border: 1.5px solid #ccc;
+      background: #fff;
+      color: #111;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    button.action:hover { background: #f5f5f5; }
+    button.action:active { background: #ebebeb; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="card">
+    <div class="insult-text" id="insult">Press "Hurl a new insult" to begin.</div>
+  </div>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="definition" id="definition"></div>
+
+  <div class="btn-row">
+    <button class="action" onclick="generate()">Hurl a new insult</button>
+    <button class="action" id="copy-btn" onclick="copyInsult()">Copy</button>
+  </div>
+
+</div>
+
+<script>
+const words = {
+  intensifiers: {
+    great:            { pos: "adjective", def: "Of an extent, amount, or intensity considerably above the normal or average." },
+    vast:             { pos: "adjective", def: "Of very great extent or quantity; immense." },
+    magnificent:      { pos: "adjective", def: "Impressively beautiful, elaborate, or extravagant; striking." },
+    thundering:       { pos: "adjective", def: "Exceptionally large or significant; used for thunderous emphasis." },
+    prodigious:       { pos: "adjective", def: "Remarkably or impressively great in extent, size, or degree." },
+    unconscionable:   { pos: "adjective", def: "Not right or reasonable; going beyond what is acceptable." },
+    egregious:        { pos: "adjective", def: "Outstandingly bad; shockingly awful in the most conspicuous manner." },
+    monumental:       { pos: "adjective", def: "Great in importance, extent, or size; of the scale of a monument." },
+    preposterous:     { pos: "adjective", def: "Contrary to reason or common sense; absurdly foolish." },
+    insufferable:     { pos: "adjective", def: "Too extreme to bear; intolerable in every conceivable respect." },
+    incorrigible:     { pos: "adjective", def: "Not able to be corrected, improved, or reformed." },
+    unfathomable:     { pos: "adjective", def: "Incapable of being fully explored or understood; of impossible depth." },
+    calamitous:       { pos: "adjective", def: "Involving calamity; catastrophic or disastrous." },
+    stupendous:       { pos: "adjective", def: "Extremely impressive; astoundingly large or great in scale." },
+    ignominious:      { pos: "adjective", def: "Deserving or causing public disgrace or shame." },
+    unutterable:      { pos: "adjective", def: "Too great or awful to be described in words." },
+    deplorable:       { pos: "adjective", def: "Deserving strong condemnation; shockingly bad." },
+    lamentable:       { pos: "adjective", def: "Full of merit for regret and disappointment; deplorably bad." },
+    extraordinary:    { pos: "adjective", def: "Very unusual or remarkable; well beyond what is ordinary." },
+    phenomenal:       { pos: "adjective", def: "Remarkably outstanding; extraordinary to a remarkable degree." },
+  },
+  adj1: {
+    supine:           { pos: "adjective", def: "Failing to act or protest as a result of moral weakness or indolence; spineless." },
+    craven:           { pos: "adjective", def: "Contemptibly lacking in courage; cowardly in the most abject sense." },
+    pusillanimous:    { pos: "adjective", def: "Showing a lack of courage or determination; timid and cowardly." },
+    feckless:         { pos: "adjective", def: "Lacking initiative or strength of character; irresponsible." },
+    vapid:            { pos: "adjective", def: "Offering nothing that is stimulating or challenging; dull and uninspiring." },
+    listless:         { pos: "adjective", def: "Lacking energy or enthusiasm; disinclined to exert oneself in any way." },
+    tremulous:        { pos: "adjective", def: "Shaking or quivering slightly; timid or nervous in constitution." },
+    mewling:          { pos: "adjective", def: "Crying weakly; whimpering feebly like an infant or small cat." },
+    snivelling:       { pos: "adjective", def: "Weeping and sniffling; complainingly weak and tearful." },
+    dithering:        { pos: "adjective", def: "Being indecisive; chronically unable to make any sort of decision." },
+    quivering:        { pos: "adjective", def: "Trembling or shaking with a slight rapid motion; vibrating with feebleness." },
+    lumbering:        { pos: "adjective", def: "Moving in a slow, heavy, awkward way; ponderous and graceless." },
+    blundering:       { pos: "adjective", def: "Making stupid or careless mistakes; moving or acting clumsily." },
+    wallowing:        { pos: "adjective", def: "Rolling about helplessly; indulging in an unrestrained and undignified way." },
+    whimpering:       { pos: "adjective", def: "Making a series of low, feeble, complaining sounds of self-pity." },
+    meandering:       { pos: "adjective", def: "Following a winding course; rambling without direction or purpose." },
+    lolloping:        { pos: "adjective", def: "Moving in an ungainly bounding way; flopping about clumsily." },
+    floundering:      { pos: "adjective", def: "Struggling or staggering helplessly; proceeding in utter confusion." },
+    simpering:        { pos: "adjective", def: "Smiling in an affectedly coy or ingratiating manner; self-consciously silly." },
+    prevaricating:    { pos: "adjective", def: "Speaking or acting evasively; being deliberately vague in order to mislead." },
+    procrastinating:  { pos: "adjective", def: "Delaying or postponing action indefinitely; putting off what must be done." },
+    vacillating:      { pos: "adjective", def: "Alternating between different opinions or actions; irredeemably indecisive." },
+    equivocating:     { pos: "adjective", def: "Using ambiguous language to conceal the truth or avoid commitment." },
+    dissembling:      { pos: "adjective", def: "Concealing one's true motives by pretence; hypocritical and deceptive." },
+    pontificating:    { pos: "adjective", def: "Expressing opinions in a pompously dogmatic way; lecturing without warrant." },
+    capitulating:     { pos: "adjective", def: "Ceasing to resist an opponent or an unwelcome demand; surrendering abjectly." },
+  },
+  adj2: {
+    protoplasmic:     { pos: "adjective", def: "Of or relating to protoplasm — the living contents of a cell; a colourless jelly-like substance." },
+    invertebrate:     { pos: "adjective", def: "Lacking a backbone or spinal column; pertaining to spineless creatures." },
+    gelatinous:       { pos: "adjective", def: "Having the consistency of jelly; viscous, semi-solid, and offering no resistance." },
+    cephalopodic:     { pos: "adjective", def: "Of or resembling a cephalopod — the class of molluscs including octopuses and squid." },
+    vermicular:       { pos: "adjective", def: "Resembling or relating to worms; having a worm-like form or sinuous motion." },
+    gastropodal:      { pos: "adjective", def: "Of or relating to gastropods — the class of molluscs that includes snails and slugs." },
+    amoebic:          { pos: "adjective", def: "Of or relating to amoebae — single-celled organisms that move by changing shape." },
+    molluscan:        { pos: "adjective", def: "Of or relating to molluscs — soft-bodied invertebrates, often with a shell." },
+    larval:           { pos: "adjective", def: "Of or relating to the larva stage — the immature, wingless, worm-like form of an insect." },
+    coleopteran:      { pos: "adjective", def: "Of or relating to beetles — the order Coleoptera, the largest order of insects." },
+    testudinal:       { pos: "adjective", def: "Of or resembling a tortoise or turtle; slow, armoured, and temperamentally inert." },
+    nematodal:        { pos: "adjective", def: "Of or relating to nematodes — microscopic roundworms found in virtually every habitat." },
+    cnidarian:        { pos: "adjective", def: "Of or relating to cnidarians — aquatic animals including jellyfish and sea anemones." },
+    piscatorial:      { pos: "adjective", def: "Of or concerning fish or fishing; fish-like in character or aspect." },
+    batrachian:       { pos: "adjective", def: "Of or relating to frogs and toads; amphibian in the most undignified sense." },
+    ophidian:         { pos: "adjective", def: "Of or relating to snakes; serpentine in form or character." },
+    chelonian:        { pos: "adjective", def: "Of or relating to tortoises and turtles; slow, armoured, and ancient." },
+    annelidan:        { pos: "adjective", def: "Of or relating to annelids — segmented worms such as earthworms and leeches." },
+    filamentous:      { pos: "adjective", def: "Resembling a filament; long, slender, and thread-like in form." },
+    chitinous:        { pos: "adjective", def: "Composed of chitin — the hard, semi-transparent substance forming the exoskeleton of insects." },
+  },
+  nouns: {
+    jellies:          { pos: "noun (plural)", def: "Gelatinous substances of low structural integrity; used here as a term of supreme invertebrate contempt." },
+    molluscs:         { pos: "noun (plural)", def: "Soft-bodied invertebrates, typically with a hard shell. Examples: snails, clams, slugs." },
+    polyps:           { pos: "noun (plural)", def: "Small aquatic creatures with a tubular body and tentacles — such as sea anemones or coral." },
+    amoebae:          { pos: "noun (plural)", def: "Single-celled organisms that move by extending their cytoplasm. No fixed shape whatsoever." },
+    blancmanges:      { pos: "noun (plural)", def: "Cold, sweet, wobbly desserts made with milk and cornflour. Quintessentially formless." },
+    custards:         { pos: "noun (plural)", def: "Thick, creamy desserts of egg and milk. Yielding in texture; offers no resistance." },
+    slugs:            { pos: "noun (plural)", def: "Shell-less terrestrial molluscs that leave a trail of slime wherever they go." },
+    whelks:           { pos: "noun (plural)", def: "Predatory sea snails with a spiral shell. Boris Johnson once memorably invoked their stalls." },
+    limpets:          { pos: "noun (plural)", def: "Aquatic snails that cling immovably to rocks. Impossible to dislodge; stubbornly inert." },
+    barnacles:        { pos: "noun (plural)", def: "Crustaceans that permanently attach themselves to surfaces and filter-feed. Utterly sedentary." },
+    nematodes:        { pos: "noun (plural)", def: "Microscopic roundworms of extraordinary abundance. Wriggling, unseen, and largely purposeless." },
+    flatworms:        { pos: "noun (plural)", def: "Simple ribbon-like invertebrates with no body cavity. Structurally unimpressive." },
+    "sea-cucumbers":  { pos: "noun (plural)", def: "Soft-bodied, warty marine animals related to starfish. Ejects its own organs when threatened." },
+    hagfish:          { pos: "noun (plural)", def: "Ancient jawless fish that produce prodigious quantities of slime as a defence mechanism." },
+    newts:            { pos: "noun (plural)", def: "Small semi-aquatic salamanders. Damp, tentative, and easily startled." },
+    tadpoles:         { pos: "noun (plural)", def: "Larval stage of frogs and toads — all head, no limbs, and going nowhere fast." },
+    pupae:            { pos: "noun (plural)", def: "Insects in the intermediate stage between larva and adult. Inert, encased, and unfinished." },
+    grubs:            { pos: "noun (plural)", def: "Thick, soft insect larvae. The larval form of beetles; entirely lacking in ambition." },
+    maggots:          { pos: "noun (plural)", def: "Soft-bodied legless larvae of flies. Associated universally with decay and putrefaction." },
+    drones:           { pos: "noun (plural)", def: "Male bees whose sole purpose is reproduction; they perform no other work whatsoever." },
+    sponges:          { pos: "noun (plural)", def: "Primitive aquatic animals with porous bodies. No muscles, no nervous system, no ambition." },
+    tardigrades:      { pos: "noun (plural)", def: "Eight-legged micro-animals, also known as water bears. Indestructible yet entirely unremarkable." },
+    blobs:            { pos: "noun (plural)", def: "Drops or roundish lumps of a thick liquid; amorphous masses of uncertain substance." },
+    excrescences:     { pos: "noun (plural)", def: "Abnormal outgrowths on a body; something that protrudes in an ugly or unwanted way." },
+    protuberances:    { pos: "noun (plural)", def: "Things that protrude or bulge outward from a surface; ungainly projections." },
+    effusions:        { pos: "noun (plural)", def: "Unrestrained outpourings of feeling; also, fluid that has seeped into a body cavity." },
+    humours:          { pos: "noun (plural)", def: "In medieval medicine, the four bodily fluids — blood, phlegm, yellow bile, black bile — thought to determine character." },
+    vapours:          { pos: "noun (plural)", def: "A substance diffused in the air; also archaic for a nervous affliction causing faintness and low spirits." },
+  }
+};
+
+const lists = {
+  intensifiers: Object.keys(words.intensifiers),
+  adj1: Object.keys(words.adj1),
+  adj2: Object.keys(words.adj2),
+  nouns: Object.keys(words.nouns),
+};
+
+let current = null;
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function generate() {
+  const el = document.getElementById("insult");
+  el.classList.add("fade");
+  setTimeout(() => {
+    current = {
+      int:  pick(lists.intensifiers),
+      adj1: pick(lists.adj1),
+      adj2: pick(lists.adj2),
+      noun: pick(lists.nouns),
+    };
+    el.textContent = `You ${current.int} ${current.adj1} ${current.adj2} ${current.noun}!`;
+    el.classList.remove("fade");
+
+    document.getElementById("chips").innerHTML = `
+      <button class="chip chip-int"  onclick="showDef('int')">intensifier — ${current.int}</button>
+      <button class="chip chip-adj1" onclick="showDef('adj1')">moral adj. — ${current.adj1}</button>
+      <button class="chip chip-adj2" onclick="showDef('adj2')">biological adj. — ${current.adj2}</button>
+      <button class="chip chip-noun" onclick="showDef('noun')">creature — ${current.noun}</button>
+    `;
+    document.getElementById("definition").classList.remove("visible");
+    document.getElementById("copy-btn").textContent = "Copy";
+  }, 150);
+}
+
+function showDef(slot) {
+  if (!current) return;
+  const map = {
+    int:  ['intensifiers', current.int],
+    adj1: ['adj1',         current.adj1],
+    adj2: ['adj2',         current.adj2],
+    noun: ['nouns',        current.noun],
+  };
+  const [bank, word] = map[slot];
+  const entry = words[bank][word];
+  if (!entry) return;
+  const def = document.getElementById("definition");
+  def.innerHTML = `<strong>${word}</strong> <em>${entry.pos}</em><br>${entry.def}`;
+  def.classList.add("visible");
+}
+
+function copyInsult() {
+  if (!current) return;
+  const text = document.getElementById("insult").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById("copy-btn");
+    btn.textContent = "Copied!";
+    setTimeout(() => btn.textContent = "Copy", 2000);
+  });
+}
+</script>
+</body>
+</html>
