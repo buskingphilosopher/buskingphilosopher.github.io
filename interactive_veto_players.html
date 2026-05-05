@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Veto Players — Spatial Voting Tool</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:       #0f0f11;
+    --surface:  #18181c;
+    --surface2: #222228;
+    --border:   #2e2e38;
+    --border2:  #3d3d4d;
+    --text:     #e8e8f0;
+    --muted:    #888899;
+    --hint:     #555566;
+    --teal:     #2dd4a0;
+    --teal-dim: rgba(45,212,160,0.15);
+    --coral:    #ff6b5b;
+    --blue:     #5b9bff;
+    --amber:    #f9a825;
+    --purple:   #a78bfa;
+    --radius:   8px;
+    --radius-lg:12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── layout ── */
+  .shell {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+  }
+
+  header {
+    border-bottom: 0.5px solid var(--border);
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+  }
+  header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+  header p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .tab {
+    background: transparent;
+    border: 0.5px solid var(--border2);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .tab:hover { background: var(--surface2); color: var(--text); }
+  .tab.on { background: var(--teal-dim); color: var(--teal); border-color: var(--teal); font-weight: 500; }
+
+  .panel { display: none; }
+  .panel.on { display: block; }
+
+  canvas {
+    display: block;
+    width: 100%;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    cursor: crosshair;
+  }
+
+  .infobar {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-radius: var(--radius);
+    font-size: 12px;
+    color: var(--muted);
+    min-height: 38px;
+    border: 0.5px solid var(--border);
+  }
+
+  .controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  input[type=text], input[type=number] {
+    background: var(--surface2);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 6px 10px;
+    outline: none;
+  }
+  input[type=text]:focus, input[type=number]:focus {
+    border-color: var(--teal);
+  }
+
+  .btn {
+    background: transparent;
+    border: 0.5px solid var(--border2);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .btn:hover { background: var(--surface2); color: var(--text); }
+  .btn.danger { border-color: var(--coral); color: var(--coral); }
+  .btn.danger:hover { background: rgba(255,107,91,0.1); }
+
+  .math-block {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin: 6px 0;
+    color: var(--text);
+    line-height: 1.9;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .verdict {
+    padding: 8px 12px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 13px;
+    margin: 6px 0;
+    border-left: 2px solid;
+    line-height: 1.5;
+  }
+  .pass  { background: rgba(45,212,160,0.1); border-color: var(--teal);  color: var(--teal);  }
+  .fail  { background: rgba(255,107,91,0.1); border-color: var(--coral); color: var(--coral); }
+  .note  { background: rgba(91,155,255,0.1); border-color: var(--blue);  color: var(--blue);  }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+  .card {
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+  }
+  .card-label { font-size: 11px; color: var(--hint); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; font-size: 12px; }
+  .kv .k { color: var(--muted); }
+  .kv .v { font-family: 'DM Mono', monospace; color: var(--text); }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  .rank-chip {
+    background: transparent;
+    border: 0.5px solid var(--border2);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .rank-chip:hover { background: var(--surface2); color: var(--text); }
+  .rank-chip.ranked { background: var(--teal-dim); color: var(--teal); border-color: var(--teal); }
+
+  .section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    color: var(--hint);
+    margin: 18px 0 8px;
+  }
+
+  .probe-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  .borda-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 0.5px solid var(--border);
+    font-size: 13px;
+  }
+  .borda-row:last-child { border-bottom: none; }
+  .borda-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--teal);
+    transition: width .3s;
+  }
+
+  /* ── about panel ── */
+  .prose { font-size: 13px; color: var(--muted); line-height: 1.8; }
+  .prose strong { color: var(--text); font-weight: 500; }
+  .prose h3 { font-size: 14px; font-weight: 500; color: var(--text); margin: 16px 0 6px; }
+  .prose ul { padding-left: 18px; }
+  .prose li { margin-bottom: 4px; }
+
+  @media (max-width: 600px) {
+    .grid2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <h1>Veto Players — Spatial Voting Tool</h1>
+    <p>Map policies in 2D policy space · derive indifference circles from ordinal poll data · compute winsets and Borda scores analytically</p>
+  </header>
+
+  <div class="tabs" id="main-tabs">
+    <button class="tab on" onclick="mainTab('build',this)">Build</button>
+    <button class="tab" onclick="mainTab('circles',this)">Circles</button>
+    <button class="tab" onclick="mainTab('winset',this)">Winset</button>
+    <button class="tab" onclick="mainTab('borda',this)">Borda count</button>
+    <button class="tab" onclick="mainTab('proof',this)">Proof</button>
+    <button class="tab" onclick="mainTab('about',this)">About</button>
+  </div>
+
+  <!-- BUILD -->
+  <div id="panel-build" class="panel on">
+    <div class="controls">
+      <input type="text" id="label-in" placeholder="Policy label…" style="width:160px" maxlength="22">
+      <button class="tab on" id="mode-policy" onclick="setMode('policy',this)">Place policies</button>
+      <button class="tab" id="mode-voter" onclick="setMode('voter',this)">Place voters</button>
+      <button class="btn danger" onclick="resetAll()">Reset</button>
+    </div>
+    <canvas id="c-build" height="420"></canvas>
+    <div class="infobar" id="info-build">Click on the canvas to place a policy. Type a label first, then click. Up to 6 policies.</div>
+    <div class="legend">
+      <span><span class="dot" style="background:#5b9bff"></span>policies</span>
+      <span><span class="dot" style="background:#f9a825"></span>voters</span>
+      <span style="color:var(--hint)">x-axis: left ↔ right · y-axis: statist ↑ ↔ laissez-faire ↓</span>
+    </div>
+  </div>
+
+  <!-- CIRCLES -->
+  <div id="panel-circles" class="panel">
+    <div id="rank-ui"></div>
+    <canvas id="c-circles" height="420"></canvas>
+    <div class="infobar" id="info-circles">Rank policies for each voter to generate their indifference circle.</div>
+    <div class="legend">
+      <span><span class="dot" style="background:rgba(45,212,160,0.5);border:1px solid #2dd4a0"></span>indifference circle (r = dist to worst policy)</span>
+    </div>
+  </div>
+
+  <!-- WINSET -->
+  <div id="panel-winset" class="panel">
+    <canvas id="c-winset" height="420"></canvas>
+    <div class="infobar" id="info-winset">Green region = winset W(SQ): every point all voters prefer to the status quo simultaneously.</div>
+    <div class="legend">
+      <span><span class="dot" style="background:rgba(45,212,160,0.45)"></span>winset (all circles intersect)</span>
+      <span><span class="dot" style="background:rgba(91,155,255,0.35)"></span>pairwise overlaps</span>
+    </div>
+  </div>
+
+  <!-- BORDA -->
+  <div id="panel-borda" class="panel">
+    <canvas id="c-borda" height="420"></canvas>
+    <div id="borda-table" style="margin-top:12px"></div>
+  </div>
+
+  <!-- PROOF -->
+  <div id="panel-proof" class="panel">
+    <div class="section-title">Verify any point manually</div>
+    <div class="probe-row" style="margin-bottom:12px">
+      <label style="color:var(--muted);font-size:13px">x =</label>
+      <input type="number" id="probe-x" value="330" style="width:80px" step="1">
+      <label style="color:var(--muted);font-size:13px">y =</label>
+      <input type="number" id="probe-y" value="200" style="width:80px" step="1">
+      <button class="tab on" onclick="runProbe()">Evaluate point</button>
+    </div>
+    <canvas id="c-proof" height="420"></canvas>
+    <div id="proof-out" style="margin-top:12px"></div>
+    <div class="section-title" style="margin-top:20px">Radius derivations</div>
+    <div id="radius-proof"></div>
+    <div class="section-title" style="margin-top:20px">Borda arithmetic</div>
+    <div id="borda-proof"></div>
+  </div>
+
+  <!-- ABOUT -->
+  <div id="panel-about" class="panel">
+    <div class="prose">
+      <h3>What this tool does</h3>
+      <p>This is a working implementation of <strong>Tsebelis's veto player theory</strong> combined with <strong>spatial voting models</strong> (the Downs-Black median voter tradition) and <strong>Borda count aggregation</strong>.</p>
+
+      <h3>The mathematics</h3>
+      <ul>
+        <li><strong>Policy space</strong>: a 2D Euclidean space. Each axis represents a policy dimension (e.g. left–right, interventionist–laissez-faire).</li>
+        <li><strong>Ideal points</strong>: each voter is placed at their most preferred policy position.</li>
+        <li><strong>Indifference circles</strong>: the radius r<sub>i</sub> for voter i = <code>√((x_worst − x_i)² + (y_worst − y_i)²)</code>, where "worst" is their least-ranked policy. This is the Euclidean distance to their threshold — any policy closer than this is preferred to the status quo.</li>
+        <li><strong>Winset W(SQ)</strong>: the set intersection of all indifference circles. A pixel (x,y) is in the winset if and only if <code>dist((x,y), voter_i) ≤ r_i</code> for every voter i.</li>
+        <li><strong>Borda score</strong>: score(policy j) = Σ over voters of (n − 1 − rank_voter(j)), where rank is 0-indexed and n is the number of policies. The winner maximises this sum.</li>
+      </ul>
+
+      <h3>Key results from veto player theory (Tsebelis 2002)</h3>
+      <ul>
+        <li>Policy change requires a <strong>non-empty winset</strong>. If no point lies inside all circles simultaneously, the status quo is stable.</li>
+        <li>The winset shrinks as (a) the number of veto players increases, or (b) the ideological distance between them grows.</li>
+        <li>The Borda winner is the <strong>consensus candidate</strong>: it may not be anyone's first choice, but it minimises aggregate dissatisfaction — useful when the winset is empty.</li>
+        <li>Borda is manipulable (Gibbard–Satterthwaite theorem): rational players can bury rivals by ranking them last, distorting the aggregate result.</li>
+      </ul>
+
+      <h3>How to use this tool</h3>
+      <ol style="padding-left:18px">
+        <li style="margin-bottom:4px">Go to <strong>Build</strong>. Place 2–6 policy options by clicking the canvas (type a label first). Then switch to voter mode and place 2–5 voters.</li>
+        <li style="margin-bottom:4px">Go to <strong>Circles</strong>. Rank the policies for each voter in preference order. The tool computes each voter's indifference circle radius from the Euclidean distance to their last-ranked policy.</li>
+        <li style="margin-bottom:4px">Go to <strong>Winset</strong> to see the intersection region — or confirm that no winset exists.</li>
+        <li style="margin-bottom:4px">Go to <strong>Borda count</strong> to see the consensus candidate with full arithmetic.</li>
+        <li style="margin-bottom:4px">Go to <strong>Proof</strong> to verify any point on the canvas manually and inspect all the working.</li>
+      </ol>
+
+      <h3>Theoretical context</h3>
+      <p>Veto player theory was developed by George Tsebelis in <em>Veto Players: How Political Institutions Work</em> (Princeton UP, 2002). Spatial voting models derive from Anthony Downs (<em>An Economic Theory of Democracy</em>, 1957) and Duncan Black (<em>The Theory of Committees and Elections</em>, 1958). The Borda count dates to Jean-Charles de Borda (1784); its manipulability was formally proved by Gibbard (1973) and Satterthwaite (1975).</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── state ───────────────────────────────────────────────────────────────────
+const POLICY_COL  = '#5b9bff';
+const VOTER_COLS  = ['#f9a825','#ff6b5b','#a78bfa','#2dd4a0','#e879a0'];
+let policies = [];
+let voters   = [];
+let mode     = 'policy';
+let currentVoterRankIdx = 0;
+let rankings = [];
+let activePanel = 'build';
+
+// ─── canvas setup ────────────────────────────────────────────────────────────
+const CW = 660, CH = 420;
+const canvases = {};
+['build','circles','winset','borda','proof'].forEach(id => {
+  const el = document.getElementById('c-'+id);
+  el.width = CW; el.height = CH;
+  canvases[id] = el;
+});
+
+// ─── utils ───────────────────────────────────────────────────────────────────
+function dist(a,b){ return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2); }
+function clamp(v,lo,hi){ return Math.max(lo,Math.min(hi,v)); }
+function canvasCoords(canvas, e) {
+  const r = canvas.getBoundingClientRect();
+  return { x: (e.clientX-r.left)*(CW/r.width), y: (e.clientY-r.top)*(CH/r.height) };
+}
+
+// ─── base draw ───────────────────────────────────────────────────────────────
+function baseCtx(canvasId) {
+  const c = canvases[canvasId];
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0,0,CW,CH);
+  ctx.fillStyle = '#18181c';
+  ctx.fillRect(0,0,CW,CH);
+  for(let x=0;x<CW;x+=60){ ctx.strokeStyle='rgba(255,255,255,0.03)'; ctx.lineWidth=0.5; ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,CH); ctx.stroke(); }
+  for(let y=0;y<CH;y+=60){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(CW,y); ctx.stroke(); }
+  ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(CW/2,0); ctx.lineTo(CW/2,CH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,CH/2); ctx.lineTo(CW,CH/2); ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.font='11px DM Sans, sans-serif'; ctx.textAlign='left';
+  ctx.fillText('← left', 6, CH/2-5);
+  ctx.textAlign='right';
+  ctx.fillText('right →', CW-6, CH/2-5);
+  ctx.textAlign='center';
+  ctx.fillText('↑ state', CW/2, 14);
+  ctx.fillText('↓ market', CW/2, CH-4);
+  ctx.textAlign='left';
+  return ctx;
+}
+
+function drawPolicies(ctx, highlight) {
+  policies.forEach((p,i) => {
+    const hl = highlight===i;
+    ctx.beginPath(); ctx.arc(p.x,p.y, hl?9:7, 0, Math.PI*2);
+    ctx.fillStyle = POLICY_COL + (hl?'':'cc');
+    ctx.fill();
+    ctx.strokeStyle = hl ? '#fff' : '#0c447c';
+    ctx.lineWidth = hl ? 2 : 1.5; ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.font = '500 12px DM Sans, sans-serif';
+    ctx.fillText(p.label, p.x+10, p.y-5);
+  });
+}
+
+function drawVoters(ctx, showRadius) {
+  voters.forEach((v,i) => {
+    if(showRadius && v.radius) {
+      ctx.beginPath(); ctx.arc(v.x,v.y,v.radius,0,Math.PI*2);
+      ctx.strokeStyle = VOTER_COLS[i]; ctx.lineWidth=1; ctx.setLineDash([5,4]); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = VOTER_COLS[i]+'18'; ctx.fill();
+    }
+    ctx.beginPath(); ctx.arc(v.x,v.y,6,0,Math.PI*2);
+    ctx.fillStyle = VOTER_COLS[i]; ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle=VOTER_COLS[i]; ctx.font='500 11px DM Sans, sans-serif';
+    ctx.fillText('V'+(i+1), v.x+9, v.y+4);
+    if(showRadius && v.radius) {
+      ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.font='10px DM Mono, monospace';
+      ctx.fillText('r='+Math.round(v.radius), v.x+9, v.y+16);
+    }
+  });
+}
+
+// ─── build panel ─────────────────────────────────────────────────────────────
+function drawBuild() {
+  const ctx = baseCtx('build');
+  drawPolicies(ctx);
+  drawVoters(ctx, false);
+  if(policies.length===0) {
+    ctx.fillStyle='rgba(255,255,255,0.15)'; ctx.font='14px DM Sans, sans-serif'; ctx.textAlign='center';
+    ctx.fillText('Click to place policy options in the 2D policy space', CW/2, CH/2-10);
+    ctx.font='12px DM Sans, sans-serif'; ctx.fillStyle='rgba(255,255,255,0.08)';
+    ctx.fillText('x-axis = left–right   ·   y-axis = statist–laissez-faire', CW/2, CH/2+14);
+    ctx.textAlign='left';
+  }
+}
+
+canvases.build.addEventListener('click', e => {
+  const {x,y} = canvasCoords(canvases.build, e);
+  if(mode==='policy') {
+    if(policies.length>=6){ setInfo('build','Maximum 6 policies reached.'); return; }
+    const lbl = document.getElementById('label-in').value.trim() || 'P'+(policies.length+1);
+    policies.push({x,y,label:lbl}); document.getElementById('label-in').value='';
+    setInfo('build',`"${policies[policies.length-1].label}" placed. Add more or switch to voter mode.`);
+  } else {
+    if(voters.length>=5){ setInfo('build','Maximum 5 voters reached.'); return; }
+    voters.push({x,y,radius:null,worstIdx:null});
+    setInfo('build',`Voter ${voters.length} placed at (${Math.round(x)},${Math.round(y)}). Add more or go to Circles to rank.`);
+  }
+  drawBuild();
+});
+
+function setMode(m, btn) {
+  mode=m;
+  document.querySelectorAll('[id^=mode-]').forEach(b=>{b.classList.remove('on');});
+  btn.classList.add('on');
+  setInfo('build', m==='policy' ? 'Click canvas to place a policy option. Type a label first.' : 'Click canvas to place a voter ideal point (up to 5).');
+}
+
+// ─── circles panel ────────────────────────────────────────────────────────────
+function buildRankUI() {
+  const el = document.getElementById('rank-ui');
+  if(voters.length===0||policies.length<2){ el.innerHTML='<div class="infobar">Add at least 2 policies and 1 voter in the Build panel first.</div>'; drawCircles(); return; }
+  rankings = voters.map(v => v.rankOrder ? [...v.rankOrder] : []);
+  renderRankStep(el);
+}
+
+function renderRankStep(el) {
+  if(currentVoterRankIdx>=voters.length){ el.innerHTML='<div class="infobar" style="color:#2dd4a0">All rankings recorded. Circles computed.</div>'; drawCircles(); buildBordaTable(); buildProof(); return; }
+  const vi=currentVoterRankIdx;
+  el.innerHTML=`<div style="margin-bottom:8px;font-size:13px;color:${VOTER_COLS[vi]}">Voter ${vi+1}: click policies in preference order (1st choice first)</div><div id="rank-chips" style="display:flex;gap:6px;flex-wrap:wrap"></div>`;
+  const chips = document.getElementById('rank-chips');
+  policies.forEach((p,pi)=>{
+    const already = rankings[vi].indexOf(pi);
+    const chip = document.createElement('button');
+    chip.className = 'rank-chip' + (already>=0?' ranked':'');
+    chip.textContent = already>=0 ? `${already+1}. ${p.label}` : p.label;
+    chip.onclick = () => {
+      if(rankings[vi].includes(pi)) return;
+      rankings[vi].push(pi);
+      chip.classList.add('ranked'); chip.textContent=`${rankings[vi].length}. ${p.label}`;
+      chip.onclick=null;
+      if(rankings[vi].length===policies.length){
+        voters[vi].rankOrder = [...rankings[vi]];
+        voters[vi].worstIdx = rankings[vi][rankings[vi].length-1];
+        voters[vi].radius = dist(voters[vi], policies[voters[vi].worstIdx]);
+        currentVoterRankIdx++;
+        setTimeout(()=>renderRankStep(el),300);
+      }
+    };
+    chips.appendChild(chip);
+  });
+  drawCircles();
+}
+
+function drawCircles() {
+  const ctx = baseCtx('circles');
+  drawVoters(ctx, true);
+  drawPolicies(ctx);
+}
+
+// ─── winset panel ─────────────────────────────────────────────────────────────
+function drawWinset() {
+  const ctx = baseCtx('winset');
+  const step=3;
+  // pairwise overlaps
+  for(let i=0;i<voters.length;i++){
+    for(let j=i+1;j<voters.length;j++){
+      if(!voters[i].radius||!voters[j].radius) continue;
+      for(let px=0;px<CW;px+=step){
+        for(let py=0;py<CH;py+=step){
+          if(dist({x:px,y:py},voters[i])<=voters[i].radius && dist({x:px,y:py},voters[j])<=voters[j].radius){
+            const inAll=voters.every(v=>v.radius && dist({x:px,y:py},v)<=v.radius);
+            if(!inAll){ ctx.fillStyle='rgba(91,155,255,0.12)'; ctx.fillRect(px,py,step,step); }
+          }
+        }
+      }
+    }
+  }
+  // full winset
+  let winsetEmpty=true;
+  for(let px=0;px<CW;px+=step){
+    for(let py=0;py<CH;py+=step){
+      if(voters.length>0 && voters.every(v=>v.radius && dist({x:px,y:py},v)<=v.radius)){
+        ctx.fillStyle='rgba(45,212,160,0.22)'; ctx.fillRect(px,py,step,step); winsetEmpty=false;
+      }
+    }
+  }
+  drawVoters(ctx,true);
+  drawPolicies(ctx);
+  const msg = voters.length<2 ? 'Add at least 2 voters and rank policies to see the winset.' :
+    !voters.every(v=>v.radius) ? 'Rank policies for all voters in the Circles panel first.' :
+    winsetEmpty ? 'No winset exists — the circles do not all intersect. Status quo is stable.' :
+    'Green = winset W(SQ). Blue = pairwise overlaps only. Click a party dot for details.';
+  setInfo('winset', msg);
+}
+
+// ─── borda panel ──────────────────────────────────────────────────────────────
+function drawBorda() {
+  const ctx = baseCtx('borda');
+  const n=policies.length;
+  if(!voters.every(v=>v.rankOrder&&v.rankOrder.length===n)){ drawPolicies(ctx); drawVoters(ctx,false); return; }
+  const scores=computeBorda();
+  const maxScore=Math.max(...scores);
+  policies.forEach((p,i)=>{
+    const isWinner=(scores[i]===maxScore);
+    ctx.beginPath(); ctx.arc(p.x,p.y,isWinner?11:7,0,Math.PI*2);
+    ctx.fillStyle=isWinner?'#2dd4a0':'#5b9bff';
+    ctx.fill();
+    ctx.strokeStyle=isWinner?'#fff':'#0c447c'; ctx.lineWidth=isWinner?2:1.5; ctx.stroke();
+    ctx.fillStyle=isWinner?'#2dd4a0':'rgba(255,255,255,0.8)';
+    ctx.font=`500 12px DM Sans, sans-serif`;
+    ctx.fillText(p.label+(isWinner?' ★':''), p.x+13, p.y-6);
+    ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.font='11px DM Mono, monospace';
+    ctx.fillText(scores[i]+'pt', p.x+13, p.y+8);
+  });
+  drawVoters(ctx,false);
+}
+
+function computeBorda(){
+  const n=policies.length;
+  const scores=policies.map(()=>0);
+  voters.forEach(v=>{
+    if(!v.rankOrder) return;
+    v.rankOrder.forEach((pIdx,rank)=>{ scores[pIdx]+=(n-1-rank); });
+  });
+  return scores;
+}
+
+function buildBordaTable(){
+  const el=document.getElementById('borda-table');
+  if(!voters.every(v=>v.rankOrder&&v.rankOrder.length===policies.length)){ el.innerHTML=''; return; }
+  const n=policies.length;
+  const scores=computeBorda();
+  const maxScore=Math.max(...scores);
+  const sorted=policies.map((p,i)=>({...p,score:scores[i],idx:i})).sort((a,b)=>b.score-a.score);
+  let html=`<div class="section-title">Results — ${voters.length} voter${voters.length>1?'s':''}, ${n} policies · 1st=${n-1}pt … last=0pt</div>`;
+  sorted.forEach((p,rank)=>{
+    const pct=Math.round((p.score/((n-1)*voters.length))*100);
+    html+=`<div class="borda-row">
+      <span style="width:14px;color:${rank===0?'#2dd4a0':'var(--hint)'};">${rank===0?'★':rank+1}</span>
+      <span style="flex:0 0 140px;color:${rank===0?'#2dd4a0':'var(--text)'};font-weight:${rank===0?500:400}">${p.label}</span>
+      <div style="flex:1;background:var(--border);border-radius:3px;height:6px;overflow:hidden">
+        <div class="borda-bar" style="width:${pct}%;background:${rank===0?'#2dd4a0':'#5b9bff'}"></div>
+      </div>
+      <span style="font-family:'DM Mono',monospace;font-size:12px;color:${rank===0?'#2dd4a0':'var(--muted)'};min-width:50px;text-align:right">${p.score} pts</span>
+    </div>`;
+  });
+  if(sorted.length>1&&sorted[0].score===sorted[1].score) html+=`<div class="verdict note" style="margin-top:6px">Tie between first and second — first-listed wins by convention.</div>`;
+  el.innerHTML=html;
+}
+
+// ─── proof panel ──────────────────────────────────────────────────────────────
+function buildProof(){
+  const rp=document.getElementById('radius-proof');
+  const bp=document.getElementById('borda-proof');
+  if(!voters.some(v=>v.radius)){ rp.innerHTML='<div class="infobar">Complete the ranking step in Circles first.</div>'; bp.innerHTML=''; return; }
+  let rhtml='';
+  voters.forEach((v,vi)=>{
+    if(!v.radius) return;
+    const w=policies[v.worstIdx];
+    const dx=w.x-v.x, dy=w.y-v.y;
+    const r=Math.sqrt(dx*dx+dy*dy);
+    rhtml+=`<div style="margin-bottom:12px">
+      <div style="font-size:12px;font-weight:500;color:${VOTER_COLS[vi]};margin-bottom:4px">V${vi+1} — least preferred: ${w.label}</div>
+      <div class="math-block">r = √( (${Math.round(w.x)} − ${Math.round(v.x)})² + (${Math.round(w.y)} − ${Math.round(v.y)})² )
+  = √( ${Math.round(dx)}² + ${Math.round(dy)}² )
+  = √( ${Math.round(dx*dx)} + ${Math.round(dy*dy)} )
+  = √${Math.round(dx*dx+dy*dy)}
+  = ${r.toFixed(4)}</div>
+      <div class="verdict pass">Circle drawn at (${Math.round(v.x)},${Math.round(v.y)}) with r = ${r.toFixed(2)}</div>
+    </div>`;
+  });
+  rp.innerHTML=rhtml||'No radii computed yet.';
+
+  const n=policies.length;
+  if(!voters.every(v=>v.rankOrder&&v.rankOrder.length===n)){ bp.innerHTML=''; return; }
+  const scores=computeBorda();
+  let bhtml=`<div class="math-block">Formula: score(j) = Σ_voters (n−1 − rank_voter(j))    n=${n}\n</div>`;
+  voters.forEach((v,vi)=>{
+    bhtml+=`<div style="font-size:12px;font-weight:500;color:${VOTER_COLS[vi]};margin:8px 0 3px">V${vi+1}: [${v.rankOrder.map(r=>policies[r].label).join(' > ')}]</div>`;
+    v.rankOrder.forEach((pIdx,rank)=>{
+      bhtml+=`<div class="math-block" style="margin:2px 0">  ${policies[pIdx].label.padEnd(18)} rank ${rank} → ${n-1}−${rank} = ${n-1-rank} pts</div>`;
+    });
+  });
+  bhtml+=`<div style="margin-top:10px;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:4px">Totals</div>`;
+  const sorted=policies.map((p,i)=>({...p,score:scores[i],idx:i})).sort((a,b)=>b.score-a.score);
+  sorted.forEach((p,rank)=>{
+    const parts=voters.map((v,vi)=>{
+      const vrank=v.rankOrder.indexOf(p.idx);
+      return `V${vi+1}→${n-1-vrank}`;
+    }).join(' + ');
+    bhtml+=`<div class="verdict ${rank===0?'pass':''}">  ${p.label}: ${parts} = ${p.score} pts${rank===0?' ★ winner':''}</div>`;
+  });
+  bp.innerHTML=bhtml;
+}
+
+function runProbe(){
+  const px=parseFloat(document.getElementById('probe-x').value);
+  const py=parseFloat(document.getElementById('probe-y').value);
+  if(isNaN(px)||isNaN(py)) return;
+  const ctx=baseCtx('proof');
+  // draw winset
+  const step=3;
+  for(let x=0;x<CW;x+=step) for(let y=0;y<CH;y+=step)
+    if(voters.every(v=>v.radius&&dist({x,y},v)<=v.radius)){ctx.fillStyle='rgba(45,212,160,0.18)';ctx.fillRect(x,y,step,step);}
+  drawVoters(ctx,true);
+  drawPolicies(ctx);
+  // probe point
+  const inW=voters.every(v=>v.radius&&dist({x:px,y:py},v)<=v.radius);
+  ctx.beginPath(); ctx.arc(px,py,9,0,Math.PI*2);
+  ctx.fillStyle=inW?'#2dd4a0':'#ff6b5b'; ctx.fill();
+  ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+  voters.forEach((v,vi)=>{
+    ctx.strokeStyle=VOTER_COLS[vi]+'88'; ctx.lineWidth=0.8; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(v.x,v.y); ctx.stroke(); ctx.setLineDash([]);
+    const d=dist({x:px,y:py},v);
+    const mx=(px+v.x)/2,my=(py+v.y)/2;
+    ctx.fillStyle=VOTER_COLS[vi]; ctx.font='10px DM Mono, sans-serif';
+    ctx.fillText(d.toFixed(1),mx+3,my);
+  });
+  ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.font='500 12px DM Sans, sans-serif';
+  ctx.fillText(`(${Math.round(px)},${Math.round(py)}) — ${inW?'IN winset':'outside winset'}`, px+13, py-7);
+  // written proof
+  if(voters.length===0){ document.getElementById('proof-out').innerHTML='<div class="infobar">Add voters and rank policies first.</div>'; return; }
+  let html='';
+  voters.forEach((v,vi)=>{
+    if(!v.radius) return;
+    const dx=(px-v.x),dy=(py-v.y);
+    const d=Math.sqrt(dx*dx+dy*dy);
+    const pass=d<=v.radius;
+    html+=`<div class="math-block">dist((${Math.round(px)},${Math.round(py)}), V${vi+1}=(${Math.round(v.x)},${Math.round(v.y)}))
+  = √(${dx.toFixed(1)}²+${dy.toFixed(1)}²) = ${d.toFixed(3)}
+  ≤ r${vi+1}=${v.radius.toFixed(3)}?  ${pass?'✓ YES':'✗ NO'}</div>`;
+  });
+  html+=`<div class="verdict ${inW?'pass':'fail'}" style="margin-top:6px">${inW?'All inequalities satisfied — point is IN the winset.':'At least one inequality fails — point is OUTSIDE the winset.'}</div>`;
+  document.getElementById('proof-out').innerHTML=html;
+}
+
+// ─── tab routing ──────────────────────────────────────────────────────────────
+function mainTab(id, btn){
+  activePanel=id;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('#main-tabs .tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('panel-'+id).classList.add('on');
+  btn.classList.add('on');
+  if(id==='circles')  { currentVoterRankIdx=0; buildRankUI(); }
+  if(id==='winset')   drawWinset();
+  if(id==='borda')    { drawBorda(); buildBordaTable(); }
+  if(id==='proof')    { buildProof(); runProbe(); }
+}
+
+function setInfo(panel, msg){
+  const el=document.getElementById('info-'+panel);
+  if(el) el.textContent=msg;
+}
+
+function resetAll(){
+  policies=[]; voters=[]; rankings=[]; currentVoterRankIdx=0;
+  document.getElementById('label-in').value='';
+  setMode('policy',document.getElementById('mode-policy'));
+  setInfo('build','Click on the canvas to place a policy. Type a label first, then click. Up to 6 policies.');
+  drawBuild();
+}
+
+// ─── init ─────────────────────────────────────────────────────────────────────
+drawBuild();
+</script>
+</body>
+</html>
