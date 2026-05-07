@@ -204,7 +204,20 @@
    
   let currentIdx = 0;
   let isPlaying  = false;
-   
+
+  function formatTime(secs) {
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return m + ':' + String(s).padStart(2, '0');
+  }
+  
+  function updateSeek() {
+    if (!player.duration) return;
+    seekBar.value = (player.currentTime / player.duration) * 100;
+    currentTimeEl.textContent = formatTime(player.currentTime);
+    totalTimeEl.textContent = formatTime(player.duration);
+  }
+    
   function loadTrack(i) {
     player.src = PLAYLIST[i].src;
     nameEl.textContent = PLAYLIST[i].title;
@@ -245,6 +258,35 @@
     player.volume = parseFloat(volSlider.value);
   });
   player.volume = parseFloat(volSlider.value);
+
+  const seekBar = document.getElementById('seekBar');
+  const currentTimeEl = document.getElementById('currentTime');
+  const totalTimeEl = document.getElementById('totalTime');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  
+  player.addEventListener('timeupdate', updateSeek);
+  player.addEventListener('loadedmetadata', updateSeek);
+  
+  seekBar.addEventListener('input', () => {
+    if (player.duration) player.currentTime = (seekBar.value / 100) * player.duration;
+  });
+  
+  nextBtn.addEventListener('click', () => {
+    idx = (idx + 1) % PLAYLIST.length;
+    loadTrack(idx);
+    if (isPlaying) player.play();
+  });
+  
+  prevBtn.addEventListener('click', () => {
+    if (player.currentTime > 3) {
+      player.currentTime = 0;
+    } else {
+      idx = (idx - 1 + PLAYLIST.length) % PLAYLIST.length;
+      loadTrack(idx);
+      if (isPlaying) player.play();
+    }
+  });
   </script>
 
 </body>
