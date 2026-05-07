@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShowMe</title>
+
+  <style>
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Georgia, serif;
+      background: #f5f3ef;
+      margin: 0;
+    }
+
+
+    /* ─────────────────────────────────────
+       MODE SWITCHER BAR
+    ───────────────────────────────────── */
+
+    .mode-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      background: #1a1a1a;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .mode-btn {
+      padding: 14px 28px;
+      font-size: 13px;
+      font-family: Georgia, serif;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.4);
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.04em;
+      border-bottom: 2px solid transparent;
+    }
+
+    .mode-btn:hover { color: rgba(255,255,255,0.8); }
+
+    .mode-btn.active {
+      color: white;
+      border-bottom-color: white;
+    }
+
+
+    /* ─────────────────────────────────────
+       PAGES — only one visible at a time
+    ───────────────────────────────────── */
+
+    .page {
+      display: none;
+      padding-top: 50px; /* clears the fixed mode bar */
+    }
+
+    .page.active { display: block; }
+
+
+    /* ─────────────────────────────────────
+       SHARED SEARCH LAYOUT
+       Used by all three modes
+    ───────────────────────────────────── */
+
+    .search-wrap {
+      max-width: 580px;
+      margin: 0 auto;
+      padding: 36px 20px 60px;
+    }
+
+    .search-wrap h1 {
+      font-size: 22px;
+      font-weight: normal;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+
+    .search-wrap p.subtitle {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    input.search-input {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 16px;
+      font-family: Georgia, serif;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: white;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    input.search-input:focus { border-color: #888; }
+
+    .chips {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      margin-top: 14px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: none;
+    }
+
+    .chip {
+      padding: 5px 13px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-family: Georgia, serif;
+      border: 1px solid #ddd;
+      background: white;
+      color: #555;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .chip.active {
+      background: #1a1a1a;
+      color: white;
+      border-color: #1a1a1a;
+    }
+
+    .chip:hover:not(.active) { border-color: #aaa; color: #222; }
+
+    .results {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .no-results {
+      font-size: 14px;
+      color: #aaa;
+      font-style: italic;
+      margin-top: 8px;
+    }
+
+    .copied-msg {
+      text-align: center;
+      font-size: 13px;
+      color: #555;
+      margin-top: 12px;
+      min-height: 20px;
+    }
+
+
+    /* ─────────────────────────────────────
+       POETRY CARDS
+    ───────────────────────────────────── */
+
+    .poetry-card {
+      background: white;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .poetry-card:hover { border-color: #aaa; }
+
+    .poetry-card .quote {
+      font-size: 15px;
+      font-style: italic;
+      color: #222;
+      line-height: 1.65;
+      margin-bottom: 10px;
+    }
+
+    .poetry-card .title {
+      font-size: 12px;
+      color: #bbb;
+      font-style: italic;
+      margin-bottom: 2px;
+    }
+
+    .poetry-card .passage {
+      font-size: 11px;
+      color: #ccc;
+      margin-bottom: 2px;
+    }
+
+    .poetry-card .poet {
+      font-size: 12px;
+      color: #999;
+    }
+
+
+    /* ─────────────────────────────────────
+       MUSIC CARDS
+    ───────────────────────────────────── */
+
+    .music-card {
+      background: white;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .music-card .embed-wrap {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 ratio */
+      background: #000;
+    }
+
+    .music-card .embed-wrap iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .music-card .music-info {
+      padding: 14px 16px;
+    }
+
+    .music-card .work {
+      font-size: 15px;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .music-card .composer {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 6px;
+    }
+
+    .music-card .music-note {
+      font-size: 12px;
+      font-style: italic;
+      color: #bbb;
+      line-height: 1.5;
+    }
+
+
+    /* ─────────────────────────────────────
+       PAINTING CARDS
+    ───────────────────────────────────── */
+
+    .painting-card {
+      background: white;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .painting-card img {
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+
+    .painting-card .painting-info {
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .painting-card .painting-text .work {
+      font-size: 15px;
+      font-style: italic;
+      color: #1a1a1a;
+      margin-bottom: 3px;
+    }
+
+    .painting-card .painting-text .artist {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .painting-card .painting-text .mood-note {
+      font-size: 12px;
+      color: #bbb;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    .copy-btn {
+      background: #f5f3ef;
+      border: 1px solid #e0ddd8;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: Georgia, serif;
+      color: #888;
+      padding: 6px 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: border-color 0.15s;
+    }
+
+    .copy-btn:hover { border-color: #aaa; color: #555; }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- MODE SWITCHER -->
+  <nav class="mode-bar">
+    <button class="mode-btn active" onclick="switchMode('poetry')">✦ Poetry</button>
+    <button class="mode-btn"        onclick="switchMode('music')">♩ Music</button>
+    <button class="mode-btn"        onclick="switchMode('painting')">◻ Paintings</button>
+  </nav>
+
+
+  <!-- ══════════════════════════════════
+       POETRY PAGE
+  ══════════════════════════════════ -->
+  <div class="page active" id="page-poetry">
+    <div class="search-wrap">
+      <h1>✦ ShowMePoetry</h1>
+      <p class="subtitle">Type an emotion to see how poets have expressed it.</p>
+      <input class="search-input" id="poetry-search" placeholder="happy, lost, furious, grateful…" />
+      <div class="chips" id="poetry-chips"></div>
+      <div class="results" id="poetry-results"></div>
+      <p class="copied-msg" id="poetry-copied"></p>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════
+       MUSIC PAGE
+  ══════════════════════════════════ -->
+  <div class="page" id="page-music">
+    <div class="search-wrap">
+      <h1>♩ ShowMeMusic</h1>
+      <p class="subtitle">Type an emotion to hear how composers have expressed it.</p>
+      <input class="search-input" id="music-search" placeholder="joyful, melancholy, triumphant…" />
+      <div class="chips" id="music-chips"></div>
+      <div class="results" id="music-results"></div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════
+       PAINTING PAGE
+  ══════════════════════════════════ -->
+  <div class="page" id="page-painting">
+    <div class="search-wrap">
+      <h1>◻ ShowMePaintings</h1>
+      <p class="subtitle">Type an emotion to see how painters have evoked it.</p>
+      <input class="search-input" id="painting-search" placeholder="sublime, tender, melancholy…" />
+      <div class="chips" id="painting-chips"></div>
+      <div class="results" id="painting-results"></div>
+      <p class="copied-msg" id="painting-copied"></p>
+    </div>
+  </div>
+
+
+  <script>
+
+    // ═══════════════════════════════════════════
+    // MODE SWITCHER
+    // ═══════════════════════════════════════════
+
+    function switchMode(mode) {
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById("page-" + mode).classList.add("active");
+      event.target.classList.add("active");
+    }
+
+
+    // ═══════════════════════════════════════════
+    // SHARED SYNONYM MAP
+    // ═══════════════════════════════════════════
+
+    const synonyms = {
+      "angry":      "anger",
+      "anger":      "anger",
+      "furious":    "fury",
+      "mad":        "anger",
+      "upset":      "frustrated",
+      "sadness":    "sad",
+      "unhappy":    "sad",
+      "depressed":  "sad",
+      "lonesome":   "lonely",
+      "alone":      "lonely",
+      "happiness":  "happy",
+      "joyful":     "joy",
+      "hopeless":   "lost",
+      "worried":    "anxious",
+      "nervous":    "anxious",
+      "thankful":   "grateful",
+      "devoted":    "devotion",
+      "tired":      "exhausted",
+      "unfair":     "wronged",
+      "grand":      "sublime",
+      "glorious":   "triumphant",
+      "peaceful":   "tranquil",
+      "quiet":      "tranquil",
+      "calm":       "tranquil",
+      "gloomy":     "melancholy",
+      "mournful":   "melancholy",
+    };
+
+
+    // ═══════════════════════════════════════════
+    // POETRY DATA
+    // Add poems here exactly as before.
+    // ═══════════════════════════════════════════
+
+    const poems = [
+      {
+        moods: ["happy", "love", "nature", "beauty"],
+        title: "A Red, Red Rose",
+        quote: "O, my luve is like a red, red rose, that's newly sprung in June.",
+        poet: "Robert Burns"
+      },
+      {
+        moods: ["happy", "joy", "fleeting"],
+        quote: "Joy, whose hand is ever at his lips / Bidding adieu.",
+        poet: "John Keats"
+      },
+      {
+        moods: ["sad", "night", "alone", "quiet"],
+        quote: "I have been one acquainted with the night.",
+        poet: "Robert Frost"
+      },
+      {
+        moods: ["sad", "pain", "mind", "numb"],
+        quote: "After great pain, a formal feeling comes.",
+        poet: "Emily Dickinson"
+      },
+      {
+        moods: ["lost", "choice", "path", "mind"],
+        title: "The Road Not Taken",
+        quote: "Two roads diverged in a wood, and I took the one less travelled by.",
+        poet: "Robert Frost"
+      },
+      {
+        moods: ["lost", "searching", "self", "mind"],
+        quote: "I am out with lanterns, looking for myself.",
+        poet: "Emily Dickinson"
+      },
+      {
+        moods: ["love", "devotion", "romantic"],
+        quote: "How do I love thee? Let me count the ways.",
+        poet: "Elizabeth Barrett Browning"
+      },
+      {
+        moods: ["love", "soul", "connection", "deep"],
+        quote: "Whatever our souls are made of, his and mine are the same.",
+        poet: "Emily Brontë"
+      },
+      {
+        moods: ["love", "tender", "heart", "connection"],
+        quote: "I carry your heart with me. I carry it in my heart.",
+        poet: "E.E. Cummings"
+      },
+      {
+        moods: ["grateful", "wonder", "joy", "light"],
+        quote: "I thank you God for this most amazing day.",
+        poet: "E.E. Cummings"
+      },
+      {
+        moods: ["anxious", "mind", "doubt", "searching"],
+        title: "The Love Song of J. Alfred Prufrock",
+        quote: "Do I dare disturb the universe?",
+        poet: "T.S. Eliot"
+      },
+      {
+        moods: ["frustrated", "self", "mind", "complex"],
+        quote: "I am large, I contain multitudes.",
+        poet: "Walt Whitman"
+      },
+      {
+        moods: ["frustrated", "fury", "chaos", "mind", "lost"],
+        title: "The Second Coming",
+        quote: "Turning and turning in the widening gyre, the falcon cannot hear the falconer.",
+        poet: "W.B. Yeats"
+      },
+      {
+        moods: ["hopeful", "strength", "soul", "resilience"],
+        title: "Hope is the thing with feathers",
+        date: "(c.1861)",
+        quote: "Hope is the thing with feathers / That perches in the soul, / And sings the tune without the words, / And never stops at all.",
+        poet: "Emily Dickinson"
+      },
+      {
+        moods: ["hopeful", "resilience", "strength", "light"],
+        title: "Return to Tipasa",
+        date: "(1954)",
+        quote: "In the middle of winter I found there was, within me, an invincible summer.",
+        poet: "Albert Camus"
+      },
+      {
+        moods: ["brave", "bold", "courageous"],
+        title: "All's Well That Ends Well",
+        passage: "1.2.26-8, KING OF FRANCE TO BERTRAM",
+        quote: "He did look far / Into the service of the time, and was / Discipled of the bravest.",
+        poet: "William Shakespeare"
+      },
+      {
+        moods: ["overworked", "exhausted", "wronged"],
+        title: "Toads",
+        date: "(1954)",
+        quote: "Why should I let the toad work / Squat on my life? / Can't I use my wit as a pitchfork / And drive the brute off?",
+        poet: "Philip Larkin"
+      },
+      {
+        moods: ["power", "ruin", "pride"],
+        title: "Ozymandias",
+        date: "(1818)",
+        quote: "My name is Ozymandias, King of Kings; / Look on my Works, ye Mighty, and despair! / Nothing beside remains.",
+        poet: "Percy Bysshe Shelley"
+      },
+    ];
+
+
+    // ═══════════════════════════════════════════
+    // MUSIC DATA
+    //
+    // To add a piece:
+    // - youtubeId: the part after "watch?v=" in the YouTube URL
+    // - start: seconds into the video to begin (optional, use 0 for start)
+    // - work: title of the piece / movement
+    // - composer: composer name
+    // - note: brief description of why this evokes the mood
+    // - moods: array of mood tags
+    // ═══════════════════════════════════════════
+
+    const music = [
+      {
+        moods: ["joyful", "joy", "happy", "light", "celebratory"],
+        youtubeId: "rOjHhS5MtvA",
+        start: 0,
+        work: "Symphony No. 9 in D minor — IV. Ode to Joy",
+        composer: "Ludwig van Beethoven",
+        note: "The choral finale erupts into one of music's great expressions of collective joy and brotherhood."
+      },
+      {
+        moods: ["melancholy", "sad", "grief", "loss", "tender"],
+        youtubeId: "sAyEKs_cqDQ",
+        start: 0,
+        work: "Adagio for Strings",
+        composer: "Samuel Barber",
+        note: "Widely considered one of the saddest pieces ever written. A slow, aching ascent that never quite resolves."
+      },
+      {
+        moods: ["triumphant", "bold", "heroic", "power", "brave"],
+        youtubeId: "t3217H8JppI",
+        start: 0,
+        work: "Also Sprach Zarathustra — Opening",
+        composer: "Richard Strauss",
+        note: "The opening sunrise fanfare is a monument in brass — overwhelming, inevitable, grand."
+      },
+      {
+        moods: ["tranquil", "peaceful", "gentle", "calm", "nature"],
+        youtubeId: "KNNdT_aHnLc",
+        start: 0,
+        work: "Clair de Lune",
+        composer: "Claude Debussy",
+        note: "Moonlit and dreamlike. A piece that seems to exist outside time — perfectly still."
+      },
+      {
+        moods: ["stormy", "fury", "turbulent", "dramatic", "anxious"],
+        youtubeId: "EhHtNORKWpI",
+        start: 0,
+        work: "Symphony No. 5 in C minor — I. Allegro con brio",
+        composer: "Ludwig van Beethoven",
+        note: "The famous four-note motif — fate knocking at the door. Relentless, urgent, unstoppable."
+      },
+      {
+        moods: ["longing", "romantic", "love", "yearning", "tender"],
+        youtubeId: "6TQgBRBLMo0",
+        start: 0,
+        work: "Liebestraum No. 3 in A flat major",
+        composer: "Franz Liszt",
+        note: "Dream of Love. A nocturne that swells from whispered tenderness to passionate declaration."
+      },
+      {
+        moods: ["sublime", "vast", "wonder", "awe", "nature"],
+        youtubeId: "vSNYMeN4PsY",
+        start: 0,
+        work: "The Planets — I. Mars, the Bringer of War",
+        composer: "Gustav Holst",
+        note: "The grinding 5/4 march of Mars — immense, mechanical, unstoppable. War as cosmic force."
+      },
+      {
+        moods: ["playful", "witty", "light", "dancing", "happy"],
+        youtubeId: "9Z67TKe0-C8",
+        start: 0,
+        work: "The Four Seasons — Spring, I. Allegro",
+        composer: "Antonio Vivaldi",
+        note: "Birdsong, babbling brooks, warm air. Pure unbothered delight in the arrival of spring."
+      },
+      {
+        moods: ["mysterious", "dark", "haunting", "eerie"],
+        youtubeId: "j3T8-aeOrbg",
+        start: 0,
+        work: "Danse Macabre",
+        composer: "Camille Saint-Saëns",
+        note: "Death plays the violin at midnight while skeletons dance. Eerie, skeletal, irresistibly macabre."
+      },
+      {
+        moods: ["contemplative", "still", "searching", "lonely", "introspective"],
+        youtubeId: "GqyU_OQRTgk",
+        start: 0,
+        work: "Gymnopédie No. 1",
+        composer: "Erik Satie",
+        note: "Spare, unhurried, slightly melancholy. Like a quiet room at dusk — weightless and alone."
+      },
+    ];
+
+
+    // ═══════════════════════════════════════════
+    // PAINTING DATA
+    //
+    // To add a painting:
+    // - imageUrl: direct link to image (Wikimedia Commons works well)
+    // - work: title of the painting
+    // - artist: artist name and year
+    // - note: why this painting evokes the mood
+    // - sourceUrl: link to Wikimedia or museum page
+    // - moods: array of mood tags
+    // ═══════════════════════════════════════════
+
+    const paintings = [
+      {
+        moods: ["melancholy", "lonely", "introspective", "contemplative", "sad"],
+        work: "Melancholy",
+        artist: "Edvard Munch, 1894",
+        note: "A solitary figure slumped at the shore, the water and sky bleeding into each other. Isolation made visible.",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/2/2c/Edvard_Munch_-_Melancholy_%281894-96%29.jpg",
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Edvard_Munch_-_Melancholy_(1894-96).jpg"
+      },
+      {
+        moods: ["sublime", "awe", "vast", "wonder", "nature"],
+        work: "Wanderer Above the Sea of Fog",
+        artist: "Caspar David Friedrich, 1818",
+        note: "A lone figure surveys an infinite, mist-filled landscape. The sublime — small humanity before an enormous world.",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Caspar_David_Friedrich_-_Wanderer_above_the_sea_of_fog.jpg/724px-Caspar_David_Friedrich_-_Wanderer_above_the_sea_of_fog.jpg",
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Caspar_David_Friedrich_-_Wanderer_above_the_sea_of_fog.jpg"
+      },
+      {
+        moods: ["mysterious", "eerie", "hidden", "identity", "haunting"],
+        work: "Les Amants (The Lovers)",
+        artist: "René Magritte, 1928",
+        note: "Two figures kiss with their faces wrapped in cloth. Intimacy made strange — closeness without seeing.",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/c/c5/Les_Amants.webp",
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Les_Amants.webp"
+      },
+      {
+        moods: ["joy", "warmth", "vibrant", "celebratory", "rich"],
+        work: "The Dessert: Harmony in Red",
+        artist: "Henri Matisse, 1908",
+        note: "An interior so saturated in red it becomes joyful. Flat, decorative, glowing — colour as pure pleasure.",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/0/0a/Matisse-The-Dessert-Harmony-in-Red-Henri-1908-fast.jpg",
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Matisse-The-Dessert-Harmony-in-Red-Henri-1908-fast.jpg"
+      },
+      {
+        moods: ["grief", "loss", "tender", "mourning", "sacred"],
+        work: "Pietà",
+        artist: "Michelangelo, 1498–1499",
+        note: "Mary holds the body of Christ with impossible serenity. Grief rendered in marble with total gentleness.",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Michelangelo%27s_Pieta_5450_cropncleaned_edit.jpg/800px-Michelangelo%27s_Pieta_5450_cropncleaned_edit.jpg",
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Michelangelo%27s_Pieta_5450_cropncleaned_edit.jpg"
+      },
+      {
+        moods: ["grand", "triumphant", "heroic", "power", "bold"],
+        work: "Napoleon Crossing the Alps",
+        artist: "Jacques-Louis David, 1801",
+        note: "Napoleon on a rearing horse, finger pointing to the summit. Ambition, drama, and absolute self-belief.",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/David_-_Napoleon_crossing_the_Alps_-_Malmaison2.jpg/800px-David_-_Napoleon_crossing_the_Alps_-_Malmaison2.jpg",
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:David_-_Napoleon_crossing_the_Alps_-_Malmaison2.jpg"
+      },
+      {
+        moods: ["tranquil", "peaceful", "calm", "nature", "still"],
+        work: "The Hay Wain",
+        artist: "John Constable, 1821",
+        note: "An English summer afternoon, perfectly still. The light is soft, the water slow — the world at rest.",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/John_Constable_The_Hay_Wain.jpg/1280px-John_Constable_The_Hay_Wain.jpg",
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:John_Constable_The_Hay_Wain.jpg"
+      },
+      {
+        moods: ["anguish", "fear", "anxiety", "existential", "horror"],
+        work: "The Scream",
+        artist: "Edvard Munch, 1893",
+        note: "A figure dissolves into a landscape of pure anxiety. The sky itself seems to scream.",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg/800px-Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg",
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Edvard_Munch,_1893,_The_Scream,_oil,_tempera_and_pastel_on_cardboard,_91_x_73_cm,_National_Gallery_of_Norway.jpg"
+      },
+      {
+        moods: ["love", "romantic", "tender", "beauty", "devotion"],
+        work: "The Birth of Venus",
+        artist: "Sandro Botticelli, c. 1484–1486",
+        note: "Venus arrives on the shore on a shell — grace, beauty, and love made flesh. Serene and eternal.",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Sandro_Botticelli_046.jpg/1280px-Sandro_Botticelli_046.jpg",
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Sandro_Botticelli_046.jpg"
+      },
+      {
+        moods: ["stormy", "turbulent", "dramatic", "power", "nature"],
+        work: "Snow Storm: Steam-Boat off a Harbour's Mouth",
+        artist: "J.M.W. Turner, 1842",
+        note: "A ship swallowed by a vortex of sea and sky. Turner reportedly had himself tied to a mast to observe the storm.",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Joseph_Mallord_William_Turner_-_Snow_Storm_-_Steam-Boat_off_a_Harbour%27s_Mouth_-_WGA23178.jpg/1280px-Joseph_Mallord_William_Turner_-_Snow_Storm_-_Steam-Boat_off_a_Harbour%27s_Mouth_-_WGA23178.jpg",
+        sourceUrl: "https://commons.wikimedia.org/wiki/File:Joseph_Mallord_William_Turner_-_Snow_Storm_-_Steam-Boat_off_a_Harbour%27s_Mouth_-_WGA23178.jpg"
+      },
+    ];
+
+
+    // ═══════════════════════════════════════════
+    // SHARED SEARCH ENGINE
+    // Reused by all three modes
+    // ═══════════════════════════════════════════
+
+    function buildSearch(config) {
+      const { data, searchId, chipsId, resultsId, copiedId, renderCard } = config;
+
+      const searchBox  = document.getElementById(searchId);
+      const chipsDiv   = document.getElementById(chipsId);
+      const resultsDiv = document.getElementById(resultsId);
+      const copiedMsg  = copiedId ? document.getElementById(copiedId) : null;
+
+      // Collect unique moods
+      const allMoods = new Set();
+      data.forEach(item => item.moods.forEach(m => allMoods.add(m)));
+      const sorted = [...allMoods].sort();
+
+      let activeChip = null;
+
+      // Build chips
+      sorted.forEach(function(mood) {
+        const chip = document.createElement("button");
+        chip.className   = "chip";
+        chip.textContent = mood;
+
+        chip.addEventListener("click", function() {
+          if (activeChip === mood) {
+            activeChip = null;
+            chip.classList.remove("active");
+            clearResults();
+            searchBox.value = "";
+            return;
+          }
+          document.querySelectorAll(`#${chipsId} .chip`).forEach(c => c.classList.remove("active"));
+          activeChip = mood;
+          chip.classList.add("active");
+          searchBox.value = mood;
+          runSearch(mood);
+        });
+
+        chipsDiv.appendChild(chip);
+      });
+
+      // Search on type
+      searchBox.addEventListener("input", function() {
+        document.querySelectorAll(`#${chipsId} .chip`).forEach(c => c.classList.remove("active"));
+        activeChip = null;
+        const query = searchBox.value.toLowerCase().trim();
+        if (query.length < 2) { clearResults(); return; }
+        runSearch(query);
+      });
+
+      function runSearch(query) {
+        clearResults();
+        const translated = synonyms[query] || query;
+
+        const matches = data.filter(function(item) {
+          return item.moods.some(m => m.includes(translated) || translated.includes(m));
+        });
+
+        if (matches.length === 0) {
+          resultsDiv.innerHTML = "<p class='no-results'>Nothing found — try another feeling.</p>";
+          return;
+        }
+
+        matches.forEach(function(item) {
+          const card = renderCard(item, copiedMsg);
+          resultsDiv.appendChild(card);
+        });
+      }
+
+      function clearResults() {
+        resultsDiv.innerHTML = "";
+        if (copiedMsg) copiedMsg.textContent = "";
+      }
+    }
+
+
+    // ═══════════════════════════════════════════
+    // CARD RENDERERS — one per mode
+    // ═══════════════════════════════════════════
+
+    function stripHTML(str) {
+      const d = document.createElement("div");
+      d.innerHTML = str;
+      return d.textContent;
+    }
+
+    // ── Poetry card ──
+    function renderPoetryCard(poem, copiedMsg) {
+      const card = document.createElement("div");
+      card.className = "poetry-card";
+
+      card.innerHTML = `
+        <div class="quote">"${poem.quote}"</div>
+        ${poem.title  ? `<div class="title">${poem.title}${poem.date ? " " + poem.date : ""}</div>` : ""}
+        ${poem.passage ? `<div class="passage">${poem.passage}</div>` : ""}
+        <div class="poet">— ${poem.poet}</div>
+      `;
+
+      card.addEventListener("click", function() {
+        navigator.clipboard.writeText(`"${stripHTML(poem.quote)}" — ${poem.poet}`);
+        copiedMsg.textContent = "Copied! Paste it anywhere ✓";
+      });
+
+      return card;
+    }
+
+    // ── Music card ──
+    function renderMusicCard(piece) {
+      const card = document.createElement("div");
+      card.className = "music-card";
+
+      // Build YouTube embed URL with start time
+      const startParam = piece.start ? `&start=${piece.start}` : "";
+      const embedUrl   = `https://www.youtube.com/embed/${piece.youtubeId}?rel=0${startParam}`;
+
+      card.innerHTML = `
+        <div class="embed-wrap">
+          <iframe
+            src="${embedUrl}"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        </div>
+        <div class="music-info">
+          <div class="work">${piece.work}</div>
+          <div class="composer">${piece.composer}</div>
+          ${piece.note ? `<div class="music-note">${piece.note}</div>` : ""}
+        </div>
+      `;
+
+      return card;
+    }
+
+    // ── Painting card ──
+    function renderPaintingCard(painting, copiedMsg) {
+      const card = document.createElement("div");
+      card.className = "painting-card";
+
+      card.innerHTML = `
+        <img src="${painting.imageUrl}" alt="${painting.work}" loading="lazy" />
+        <div class="painting-info">
+          <div class="painting-text">
+            <div class="work">${painting.work}</div>
+            <div class="artist">${painting.artist}</div>
+            ${painting.note ? `<div class="mood-note">${painting.note}</div>` : ""}
+          </div>
+          <button class="copy-btn" id="copy-${painting.work.replace(/\s/g,'_')}">Copy</button>
+        </div>
+      `;
+
+      // Copy citation to clipboard
+      card.querySelector(".copy-btn").addEventListener("click", function(e) {
+        e.stopPropagation();
+        navigator.clipboard.writeText(`${painting.work} — ${painting.artist}`);
+        this.textContent = "Copied ✓";
+        const btn = this;
+        setTimeout(() => btn.textContent = "Copy", 2000);
+        copiedMsg.textContent = "Citation copied!";
+      });
+
+      // Click image to open source page
+      card.querySelector("img").addEventListener("click", function() {
+        window.open(painting.sourceUrl, "_blank");
+      });
+      card.querySelector("img").style.cursor = "pointer";
+
+      return card;
+    }
+
+
+    // ═══════════════════════════════════════════
+    // INITIALISE ALL THREE SEARCH ENGINES
+    // ═══════════════════════════════════════════
+
+    buildSearch({
+      data:       poems,
+      searchId:   "poetry-search",
+      chipsId:    "poetry-chips",
+      resultsId:  "poetry-results",
+      copiedId:   "poetry-copied",
+      renderCard: renderPoetryCard
+    });
+
+    buildSearch({
+      data:       music,
+      searchId:   "music-search",
+      chipsId:    "music-chips",
+      resultsId:  "music-results",
+      copiedId:   null,
+      renderCard: renderMusicCard
+    });
+
+    buildSearch({
+      data:       paintings,
+      searchId:   "painting-search",
+      chipsId:    "painting-chips",
+      resultsId:  "painting-results",
+      copiedId:   "painting-copied",
+      renderCard: renderPaintingCard
+    });
+
+  </script>
+
+</body>
+</html>
