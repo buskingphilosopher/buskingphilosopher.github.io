@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Senedd 2026 — Veto Player Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f1eb;
+    --surface: #faf8f3;
+    --surface2: #eeeae0;
+    --border: rgba(60,50,30,0.12);
+    --border2: rgba(60,50,30,0.2);
+    --ink: #1c1a14;
+    --ink2: #5a5446;
+    --ink3: #9a9082;
+    --teal: #1a6b5a;
+    --teal-light: rgba(26,107,90,0.1);
+    --red: #a82020;
+    --amber: #c47a15;
+    --rule: rgba(60,50,30,0.15);
+    --radius: 6px;
+    --radius-lg: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  /* masthead */
+  .masthead {
+    border-bottom: 2px solid var(--ink);
+    padding: 18px 0 14px;
+    text-align: center;
+    position: relative;
+  }
+  .masthead::before {
+    content: '';
+    display: block;
+    border-top: 0.5px solid var(--ink);
+    margin-bottom: 12px;
+  }
+  .kicker {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--ink2);
+    margin-bottom: 6px;
+  }
+  h1 {
+    font-family: 'Libre Baskerville', serif;
+    font-size: clamp(26px, 5vw, 46px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    color: var(--ink);
+    max-width: 820px;
+    margin: 0 auto 10px;
+    padding: 0 20px;
+  }
+  .byline {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink3);
+    letter-spacing: 0.5px;
+  }
+  .byline span { color: var(--ink2); }
+
+  .shell {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  /* section rule */
+  .section-rule {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 36px 0 20px;
+  }
+  .section-rule::before, .section-rule::after {
+    content: ''; flex: 1; height: 0.5px; background: var(--border2);
+  }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink3);
+    white-space: nowrap;
+  }
+
+  /* intro block */
+  .lede {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--ink);
+    border-left: 3px solid var(--ink);
+    padding: 14px 20px;
+    margin: 28px 0;
+    background: var(--surface);
+  }
+
+  /* tab controls */
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--border2);
+    overflow-x: auto;
+  }
+  .tab {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    padding: 9px 18px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.5px;
+    color: var(--ink3);
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--ink2); background: var(--surface2); }
+  .tab.on { color: var(--ink); border-bottom-color: var(--ink); font-weight: 500; }
+
+  .viz-wrap {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    cursor: crosshair;
+  }
+
+  .caption {
+    padding: 10px 16px;
+    font-size: 12px;
+    color: var(--ink2);
+    border-top: 0.5px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    min-height: 36px;
+    line-height: 1.6;
+    background: var(--surface2);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  }
+
+  /* analysis prose */
+  .analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  @media (max-width: 620px) { .analysis-grid { grid-template-columns: 1fr; } }
+
+  .analysis-card {
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    position: relative;
+  }
+  .analysis-card .card-num {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--border2);
+    position: absolute;
+    top: 8px; right: 14px;
+    line-height: 1;
+  }
+  .analysis-card h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 6px;
+  }
+  .analysis-card p {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.65;
+  }
+  .analysis-card strong { color: var(--ink); font-weight: 500; }
+
+  /* seat bar */
+  .seat-bar-wrap { margin: 24px 0; }
+  .seat-bar-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 8px;
+  }
+  .seat-bar {
+    display: flex;
+    height: 32px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 0.5px solid var(--border2);
+  }
+  .seat-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: rgba(255,255,255,0.9);
+    font-weight: 500;
+    transition: filter .15s;
+    cursor: default;
+  }
+  .seat-seg:hover { filter: brightness(1.12); }
+  .seat-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .sl-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--ink2);
+  }
+  .sl-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* borda table */
+  .borda-wrap { margin-top: 20px; }
+  .borda-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 0.5px solid var(--border);
+    font-size: 13px;
+  }
+  .borda-row:last-child { border-bottom: none; }
+  .borda-rank {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 16px;
+    color: var(--ink3);
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .borda-rank.winner { color: var(--teal); font-weight: 700; }
+  .borda-bar-wrap { flex: 1; background: var(--border); border-radius: 2px; height: 5px; }
+  .borda-bar-fill { height: 100%; border-radius: 2px; background: var(--ink2); }
+  .borda-bar-fill.winner { background: var(--teal); }
+  .borda-score {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink3);
+    min-width: 36px;
+    text-align: right;
+  }
+  .borda-score.winner { color: var(--teal); }
+
+  /* quote block */
+  .pull-quote {
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    padding: 20px 0;
+    margin: 32px 0;
+  }
+  .pull-quote p {
+    font-family: 'Libre Baskerville', serif;
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--ink);
+  }
+  .pull-quote cite {
+    display: block;
+    margin-top: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ink3);
+    font-style: normal;
+  }
+
+  /* verdict box */
+  .verdict-box {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 20px 24px;
+    border-radius: var(--radius-lg);
+    margin: 28px 0;
+  }
+  .verdict-box .vb-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 8px;
+  }
+  .verdict-box p {
+    font-size: 14px;
+    line-height: 1.7;
+    opacity: 0.85;
+  }
+  .verdict-box strong { opacity: 1; color: #fff; }
+
+  /* footnote */
+  .footnote {
+    border-top: 0.5px solid var(--border2);
+    padding-top: 16px;
+    margin-top: 40px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--ink3);
+    line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="kicker">Spatial voting theory · Veto player analysis · 7 May 2026</div>
+  <h1>Wales Has Five Parties, No Majority and One Deal That Works</h1>
+  <div class="byline">Senedd election 2026 &nbsp;·&nbsp; <span>Analysis via veto player theory and spatial voting models</span></div>
+</div>
+
+<div class="shell">
+
+  <p class="lede">
+    The 2026 Senedd election produced exactly what veto player theory predicts when ideological distance between parties is high and no single actor commands a majority: an empty all-party winset, two feasible coalition zones, and a Borda winner that nobody loves but everyone can live with.
+  </p>
+
+  <!-- SEAT BAR -->
+  <div class="section-rule"><span class="section-label">Projected seat distribution</span></div>
+  <div class="seat-bar-wrap">
+    <div class="seat-bar-label">96 seats · majority threshold: 49</div>
+    <div class="seat-bar" title="Projected seat share across the 96-member Senedd">
+      <div class="seat-seg" style="width:44.8%;background:#1d7a3a" title="Plaid Cymru: 43 seats">PC 43</div>
+      <div class="seat-seg" style="width:35.4%;background:#1a5fa8" title="Reform UK: 34 seats">REF 34</div>
+      <div class="seat-seg" style="width:12.5%;background:#c0392b" title="Welsh Labour: 12 seats">LAB 12</div>
+      <div class="seat-seg" style="width:5.2%;background:#27ae60" title="Greens: 5 seats">GRN 5</div>
+      <div class="seat-seg" style="width:4.2%;background:#2a6e2a" title="Conservatives: 4 seats; remainder: others/TBC">CON 4</div>
+    </div>
+    <div class="seat-legend">
+      <div class="sl-item"><div class="sl-dot" style="background:#1d7a3a"></div>Plaid Cymru (43)</div>
+      <div class="sl-item"><div class="sl-dot" style="background:#1a5fa8"></div>Reform UK (34)</div>
+      <div class="sl-item"><div class="sl-dot" style="background:#c0392b"></div>Welsh Labour (12)</div>
+      <div class="sl-item"><div class="sl-dot" style="background:#27ae60"></div>Greens (5)</div>
+      <div class="sl-item"><div class="sl-dot" style="background:#2a6e2a"></div>Conservatives (4)</div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE DIAGRAM -->
+  <div class="section-rule"><span class="section-label">Interactive spatial analysis</span></div>
+
+  <div class="tabs" id="main-tabs">
+    <button class="tab on"  onclick="setLayer('positions',this)">01 · Party positions</button>
+    <button class="tab"     onclick="setLayer('circles',this)">02 · Indifference circles</button>
+    <button class="tab"     onclick="setLayer('winset',this)">03 · Coalition winsets</button>
+    <button class="tab"     onclick="setLayer('borda',this)">04 · Borda on deals</button>
+  </div>
+  <div class="viz-wrap">
+    <canvas id="vc" height="390"></canvas>
+    <div class="caption" id="vc-cap">
+      Dot size = projected seats. Click any party dot for detail. x-axis: nationalist/left ↔ unionist/right. y-axis: interventionist ↑ ↔ market liberal ↓.
+    </div>
+  </div>
+
+  <!-- BORDA PANEL -->
+  <div id="borda-panel" style="display:none">
+    <div class="section-rule"><span class="section-label">Borda count — possible coalition agreements</span></div>
+    <p style="font-size:13px;color:var(--ink2);margin-bottom:12px;line-height:1.7;">Each party ranks the five possible deals. Score = Σ (n−1−rank), where n = 5. A deal scores 4 if ranked 1st, 3 if 2nd, and so on. The winner is the deal with the highest aggregate score — the broadest consensus, even if nobody's first choice.</p>
+    <div class="borda-wrap" id="borda-rows"></div>
+    <div style="margin-top:14px;padding:14px 16px;border-left:3px solid var(--teal);background:var(--teal-light);border-radius:0 var(--radius) var(--radius) 0;font-size:13px;color:var(--ink2);line-height:1.7">
+      <strong style="color:var(--teal)">Borda winner: Plaid minority + Labour confidence and supply.</strong> Not because anyone loves it — Plaid would prefer to govern alone, Labour would prefer to have recovered enough to govern itself — but because it is the least-bad outcome for the most parties. This is the defining quality the Borda count measures: not enthusiasm, but distributed tolerance.
+    </div>
+  </div>
+
+  <!-- FOUR-LAYER ANALYSIS -->
+  <div class="section-rule"><span class="section-label">How to read the diagram</span></div>
+  <div class="analysis-grid">
+    <div class="analysis-card">
+      <span class="card-num">01</span>
+      <h3>Party positions</h3>
+      <p>Each dot represents a party's <strong>ideal point</strong> in 2D policy space. The horizontal axis runs from Welsh nationalist/left to unionist/right. The vertical axis runs from statist/interventionist to market liberal. Dot size is proportional to projected seats. The key spatial fact: <strong>Reform and Plaid are nearly diametrically opposite</strong>, making any all-party deal geometrically impossible.</p>
+    </div>
+    <div class="analysis-card">
+      <span class="card-num">02</span>
+      <h3>Indifference circles</h3>
+      <p>Each dashed circle marks a party's <strong>indifference threshold</strong> — the furthest policy position it would accept over the status quo of no government at all. Radius is derived from ideological distance. <strong>Labour's circle</strong> is medium-sized despite only 12 seats, because it is the only party whose indifference curve intersects with Plaid's on the left and stops before Reform's on the right — making it an indispensable kingmaker.</p>
+    </div>
+    <div class="analysis-card">
+      <span class="card-num">03</span>
+      <h3>Coalition winsets</h3>
+      <p>A winset is the set of policies <strong>all members of a given coalition</strong> prefer to the status quo simultaneously. It is the intersection of their indifference circles. The green zones show the two viable configurations: Plaid + Labour C&amp;S (55 seats) and Plaid + Labour + Greens (60 seats). The Reform + Conservative zone reaches only 38 — below the 49-seat threshold. <strong>The all-party yellow zone is empty</strong>: there is no policy all five parties would simultaneously accept.</p>
+    </div>
+    <div class="analysis-card">
+      <span class="card-num">04</span>
+      <h3>Borda count on deals</h3>
+      <p>When the full winset is empty, Borda count asks: which deal minimises aggregate dissatisfaction? Each party ranks five possible arrangements. The Borda winner accumulates points from every party's ranking — <strong>it wins not by being anyone's favourite, but by being tolerable to the most parties</strong>. The Reform + Conservative right bloc scores high with those two parties but zero with the others, sinking its total. Plaid minority + Labour C&amp;S collects points from every relevant party.</p>
+    </div>
+  </div>
+
+  <div class="pull-quote">
+    <p>"Rhun ap Iorwerth has expressed a preference for forming a minority government of only Plaid Cymru ministers — but the seat arithmetic means he needs Labour's support even if he doesn't want it in Cabinet."</p>
+    <cite>YouGov final MRP, May 2026 · Central projection: PC 43, REF 34, LAB 12, GRN 5, CON 4</cite>
+  </div>
+
+  <!-- KEY THEORETICAL POINTS -->
+  <div class="section-rule"><span class="section-label">Three predictions from veto player theory</span></div>
+
+  <div style="display:flex;flex-direction:column;gap:1px;border:0.5px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:24px">
+    <div style="padding:16px 18px;background:var(--surface)">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Prediction 1 — empty all-party winset</div>
+      <p style="font-size:13px;color:var(--ink2);line-height:1.65">With five parties distributed across the full ideological spectrum, no single policy exists that all parties prefer to the status quo of no government. The all-party winset is empty. This is confirmed in the diagram: the yellow zone does not appear.</p>
+    </div>
+    <div style="padding:16px 18px;background:var(--surface);border-top:0.5px solid var(--border)">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Prediction 2 — kingmaker disproportionality</div>
+      <p style="font-size:13px;color:var(--ink2);line-height:1.65">Labour holds only 12.5% of seats but is the decisive veto player because its indifference circle is the only one that connects the Plaid-led left bloc to a working majority. Tsebelis predicts that a player whose removal eliminates the winset holds disproportionate bargaining power regardless of seat share.</p>
+    </div>
+    <div style="padding:16px 18px;background:var(--surface);border-top:0.5px solid var(--border)">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:5px">Prediction 3 — conservative deals</div>
+      <p style="font-size:13px;color:var(--ink2);line-height:1.65">With a small winset, any deal that emerges must be close to the status quo — modest, incremental, heavily constrained by the most cautious player's indifference curve. Expect a Plaid programme for government with significant policy dilution: independence referendum deferred, fiscal ambitions trimmed to what Welsh Labour can accept.</p>
+    </div>
+  </div>
+
+  <div class="verdict-box">
+    <div class="vb-label">Theoretical verdict</div>
+    <p>The 2026 Senedd result is a near-perfect illustration of Tsebelis's core theorem: <strong>policy change requires a non-empty winset, and the winset shrinks as the number of veto players and the distance between their ideal points increases.</strong> With five parties, two ideologically opposed blocs, and a proportional system that denies any single party a majority, the result is a structurally constrained government that will struggle to deliver its most ambitious policies — not because of political cowardice, but because the geometry of the policy space makes radicalism impossible.</p>
+  </div>
+
+  <!-- BORDA WEAKNESSES -->
+  <div class="section-rule"><span class="section-label">A note on Borda count limitations</span></div>
+  <p style="font-size:13px;color:var(--ink2);line-height:1.7;margin-bottom:14px">The Borda count identifies the consensus deal but carries three known weaknesses in this context:</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:28px">
+    <div style="background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--radius);padding:14px 16px">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--amber);margin-bottom:5px">Manipulability</div>
+      <p style="font-size:12px;color:var(--ink2);line-height:1.6">Any party knowing the rankings can bury a rival deal by ranking it last, shifting the aggregate result. The Gibbard–Satterthwaite theorem proves this is unavoidable.</p>
+    </div>
+    <div style="background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--radius);padding:14px 16px">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--amber);margin-bottom:5px">Irrelevant alternatives</div>
+      <p style="font-size:12px;color:var(--ink2);line-height:1.6">Adding a decoy deal that cannot win changes which real deal wins. A government controlling the agenda can introduce options to shift the Borda scores of deals it dislikes.</p>
+    </div>
+    <div style="background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--radius);padding:14px 16px">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--amber);margin-bottom:5px">Intensity blindness</div>
+      <p style="font-size:12px;color:var(--ink2);line-height:1.6">Borda treats all rank steps as equal. Labour might be barely indifferent between its 1st and 2nd choice, but Reform might find its 2nd choice genuinely catastrophic. The count cannot see this.</p>
+    </div>
+  </div>
+
+  <div class="footnote">
+    <strong>Sources and methodology</strong> · Seat projections: YouGov final MRP for ITV Cymru Wales (central estimates). Party positions in 2D policy space are analytically derived from published manifestos and vote-match data; they are not directly measured. Indifference circle radii are proportional to ideological distance between party ideal points as estimated from policy positions. Borda count rankings are stylised representations of party preferences over coalition forms based on stated positions. All analysis is for educational illustration of veto player theory (Tsebelis, 2002) and spatial voting models (Downs, 1957; Black, 1958). · Analysis date: 7 May 2026.
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+const W=660,H=390;
+
+const parties=[
+  {name:'Plaid Cymru', abbr:'PC',  x:195,y:148,r:108,seats:43,col:'#1d7a3a',
+   desc:'Welsh nationalist, centre-left, independence, green economy. Largest party. Prefers minority government. Needs 6 more seats for majority — only Labour can provide them.'},
+  {name:'Reform UK',   abbr:'REF', x:495,y:268,r:88, seats:34,col:'#1a5fa8',
+   desc:'Hard-right populist. 29% vote share, 34 seats. No viable route to First Minister — right bloc with Conservatives reaches only 38 seats, 11 short of majority.'},
+  {name:'Welsh Labour',abbr:'LAB', x:248,y:208,r:88, seats:12,col:'#c0392b',
+   desc:'Historic dominant party. Collapsed to 12% — worst since 1906. Only 12 seats but indispensable kingmaker: the sole party whose circle bridges Plaid\'s zone to a working majority.'},
+  {name:'Welsh Cons',  abbr:'CON', x:425,y:205,r:70, seats:4, col:'#2a6e2a',
+   desc:'Four seats — may fall short of the five needed to form a Senedd committee group. Squeezed by Reform on the right and Lib Dems on the left.'},
+  {name:'Greens',      abbr:'GRN', x:142,y:272,r:82, seats:5, col:'#27ae60',
+   desc:'First Welsh Senedd seats. Strong in Cardiff Bay. Natural Plaid ally on climate. Can tip Plaid+Labour bloc from 55 to 60 seats, adding stability.'},
+];
+
+const policyDots=[
+  {name:'Welsh independence',x:108,y:72},
+  {name:'Income tax cut 1p', x:508,y:168},
+  {name:'Free school meals', x:185,y:308},
+  {name:'NHS investment',    x:305,y:155},
+  {name:'Immigration cap',   x:548,y:302},
+];
+
+const coalitions=[
+  {idxs:[0,2],     col:'rgba(29,122,58,0.22)',  seats:55},
+  {idxs:[0,2,4],   col:'rgba(39,174,96,0.18)',  seats:60},
+  {idxs:[1,3],     col:'rgba(26,95,168,0.16)',  seats:38},
+];
+
+const deals=[
+  {name:'PC minority + Lab C&S',       scores:[2,0,3,0,2], feasible:true},
+  {name:'PC + Lab + Green coalition',  scores:[1,0,2,0,3], feasible:true},
+  {name:'PC minority alone',           scores:[4,0,0,0,0], feasible:false},
+  {name:'Reform + Con right bloc',     scores:[0,4,0,3,0], feasible:false},
+  {name:'Grand coalition (all)',       scores:[1,1,1,1,1], feasible:false},
+];
+
+let layer='positions';
+
+const canvas=document.getElementById('vc');
+canvas.width=W; canvas.height=H;
+
+function dist(a,b){return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2);}
+
+function draw(){
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#faf8f3'; ctx.fillRect(0,0,W,H);
+
+  for(let x=0;x<W;x+=55){ctx.strokeStyle='rgba(60,50,30,0.05)';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=55){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  ctx.strokeStyle='rgba(60,50,30,0.12)';ctx.lineWidth=0.8;
+  ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+
+  ctx.fillStyle='rgba(60,50,30,0.25)';ctx.font='11px "DM Mono",monospace';
+  ctx.fillText('← left / nationalist',8,H/2-5);
+  ctx.textAlign='right';ctx.fillText('right / unionist →',W-8,H/2-5);
+  ctx.textAlign='center';ctx.fillText('↑ interventionist',W/2,13);ctx.fillText('↓ market liberal',W/2,H-5);
+  ctx.textAlign='left';
+
+  if(layer==='winset'||layer==='borda'){
+    const step=3;
+    coalitions.forEach(co=>{
+      for(let px=0;px<W;px+=step){
+        for(let py=0;py<H;py+=step){
+          if(co.idxs.every(i=>dist({x:px,y:py},parties[i])<=parties[i].r)){
+            ctx.fillStyle=co.col;ctx.fillRect(px,py,step,step);
+          }
+        }
+      }
+    });
+    const step2=4;
+    for(let px=0;px<W;px+=step2){
+      for(let py=0;py<H;py+=step2){
+        if(parties.every(p=>dist({x:px,y:py},p)<=p.r)){
+          ctx.fillStyle='rgba(200,170,0,0.18)';ctx.fillRect(px,py,step2,step2);
+        }
+      }
+    }
+  }
+
+  if(layer==='circles'||layer==='winset'||layer==='borda'){
+    parties.forEach(p=>{
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.strokeStyle=p.col;ctx.lineWidth=1;ctx.setLineDash([5,4]);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle=p.col+'14';ctx.fill();
+    });
+  }
+
+  policyDots.forEach(p=>{
+    ctx.beginPath();ctx.arc(p.x,p.y,3.5,0,Math.PI*2);
+    ctx.fillStyle='rgba(60,50,30,0.3)';ctx.fill();
+    ctx.fillStyle='rgba(60,50,30,0.38)';ctx.font='10px "DM Mono",monospace';
+    ctx.fillText(p.name,p.x+6,p.y+3);
+  });
+
+  if(layer==='winset'){
+    const items=[
+      {col:'rgba(29,122,58,0.55)',  txt:'PC + Lab C&S  (55 seats ✓)'},
+      {col:'rgba(39,174,96,0.45)',  txt:'PC + Lab + Green  (60 seats ✓)'},
+      {col:'rgba(26,95,168,0.4)',   txt:'Reform + Con  (38 seats ✗)'},
+      {col:'rgba(200,170,0,0.55)',  txt:'All-party overlap  (empty)'},
+    ];
+    ctx.fillStyle='rgba(244,241,235,0.88)';ctx.beginPath();
+    ctx.roundRect(8,H-90,270,82,5);ctx.fill();
+    ctx.strokeStyle='rgba(60,50,30,0.12)';ctx.lineWidth=0.5;ctx.stroke();
+    let ly=H-76;
+    items.forEach(it=>{
+      ctx.fillStyle=it.col;ctx.fillRect(16,ly,13,11);
+      ctx.strokeStyle='rgba(60,50,30,0.2)';ctx.lineWidth=0.5;ctx.strokeRect(16,ly,13,11);
+      ctx.fillStyle='rgba(60,50,30,0.75)';ctx.font='11px "DM Mono",monospace';
+      ctx.fillText(it.txt,35,ly+9);
+      ly+=19;
+    });
+  }
+
+  parties.forEach((p)=>{
+    const sz=Math.max(22,p.seats*0.88);
+    ctx.beginPath();ctx.arc(p.x,p.y,sz/2,0,Math.PI*2);
+    ctx.fillStyle=p.col+'dd';ctx.fill();
+    ctx.strokeStyle=p.col;ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.92)';ctx.font='500 11px "Outfit",sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.abbr,p.x,p.y);
+    ctx.textAlign='left';ctx.textBaseline='alphabetic';
+    ctx.fillStyle='rgba(60,50,30,0.7)';ctx.font='11px "DM Mono",monospace';
+    ctx.fillText(p.seats+'s',p.x+sz/2+4,p.y+4);
+  });
+}
+
+canvas.addEventListener('click',function(e){
+  const r=this.getBoundingClientRect();
+  const mx=(e.clientX-r.left)*(W/r.width),my=(e.clientY-r.top)*(H/r.height);
+  const hit=parties.find(p=>dist({x:mx,y:my},p)<Math.max(22,p.seats*0.88)/2+6);
+  if(hit) document.getElementById('vc-cap').textContent=hit.name+' · '+hit.desc;
+});
+
+const captions={
+  positions:'Dot size = projected seats (need 49 for majority). Click any dot for detail. x-axis: left–nationalist ↔ right–unionist. y-axis: statist ↑ ↔ market liberal ↓.',
+  circles:'Dashed circles = indifference threshold (how far from ideal a party would accept over no government). Labour\'s circle is disproportionately important as kingmaker despite 12 seats.',
+  winset:'Coloured zones = coalition winsets: policies all bloc members accept over no deal. Only left-bloc configurations reach 49 seats. The all-party yellow zone is empty — no deal satisfies everyone.',
+  borda:'Borda count on five possible arrangements. Scroll below the chart to see full arithmetic and verdict.',
+};
+
+function setLayer(l,btn){
+  layer=l;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('vc-cap').textContent=captions[l];
+  document.getElementById('borda-panel').style.display=l==='borda'?'block':'none';
+  if(l==='borda') buildBorda();
+  draw();
+}
+
+function buildBorda(){
+  const n=deals.length;
+  const totals=deals.map(d=>{
+    return {name:d.name,total:d.scores.reduce((s,v)=>s+v,0),feasible:d.feasible};
+  }).sort((a,b)=>b.total-a.total);
+  const max=totals[0].total;
+  let html='';
+  totals.forEach((d,rank)=>{
+    const pct=Math.round((d.total/max)*100);
+    html+=`<div class="borda-row">
+      <span class="borda-rank ${rank===0?'winner':''}">${rank===0?'★':rank+1}</span>
+      <span style="flex:0 0 220px;font-size:13px;color:${rank===0?'var(--teal)':'var(--ink)'};font-weight:${rank===0?500:400}">${d.name}${d.feasible?' <span style="font-size:10px;font-family:\'DM Mono\',monospace;color:var(--teal)">✓ viable</span>':' <span style="font-size:10px;font-family:\'DM Mono\',monospace;color:var(--ink3)">✗ not feasible</span>'}</span>
+      <div class="borda-bar-wrap"><div class="borda-bar-fill ${rank===0?'winner':''}" style="width:${pct}%"></div></div>
+      <span class="borda-score ${rank===0?'winner':''}">${d.total}pt</span>
+    </div>`;
+  });
+  document.getElementById('borda-rows').innerHTML=html;
+}
+
+draw();
+</script>
+</body>
+</html>
