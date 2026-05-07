@@ -11,7 +11,29 @@
   <div class="ticker-wrapper" onclick="window.location='vi_tracker.html'" style="cursor: pointer;">
     <div class="ticker-content" id="ticker-text">Loading...</div>
   </div>
-  
+
+  <div class="radio-wrap">
+    <button class="play-btn" id="radioBtn" aria-label="Play">
+      <i class="ti ti-player-play" id="radioIcon"></i>
+    </button>
+   
+    <div class="radio-info">
+      <p class="radio-label">
+        <span class="live-dot off" id="liveDot"></span>
+        Live Radio
+      </p>
+      <span class="radio-track" id="trackName">Press play to start</span>
+      <p class="track-num" id="trackNum"></p>
+    </div>
+   
+    <div class="vol-wrap">
+      <i class="ti ti-volume" aria-hidden="true"></i>
+      <input type="range" id="volSlider" min="0" max="1" step="0.05" value="0.8" aria-label="Volume">
+    </div>
+  </div>
+   
+  <audio id="radioPlayer" preload="none"></audio>
+
   <div class="header">
     <h1 class="glitch" data-text=">> the_busking_philosopher">>> the_busking_philosopher</h1>
     <img src="profile-picture.jpg" width="260">
@@ -160,6 +182,70 @@
       })
       .catch(err => console.error('Failed to load data.json:', err));
   </script>
-    
+
+  <script>
+  const PLAYLIST = [
+    { title: "Show Name — Episode 1", src: "audio/episode-01.mp3" },
+    { title: "Show Name — Episode 2", src: "audio/episode-02.mp3" },
+    { title: "Show Name — Episode 3", src: "audio/episode-03.mp3" },
+    /* Add more tracks below this line:
+    { title: "Show Name — Episode 4", src: "audio/episode-04.mp3" },
+    */
+  ];
+   
+  /* ─── Player logic (no need to edit below) ─────────────────── */
+  const player   = document.getElementById('radioPlayer');
+  const btn      = document.getElementById('radioBtn');
+  const icon     = document.getElementById('radioIcon');
+  const dot      = document.getElementById('liveDot');
+  const nameEl   = document.getElementById('trackName');
+  const numEl    = document.getElementById('trackNum');
+  const volSlider = document.getElementById('volSlider');
+   
+  let currentIdx = 0;
+  let isPlaying  = false;
+   
+  function loadTrack(i) {
+    player.src = PLAYLIST[i].src;
+    nameEl.textContent = PLAYLIST[i].title;
+    numEl.textContent  = 'Track ' + (i + 1) + ' of ' + PLAYLIST.length;
+  }
+   
+  function setPlayState(state) {
+    isPlaying = state;
+    icon.className = state ? 'ti ti-player-pause' : 'ti ti-player-play';
+    btn.setAttribute('aria-label', state ? 'Pause' : 'Play');
+    dot.className  = 'live-dot' + (state ? '' : ' off');
+    if (state) nameEl.classList.add('playing');
+    else       nameEl.classList.remove('playing');
+  }
+   
+  btn.addEventListener('click', () => {
+    if (!isPlaying) {
+      if (!player.src || player.src === window.location.href) loadTrack(currentIdx);
+      player.play()
+        .then(() => setPlayState(true))
+        .catch(err => console.warn('Playback error:', err));
+    } else {
+      player.pause();
+      setPlayState(false);
+    }
+  });
+   
+  /* Auto-advance to next track (loops back to start at the end) */
+  player.addEventListener('ended', () => {
+    currentIdx = (currentIdx + 1) % PLAYLIST.length;
+    loadTrack(currentIdx);
+    player.play()
+      .then(() => setPlayState(true))
+      .catch(err => console.warn('Playback error:', err));
+  });
+   
+  volSlider.addEventListener('input', () => {
+    player.volume = parseFloat(volSlider.value);
+  });
+  player.volume = parseFloat(volSlider.value);
+  </script>
+
 </body>
 </html>
