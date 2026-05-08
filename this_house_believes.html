@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debate Viewer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Georgia', serif;
+    background: #1a1a1a;
+    color: #e8e0d0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  header {
+    background: #111;
+    border-bottom: 2px solid #8b6914;
+    padding: 14px 24px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  header .label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #8b6914;
+    margin-bottom: 6px;
+  }
+
+  header h1 {
+    font-size: 18px;
+    font-weight: normal;
+    font-style: italic;
+    color: #f0e8d8;
+    letter-spacing: 0.5px;
+  }
+
+  .panels {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-right: 1px solid #333;
+  }
+
+  .panel:last-child { border-right: none; }
+
+  .panel-header {
+    background: #161616;
+    border-bottom: 1px solid #333;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .panel-title {
+    padding: 10px 20px 0;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .stance {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  .pro .stance { background: #1a3a1a; color: #6dbf6d; border: 1px solid #2d6b2d; }
+  .con .stance { background: #3a1a1a; color: #bf6d6d; border: 1px solid #6b2d2d; }
+
+  .panel-title h2 {
+    font-size: 13px;
+    font-weight: normal;
+    color: #b0a090;
+    font-style: italic;
+  }
+
+  .tabs {
+    display: flex;
+    padding: 8px 20px 0;
+    gap: 4px;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    font-size: 11px;
+    font-family: 'Arial', sans-serif;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border: 1px solid #444;
+    border-bottom: none;
+    background: #1a1a1a;
+    color: #777;
+    border-radius: 4px 4px 0 0;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .tab:hover { color: #bbb; background: #222; }
+  .tab.active { background: #222; color: #d4c4a8; border-color: #555; }
+
+  .panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 28px;
+    background: #222;
+    line-height: 1.85;
+  }
+
+  .panel-body::-webkit-scrollbar { width: 6px; }
+  .panel-body::-webkit-scrollbar-track { background: #1a1a1a; }
+  .panel-body::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+
+  /* Speech styles */
+  .speech p {
+    margin-bottom: 14px;
+    font-size: 14.5px;
+    color: #d8d0c0;
+  }
+
+  .speech .salutation {
+    font-style: italic;
+    color: #a09080;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+
+  .speech ul {
+    margin: 10px 0 14px 20px;
+    list-style: disc;
+  }
+
+  .speech ul li {
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: #c8c0b0;
+  }
+
+  .speech .signoff {
+    margin-top: 28px;
+    font-style: italic;
+    color: #8b8078;
+    font-size: 14px;
+  }
+
+  /* Logic styles */
+  .logic { font-family: 'Arial', sans-serif; }
+
+  .argument {
+    margin-bottom: 28px;
+    border-left: 3px solid #555;
+    padding-left: 16px;
+  }
+
+  .pro .argument { border-left-color: #2d6b2d; }
+  .con .argument { border-left-color: #6b2d2d; }
+
+  .argument h3 {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 10px;
+    font-weight: normal;
+  }
+
+  .premise {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 13.5px;
+    color: #c8c0b0;
+    line-height: 1.6;
+  }
+
+  .premise .num {
+    flex-shrink: 0;
+    font-weight: bold;
+    color: #888;
+    min-width: 22px;
+    font-size: 12px;
+    padding-top: 1px;
+  }
+
+  .conclusion {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #333;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+
+  .pro .conclusion { color: #8dcf8d; }
+  .con .conclusion { color: #cf8d8d; }
+
+  .conclusion .num {
+    flex-shrink: 0;
+    font-weight: bold;
+    min-width: 22px;
+    font-size: 12px;
+    padding-top: 1px;
+    color: inherit;
+    opacity: 0.7;
+  }
+
+  .divider {
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, #8b6914 20%, #8b6914 80%, transparent);
+    flex-shrink: 0;
+  }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="label">Motion before the House</div>
+  <h1>"This House Believes in the Poll Tax"</h1>
+</header>
+
+<div class="panels">
+
+  <!-- PROPOSITION -->
+  <div class="panel pro">
+    <div class="panel-header">
+      <div class="panel-title">
+        <span class="stance">Proposition</span>
+        <h2>Speaking for the motion</h2>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('pro','speech',this)">Speech</div>
+        <div class="tab" onclick="switchTab('pro','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+    <div class="panel-body">
+
+      <div id="pro-speech" class="speech">
+        <p class="salutation">Mr President,</p>
+        <p>Few policies in modern British politics have acquired such mythological status as the poll tax. It is spoken of in tones usually reserved for biblical catastrophe or experimental surgery gone disastrously wrong. One mentions it in polite company and watches otherwise rational people react as though one had proposed the public flogging of orphans.</p>
+        <p>And yet beneath the hysteria—beneath the riots, the slogans, the inherited outrage—there lies a question so simple that its opponents have spent decades trying not to answer it directly:</p>
+        <p><em>Why should some people pay for local services while others contribute nothing at all?</em></p>
+        <p>Now, immediately one is told that this is "unfair." But notice the curious elasticity of that word. Because what the poll tax attempted—however imperfectly—was to restore a principle that had quietly disappeared from public life: That citizenship entails shared obligation. Not selective obligation. Not obligation conveniently outsourced onto a shrinking minority. Shared obligation.</p>
+        <p>Its critics speak as though asking every adult to contribute something towards the services they consume were an act of grotesque cruelty. But this reveals a peculiarly infantilising view of citizenship. A democracy cannot function indefinitely as a system in which large numbers vote on expenditure while bearing no direct responsibility for financing it. That is not accountability. It is fiscal abstraction.</p>
+        <p>And here we arrive at the central point. The poll tax was not primarily about revenue. It was about visibility. Under previous systems, local government spending became detached from democratic consequence. Councils could increase expenditure while much of the electorate remained insulated from the direct cost.</p>
+        <p>The result was predictable:</p>
+        <ul>
+          <li>weak accountability</li>
+          <li>diffuse responsibility</li>
+          <li>and spending decisions disconnected from those funding them</li>
+        </ul>
+        <p>The poll tax sought to reconnect these things. Crude? Perhaps. Politically disastrous? Certainly. But philosophically absurd? Not at all.</p>
+        <p>Now, the Opposition will repeat endlessly that the tax was "regressive." And in a narrow sense, of course it was. A flat charge falls differently upon different incomes. But notice the sleight of hand here. Because the question is not whether income inequality exists. The question is whether citizenship itself should carry universal civic obligation.</p>
+        <p>And there is something profoundly corrosive in the idea that millions of adults should participate fully in local democratic decisions while contributing nothing whatsoever to the costs incurred.</p>
+        <p>Indeed, one might argue that the older rates system embodied its own injustices. Property values often bore little relation to actual local service consumption. Two individuals using the same roads, refuse collection, policing, and infrastructure could contribute radically different amounts—not because of usage, but because of historic property valuations distorted across decades. That was not obviously fair either. It merely possessed the comforting appearance of tradition.</p>
+        <p>And then there is the reaction itself. The sheer fury provoked by the poll tax has often been treated as proof of its immorality. But public outrage is not a moral argument. If it were, every difficult reform in history could be dismissed the moment it encountered resistance.</p>
+        <p>What made the poll tax politically explosive was not merely its structure, but the sudden visibility it imposed. People became acutely aware of the cost of local government because they encountered it directly. And governments rarely survive moments when costs become newly transparent. But transparency is not tyranny. Indeed, democratic systems depend upon it.</p>
+        <p>A citizenry permanently insulated from the consequences of public expenditure is not empowered. It is detached.</p>
+        <p>Now, let me be clear. The implementation was flawed. Transitions were mishandled. Protections were insufficient. Administrative chaos compounded public anger. One need not defend every aspect of execution to recognise the validity of the underlying principle.</p>
+        <p>And this is where serious discussion usually collapses into caricature. Because the poll tax has become one of those policies that people prefer to remember symbolically rather than analytically. It is easier to chant against it than to confront the uncomfortable democratic question it raised: Should everyone contribute directly to the systems over which everyone exercises political power?</p>
+        <p>I believe the answer is yes. Not because all people are equally wealthy. Not because inequality does not matter. But because democracies require not only rights—but reciprocal obligations.</p>
+        <p>And perhaps the greatest irony is this: A policy intended to create clearer democratic accountability became so politically toxic that politicians thereafter learned the opposite lesson— Hide the cost. Diffuse the burden. Never let citizens see too clearly what government requires from them.</p>
+        <p>That may be politically expedient. But it is not healthy democratic culture. Because citizenship is not merely a collection of entitlements. It is participation in a shared civic order. And shared orders survive only when responsibility itself is shared.</p>
+        <p class="signoff">Thank you.</p>
+      </div>
+
+      <div id="pro-logic" class="logic hidden">
+
+        <div class="argument">
+          <h3>Argument I — Civic Obligation</h3>
+          <div class="premise"><span class="num">1.</span><span>Democratic citizenship carries both rights and obligations.</span></div>
+          <div class="premise"><span class="num">2.</span><span>Participating in decisions about local expenditure without contributing to its cost separates rights from obligations.</span></div>
+          <div class="premise"><span class="num">3.</span><span>The poll tax required every adult to contribute directly to local services.</span></div>
+          <div class="conclusion"><span class="num">∴</span><span>The poll tax correctly restored the link between civic participation and shared financial obligation.</span></div>
+        </div>
+
+        <div class="argument">
+          <h3>Argument II — Democratic Accountability</h3>
+          <div class="premise"><span class="num">1.</span><span>Democratic accountability requires that those who vote on spending also bear its cost.</span></div>
+          <div class="premise"><span class="num">2.</span><span>The rates system insulated large portions of the electorate from direct local taxation.</span></div>
+          <div class="premise"><span class="num">3.</span><span>This insulation weakened accountability and allowed councils to increase spending without consequence.</span></div>
+          <div class="conclusion"><span class="num">∴</span><span>Universal direct taxation of local government services strengthens democratic accountability.</span></div>
+        </div>
+
+        <div class="argument">
+          <h3>Argument III — Transparency of Cost</h3>
+          <div class="premise"><span class="num">1.</span><span>Citizens cannot meaningfully evaluate government spending they do not directly experience.</span></div>
+          <div class="premise"><span class="num">2.</span><span>The poll tax made the cost of local government visible to all adults.</span></div>
+          <div class="conclusion"><span class="num">∴</span><span>The poll tax promoted civic transparency, which is a democratic good — even if it was politically inconvenient.</span></div>
+        </div>
+
+        <div class="argument">
+          <h3>Argument IV — Flaws of the Rates System</h3>
+          <div class="premise"><span class="num">1.</span><span>A fair taxation system should bear some relationship to actual consumption of services.</span></div>
+          <div class="premise"><span class="num">2.</span><span>The rates system taxed on historic property valuations bearing little relation to service usage.</span></div>
+          <div class="premise"><span class="num">3.</span><span>Two individuals consuming identical services could pay radically different amounts under rates.</span></div>
+          <div class="conclusion"><span class="num">∴</span><span>The rates system was not obviously fairer than the poll tax; it merely had the comfort of tradition.</span></div>
+        </div>
+
+        <div class="argument">
+          <h3>Argument V — Outrage is Not Argument</h3>
+          <div class="premise"><span class="num">1.</span><span>Public opposition to a policy does not itself establish that the policy is unjust.</span></div>
+          <div class="premise"><span class="num">2.</span><span>Many justified reforms have provoked intense public resistance.</span></div>
+          <div class="premise"><span class="num">3.</span><span>The fury against the poll tax was partly driven by newly visible costs, not inherent injustice.</span></div>
+          <div class="conclusion"><span class="num">∴</span><span>The political failure of the poll tax does not constitute a philosophical refutation of its principles.</span></div>
+        </div>
+
+        <div class="argument">
+          <h3>Argument VI — Principle vs. Execution</h3>
+          <div class="premise"><span class="num">1.</span><span>A policy's underlying principle can be sound even if its implementation is flawed.</span></div>
+          <div class="premise"><span class="num">2.</span><span>The poll tax was poorly transitioned, with insufficient protections and administrative failures.</span></div>
+          <div class="conclusion"><span class="num">∴</span><span>Criticisms of the poll tax's execution do not defeat the validity of the principle of universal civic contribution.</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- OPPOSITION -->
+  <div class="panel con">
+    <div class="panel-header">
+      <div class="panel-title">
+        <span class="stance">Opposition</span>
+        <h2>Speaking against the motion</h2>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('con','speech',this)">Speech</div>
+        <div class="tab" onclick="switchTab('con','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+    <div class="panel-body">
+
+      <div id="con-speech" class="speech">
+        <p class="salutation">Mr President,</p>
+        <p>There are some ideas in politics so catastrophically tone-deaf that one is almost forced to admire the purity of the error. The poll tax was one such idea. Not merely a bad policy. Not merely an unpopular one. But a perfect crystallisation of a particular political blindness: the belief that fairness consists in treating unlike things alike.</p>
+        <p>Its defenders, then as now, present it as a triumph of equality. Why should everyone not pay the same amount for local services? Why should one citizen contribute more than another merely because of property value or income? On the surface, it possesses the cold elegance of arithmetic. One person. One charge. Simple. And disastrously simplistic.</p>
+        <p>Because equality is not sameness. A principle so elementary that one hesitates to state it aloud—and yet apparently one must. If a billionaire and a pensioner are both charged the same flat amount, the burden is not equal merely because the number is identical. To the wealthy, it is negligible. To the poor, it may be punishing. And any political philosophy incapable of recognising this distinction is not serious about justice. It is merely infatuated with symmetry.</p>
+        <p>Now, the proponents of the poll tax often cloak themselves in the language of accountability. They argue that if everyone pays directly for local government, everyone becomes more conscious of spending. Very well. But accountability detached from capacity quickly degenerates into coercion. One cannot meaningfully "hold local government accountable" if the price of participation itself becomes oppressive.</p>
+        <p>And here we encounter the deeper problem. Because the poll tax revealed something unsettling about the ideology beneath it. It treated society not as a community of unequal circumstances requiring negotiation and balance—but as a collection of formally identical units. Consumers of services. Taxpayers in abstraction. Human beings flattened into arithmetic.</p>
+        <p>And this is where its defenders often become curiously evasive. They speak as though previous systems based on property values were somehow irrational or unfair. But property taxation, whatever its imperfections, at least recognised a basic social fact: That wealth and resources are unevenly distributed. That the owner of a large house in an affluent district possesses a different capacity from a struggling tenant in precarious conditions.</p>
+        <p>The poll tax erased this distinction in the name of "fairness." And in doing so, it produced something profoundly unfair.</p>
+        <p>Now, let us be candid. Part of the attraction of the poll tax was ideological. It appealed to a certain fantasy of citizenship:</p>
+        <ul>
+          <li>stripped of class</li>
+          <li>stripped of material inequality</li>
+          <li>reduced to equal contractual obligation</li>
+        </ul>
+        <p>It is the fantasy of the ledger book. Clean columns. Equal entries. And almost no relation to lived reality.</p>
+        <p>But politics is not bookkeeping. A society is not made just because its taxes fit neatly onto a spreadsheet. Justice requires proportion. It requires recognition that equal treatment under conditions of vast inequality often entrenches inequality rather than alleviating it.</p>
+        <p>And the public understood this instinctively, even if economists and ideologues tried to dress it in technical language. Because ordinary people recognised what was being asked of them: That the burden of funding local government was being shifted downward. That "universality" was functioning, in practice, as regressiveness.</p>
+        <p>Which is why the reaction was not merely disagreement. It was fury. Not because the public were irrational. But because they understood perfectly well when they were being asked to carry a disproportionate burden in the name of abstract principle.</p>
+        <p>And perhaps the most revealing aspect of all was this: The defenders of the poll tax continued insisting upon its theoretical fairness even as the country convulsed against it. An extraordinary spectacle. A government so captivated by ideological elegance that it ceased to recognise political reality.</p>
+        <p>Now, none of this means taxation should be immune from reform. Local government financing is imperfect. Property systems can be outdated. Accountability matters. But reform is not the same as blindness. And simplicity is not the same as justice.</p>
+        <p>Because a mature politics begins from an uncomfortable truth: People are not economically interchangeable. To pretend otherwise is not egalitarian. It is indifferent.</p>
+        <p>And the poll tax failed because it attempted to impose mathematical equality upon a profoundly unequal society— Then seemed genuinely surprised when reality objected.</p>
+        <p class="signoff">Thank you.</p>
+      </div>
+
+      <div id="con-logic" class="logic hidden">
+
+        <div class="argument">
+          <h3>Argument I — Equality Is Not Sameness</h3>
+          <div class="premise"><span class="num">1.</span><span>A tax is equal in burden only if it imposes proportionate cost on each taxpayer.</span></div>
+          <div class="premise"><span class="num">2.</span><span>A flat charge imposes negligible cost on the wealthy and punishing cost on the poor.</span></div>
+          <div class="premise"><span class="num">3.</span><span>The poll tax was a flat charge applied to all adults equally.</span></div>
+          <div class="conclusion"><span class="num">∴</span><span>The poll tax was not equal in any meaningful sense — it was identical in number but deeply unequal in burden.</span></div>
+        </div>
+
+        <div class="argument">
+          <h3>Argument II — Accountability Requires Capacity</h3>
+          <div class="premise"><span class="num">1.</span><span>Meaningful democratic accountability requires that citizens can afford the cost of participation.</span></div>
+          <div class="premise"><span class="num">2.</span><span>When taxation becomes oppressive to the poor, it does not empower them — it coerces them.</span></div>
+          <div class="conclusion"><span class="num">∴</span><span>The poll tax's accountability argument fails: accountability detached from financial capacity becomes a mechanism of exclusion, not engagement.</span></div>
+        </div>
+
+        <div class="argument">
+          <h3>Argument III — The Ideological Abstraction Problem</h3>
+          <div class="premise"><span class="num">1.</span><span>Just policy must reflect the actual material conditions of those it governs.</span></div>
+          <div class="premise"><span class="num">2.</span><span>The poll tax treated all citizens as formally identical economic units, ignoring inequality.</span></div>
+          <div class="premise"><span class="num">3.</span><span>Society is characterised by profound and persistent inequality of wealth and resources.</span></div>
+          <div class="conclusion"><span class="num">∴</span><span>The poll tax's foundational model of citizenship was an abstraction bearing no relation to lived reality, and therefore could not produce just outcomes.</span></div>
+        </div>
+
+        <div class="argument">
+          <h3>Argument IV — Property Tax Recognised Capacity</h3>
+          <div class="premise"><span class="num">1.</span><span>A defensible tax system should reflect, at least broadly, differing capacities to pay.</span></div>
+          <div class="premise"><span class="num">2.</span><span>The rates system, based on property values, recognised that larger property typically correlates with greater wealth.</span></div>
+          <div class="premise"><span class="num">3.</span><span>The poll tax eliminated this capacity-recognition entirely.</span></div>
+          <div class="conclusion"><span class="num">∴</span><span>Whatever its imperfections, the rates system was more just than the poll tax because it retained a basic acknowledgement of unequal capacity.</span></div>
+        </div>
+
+        <div class="argument">
+          <h3>Argument V — Universality as Disguised Regressiveness</h3>
+          <div class="premise"><span class="num">1.</span><span>A tax that shifts proportionally more burden onto lower earners is regressive.</span></div>
+          <div class="premise"><span class="num">2.</span><span>The poll tax shifted funding of local government downward, away from property-holders onto all adults.</span></div>
+          <div class="premise"><span class="num">3.</span><span>"Universality" in taxation, applied under conditions of inequality, functions as regressiveness in practice.</span></div>
+          <div class="conclusion"><span class="num">∴</span><span>The poll tax's claim to universality was, in practice, a mechanism for making the poor pay more — not a principled assertion of equal citizenship.</span></div>
+        </div>
+
+        <div class="argument">
+          <h3>Argument VI — Public Rejection as Legitimate Signal</h3>
+          <div class="premise"><span class="num">1.</span><span>In a democracy, widespread public rejection of a policy is a relevant datum about its justice.</span></div>
+          <div class="premise"><span class="num">2.</span><span>The public's rejection of the poll tax was not irrational hysteria but a coherent response to perceived unfairness.</span></div>
+          <div class="premise"><span class="num">3.</span><span>A government that insists on theoretical fairness in the face of overwhelming practical objection reveals ideological rigidity, not principled resolve.</span></div>
+          <div class="conclusion"><span class="num">∴</span><span>The poll tax's political collapse was not incidental — it was evidence that the policy's conception of justice was fundamentally at odds with the society it governed.</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function switchTab(panel, view, clickedTab) {
+    const speech = document.getElementById(panel + '-speech');
+    const logic = document.getElementById(panel + '-logic');
+    const tabs = clickedTab.parentElement.querySelectorAll('.tab');
+
+    tabs.forEach(t => t.classList.remove('active'));
+    clickedTab.classList.add('active');
+
+    if (view === 'speech') {
+      speech.classList.remove('hidden');
+      logic.classList.add('hidden');
+    } else {
+      logic.classList.remove('hidden');
+      speech.classList.add('hidden');
+    }
+  }
+</script>
+</body>
+</html>
