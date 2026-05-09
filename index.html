@@ -13,6 +13,12 @@
     <div class="ticker-content" id="ticker-text">Loading...</div>
   </div>
 
+  <div class="station-tabs">
+    <button class="station-tab active" data-station="music">Music</button>
+    <button class="station-tab" data-station="philosophy">Philosophy</button>
+    <button class="station-tab" data-station="poems">Poems</button>
+  </div>
+
   <div class="radio-wrap">
     <div class="radio-top">
       <button class="play-btn" id="radioBtn" aria-label="Play">
@@ -201,14 +207,25 @@
   </script>
 
   <script>
-  const PLAYLIST = [
-    { title: "The Velvet Underground — Foggy Notion", src: "audio/velvets_foggy_notion.m4a" },
-    { title: "Ezra Pound — Canto I", src: "audio/pound_canto_i.m4a" },
-    { title: "The Fall — Mountain Energei", src: "audio/the_fall_mountain_energei.m4a" },
-    { title: "William Butler Yeats — The Lake Isle of Innisfree", src: "audio/yeats_innisfree.m4a" },
-    { title: "FELT – Janice Long 30th September 1984", src: "audio/felt_janice_long.m4a" },
-    { title: "Ted Hughes — The Thought Fox", src: "audio/hughes_thought_fox.m4a" },
-  ];
+  const STATIONS = {
+    music: [
+      { title: "The Velvet Underground — Foggy Notion", src: "audio/velvets_foggy_notion.m4a" },
+      { title: "The Fall — Mountain Energei", src: "audio/the_fall_mountain_energei.m4a" },
+      { title: "FELT – Janice Long 30th September 1984", src: "audio/felt_janice_long.m4a" },
+    ],
+    philosophy: [
+      { title: "Philosophy — Episode 1", src: "audio/philosophy-01.mp3" },
+      { title: "Philosophy — Episode 2", src: "audio/philosophy-02.mp3" },
+    ],
+    poems: [
+      { title: "Ezra Pound — Canto I", src: "audio/pound_canto_i.m4a" },
+      { title: "William Butler Yeats — The Lake Isle of Innisfree", src: "audio/yeats_innisfree.m4a" },
+      { title: "Ted Hughes — The Thought Fox", src: "audio/hughes_thought_fox.m4a" },
+    ],
+  };
+  
+  let currentStation = 'music';
+  let PLAYLIST = STATIONS[currentStation];
    
   /* ─── Player logic (no need to edit below) ─────────────────── */
   const player   = document.getElementById('radioPlayer');
@@ -304,6 +321,30 @@
       loadTrack(currentIdx);
       if (isPlaying) player.play();
     }
+  });
+  
+  document.querySelectorAll('.station-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      if (tab.dataset.station === currentStation) return;
+  
+      // update active tab style
+      document.querySelectorAll('.station-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+  
+      // switch station
+      currentStation = tab.dataset.station;
+      PLAYLIST = STATIONS[currentStation];
+      currentIdx = 0;
+  
+      // stop and load first track of new station
+      player.pause();
+      setPlayState(false);
+      loadTrack(currentIdx);
+  
+      // update label
+      nameEl.textContent = 'Press play to start';
+      numEl.textContent = '';
+    });
   });
   </script>
 
