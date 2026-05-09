@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debate Viewer</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;--gold2:#e2c47a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+}
+body{font-family:Georgia,var(--font-serif,serif);background:var(--bg);color:var(--text)}
+
+.sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.motion-header{
+  padding:1.1rem 2rem .9rem;
+  border-bottom:1px solid var(--bdr);
+  text-align:center;
+  background:var(--bg);
+  position:relative;
+}
+.motion-header::after{
+  content:'';position:absolute;bottom:0;left:5%;right:5%;
+  height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  opacity:.4;
+}
+.motion-eyebrow{
+  font-family:var(--font-sans,sans-serif);
+  font-size:10px;text-transform:uppercase;letter-spacing:.18em;
+  color:var(--gold);margin-bottom:7px;font-weight:500;
+}
+.motion-title{
+  font-size:22px;font-weight:400;color:var(--text);
+  font-style:italic;letter-spacing:.01em;
+}
+
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 80px);min-height:500px}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.col-header{
+  padding:.85rem 1.3rem 0;
+  border-bottom:1px solid var(--bdr);
+  flex-shrink:0;background:var(--bg2);
+}
+.col-header-top{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;flex-wrap:wrap}
+
+.pill{
+  font-family:var(--font-sans,sans-serif);
+  font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  padding:4px 10px;border-radius:4px;
+}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+
+.col-subtitle{
+  font-family:var(--font-sans,sans-serif);
+  font-size:13px;font-style:italic;color:var(--text2);
+}
+
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{
+  font-family:var(--font-sans,sans-serif);
+  padding:6px 16px;font-size:12px;color:var(--text3);cursor:pointer;
+  border:1px solid var(--bdr);border-bottom:none;
+  border-radius:5px 5px 0 0;background:var(--bg);
+  margin-right:4px;user-select:none;transition:color .15s,background .15s;
+}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}
+.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.3rem 1.5rem;font-size:14.5px;line-height:2;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speech-text p{margin-bottom:.9rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text strong{color:var(--text);font-style:italic;font-weight:400}
+
+.hl{
+  border-radius:2px;padding:1px 2px;
+  position:relative;display:inline;cursor:default;
+}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+
+.tooltip{
+  display:none;position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);
+  font-family:var(--font-sans,sans-serif);
+  font-size:11px;font-weight:500;font-style:normal;
+  white-space:nowrap;z-index:50;pointer-events:none;
+  background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;
+  padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);
+}
+.tooltip::after{
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:var(--bdr2);
+}
+.hl:hover .tooltip{display:block}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+
+.logic-view{display:flex;flex-direction:column;gap:1rem}
+.arg-block{
+  border-left:2px solid;border-radius:0;
+  background:var(--bg2);overflow:hidden;cursor:pointer;
+  transition:background .15s;
+}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+
+.arg-title{
+  padding:8px 12px;
+  font-family:var(--font-sans,sans-serif);
+  font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--bdr);
+}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.img-hint{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+
+.arg-premises{padding:10px 12px 6px;background:var(--bg2)}
+.premise{display:flex;gap:10px;margin-bottom:8px;font-family:var(--font-sans,sans-serif);font-size:12.5px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:11px;color:var(--text3);padding-top:1px;flex-shrink:0}
+
+.conclusion{
+  display:flex;gap:10px;padding:8px 12px;
+  font-family:var(--font-sans,sans-serif);font-size:12.5px;line-height:1.6;
+  border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500;
+}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+
+.hidden{display:none}
+
+.modal-wrap{
+  display:none;position:absolute;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center;
+  min-height:300px;
+}
+.modal-wrap.open{display:flex}
+.modal{
+  background:var(--bg2);border-radius:8px;border:1px solid var(--bdr2);
+  width:380px;max-width:92%;overflow:hidden;
+}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:var(--font-sans,sans-serif);font-size:12px;font-weight:500;color:var(--text)}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:15px;line-height:1;padding:3px 7px;border-radius:4px}
+.modal-close:hover{background:var(--bg4)}
+.modal-bd{padding:.9rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;background:var(--bg3);min-height:150px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:2rem;color:var(--text3);font-family:var(--font-sans,sans-serif);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.modal-ph i{font-size:26px}
+.modal-ph code{font-size:10px;background:var(--bg4);padding:2px 6px;border-radius:3px}
+.modal-cap{margin-top:.6rem;font-family:var(--font-sans,sans-serif);font-size:11px;color:var(--text3)}
+
+.page{position:relative;overflow:hidden}
+</style>
+</head>
+<body>
+
+<h2 class="sr-only">Side-by-side debate viewer on the poll tax motion, with highlighted arguments and logical analysis tabs.</h2>
+
+<div class="page" id="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Believes in the Poll Tax"</div>
+</div>
+
+<div class="columns">
+
+  <div class="col prop" id="col-prop">
+    <div class="col-header">
+      <div class="col-header-top">
+        <span class="pill prop">Proposition</span>
+        <span class="col-subtitle">Speaking for the motion</span>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('prop','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('prop','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+    <div class="col-body">
+      <div id="prop-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>Few policies in modern British politics have acquired such mythological status as the poll tax. It is spoken of in tones usually reserved for biblical catastrophe or experimental surgery gone disastrously wrong. One mentions it in polite company and watches otherwise rational people react as though one had proposed the public flogging of orphans.</p>
+        <p>And yet beneath the hysteria—beneath the riots, the slogans, the inherited outrage—there lies a question so simple that its opponents have spent decades trying not to answer it directly:</p>
+        <p><em>Why should some people pay for local services while others contribute nothing at all?</em></p>
+        <p>Now, immediately one is told that this is "unfair." But notice the curious elasticity of that word. Because what the poll tax attempted—however imperfectly—was to restore a principle that had quietly disappeared from public life: <span class="hl" data-arg="1"><span class="tooltip">The argument from civic obligation</span>That citizenship entails shared obligation. Not selective obligation. Not obligation conveniently outsourced onto a shrinking minority. Shared obligation.</span></p>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from civic obligation</span>Its critics speak as though asking every adult to contribute something towards the services they consume were an act of grotesque cruelty. But this reveals a peculiarly infantilising view of citizenship. A democracy cannot function indefinitely as a system in which large numbers vote on expenditure while bearing no direct responsibility for financing it.</span> That is not accountability. It is fiscal abstraction.</p>
+        <p>And here we arrive at the central point. <span class="hl" data-arg="2"><span class="tooltip">The argument from democratic accountability</span>The poll tax was not primarily about revenue. It was about visibility. Under previous systems, local government spending became detached from democratic consequence. Councils could increase expenditure while much of the electorate remained insulated from the direct cost. The result was predictable: weak accountability, diffuse responsibility, and spending decisions disconnected from those funding them. The poll tax sought to reconnect these things.</span> Crude? Perhaps. Politically disastrous? Certainly. But philosophically absurd? Not at all.</p>
+        <p>Now, the Opposition will repeat endlessly that the tax was "regressive." And in a narrow sense, of course it was. A flat charge falls differently upon different incomes. But notice the sleight of hand here. <span class="hl" data-arg="1"><span class="tooltip">The argument from civic obligation</span>Because the question is not whether income inequality exists. The question is whether citizenship itself should carry universal civic obligation. And there is something profoundly corrosive in the idea that millions of adults should participate fully in local democratic decisions while contributing nothing whatsoever to the costs incurred.</span></p>
+        <p><span class="hl" data-arg="3"><span class="tooltip">The argument from rates vs poll tax fairness</span>Indeed, one might argue that the older rates system embodied its own injustices. Property values often bore little relation to actual local service consumption. Two individuals using the same roads, refuse collection, policing, and infrastructure could contribute radically different amounts—not because of usage, but because of historic property valuations distorted across decades. That was not obviously fair either. It merely possessed the comforting appearance of tradition.</span></p>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The argument from public reaction</span>The sheer fury provoked by the poll tax has often been treated as proof of its immorality. But public outrage is not a moral argument. If it were, every difficult reform in history could be dismissed the moment it encountered resistance.</span> <span class="hl" data-arg="2"><span class="tooltip">The argument from democratic accountability</span>What made the poll tax politically explosive was not merely its structure, but the sudden visibility it imposed. People became acutely aware of the cost of local government because they encountered it directly.</span> <span class="hl" data-arg="4"><span class="tooltip">The argument from public reaction</span>But transparency is not tyranny. Indeed, democratic systems depend upon it. A citizenry permanently insulated from the consequences of public expenditure is not empowered. It is detached.</span></p>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The argument from principle vs. implementation</span>Now, let me be clear. The implementation was flawed. Transitions were mishandled. Protections were insufficient. Administrative chaos compounded public anger. One need not defend every aspect of execution to recognise the validity of the underlying principle.</span></p>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The argument from principle vs. implementation</span>The poll tax has become one of those policies that people prefer to remember symbolically rather than analytically. It is easier to chant against it than to confront the uncomfortable democratic question it raised: Should everyone contribute directly to the systems over which everyone exercises political power?</span> I believe the answer is yes. Not because all people are equally wealthy. Not because inequality does not matter. But because democracies require not only rights—but reciprocal obligations.</p>
+        <p>And perhaps the greatest irony is this: A policy intended to create clearer democratic accountability became so politically toxic that politicians thereafter learned the opposite lesson—hide the cost, diffuse the burden, never let citizens see too clearly what government requires from them. That may be politically expedient. But it is not healthy democratic culture.</p>
+        <p>Because citizenship is not merely a collection of entitlements. It is participation in a shared civic order. And shared orders survive only when responsibility itself is shared.</p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal(1,'prop')">
+          <div class="arg-title"><span>Argument I — Civic obligation</span><span class="img-hint"><i class="ti ti-photo" aria-hidden="true"></i> click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Democratic citizenship entails both rights and shared obligations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Local services are consumed by all adult residents regardless of property ownership.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Under rates, many adults consumed those services while contributing nothing directly.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>A universal flat charge restores the obligation component of citizenship more equitably than rates did.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal(2,'prop')">
+          <div class="arg-title"><span>Argument II — Democratic accountability</span><span class="img-hint"><i class="ti ti-photo" aria-hidden="true"></i> click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Democratic accountability requires voters to feel the direct cost of the spending they vote for.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When costs are diffuse or invisible, councils can expand expenditure without electoral consequence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The poll tax made local spending visible and personal for every household.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The poll tax strengthened the link between democratic choice and fiscal responsibility.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal(3,'prop')">
+          <div class="arg-title"><span>Argument III — Rates were not fair either</span><span class="img-hint"><i class="ti ti-photo" aria-hidden="true"></i> click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Fairness requires some relation between contribution and service use.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Under rates, two people using identical services could pay radically different amounts based on historic property valuations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Those valuations bore no reliable relation to current consumption or income.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Rates were not an obviously fair baseline; the critics mistake tradition for justice.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal(4,'prop')">
+          <div class="arg-title"><span>Argument IV — Outrage is not moral proof</span><span class="img-hint"><i class="ti ti-photo" aria-hidden="true"></i> click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Public anger at a policy is not sufficient evidence of that policy's moral failure.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The anger was partly caused by sudden cost transparency, not the principle itself.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Transparency in government cost is a democratic virtue, not a vice.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The political backlash cannot serve as the decisive argument against the poll tax's underlying principle.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal(5,'prop')">
+          <div class="arg-title"><span>Argument V — Principle vs. implementation</span><span class="img-hint"><i class="ti ti-photo" aria-hidden="true"></i> click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A policy principle can be sound even when its implementation is defective.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The poll tax's execution was flawed: poor transitional protections, administrative chaos.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Its philosophical core—universal direct contribution—remains independently defensible.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Rejecting the principle because of poor implementation is a category error.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col opp" id="col-opp">
+    <div class="col-header">
+      <div class="col-header-top">
+        <span class="pill opp">Opposition</span>
+        <span class="col-subtitle">Speaking against the motion</span>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('opp','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('opp','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+    <div class="col-body">
+      <div id="opp-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>There are some ideas in politics so catastrophically tone-deaf that one is almost forced to admire the purity of the error. The poll tax was one such idea. Not merely a bad policy. Not merely an unpopular one. But a perfect crystallisation of a particular political blindness: the belief that fairness consists in treating unlike things alike.</p>
+        <p>Its defenders, then as now, present it as a triumph of equality. Why should everyone not pay the same amount for local services? Why should one citizen contribute more than another merely because of property value or income? On the surface, it possesses the cold elegance of arithmetic. One person. One charge. Simple. And disastrously simplistic.</p>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from civic obligation</span>Because equality is not sameness. A principle so elementary that one hesitates to state it aloud—and yet apparently one must. If a billionaire and a pensioner are both charged the same flat amount, the burden is not equal merely because the number is identical. To the wealthy, it is negligible. To the poor, it may be punishing. And any political philosophy incapable of recognising this distinction is not serious about justice. It is merely infatuated with symmetry.</span></p>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The argument from democratic accountability</span>Now, the proponents of the poll tax often cloak themselves in the language of accountability. They argue that if everyone pays directly for local government, everyone becomes more conscious of spending. Very well. But accountability detached from capacity quickly degenerates into coercion. One cannot meaningfully "hold local government accountable" if the price of participation itself becomes oppressive.</span></p>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The argument from democratic accountability</span>And here we encounter the deeper problem. Because the poll tax revealed something unsettling about the ideology beneath it. It treated society not as a community of unequal circumstances requiring negotiation and balance—but as a collection of formally identical units. Consumers of services. Taxpayers in abstraction. Human beings flattened into arithmetic.</span></p>
+        <p><span class="hl" data-arg="3"><span class="tooltip">The argument from rates vs poll tax fairness</span>And this is where its defenders often become curiously evasive. They speak as though previous systems based on property values were somehow irrational or unfair. But property taxation, whatever its imperfections, at least recognised a basic social fact: that wealth and resources are unevenly distributed. That the owner of a large house in an affluent district possesses a different capacity from a struggling tenant in precarious conditions. The poll tax erased this distinction in the name of "fairness." And in doing so, it produced something profoundly unfair.</span></p>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The argument from principle vs. implementation</span>Now, let us be candid. Part of the attraction of the poll tax was ideological. It appealed to a certain fantasy of citizenship: stripped of class, stripped of material inequality, reduced to equal contractual obligation. It is the fantasy of the ledger book. Clean columns. Equal entries. And almost no relation to lived reality.</span></p>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The argument from principle vs. implementation</span>But politics is not bookkeeping. A society is not made just because its taxes fit neatly onto a spreadsheet. Justice requires proportion. It requires recognition that equal treatment under conditions of vast inequality often entrenches inequality rather than alleviating it.</span></p>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The argument from public reaction</span>And the public understood this instinctively, even if economists and ideologues tried to dress it in technical language. Because ordinary people recognised what was being asked of them: that the burden of funding local government was being shifted downward. That "universality" was functioning, in practice, as regressiveness. Which is why the reaction was not merely disagreement. It was fury. Not because the public were irrational. But because they understood perfectly well when they were being asked to carry a disproportionate burden in the name of abstract principle.</span></p>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The argument from public reaction</span>And perhaps the most revealing aspect of all was this: The defenders of the poll tax continued insisting upon its theoretical fairness even as the country convulsed against it. An extraordinary spectacle. A government so captivated by ideological elegance that it ceased to recognise political reality.</span></p>
+        <p>Now, none of this means taxation should be immune from reform. Local government financing is imperfect. Property systems can be outdated. Accountability matters. But reform is not the same as blindness. And simplicity is not the same as justice.</p>
+        <p>Because a mature politics begins from an uncomfortable truth: People are not economically interchangeable. To pretend otherwise is not egalitarian. It is indifferent. And the poll tax failed because it attempted to impose mathematical equality upon a profoundly unequal society—then seemed genuinely surprised when reality objected.</p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal(1,'opp')">
+          <div class="arg-title"><span>Argument I — Equality is not sameness</span><span class="img-hint"><i class="ti ti-photo" aria-hidden="true"></i> click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A genuinely equal burden is proportional to capacity, not numerically identical in absolute terms.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The same flat charge is negligible for the wealthy and punishing for the poor.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The poll tax imposed numerically identical, not proportionally equal, charges on all adults.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The poll tax was not equal in any meaningful sense — it was identical in number but deeply unequal in burden.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal(2,'opp')">
+          <div class="arg-title"><span>Argument II — Accountability requires capacity</span><span class="img-hint"><i class="ti ti-photo" aria-hidden="true"></i> click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Meaningful democratic accountability requires that citizens can afford the cost of participation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When taxation becomes oppressive to the poor, it does not empower them — it coerces them.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The poll tax imposed such a cost on many of the least affluent citizens.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The accountability argument collapses into coercion for those with insufficient means.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal(3,'opp')">
+          <div class="arg-title"><span>Argument III — Rates recognised social reality</span><span class="img-hint"><i class="ti ti-photo" aria-hidden="true"></i> click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A just tax system should reflect that citizens have unequal capacity to pay.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Property values, imperfectly but broadly, tracked relative wealth and capacity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The poll tax severed this relationship, treating a billionaire and a pensioner as equivalent fiscal units.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Whatever its imperfections, rates were more just than the poll tax's indifference to inequality.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal(4,'opp')">
+          <div class="arg-title"><span>Argument IV — Public fury was rational</span><span class="img-hint"><i class="ti ti-photo" aria-hidden="true"></i> click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Widespread, cross-class public reaction against a policy is evidence worth taking seriously.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The poll tax provoked broad opposition from people who correctly understood it shifted burdens downward.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The government's insistence on theoretical fairness in the face of this reflected ideological capture.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The public's verdict was rational recognition of injustice; dismissing it as emotion is its own political blindness.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal(5,'opp')">
+          <div class="arg-title"><span>Argument V — The ideological fantasy fails</span><span class="img-hint"><i class="ti ti-photo" aria-hidden="true"></i> click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Applying formally identical treatment to people in vastly unequal conditions entrenches, not reduces, inequality.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The poll tax applied the same fiscal burden across all adults regardless of economic circumstance.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This shifted the effective tax burden downward, onto those least able to bear it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The poll tax did not create equality; it institutionalised and deepened existing inequality.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh"><i class="ti ti-photo" aria-hidden="true"></i><div>No image linked yet</div><code>Set src in IMAGES object in script</code></div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+var IMAGES={
+  prop:{
+    1:{src:"",caption:"Proposition — Civic obligation"},
+    2:{src:"",caption:"Proposition — Democratic accountability"},
+    3:{src:"",caption:"Proposition — Rates vs poll tax fairness"},
+    4:{src:"",caption:"Proposition — Public reaction"},
+    5:{src:"",caption:"Proposition — Principle vs. implementation"}
+  },
+  opp:{
+    1:{src:"",caption:"Opposition — Equality is not sameness"},
+    2:{src:"",caption:"Opposition — Accountability requires capacity"},
+    3:{src:"",caption:"Opposition — Rates recognised social reality"},
+    4:{src:"",caption:"Opposition — Public fury was rational"},
+    5:{src:"",caption:"Opposition — The ideological fantasy fails"}
+  }
+};
+var TITLES={
+  prop:{1:"Civic obligation",2:"Democratic accountability",3:"Rates vs poll tax fairness",4:"Public reaction",5:"Principle vs. implementation"},
+  opp:{1:"Equality is not sameness",2:"Accountability requires capacity",3:"Rates recognised social reality",4:"Public fury was rational",5:"The ideological fantasy fails"}
+};
+function sw(side,view,el){
+  var s=document.getElementById(side+'-speech'),l=document.getElementById(side+'-logic');
+  document.getElementById('col-'+side).querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  if(view==='speech'){s.classList.remove('hidden');l.classList.add('hidden')}
+  else{s.classList.add('hidden');l.classList.remove('hidden')}
+}
+function openModal(n,side){
+  var d=IMAGES[side][n];
+  document.getElementById('mTitle').textContent=TITLES[side][n];
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.alt=TITLES[side][n];img.style.display='none';ph.style.display='none'}
+  else{img.style.display='none';ph.style.display='flex'}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none'}
+function imgFail(){document.getElementById('mImg').style.display='none';var p=document.getElementById('mPh');p.style.display='flex';p.querySelector('div').textContent='Image failed to load'}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal()}
+</script>
+</body>
+</html>
