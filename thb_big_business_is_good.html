@@ -1,0 +1,425 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+}
+body{font-family:Georgia,var(--font-serif,serif);background:var(--bg);color:var(--text)}
+
+.motion-header{
+  padding:1.1rem 2rem .9rem;border-bottom:1px solid var(--bdr);
+  text-align:center;background:var(--bg);position:relative;
+}
+.motion-header::after{
+  content:'';position:absolute;bottom:0;left:5%;right:5%;
+  height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4;
+}
+.motion-eyebrow{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:7px;font-weight:500}
+.motion-title{font-size:22px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 80px);min-height:500px}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.col-header{padding:.85rem 1.3rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;flex-wrap:wrap}
+.pill{font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;padding:4px 10px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:var(--font-sans,sans-serif);font-size:13px;font-style:italic;color:var(--text2)}
+
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:var(--font-sans,sans-serif);padding:6px 16px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:4px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.3rem 1.5rem;font-size:14.5px;line-height:2;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speech-text p{margin-bottom:.9rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:var(--font-sans,sans-serif);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+
+.tooltip{display:none;position:fixed;font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;font-style:normal;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+
+.logic-view{display:flex;flex-direction:column;gap:1rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+
+.arg-title{padding:8px 12px;font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.img-hint{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+
+.arg-premises{padding:10px 12px 6px;background:var(--bg2)}
+.premise{display:flex;gap:10px;margin-bottom:8px;font-family:var(--font-sans,sans-serif);font-size:12.5px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:11px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:10px;padding:8px 12px;font-family:var(--font-sans,sans-serif);font-size:12.5px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+
+.hidden{display:none}
+
+.modal-wrap{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:8px;border:1px solid var(--bdr2);width:380px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:var(--font-sans,sans-serif);font-size:12px;font-weight:500;color:var(--text)}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:15px;line-height:1;padding:3px 7px;border-radius:4px}
+.modal-close:hover{background:var(--bg4)}
+.modal-bd{padding:.9rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;background:var(--bg3);min-height:150px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:2rem;color:var(--text3);font-family:var(--font-sans,sans-serif);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.modal-ph code{font-size:10px;background:var(--bg4);padding:2px 6px;border-radius:3px}
+.modal-cap{margin-top:.6rem;font-family:var(--font-sans,sans-serif);font-size:11px;color:var(--text3)}
+.page{position:relative;overflow:hidden}
+</style>
+
+<div class="page" id="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Believes Big Business Is Good for Society"</div>
+</div>
+
+<div class="columns">
+
+  <!-- PROPOSITION -->
+  <div class="col prop" id="col-prop">
+    <div class="col-header">
+      <div class="col-header-top">
+        <span class="pill prop">Proposition</span>
+        <span class="col-subtitle">Speaking for the motion</span>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('prop','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('prop','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+    <div class="col-body">
+      <div id="prop-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>We live in an age of extraordinary ingenuity about what to resent. And at the top of the resentment hierarchy, occupying the position once held by monarchs and aristocrats and robber barons, sits the large corporation. Big business. The entity we love to hate even as we love what it makes.</p>
+        <p>I want to suggest to you that this hostility is not merely misplaced. It is a form of ingratitude so profound as to constitute a kind of civilisational amnesia.</p>
+
+        <span class="section">On what big business actually is</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from coordination</span>A large corporation coordinates. It takes the dispersed knowledge, effort, and specialisation of thousands — sometimes hundreds of thousands — of human beings, and aligns them toward the production of something that none of them could produce alone. Your smartphone contains components designed in California, manufactured in Taiwan, assembled in China, shipped through Rotterdam, and delivered to your door in two days. That is not exploitation. That is a miracle of coordination that no government ministry, no cooperative, no artisanal collective has ever come close to replicating.</span></p>
+
+        <span class="section">On trust</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The argument from institutional reliability</span>Americans trust large corporations more than they trust Congress, more than they trust the media. When you board an aeroplane, you trust Boeing with your life. When you take a drug, you trust the pharmaceutical supply chain. When you eat from a supermarket, you trust Tesco or Walmart not to poison you. And they do not. Overwhelmingly, reliably, day after day, they do not. The large corporation has developed, over centuries of competitive pressure and reputational incentive, a culture of procedural reliability that is genuinely remarkable.</span></p>
+        <p>We have built institutions that reliably coordinate the behaviour of strangers toward mutually beneficial ends. That is not nothing. That is, in fact, the central problem of civilisation.</p>
+
+        <span class="section">On innovation</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">The argument from innovation</span>The transistor was invented at Bell Labs — the research arm of AT&T, a monopoly. The internet was scaled by large corporations. The mRNA vaccine technology that ended a pandemic was developed with massive corporate investment and manufacturing infrastructure that no startup could have assembled. Large corporations are, in many domains, the primary engines of the kind of sustained, expensive, patient innovation that changes the world. The romance of the startup obscures the reality that most startups either fail, or if they succeed, become large corporations — at which point we begin to resent them.</span></p>
+
+        <span class="section">On employment</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The argument from labour conditions</span>Large corporations employ people at scale, with benefits, with something resembling job security, with HR departments, legal protections, promotion ladders and pension schemes that small businesses cannot afford. When critics romanticise small business, they overlook what it is like to work for one. The boss is your cousin. There is no appeals process. There is no pension. If the owner takes against you, you are gone. The large corporation, for all its bureaucratic frustrations, represents a meaningful advance in the organisation of labour.</span></p>
+
+        <span class="section">On the alternative</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The argument from alternatives</span>We should always ask: compared to what? The critics of big business rarely specify what they would prefer. Government has a poor track record in complex goods and services. Non-profits do not scale. Small businesses fail at devastating rates. The question is not whether large corporations are perfect — of course they are not. The question is whether they are better than the available alternatives at the tasks they perform. And the honest answer, surveying human institutional arrangements, is: usually, yes.</span></p>
+
+        <span class="section">On the critics</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">The argument from ingratitude</span>The critics of big business write their critiques on Apple laptops, distribute them through Amazon, fund them with grants from large foundations, and reach their audiences through Google or Facebook — all large corporations. Big business has clothed us, fed us, medicated us, transported us, entertained us, and connected us to one another across distances that would have astonished our grandparents. It has done so imperfectly, often selfishly, sometimes destructively. But it has done so. And at a scale and with a reliability that no other human institution has matched. The least we can do is acknowledge that before we reach for the pitchfork.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal(1,'prop')">
+          <div class="arg-title"><span>Argument I — The coordination argument</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Complex goods require aligning the specialised knowledge of thousands of people across vast distances.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No other institution — government, cooperative, or small business — has replicated this coordination at scale.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Large corporations perform this coordination reliably and at global scale every day.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Big business is the primary institutional solution to the central problem of organising complex production in a modern economy.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal(2,'prop')">
+          <div class="arg-title"><span>Argument II — Institutional reliability</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Society requires institutions that reliably coordinate the behaviour of strangers toward mutually beneficial ends.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Large corporations, under competitive and reputational pressure, have developed a culture of procedural reliability that few institutions match.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Citizens routinely entrust corporations with their lives, health, and daily welfare — and are overwhelmingly not betrayed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The reliability of large corporations represents an underappreciated moral and civilisational achievement.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal(3,'prop')">
+          <div class="arg-title"><span>Argument III — Corporate innovation</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Transformative innovation often requires sustained, patient, expensive investment that only large institutions can fund.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Major technological breakthroughs — the transistor, the internet, mRNA vaccines — were produced within or scaled by large corporations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Successful startups either fail or become large corporations; the romance of the startup is partly a romance about future big business.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Large corporations are primary engines of world-changing innovation, not obstacles to it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal(4,'prop')">
+          <div class="arg-title"><span>Argument IV — Labour conditions</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Workers benefit from legal protections, appeals processes, pension schemes, and structured HR that small businesses cannot provide.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Small businesses often lack formal protections, leaving workers exposed to arbitrary treatment with no recourse.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Large corporations provide these structures at scale, however imperfectly.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Employment at large corporations represents a meaningful structural advance over small-business labour conditions.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal(5,'prop')">
+          <div class="arg-title"><span>Argument V — The alternatives argument</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Institutional critique requires a credible alternative, not merely the identification of flaws.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Government provision, non-profits, and small businesses each fail to match large corporations on scale, reliability, or success rate.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The relevant question is comparative: are large corporations better than alternatives at the tasks they perform?</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Absent a credible alternative, the case against big business is a counsel of complaint, not a programme of reform.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal(6,'prop')">
+          <div class="arg-title"><span>Argument VI — Ingratitude and proportion</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A fair assessment must credit what an institution has achieved, not only where it has fallen short.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Big business has fed, clothed, medicated, transported, and connected humanity at unprecedented scale and reliability.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Critics of big business benefit daily from its outputs while systematically omitting this from their accounting.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The cultural hostility to big business reflects a disproportionate focus on failure that ignores the scale of achievement.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPPOSITION -->
+  <div class="col opp" id="col-opp">
+    <div class="col-header">
+      <div class="col-header-top">
+        <span class="pill opp">Opposition</span>
+        <span class="col-subtitle">Speaking against the motion</span>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('opp','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('opp','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+    <div class="col-body">
+      <div id="opp-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My opponent has just delivered a love letter to the large corporation. It was eloquent. It was learned. And it was, at its core, a defence of power dressed in the language of coordination.</p>
+        <p>I want to suggest that the celebration of big business is a category error. It mistakes the performance of function for the justification of power. And it ignores, with remarkable consistency, those who bear the costs.</p>
+
+        <span class="section">On coordination — and monopolisation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from coordination</span>We are told that large corporations coordinate. Yes. They also capture. They capture regulators, legislators, and the very competitive markets that are supposed to discipline them. Amazon undercuts competitors until they collapse, then raises prices. Google controls 92% of global search and uses that control to advantage its own products. Meta bought Instagram and WhatsApp not to serve users but to eliminate competitive threats. The word for what large corporations do to markets when left to their own devices is not coordination. It is monopolisation. When we celebrate big business, we are too often celebrating the winner of a race that was rigged after the fact.</span></p>
+
+        <span class="section">On trust — a performed virtue</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The argument from institutional reliability</span>We are asked to admire the reliability of large corporations. They do not poison us. They deliver on time. True. But the reliability of big business is not a moral achievement. It is a reputational constraint. Corporations do not poison their customers because poisoned customers do not return. They do, however, externalise carbon into the atmosphere, externalise risk onto taxpayers — as the 2008 financial crisis demonstrated — and externalise health costs onto communities without the political power to resist. The corporation is reliable where reliability is commercially rational and unreliable where it is not. This is not virtue. It is rational self-interest operating within whatever constraints society manages to impose.</span></p>
+
+        <span class="section">On innovation — a selective history</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">The argument from innovation</span>Bell Labs is invoked. The iPhone is invoked. The mRNA vaccine is invoked. What is not invoked is the opioid crisis, engineered by Purdue Pharma, which spent decades suppressing evidence of OxyContin's addictiveness in pursuit of profit. What is not invoked is the tobacco industry's fifty-year campaign of deliberate deception about the health effects of smoking — corporate fraud that killed millions. What is not invoked is the fossil fuel industry's documented internal suppression of its own climate science. Big business innovates. Big business also suppresses, corrupts, and occasionally destroys. A full accounting must include both columns of the ledger. The selective presentation of the innovation column alone is not analysis. It is advocacy.</span></p>
+
+        <span class="section">On employment — the view from below</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The argument from labour conditions</span>The warehouse worker at Amazon completes eleven hours of physical labour tracked by algorithm to the second, unable to take an unscheduled toilet break without it registering as time theft. The gig worker is classified — deliberately, legally, expensively — as an "independent contractor" so that the corporation can enjoy the productivity of an employee while denying them the protections of employment. The large corporation did not invent the HR department out of benevolence. It invented it to manage legal liability and to create the appearance of procedural fairness while retaining structural power over those who cannot afford to leave.</span></p>
+
+        <span class="section">On the alternative — a false dilemma</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The argument from alternatives</span>We are told: compared to what? This is a false dilemma. The alternative to unregulated large corporations is not the Soviet Union. It is regulated large corporations — with meaningful antitrust enforcement, without regulatory capture, with genuine liability for externalised costs, with tax obligations that reflect their use of public infrastructure rather than their ability to route profits through Ireland. We are not choosing between Amazon and subsistence farming. We are choosing what kind of rules govern powerful private institutions. And the record of big business in writing those rules for itself is not reassuring.</span></p>
+
+        <span class="section">On the critics of the critics</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">The argument from ingratitude</span>My opponent notes that critics of big business use Apple laptops and distribute their work through Google. This is true. It is also irrelevant. One may use the institutions available to one while arguing for their reform. The citizen who drives on public roads and pays taxes is not thereby endorsing every decision of the transport ministry. The argument from "you use it therefore you cannot criticise it" is a sophistication, not a refutation.</span></p>
+
+        <span class="section">The verdict</span>
+        <p>Big business has produced genuine goods. I do not deny it. But the case for big business systematically ignores power — over markets, over employees, over democratic processes, over the natural world. Function is not justification. A society that mistakes the coordination of production for the justification of power has confused efficiency with justice. And efficiency without justice is simply a more productive form of exploitation.</p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal(1,'opp')">
+          <div class="arg-title"><span>Argument I — Coordination becomes monopolisation</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Large corporations, once dominant, use market power to capture regulators and eliminate competition rather than serve consumers.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Amazon, Google, and Meta have demonstrably used dominance to crush rivals and entrench monopoly positions.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Coordination celebrated as efficiency is often monopolisation celebrated as scale.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The coordination function of big business cannot be separated from its tendency toward market domination and regulatory capture.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal(2,'opp')">
+          <div class="arg-title"><span>Argument II — Reliability is constraint, not virtue</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Corporations behave reliably only where reliability is commercially rational; they externalise costs where they can avoid accountability.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Carbon externalisation, the 2008 financial crisis, and environmental damage near low-income communities all demonstrate this pattern.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Behaviour constrained by law and reputation is not the same as moral achievement.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Corporate reliability is a product of external constraint, not internal virtue — and disappears where that constraint is absent.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal(3,'opp')">
+          <div class="arg-title"><span>Argument III — Innovation is selectively invoked</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A honest accounting of corporate innovation must include both what it produces and what it suppresses or corrupts.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Purdue Pharma, the tobacco industry, and fossil fuel companies all suppressed evidence of harm to protect profits — with catastrophic human cost.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Citing only beneficial innovation while ignoring corporate suppression of inconvenient science is advocacy, not analysis.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The innovation argument for big business is only valid when both columns of the ledger — creation and suppression — are honestly presented.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal(4,'opp')">
+          <div class="arg-title"><span>Argument IV — Labour protection is structural power</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Corporate HR and formal procedures exist primarily to manage legal liability, not to genuinely empower workers.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Algorithmic surveillance, gig classification, and non-compete clauses demonstrate the structural power corporations retain over workers despite formal protections.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Formal protection and genuine power parity are not the same thing.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The labour conditions argument for big business mistakes the appearance of procedural fairness for genuine worker empowerment.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal(5,'opp')">
+          <div class="arg-title"><span>Argument V — The alternatives aren't binary</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The choice is not between big business as currently constituted and some failed alternative — it is between different regulatory regimes governing large corporations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Meaningful antitrust, genuine cost externalisation liability, and fair taxation are credible alternatives to current arrangements.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Big business has systematically worked to weaken exactly these constraints through lobbying and regulatory capture.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The "compared to what?" argument is a false dilemma; the real question is what rules should govern powerful private institutions.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal(6,'opp')">
+          <div class="arg-title"><span>Argument VI — Using ≠ endorsing</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>One may use the institutions available in a society while arguing for their reform without logical contradiction.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The argument "you benefit from it therefore you cannot criticise it" would make all institutional reform impossible.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The genetic fallacy holds: the origin or use of a critique does not determine its validity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Pointing out that critics use corporate products is a rhetorical deflection, not a substantive rebuttal of their arguments.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh">
+          <div>No image linked yet</div>
+          <code>Set src in IMAGES object in script</code>
+        </div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+var IMAGES={
+  prop:{
+    1:{src:"",caption:"Proposition — The coordination argument"},
+    2:{src:"",caption:"Proposition — Institutional reliability"},
+    3:{src:"",caption:"Proposition — Corporate innovation"},
+    4:{src:"",caption:"Proposition — Labour conditions"},
+    5:{src:"",caption:"Proposition — The alternatives argument"},
+    6:{src:"",caption:"Proposition — Ingratitude and proportion"}
+  },
+  opp:{
+    1:{src:"",caption:"Opposition — Coordination becomes monopolisation"},
+    2:{src:"",caption:"Opposition — Reliability is constraint, not virtue"},
+    3:{src:"",caption:"Opposition — Innovation is selectively invoked"},
+    4:{src:"",caption:"Opposition — Labour protection is structural power"},
+    5:{src:"",caption:"Opposition — The alternatives aren't binary"},
+    6:{src:"",caption:"Opposition — Using does not mean endorsing"}
+  }
+};
+var TITLES={
+  prop:{1:"The coordination argument",2:"Institutional reliability",3:"Corporate innovation",4:"Labour conditions",5:"The alternatives argument",6:"Ingratitude and proportion"},
+  opp:{1:"Coordination becomes monopolisation",2:"Reliability is constraint, not virtue",3:"Innovation is selectively invoked",4:"Labour protection is structural power",5:"The alternatives aren't binary",6:"Using ≠ endorsing"}
+};
+
+function sw(side,view,el){
+  var s=document.getElementById(side+'-speech');
+  var l=document.getElementById(side+'-logic');
+  var body=s.closest('.col-body');
+  document.getElementById('col-'+side).querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  if(view==='speech'){
+    l.dataset.scroll=body.scrollTop;
+    s.classList.remove('hidden');l.classList.add('hidden');
+    body.scrollTop=s.dataset.scroll||0;
+  } else {
+    s.dataset.scroll=body.scrollTop;
+    s.classList.add('hidden');l.classList.remove('hidden');
+    body.scrollTop=l.dataset.scroll||0;
+  }
+}
+
+function openModal(n,side){
+  var d=IMAGES[side][n];
+  document.getElementById('mTitle').textContent=TITLES[side][n];
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.alt=TITLES[side][n];img.style.display='none';ph.style.display='none'}
+  else{img.style.display='none';ph.style.display='flex'}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none'}
+function imgFail(){document.getElementById('mImg').style.display='none';var p=document.getElementById('mPh');p.style.display='flex';p.querySelector('div').textContent='Image failed to load'}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal()}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');
+  if(!hl) return;
+  var tip=hl.querySelector('.tooltip');
+  if(!tip) return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2;
+  var vw=window.innerWidth;
+  var margin=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  var clampedX=Math.min(Math.max(cx,tw/2+margin),vw-tw/2-margin);
+  tip.style.left=clampedX+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');
+  if(!hl) return;
+  var tip=hl.querySelector('.tooltip');
+  if(tip) tip.style.display='none';
+});
+</script>
