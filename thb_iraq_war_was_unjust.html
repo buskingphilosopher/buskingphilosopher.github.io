@@ -1,0 +1,436 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;--gold2:#e2c47a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+}
+body{font-family:Georgia,var(--font-serif,serif);background:var(--bg);color:var(--text)}
+
+.motion-header{
+  padding:1.1rem 2rem .9rem;border-bottom:1px solid var(--bdr);
+  text-align:center;background:var(--bg);position:relative;
+}
+.motion-header::after{
+  content:'';position:absolute;bottom:0;left:5%;right:5%;
+  height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4;
+}
+.motion-eyebrow{
+  font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;
+  letter-spacing:.18em;color:var(--gold);margin-bottom:7px;font-weight:500;
+}
+.motion-title{font-size:22px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 80px);min-height:500px}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.col-header{padding:.85rem 1.3rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;flex-wrap:wrap}
+.pill{font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;padding:4px 10px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:var(--font-sans,sans-serif);font-size:13px;font-style:italic;color:var(--text2)}
+
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{
+  font-family:var(--font-sans,sans-serif);padding:6px 16px;font-size:12px;color:var(--text3);
+  cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;
+  background:var(--bg);margin-right:4px;user-select:none;transition:color .15s,background .15s;
+}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.3rem 1.5rem;font-size:14.5px;line-height:2;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speech-text p{margin-bottom:.9rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:var(--font-sans,sans-serif);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+
+.tooltip{
+  display:none;position:fixed;font-family:var(--font-sans,sans-serif);
+  font-size:11px;font-weight:500;font-style:normal;white-space:nowrap;z-index:200;
+  pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;
+  padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%);
+}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+
+.logic-view{display:flex;flex-direction:column;gap:1rem}
+.arg-block{border-left:2px solid;border-radius:0;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+
+.arg-title{
+  padding:8px 12px;font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;
+  justify-content:space-between;border-bottom:1px solid var(--bdr);
+}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.img-hint{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+
+.arg-premises{padding:10px 12px 6px;background:var(--bg2)}
+.premise{display:flex;gap:10px;margin-bottom:8px;font-family:var(--font-sans,sans-serif);font-size:12.5px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:11px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{
+  display:flex;gap:10px;padding:8px 12px;font-family:var(--font-sans,sans-serif);
+  font-size:12.5px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500;
+}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+
+.hidden{display:none}
+
+.modal-wrap{
+  display:none;position:absolute;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center;
+}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:8px;border:1px solid var(--bdr2);width:380px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:var(--font-sans,sans-serif);font-size:12px;font-weight:500;color:var(--text)}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:15px;line-height:1;padding:3px 7px;border-radius:4px}
+.modal-close:hover{background:var(--bg4)}
+.modal-bd{padding:.9rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;background:var(--bg3);min-height:150px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:2rem;color:var(--text3);font-family:var(--font-sans,sans-serif);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.modal-ph code{font-size:10px;background:var(--bg4);padding:2px 6px;border-radius:3px}
+.modal-cap{margin-top:.6rem;font-family:var(--font-sans,sans-serif);font-size:11px;color:var(--text3)}
+.page{position:relative;overflow:hidden}
+</style>
+
+<div class="page" id="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Believes the Iraq War was an Unjust War"</div>
+</div>
+
+<div class="columns">
+
+  <!-- PROPOSITION -->
+  <div class="col prop" id="col-prop">
+    <div class="col-header">
+      <div class="col-header-top">
+        <span class="pill prop">Proposition</span>
+        <span class="col-subtitle">Speaking for the motion</span>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('prop','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('prop','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+    <div class="col-body">
+      <div id="prop-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The just war tradition, refined over centuries from Aquinas to the present day, sets a demanding but coherent test for armed conflict. A war must be undertaken for a just cause, with right intention, by competent authority, as a last resort, and with reasonable prospect that good will outweigh harm. The Iraq war of 2003 failed, to a greater or lesser degree, on every single one of these counts. Taken together, those failures are not a collection of quibbles. They are a cumulative indictment.</p>
+
+        <p class="section">Just Cause — a vanishing foundation</p>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from just cause</span>The declared basis for military action was the disarmament of Iraq's weapons of mass destruction. We now know, from the Iraq Survey Group, that Iraq had no militarily significant WMD stocks by the mid-1990s. The foundation of the just cause had, in the most literal sense, disappeared.</span> It is true that the intelligence errors were genuine rather than fabricated — shared, indeed, by French, German and Russian agencies. But the just war tradition sets the evidential bar deliberately high, because the suffering caused by war is certain while the gains are not. The intelligence on which the case rested was, in the words of the Butler report, "sporadic and patchy." That is not a sufficient foundation for unleashing war.</p>
+
+        <p class="section">Competent Authority — acting without the world</p>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The argument from competent authority</span>The British government rightly sought a second UN Security Council resolution explicitly authorising force. It failed to obtain one — not because of a veto by one recalcitrant power, but because there was no broad international consensus for action. A claim to act on behalf of the United Nations requires more than a legal argument about earlier resolutions; it requires evidence that military enforcement is the avowed wish of the international community. That evidence was absent.</span></p>
+
+        <p class="section">Last Resort — inspectors cut short</p>
+        <p><span class="hl" data-arg="3"><span class="tooltip">The argument from last resort</span>UNMOVIC inspectors had been in Iraq only since November 2002. By March 2003 they were beginning to report greater Iraqi cooperation. The condition of last resort requires that all reasonable alternatives be genuinely exhausted. Cutting short an inspection regime that was showing results does not meet that condition. The rush to war precluded the very process that might have resolved the question of WMD without a shot fired.</span></p>
+
+        <p class="section">Proportion — a catastrophically miscalculated balance sheet</p>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The argument from proportionality</span>The most serious charge against those who planned the Iraq war is that they massively underestimated the harm military action would cause. No WMD were found. Over 100,000 civilians died — not at the hands of coalition forces alone, but as a direct consequence of the power vacuum the invasion created. The insurgency, the sectarian carnage, the collapse of civil order: none of this was adequately anticipated, because planners applied worst-case assessments to Saddam's capabilities and best-case assessments to the aftermath. That asymmetry of imagination was not a misfortune. It was a moral failure.</span></p>
+        <p>A government that could not have secured democratic support in 2003 for a war expected to cost 100,000 civilian lives had no business launching one on the assumption that it would not.</p>
+
+        <p class="section">Conduct and just peace</p>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The argument from just conduct and peace</span>The just war tradition requires not only a just entry into war but a just prosecution and a just exit. The assault on Fallujah, the abuse at Abu Ghraib, the death of Baha Mousa in British custody — these were not isolated lapses but symptomatic of an occupation for which there were no robust plans to restore civil governance, maintain law and order, or achieve a stable and democratic peace. Noble intentions, as the tradition teaches, are not enough.</span></p>
+
+        <p class="section">The verdict</p>
+        <p>The doubts over each condition did not stand in isolation. They reinforced one another. Weak just cause undermined the claim to competent authority. Lack of international consensus cast doubt on whether last resort had been reached. Uncertainty about the justice of the cause amplified concern that the balance of harm and good could not be struck. And the absence of adequate post-war planning ensured that even the limited goods achieved came at a price no honest pre-war accounting could have justified.</p>
+        <p>Noble aspirations are not enough to justify armed conflict. The Iraq war was not merely imperfect. It was, by the standards of the tradition our civilisation has developed precisely for moments like this, unjust.</p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal(1,'prop')">
+          <div class="arg-title"><span>Argument I — Just cause was absent</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A just war requires strong evidence of a grave and likely threat to justify the certain suffering war causes.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The declared cause — Iraqi WMD — proved non-existent, and the intelligence supporting it was "sporadic and patchy."</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An honest belief based on weak evidence does not meet the just war tradition's high evidential bar.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The just cause criterion was not satisfied; the foundation of the war's justification was insufficient.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal(2,'prop')">
+          <div class="arg-title"><span>Argument II — Competent authority was lacking</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Acting on behalf of the UN requires not merely a legal argument but actual international consensus.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The coalition failed to secure a second resolution, reflecting a broad lack of support rather than a single veto.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Without that consensus, the claim to competent authority was hollow.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The coalition lacked the competent authority required to act on behalf of the international community.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal(3,'prop')">
+          <div class="arg-title"><span>Argument III — Last resort was not reached</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Last resort requires that all reasonable non-military alternatives be genuinely exhausted.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>UN inspectors were mid-mission, reporting improving Iraqi cooperation, when war began.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Cutting short a functioning inspection process does not constitute exhausting alternatives.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The condition of last resort was not met; non-military options had not been fully pursued.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal(4,'prop')">
+          <div class="arg-title"><span>Argument IV — Proportionality failed catastrophically</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Proportion requires honest pre-war assessment that expected good will outweigh expected harm.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Planners applied worst-case assumptions to WMD and best-case assumptions to post-war stability — an asymmetry that was morally culpable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Over 100,000 civilians died in a conflict whose aftermath no honest accounting could have endorsed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proportionality calculation was not honestly undertaken; the harm vastly outweighed the good achieved.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal(5,'prop')">
+          <div class="arg-title"><span>Argument V — Just conduct and peace were not secured</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Just war requires not only a just entry but just conduct and a plan for a just peace.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The occupation saw abuse at Abu Ghraib, the death of Baha Mousa, and the assault on Fallujah.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No robust plan existed to restore civil governance or achieve stable democracy after the invasion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The war failed the jus in bello and jus post bellum requirements of the just war tradition.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPPOSITION -->
+  <div class="col opp" id="col-opp">
+    <div class="col-header">
+      <div class="col-header-top">
+        <span class="pill opp">Opposition</span>
+        <span class="col-subtitle">Speaking against the motion</span>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('opp','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('opp','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+    <div class="col-body">
+      <div id="opp-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I do not come before this House to defend every decision taken in the planning and prosecution of the Iraq war. The failures were real, and some were morally culpable. But the question before us is not whether the war was perfectly executed. It is whether the war was unjust. And that is a considerably harder case to make — one the proposition has not, I submit, succeeded in making.</p>
+
+        <p class="section">Just cause — an atrocious regime</p>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from just cause</span>In the Christian just war tradition, just cause is found in the righting of a grave wrong done to neighbours — specifically, the mass murder of a state's own citizens. Saddam Hussein's regime killed at least 400,000 of its own people between 1988 and 2003: 100,000 in the Anfal campaign against the Kurds alone, many with chemical weapons. Human Rights Watch classified this as genocidal. That is not merely sufficient just cause — it is overwhelming just cause. The proposition has spoken of WMD as if that were the only conceivable basis for intervention. But a genocidal regime does not require the additional charge of WMD possession to furnish just cause for military action. WMD augmented the cause and gave distant nations an interest in it. It was not the cause's foundation.</span></p>
+
+        <p class="section">Legality is not morality</p>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The argument from law vs. morality</span>Much of the case against the war rests on its alleged illegality. But legality and morality are not the same thing. UN Resolution 1441 was the product of political consensus achieved through deliberate ambiguity — some read it as authorising force, others did not. There is no international court with authority to settle the matter. More fundamentally: positive law is always subject to moral law. NATO's intervention in Kosovo was, strictly speaking, illegal — Russia would have vetoed Security Council authorisation. Yet most people now regard it as legitimate. If illegality were sufficient to establish injustice, those who plotted to assassinate Hitler would be criminals. They were heroes.</span></p>
+
+        <p class="section">Civilian casualties — a false standard</p>
+        <p><span class="hl" data-arg="3"><span class="tooltip">The argument from civilian casualties</span>The proposition cites over 100,000 civilian deaths as proof of the war's injustice. But the liberation of Europe from Nazism — almost universally regarded as a just war — cost 70,000 French civilian lives and some 500,000 German ones through Allied bombing. More critically: the vast majority of Iraqi civilian deaths were directly caused not by coalition forces but by insurgents — Sunni, Shia and Al-Qaeda — who chose to send suicide bombers into marketplaces. An agent is not equally responsible for the reactions of other agents. The insurgents had a moral obligation not to target civilians. That they chose to violate it does not transfer their guilt to those who removed a genocidal dictator.</span></p>
+
+        <p class="section">Last resort — containment was collapsing</p>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The argument from last resort</span>Was there a viable alternative to military action? Containment is the obvious candidate — but containment was failing. Since 1997, France, Russia and China had been pressing for relaxed sanctions in pursuit of oil contracts and debts owed. China was constructing a fibre-optic communications system for Iraqi air defences. The no-fly zones were straining US military capacity to breaking point. Security Council members were breaking sanctions before the invasion; there was no reason to expect greater resolve after. Dr David Kelly — no hawk, a former UN weapons inspector — concluded shortly before the invasion that military force was "regrettably the only way of finally and conclusively disarming Iraq." That is a serious judgement from a serious person.</span></p>
+
+        <p class="section">Flawed execution, not unjust war</p>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The argument from flawed execution vs. unjust war</span>The gravest errors of the war — the disbanding of the Iraqi army, the inadequate troop numbers for post-war security, the abuses at Abu Ghraib — were real and some were morally culpable. But consider: the war against Hitler was also morally vitiated. Roosevelt fabricated the Greer incident. Bomber Harris pursued vengeance. The Red Army raped an estimated two million German women. Allied forces shot German prisoners in cold blood during Normandy. Eastern Europe was delivered to Stalin. Most wars, even just ones, are morally flawed. The existence of grave errors does not, by itself, establish that a war was unjust overall.</span></p>
+
+        <p class="section">Right intention — proven over time</p>
+        <p><span class="hl" data-arg="6"><span class="tooltip">The argument from right intention</span>Right intention is not merely declared at the outset; it is demonstrated by what follows. After the failures of the initial occupation, the coalition did not walk away. It compensated, at great cost, over six years. The surge under General Petraeus achieved considerable success. And the young professional Iraqis who visited Oxford in 2011 — people who had lived under Saddam and under the occupation — were asked directly: should the invasion have happened? Their spokesman answered without hesitation: "It was good that it happened. It could have been done better. And it isn't over." We would do well to weigh that testimony before delivering our verdict.</span></p>
+
+        <p class="section">The verdict</p>
+        <p>The Iraq war was badly planned and imperfectly prosecuted. Some of its errors were morally culpable. None of that makes it unjust. Just cause existed — in the form of a genocidal regime that had murdered hundreds of thousands of its own citizens. The legal authority was disputed, not non-existent. The alternatives to force were exhausted in any realistic assessment. And right intention, however imperfectly expressed at the outset, proved itself through sustained commitment over years. This House should reject the motion.</p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal(1,'opp')">
+          <div class="arg-title"><span>Argument I — Just cause: a genocidal regime</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Just cause exists when a state murders its own citizens on a massive scale (state atrocity).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Saddam Hussein's regime killed at least 400,000 of its own people between 1988 and 2003, classified by Human Rights Watch as genocidal.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>WMD augmented but was not necessary to establish this just cause.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Overwhelming just cause for intervention existed independently of the WMD question.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal(2,'opp')">
+          <div class="arg-title"><span>Argument II — Illegality does not equal injustice</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Positive law is always subject to moral law; legality and morality are distinct questions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>UN Resolution 1441 was genuinely ambiguous; no court has authority to resolve the legal dispute.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>NATO's Kosovo intervention was illegal yet widely accepted as morally legitimate.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Even if the invasion was illegal, that is not sufficient to establish that it was unjust.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal(3,'opp')">
+          <div class="arg-title"><span>Argument III — Civilian casualties do not settle the question</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Even widely accepted just wars cause massive civilian casualties (WWII: ~570,000 French and German civilians).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The vast majority of Iraqi civilian deaths were directly caused by insurgents, not coalition forces.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Agents are not equally responsible for the independent choices of other agents who react to their actions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The scale of civilian casualties does not by itself establish the injustice of the 2003 invasion.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal(4,'opp')">
+          <div class="arg-title"><span>Argument IV — Containment had collapsed</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Last resort requires not that containment had worked, but that it would have continued to work.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Security Council members were actively undermining sanctions before the invasion; no-fly zones were unsustainable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Expert assessment (including David Kelly's) held that military force was the only remaining effective option.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The last resort condition was satisfied; viable non-military alternatives had been exhausted.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal(5,'opp')">
+          <div class="arg-title"><span>Argument V — Flawed execution ≠ unjust war</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Most wars, even just ones, involve serious moral errors in their prosecution.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The war against Hitler — universally regarded as just — involved fabricated incidents, indiscriminate bombing, and mass atrocity by Allied forces.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Moral errors in execution are grounds for condemnation of those errors, not grounds for declaring the war unjust overall.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The grave errors of the Iraq war do not, by themselves, establish that the war was unjust.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal(6,'opp')">
+          <div class="arg-title"><span>Argument VI — Right intention proved over time</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Right intention is demonstrated not merely by declared aims but by sustained commitment when things go wrong.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>After initial failures, the coalition remained, compensated, and ultimately achieved significant stabilisation through the surge.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Those who lived under both Saddam and the occupation — including Iraqi professionals — have affirmed the intervention's essential legitimacy.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Right intention was not merely declared but demonstrated through years of costly, sustained commitment.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh">
+          <div>No image linked yet</div>
+          <code>Set src in IMAGES object in script</code>
+        </div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+var IMAGES={
+  prop:{
+    1:{src:"",caption:"Proposition — Just cause was absent"},
+    2:{src:"",caption:"Proposition — Competent authority was lacking"},
+    3:{src:"",caption:"Proposition — Last resort was not reached"},
+    4:{src:"",caption:"Proposition — Proportionality failed"},
+    5:{src:"",caption:"Proposition — Just conduct and peace"}
+  },
+  opp:{
+    1:{src:"",caption:"Opposition — Just cause: a genocidal regime"},
+    2:{src:"",caption:"Opposition — Illegality does not equal injustice"},
+    3:{src:"",caption:"Opposition — Civilian casualties"},
+    4:{src:"",caption:"Opposition — Containment had collapsed"},
+    5:{src:"",caption:"Opposition — Flawed execution vs unjust war"},
+    6:{src:"",caption:"Opposition — Right intention proved over time"}
+  }
+};
+var TITLES={
+  prop:{1:"Just cause was absent",2:"Competent authority was lacking",3:"Last resort was not reached",4:"Proportionality failed",5:"Just conduct and peace"},
+  opp:{1:"Just cause: a genocidal regime",2:"Illegality does not equal injustice",3:"Civilian casualties",4:"Containment had collapsed",5:"Flawed execution ≠ unjust war",6:"Right intention proved over time"}
+};
+
+function sw(side,view,el){
+  var s=document.getElementById(side+'-speech');
+  var l=document.getElementById(side+'-logic');
+  var body=s.closest('.col-body');
+  document.getElementById('col-'+side).querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  if(view==='speech'){
+    l.dataset.scroll=body.scrollTop;
+    s.classList.remove('hidden');l.classList.add('hidden');
+    body.scrollTop=s.dataset.scroll||0;
+  } else {
+    s.dataset.scroll=body.scrollTop;
+    s.classList.add('hidden');l.classList.remove('hidden');
+    body.scrollTop=l.dataset.scroll||0;
+  }
+}
+
+function openModal(n,side){
+  var d=IMAGES[side][n];
+  document.getElementById('mTitle').textContent=TITLES[side][n];
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.alt=TITLES[side][n];img.style.display='none';ph.style.display='none'}
+  else{img.style.display='none';ph.style.display='flex'}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none'}
+function imgFail(){document.getElementById('mImg').style.display='none';var p=document.getElementById('mPh');p.style.display='flex';p.querySelector('div').textContent='Image failed to load'}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal()}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');
+  if(!hl) return;
+  var tip=hl.querySelector('.tooltip');
+  if(!tip) return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2;
+  var vw=window.innerWidth;
+  var margin=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  var clampedX=Math.min(Math.max(cx,tw/2+margin),vw-tw/2-margin);
+  tip.style.left=clampedX+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');
+  if(!hl) return;
+  var tip=hl.querySelector('.tooltip');
+  if(tip) tip.style.display='none';
+});
+</script>
