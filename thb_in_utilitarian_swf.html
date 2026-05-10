@@ -1,0 +1,674 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,var(--font-serif,serif);background:var(--bg);color:var(--text)}
+
+.motion-header{padding:1rem 2rem .8rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:6px;font-weight:500}
+.motion-title{font-size:18px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 72px);min-height:500px}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+/* Speaker switcher bar */
+.speaker-bar{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{
+  font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;
+  padding:8px 14px;cursor:pointer;white-space:nowrap;
+  border-right:1px solid var(--bdr);color:var(--text3);
+  background:transparent;border-top:none;border-bottom:none;border-left:none;
+  transition:color .15s,background .15s;flex-shrink:0;
+}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp .speaker-btn.active{color:var(--opp-red)}
+
+.col-header{padding:.7rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.65rem;margin-bottom:.5rem;flex-wrap:wrap}
+.pill{font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:var(--font-sans,sans-serif);font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:var(--font-sans,sans-serif);font-size:10px;color:var(--text3);margin-top:1px}
+
+.tabs{display:flex;gap:0;margin-top:5px}
+.tab{font-family:var(--font-sans,sans-serif);padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.2rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+/* Speaker panels */
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .formula{font-family:var(--font-sans,sans-serif);font-size:12.5px;background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:5px 12px;margin:.4rem 0 .85rem;display:block;color:var(--text);letter-spacing:.03em}
+.speech-text .section{font-family:var(--font-sans,sans-serif);font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.3rem 0 .25rem;display:block}
+
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:var(--font-sans,sans-serif);font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:var(--font-sans,sans-serif);font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;font-style:normal;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.hidden{display:none}
+
+.modal-wrap{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:8px;border:1px solid var(--bdr2);width:380px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.65rem 1rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:var(--font-sans,sans-serif);font-size:12px;font-weight:500;color:var(--text)}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:15px;line-height:1;padding:3px 7px;border-radius:4px}
+.modal-close:hover{background:var(--bg4)}
+.modal-bd{padding:.85rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;background:var(--bg3);min-height:140px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:1.5rem;color:var(--text3);font-family:var(--font-sans,sans-serif);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.modal-ph code{font-size:10px;background:var(--bg4);padding:2px 6px;border-radius:3px}
+.modal-cap{margin-top:.5rem;font-family:var(--font-sans,sans-serif);font-size:11px;color:var(--text3)}
+.page{position:relative;overflow:hidden}
+</style>
+
+<div class="page" id="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Believes in the Adoption of a Utilitarian Social Welfare Function"</div>
+</div>
+
+<div class="columns">
+
+  <!-- ═══ PROPOSITION COLUMN ═══ -->
+  <div class="col prop" id="col-prop">
+
+    <div class="speaker-bar prop" id="prop-speaker-bar">
+      <button class="speaker-btn active" onclick="switchSpeaker('prop','broome',this)">Broome</button>
+      <button class="speaker-btn" onclick="switchSpeaker('prop','harsanyi',this)">Harsanyi</button>
+    </div>
+
+    <!-- BROOME HEADER -->
+    <div class="col-header" id="prop-broome-header">
+      <div class="col-header-top">
+        <span class="pill prop">Proposition</span>
+        <span class="col-subtitle">John Broome</span>
+      </div>
+      <div class="col-position">For the utilitarian SWF — from philosophical foundations</div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('prop','broome','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('prop','broome','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+
+    <!-- HARSANYI HEADER -->
+    <div class="col-header hidden" id="prop-harsanyi-header">
+      <div class="col-header-top">
+        <span class="pill prop">Proposition</span>
+        <span class="col-subtitle">John Harsanyi</span>
+      </div>
+      <div class="col-position">For the utilitarian SWF — from rational choice theory</div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('prop','harsanyi','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('prop','harsanyi','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+
+    <div class="col-body" id="prop-body">
+
+      <!-- ── BROOME ── -->
+      <div class="speaker-panel active" id="prop-broome-panel">
+        <div id="prop-broome-speech" class="speech-text">
+          <p class="salut">Mr President,</p>
+          <p>We are here to debate how a society should aggregate the wellbeing of its members into a single evaluative standard. The question is not whether to aggregate. The question is how to do it honestly.</p>
+          <p>I want to defend the utilitarian social welfare function — the view that the goodness of a social state is the sum of the wellbeing of the individuals within it — as the conclusion that follows from taking seriously the equal moral worth of persons and individual wellbeing as the fundamental currency of social evaluation.</p>
+          <span class="section">On equal moral worth and the separateness of persons</span>
+          <p><span class="hl" data-arg="1"><span class="tooltip">The argument from equal moral worth</span>The equal moral worth of persons means that a unit of wellbeing gained by one person is worth exactly as much as a unit gained by any other. To say otherwise — to say that a gain to a worse-off person is worth more than an equal gain to a better-off person — is not to respect persons equally. It is to discriminate between them on the basis of their position in a welfare distribution. Each person's wellbeing enters the utilitarian social welfare function separately and equally: this is what equal moral worth requires.</span></p>
+          <span class="section">On diminishing marginal utility</span>
+          <p><span class="hl" data-arg="2"><span class="tooltip">The argument from diminishing marginal utility</span>An extra hundred pounds means more to a poor person than to a rich one. But this argument supports utilitarianism, not prioritarianism. If redistribution to the poor produces more wellbeing, summing wellbeing already favours that redistribution. Prioritarianism adds an extra positional weighting on top — claiming that even if wellbeing gains were identical, we should still prefer gains to go to the worse-off. It is this specifically prioritarian claim that I reject. It introduces a value beyond wellbeing into a framework that is supposed to be about wellbeing.</span></p>
+          <span class="section">On what grounds the prioritarian weighting</span>
+          <p><span class="hl" data-arg="3"><span class="tooltip">The argument from unexplained positional weighting</span>The prioritarian says a unit of wellbeing at welfare level five is worth more than a unit at welfare level fifteen. But ex hypothesi the wellbeing gain is identical. The extra weight must come from the person's positional rank — but no satisfactory account has been given of why being worse off, independent of wellbeing, generates additional moral weight. The observation that it is worse to be worse off supports concern for absolute badness of low welfare levels — not the specifically prioritarian claim that gains to the worse-off count for more.</span></p>
+          <span class="section">On the repugnant conclusion</span>
+          <p><span class="hl" data-arg="4"><span class="tooltip">The argument from the repugnant conclusion</span>The repugnant conclusion is not distinctive to utilitarianism. Prioritarianism also sums positively weighted wellbeing, and additional people's positive wellbeing is always a positive contribution. The problem belongs to variable-population ethics generally, and the right response is to examine what it tells us about population ethics — not to abandon sum-ranking in fixed-population contexts where its implications are far less contested.</span></p>
+          <span class="section">On tractability and theoretical determinacy</span>
+          <p><span class="hl" data-arg="5"><span class="tooltip">The argument from tractability and determinacy</span>The utilitarian SWF generates determinate recommendations. Prioritarianism requires the specification of a weighting function — how much extra weight to give to the worse-off as a function of welfare level — and the prioritarian principle itself does not determine this choice. This is not a merely practical problem. It is a theoretical indeterminacy at the heart of prioritarianism. A framework that cannot tell us, even in principle, how much priority to give the worse-off has deferred its central question rather than answering it.</span></p>
+          <p>Sum the wellbeing. Weight each person equally. Follow the argument where it leads.</p>
+          <p><em>Thank you.</em></p>
+        </div>
+        <div id="prop-broome-logic" class="logic-view hidden">
+          <div class="arg-block" data-arg="1" onclick="openModal('broome',1,'prop')">
+            <div class="arg-title"><span>Argument I — Equal moral worth supports sum-ranking</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Equal moral worth means each person's wellbeing counts equally in social evaluation.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The utilitarian SWF gives each person's wellbeing equal and separate weight.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Weighting gains of worse-off persons more heavily discriminates on the basis of positional rank, which equal worth forbids.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Equal moral worth of persons grounds the utilitarian SWF, not the prioritarian alternative.</span></div>
+          </div>
+          <div class="arg-block" data-arg="2" onclick="openModal('broome',2,'prop')">
+            <div class="arg-title"><span>Argument II — DMU already does prioritarianism's work</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Diminishing marginal utility means a resource produces more wellbeing for worse-off persons.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The utilitarian SWF, summing wellbeing, already captures this and already favours redistribution.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Prioritarianism's additional positional weighting introduces something beyond wellbeing into a wellbeing-based framework.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The egalitarian implications attributed to prioritarianism are already delivered by utilitarianism through diminishing marginal utility.</span></div>
+          </div>
+          <div class="arg-block" data-arg="3" onclick="openModal('broome',3,'prop')">
+            <div class="arg-title"><span>Argument III — Prioritarian weighting is ungrounded</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The prioritarian claim is that identical wellbeing gains matter more when accruing to worse-off persons.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Since the wellbeing gain is ex hypothesi identical, the extra weight must derive from positional rank, not wellbeing.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>No satisfactory account has been given of why positional rank independent of wellbeing generates additional moral weight.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The specifically prioritarian claim introduces an unexplained value into what is supposed to be a wellbeing-based framework.</span></div>
+          </div>
+          <div class="arg-block" data-arg="4" onclick="openModal('broome',4,'prop')">
+            <div class="arg-title"><span>Argument IV — Repugnant conclusion is shared</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The repugnant conclusion arises for any additive framework treating additional people's positive wellbeing as a social good.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Prioritarianism is such a framework — it sums positively weighted wellbeing.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The repugnant conclusion is therefore a shared challenge, not distinctive to utilitarianism.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The repugnant conclusion cannot be wielded against the utilitarian SWF in favour of prioritarianism since both face it equally.</span></div>
+          </div>
+          <div class="arg-block" data-arg="5" onclick="openModal('broome',5,'prop')">
+            <div class="arg-title"><span>Argument V — Utilitarian SWF is determinate</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>A social welfare function must generate determinate rankings to provide practical guidance.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The prioritarian SWF requires a weighting function not determined by the prioritarian principle itself.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The utilitarian SWF requires no additional specification — equal weighting and sum-ranking fully determine it.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The utilitarian SWF is theoretically complete where the prioritarian is indeterminate at precisely the point where guidance is most needed.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── HARSANYI ── -->
+      <div class="speaker-panel" id="prop-harsanyi-panel">
+        <div id="prop-harsanyi-speech" class="speech-text">
+          <p class="salut">Mr President,</p>
+          <p>My colleague Professor Broome has made the philosopher's case for the utilitarian social welfare function. I want to make a different kind of case — the case from rational choice theory, from the foundations of decision under uncertainty, and from what I believe is the most rigorous derivation of utilitarian conclusions in the history of moral philosophy.</p>
+          <p>I want to show you that utilitarianism is not merely intuitively plausible, or theoretically elegant. It is the conclusion that follows necessarily from axioms about rational behaviour that virtually everyone accepts.</p>
+          <span class="section">On the veil of ignorance and rational choice</span>
+          <p><span class="hl" data-arg="1"><span class="tooltip">The argument from equal moral worth</span>Suppose you do not know which position in society you will occupy — you are behind a veil of ignorance. A rational person in this position would not choose Rawls's maximin principle, which requires infinite risk aversion. Rational decision-making under uncertainty — as von Neumann and Morgenstern showed — is expected utility maximisation. If each social position is equally likely, then maximising expected utility means maximising average utility across all positions. And maximising average utility just is the utilitarian social welfare function. Maximin is a phobia masquerading as a principle of justice.</span></p>
+          <span class="section">On the aggregation theorem</span>
+          <p><span class="hl" data-arg="6"><span class="tooltip">The argument from Harsanyi's aggregation theorem</span>In 1955, I proved what is now known as Harsanyi's Aggregation Theorem. If three conditions hold — individual rationality (preferences satisfy the von Neumann-Morgenstern axioms), social rationality (social preferences also satisfy those axioms), and the Pareto principle (if everyone is indifferent between two lotteries, society is indifferent) — then it follows mathematically that the social welfare function must be a weighted sum of individual utility functions. With equal weighting, we get the utilitarian SWF. This is not a philosophical argument that can be resisted by appeal to intuition. It is a mathematical theorem.</span></p>
+          <span class="section">On the objection from fairness</span>
+          <p><span class="hl" data-arg="3"><span class="tooltip">The argument from unexplained positional weighting</span>The standard objection is that utilitarianism allows the sacrifice of some individuals for aggregate gain. But this rests on a misunderstanding. The utilitarian SWF takes every person's utility seriously and allows none to be systematically discounted. The objection relies on contrived extreme cases — the utility monster, organ harvesting — that are highly unlikely to obtain in practice. When a mathematical theorem and a contrived intuition conflict, the appropriate response is not always to abandon the theorem. Sometimes it is to revise the intuition.</span></p>
+          <span class="section">On cardinality and interpersonal comparison</span>
+          <p><span class="hl" data-arg="5"><span class="tooltip">The argument from tractability and determinacy</span>Opponents will object that the utilitarian SWF requires cardinal utility and interpersonal comparisons. This objection has less force than it once did. The von Neumann-Morgenstern framework provides a natural method for cardinal measurement through preferences over lotteries. And the interpersonal comparison problem is not unique to utilitarianism — any SWF, including the prioritarian, requires interpersonal comparisons. The prioritarian must compare not just utility levels but the moral weights attached to them, which is, if anything, a more demanding requirement.</span></p>
+          <span class="section">On the priority view as irrational risk aversion</span>
+          <p><span class="hl" data-arg="7"><span class="tooltip">The argument from prioritarianism as disguised risk aversion</span>Behind the veil of ignorance, every gain in any position contributes equally to expected utility. A gain of ten units of wellbeing in position one is worth exactly as much as a gain of ten units in position ten. The utilitarian SWF correctly captures this impartiality. The prioritarian SWF gives extra weight to gains in lower positions — which means, from behind the veil, it is giving extra weight to what happens to you in worse positions. This is just risk aversion — a preference for distributions skewed toward better outcomes in worse positions. There is no rational basis for this particular risk attitude over any other. Prioritarianism is not a principle of justice. It is a risk attitude dressed up as one.</span></p>
+          <p><em>Thank you.</em></p>
+        </div>
+        <div id="prop-harsanyi-logic" class="logic-view hidden">
+          <div class="arg-block" data-arg="1" onclick="openModal('harsanyi',1,'prop')">
+            <div class="arg-title"><span>Argument I — Veil of ignorance supports average utilitarianism</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Rational decision-making under uncertainty is expected utility maximisation (von Neumann-Morgenstern).</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Behind the veil of ignorance, each social position is equally likely, so maximising expected utility means maximising average utility.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Maximising average utility across all social positions just is the utilitarian social welfare function.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Rational choice under the veil of ignorance selects the utilitarian SWF; Rawlsian maximin requires irrational extreme risk aversion.</span></div>
+          </div>
+          <div class="arg-block" data-arg="6" onclick="openModal('harsanyi',6,'prop')">
+            <div class="arg-title"><span>Argument II — The aggregation theorem</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>If individual preferences are rational (satisfy vNM axioms) and social preferences are rational, and if the Pareto principle holds, then the SWF must be a weighted sum of individual utilities.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>These three conditions — individual rationality, social rationality, Pareto — are virtually universally accepted.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>With equal weighting, the weighted sum is the utilitarian SWF.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The utilitarian SWF follows as a mathematical theorem from axioms that are nearly universally accepted; resistance requires rejecting one of those axioms.</span></div>
+          </div>
+          <div class="arg-block" data-arg="3" onclick="openModal('harsanyi',3,'prop')">
+            <div class="arg-title"><span>Argument III — Fairness objections rely on contrived cases</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The utilitarian SWF counts every person's interests equally and discounts none systematically.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Objections from fairness rely on deliberately contrived extreme cases unlikely to arise in practice.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>When a mathematical theorem conflicts with a contrived intuition, revising the intuition is often the appropriate response.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Intuition-based fairness objections do not defeat the aggregation theorem; they may instead reveal limits of the intuitions themselves.</span></div>
+          </div>
+          <div class="arg-block" data-arg="5" onclick="openModal('harsanyi',5,'prop')">
+            <div class="arg-title"><span>Argument IV — Cardinality problem afflicts all SWFs</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The vNM framework provides a natural cardinal utility measure through lottery preferences.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>All SWFs, including the prioritarian, require interpersonal comparison of some kind.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The prioritarian's comparison of moral weights is more demanding than the utilitarian's comparison of utility levels.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The cardinality and interpersonal comparison objection applies to all SWFs and does not tell against the utilitarian SWF specifically.</span></div>
+          </div>
+          <div class="arg-block" data-arg="7" onclick="openModal('harsanyi',7,'prop')">
+            <div class="arg-title"><span>Argument V — Prioritarianism is disguised risk aversion</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Behind the veil of ignorance, every positional gain contributes equally to expected utility — the utilitarian captures this impartiality.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The prioritarian weighting of lower-position gains is equivalent to preferring distributions skewed toward better outcomes in worse positions — a specific risk attitude.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>There is no rational basis for this specific risk attitude over any other.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Prioritarianism, viewed from behind the veil of ignorance, is a risk attitude masquerading as a principle of justice.</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end prop col-body -->
+  </div><!-- end prop col -->
+
+  <!-- ═══ OPPOSITION COLUMN ═══ -->
+  <div class="col opp" id="col-opp">
+
+    <div class="speaker-bar opp" id="opp-speaker-bar">
+      <button class="speaker-btn active" onclick="switchSpeaker('opp','adler',this)">Adler</button>
+      <button class="speaker-btn" onclick="switchSpeaker('opp','voorhoeve',this)">Voorhoeve</button>
+    </div>
+
+    <!-- ADLER HEADER -->
+    <div class="col-header" id="opp-adler-header">
+      <div class="col-header-top">
+        <span class="pill opp">Opposition</span>
+        <span class="col-subtitle">Matthew Adler</span>
+      </div>
+      <div class="col-position">For the prioritarian SWF — against the utilitarian</div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('opp','adler','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('opp','adler','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+
+    <!-- VOORHOEVE HEADER -->
+    <div class="col-header hidden" id="opp-voorhoeve-header">
+      <div class="col-header-top">
+        <span class="pill opp">Opposition</span>
+        <span class="col-subtitle">Alex Voorhoeve</span>
+      </div>
+      <div class="col-position">For the egalitarian SWF — against both utilitarian and prioritarian</div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('opp','voorhoeve','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('opp','voorhoeve','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+
+    <div class="col-body" id="opp-body">
+
+      <!-- ── ADLER ── -->
+      <div class="speaker-panel active" id="opp-adler-panel">
+        <div id="opp-adler-speech" class="speech-text">
+          <p class="salut">Mr President,</p>
+          <p>My opponent's defence of the utilitarian social welfare function is careful and sophisticated. It is also wrong — and wrong in ways that matter deeply for how we think about justice, distribution, and the moral evaluation of social states.</p>
+          <p>I want to defend prioritarianism: that benefiting people matters more the worse off those people are. Not as sentiment, and not as confusion with egalitarianism, but as the conclusion that follows from taking seriously what moral philosophy says about wellbeing, value, and our duties to one another.</p>
+          <span class="section">On equal moral worth — a misappropriated argument</span>
+          <p><span class="hl" data-arg="1"><span class="tooltip">The argument from equal moral worth</span>My opponent argues that equal moral worth supports utilitarianism, because weighting the gains of the worse-off more heavily is discrimination. This gets the implication of equal moral worth precisely backwards. Consider: two people are drowning. One is a strong swimmer; one is a non-swimmer in immediate mortal danger. Equal moral worth does not tell us to flip a coin. It tells us to save the non-swimmer first — because the urgency of her need is greater. The prioritarian weighting is precisely an expression of equal moral worth, correctly understood: equal moral consideration sensitive to how badly off that person is, because being badly off makes claims on assistance more urgent. This is not discrimination. It is responsiveness.</span></p>
+          <span class="section">On diminishing marginal utility — a distinction that is not a confusion</span>
+          <p><span class="hl" data-arg="2"><span class="tooltip">The argument from diminishing marginal utility</span>My opponent conflates two distinct claims. Diminishing marginal utility is empirical — an extra pound produces more wellbeing for a poor person. Prioritarianism is normative — a unit of wellbeing gained by a worse-off person contributes more to social welfare than an identical unit gained by a better-off person. These are independent. Suppose we could equalise the marginal utility of resources across all persons — make an extra pound produce identical wellbeing gains for everyone. In that world, the utilitarian would be indifferent between giving resources to the worst-off or best-off person. The prioritarian would not be indifferent. I submit the prioritarian's intuition is correct and the utilitarian's indifference is a failure of moral sensitivity.</span></p>
+          <span class="section">On what grounds the prioritarian weighting</span>
+          <p><span class="hl" data-arg="3"><span class="tooltip">The argument from unexplained positional weighting</span>My opponent challenges prioritarianism to explain what grounds the extra weight given to the worse-off. The challenge can be met. The weighting is grounded in the moral significance of the absolute level of wellbeing at which a person finds herself. Being badly off creates stronger claims on the moral concern of others. The worse off you are, the greater the urgency of your situation and the greater the moral value of improving it. This is not an invocation of something beyond wellbeing. It is a claim about the relationship between absolute welfare level and the moral weight of gains at that level — the recognition that a commitment to wellbeing, taken seriously, must be sensitive to where in the welfare distribution a gain occurs.</span></p>
+          <span class="section">On prioritarianism's independence from egalitarianism</span>
+          <p><span class="hl" data-arg="6"><span class="tooltip">The argument distinguishing prioritarianism from egalitarianism</span>The egalitarian values equality as such. If two people have identical wellbeing levels, reducing both by the same amount makes the world neither better nor worse — equality is preserved. The prioritarian values absolute welfare levels weighted by a strictly concave function. Reducing both equally is straightforwardly bad — less wellbeing is worse, and no distributional story changes this. Prioritarianism does not value equality as such. It values the wellbeing of worse-off individuals more — avoiding the levelling-down objection that afflicts egalitarianism. It is the sophisticated middle position between utilitarian indifference to distribution and egalitarian indifference to absolute levels.</span></p>
+          <span class="section">On indeterminacy — a challenge for both sides</span>
+          <p><span class="hl" data-arg="4"><span class="tooltip">The argument from indeterminacy</span>My opponent argues that prioritarianism faces indeterminacy because the weighting function is not determined by the prioritarian principle. True. But the utilitarian faces an exactly parallel challenge: the SWF requires specification of a cardinal wellbeing measure, and different measures give different social rankings. The choice is not determined by the utilitarian principle. This is the measurement problem, at least as serious as the weighting problem. All serious normative frameworks face deep indeterminacy in application. Indeterminacy in application is the normal condition of ethical theory meeting complexity — not a decisive objection to prioritarianism specifically.</span></p>
+          <span class="section">On tractability — practical convenience is not moral truth</span>
+          <p><span class="hl" data-arg="5"><span class="tooltip">The argument from tractability and determinacy</span>Tractability matters — but it is not a substitute for truth. Cost-benefit analysis as currently practised is implicitly utilitarian, and it is deeply inadequate as a guide to distributive justice. It assigns value proportional to willingness to pay — a function of income — and thereby systematically underweights the interests of the poor. This is not a feature. It is a flaw following directly from the additive, unweighted structure of the utilitarian framework. The tractability of utilitarianism in cost-benefit analysis is partly a product of its moral failures. A framework that ignores the stronger claims of the worse-off is easier to operationalise than one that takes them seriously. This is not a recommendation.</span></p>
+          <span class="section">On the utilitarian's indifference to distribution</span>
+          <p><span class="hl" data-arg="7"><span class="tooltip">The argument from distributional indifference</span>The utilitarian is indifferent between a world where one person gains ten units of wellbeing and a world where ten people each gain one unit — provided the sum is the same. This indifference to distribution in the fixed-population case is precisely what prioritarianism rejects. A gain of ten units to one already well-off person is not morally equivalent to ten gains of one unit to ten worse-off persons, even if the sums are equal. The distribution matters. A framework for social evaluation that cannot see this has missed something important about what it means to care about persons.</span></p>
+          <p><em>Thank you.</em></p>
+        </div>
+        <div id="opp-adler-logic" class="logic-view hidden">
+          <div class="arg-block" data-arg="1" onclick="openModal('adler',1,'opp')">
+            <div class="arg-title"><span>Argument I — Equal moral worth grounds prioritarianism</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Equal moral worth requires giving equal moral consideration to each person's situation, including how badly off they are.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Being worse off generates greater urgency of need and therefore stronger claims on moral assistance.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The prioritarian weighting reflects this urgency — it is responsiveness, not discrimination.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Equal moral worth, correctly understood, grounds prioritarian weighting rather than the utilitarian's indifference to position.</span></div>
+          </div>
+          <div class="arg-block" data-arg="2" onclick="openModal('adler',2,'opp')">
+            <div class="arg-title"><span>Argument II — DMU and prioritarianism are independent claims</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Diminishing marginal utility is empirical; prioritarianism is normative — these are logically independent claims.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>If marginal utility were equalised, the utilitarian would be indifferent to distribution; the prioritarian would not — revealing the genuine normative disagreement.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The prioritarian's non-indifference in this hypothetical reflects a correct moral intuition utilitarianism cannot express.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Diminishing marginal utility does not do prioritarianism's normative work; the specifically prioritarian claim is independently required.</span></div>
+          </div>
+          <div class="arg-block" data-arg="3" onclick="openModal('adler',3,'opp')">
+            <div class="arg-title"><span>Argument III — Prioritarian weighting is grounded</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The moral significance of absolute welfare level — that being badly off creates stronger claims — is itself a wellbeing-based consideration.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>A commitment to wellbeing that is sensitive to the urgency of low welfare levels is more complete than one that treats all levels as equally urgent.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The strictly concave transformation f articulates this sensitivity in a formally precise way.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The prioritarian weighting is grounded in the moral significance of absolute welfare levels — not an arbitrary addition to the wellbeing framework.</span></div>
+          </div>
+          <div class="arg-block" data-arg="4" onclick="openModal('adler',4,'opp')">
+            <div class="arg-title"><span>Argument IV — Indeterminacy afflicts both frameworks equally</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The utilitarian SWF requires a cardinal wellbeing measure whose specification is not determined by the utilitarian principle — the measurement problem is as serious as the weighting problem.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>All serious normative frameworks face deep indeterminacy in application.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Indeterminacy cannot be a decisive objection to a normative principle without equally defeating its utilitarian rival.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The indeterminacy objection applies with equal force to the utilitarian SWF and cannot be wielded selectively against prioritarianism.</span></div>
+          </div>
+          <div class="arg-block" data-arg="5" onclick="openModal('adler',5,'opp')">
+            <div class="arg-title"><span>Argument V — Tractability reflects moral failure</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Cost-benefit analysis operationalises the utilitarian SWF by weighting outcomes by willingness to pay, systematically underweighting the poor.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The tractability of the utilitarian framework is partly a product of its indifference to distributional claims.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Practical convenience cannot substitute for moral truth.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The tractability of the utilitarian SWF is a symptom of its failure to capture the stronger claims of worse-off persons.</span></div>
+          </div>
+          <div class="arg-block" data-arg="6" onclick="openModal('adler',6,'opp')">
+            <div class="arg-title"><span>Argument VI — Prioritarianism avoids levelling-down</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Egalitarianism values equality as such and cannot condemn levelling down — making everyone equally worse off.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Prioritarianism values absolute welfare levels weighted by a concave function — levelling down is therefore unambiguously bad.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Prioritarianism is thus distinct from egalitarianism and avoids its most troubling implication.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Prioritarianism is the correct middle ground between utilitarian indifference to distribution and egalitarian indifference to absolute welfare levels.</span></div>
+          </div>
+          <div class="arg-block" data-arg="7" onclick="openModal('adler',7,'opp')">
+            <div class="arg-title"><span>Argument VII — Utilitarian indifference is moral blindness</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The utilitarian SWF is indifferent between equal sums achieved through concentration on one person and equal sums distributed across many worse-off persons.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>This indifference to distribution treats morally different situations as equivalent.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>A SWF that cannot register the moral difference between these cases is inadequate as a framework for justice.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The utilitarian SWF's structural indifference to distribution is moral inadequacy; the prioritarian SWF sees what utilitarianism cannot.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── VOORHOEVE ── -->
+      <div class="speaker-panel" id="opp-voorhoeve-panel">
+        <div id="opp-voorhoeve-speech" class="speech-text">
+          <p class="salut">Mr President,</p>
+          <p>I find myself disagreeing with both speakers who have preceded me — and doing so for reasons that expose a shared assumption underlying both the utilitarian and prioritarian positions that deserves to be challenged.</p>
+          <p>Professor Adler has correctly identified that the utilitarian SWF is morally inadequate. But the prioritarian SWF makes a different and equally serious error. It focuses exclusively on absolute welfare levels and ignores the relational facts about inequality that matter morally. I want to argue for an egalitarian social welfare function — one sensitive not just to absolute welfare levels but to the relations between persons and the intrinsic moral significance of equality.</p>
+          <span class="section">On what egalitarianism is — and what it is not</span>
+          <p><span class="hl" data-arg="6"><span class="tooltip">The argument distinguishing prioritarianism from egalitarianism</span>Both my opponents will invoke Parfit's levelling-down objection. I accept that a crude egalitarianism — valuing equality as an end in itself regardless of absolute welfare levels — faces this objection. But this is not the only form of egalitarianism available. The view I defend is closer to relational egalitarianism: what matters is not merely how well off each person is in isolation, but how persons stand in relation to one another. Equality matters because inequality — of the relevant kind, in the relevant domains — is a wrong done to persons, not merely a sub-optimal pattern in a distribution.</span></p>
+          <span class="section">On what prioritarianism misses</span>
+          <p><span class="hl" data-arg="7"><span class="tooltip">The argument from distributional indifference</span>The prioritarian SWF gives extra weight to gains accruing to worse-off persons. This captures something important — the urgency of helping those badly off. But it misses something equally important. Suppose we can either give a large benefit to one person at level five, raising her to level fifteen; or give smaller benefits to five people at level five, raising each to level eight. The total weighted welfare gain may be similar. But there is something morally significant about the second option that neither framework captures: it treats the five people as claimants with equal standing, rather than allowing the greater benefit to one to simply dominate the smaller benefits to many. The separateness of persons applies equally against a prioritarianism that aggregates weighted welfare.</span></p>
+          <span class="section">On the claims-across-persons problem</span>
+          <p><span class="hl" data-arg="3"><span class="tooltip">The argument from unexplained positional weighting</span>T.M. Scanlon has argued that what we owe to each other cannot be captured by aggregative frameworks of any kind. When we weigh claims of different persons against each other, we are not performing arithmetic. We are asking what each person has reason to demand, and what each person can reasonably be expected to accept. Both the utilitarian and the prioritarian make the same fundamental error: they aggregate. They produce a number and rank distributions by it. But moral reasoning about distributions requires comparative evaluation of claims, person by person, in a way that respects the separateness of persons not merely by counting them separately but by taking seriously that each person's claim is owed a response she herself could accept.</span></p>
+          <span class="section">On levelling-down — a more careful response</span>
+          <p><span class="hl" data-arg="4"><span class="tooltip">The argument from indeterminacy</span>The levelling-down objection has force against a view that treats equality as independently valuable, separable from and potentially overriding the welfare of persons. But the egalitarian view I defend does not treat equality this way. It treats equality as valuable because of what inequality does to persons — what it means for persons to stand in relations of significant inequality, to be marked as having lesser standing. When we level down, we do not produce the relational good of equality — we produce equal misery in which relational facts about standing may be unchanged or worse. The levelling-down objection does not touch relational egalitarianism.</span></p>
+          <span class="section">On the difference between priority and equality</span>
+          <p><span class="hl" data-arg="1"><span class="tooltip">The argument from equal moral worth</span>Prioritarianism captures the intuition that we should weight the interests of those badly off more heavily. But it does so in an entirely individualistic way — asking only about absolute welfare levels in isolation, not about how persons stand in relation to one another. Two distributions identical in their vector of absolute welfare levels are ranked identically by the prioritarian, regardless of whether those levels are achieved through a history of exploitation, discrimination, or systematic subordination. This is not just a practical objection. Equality matters not merely as a pattern in a distribution but as a feature of relationships between persons. A society in which some are systematically disadvantaged — even if absolute levels are acceptable — is one in which persons do not stand as equals. Neither the utilitarian nor the prioritarian SWF can capture this relational fact.</span></p>
+          <span class="section">On what egalitarianism requires in practice</span>
+          <p><span class="hl" data-arg="5"><span class="tooltip">The argument from tractability and determinacy</span>I am not arguing that egalitarianism requires perfect equality of outcomes. I am arguing that a SWF sensitive to distributional inequality — to the gaps between persons and the relations those gaps constitute — is more adequate than one considering only absolute welfare levels, weighted or unweighted. In practice: a policy raising total welfare while increasing inequality may be worse than one raising it less while reducing inequality — not because equality is traded off against welfare, but because the relational facts about equality are themselves part of what a welfare-sensitive account of social goodness must incorporate. Neither the utilitarian tractability argument nor the prioritarian weighting argument can see this.</span></p>
+          <span class="section">The conclusion</span>
+          <p><span class="hl" data-arg="2"><span class="tooltip">The argument from diminishing marginal utility</span>Both the utilitarian and prioritarian SWFs take individual welfare seriously. They differ in whether they weight it by absolute level. What neither takes seriously is the relational dimension of equality — the fact that how persons stand in relation to one another is itself a matter of moral significance that cannot be captured by any function of the vector of individual welfare levels, however weighted. An adequate SWF must be sensitive to this relational dimension. Neither the utilitarian nor the prioritarian framework provides it.</span></p>
+          <p><em>Thank you.</em></p>
+        </div>
+        <div id="opp-voorhoeve-logic" class="logic-view hidden">
+          <div class="arg-block" data-arg="6" onclick="openModal('voorhoeve',6,'opp')">
+            <div class="arg-title"><span>Argument I — Relational egalitarianism avoids levelling-down</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Crude egalitarianism values distributional equality as such, regardless of absolute welfare levels — and faces the levelling-down objection.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Relational egalitarianism values equality because of what inequality does to persons — it wrongs them by placing them in relations of inferior standing.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Levelling down does not produce this relational good — it produces equal misery — so the objection does not reach relational egalitarianism.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Relational egalitarianism is immune to the levelling-down objection that defeats crude egalitarianism; it is a distinct and more defensible position.</span></div>
+          </div>
+          <div class="arg-block" data-arg="7" onclick="openModal('voorhoeve',7,'opp')">
+            <div class="arg-title"><span>Argument II — Prioritarianism ignores separateness of persons</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The separateness of persons requires that each person's claim is owed a response she herself could accept — not merely that she is counted as a separate input to an aggregate.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Prioritarianism aggregates weighted welfare and thereby allows large weighted gains to one person to dominate smaller gains to many, without regard to the equal standing of those many as claimants.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>This is a failure of the separateness of persons as thoroughly as utilitarianism's unweighted aggregation.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Prioritarianism does not escape the separateness of persons objection; it merely relocates the problem from unweighted to weighted aggregation.</span></div>
+          </div>
+          <div class="arg-block" data-arg="3" onclick="openModal('voorhoeve',3,'opp')">
+            <div class="arg-title"><span>Argument III — Aggregation is the shared error</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Moral reasoning about distribution requires comparative evaluation of claims person by person — asking what each can reasonably accept.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Both utilitarian and prioritarian SWFs aggregate to a number and rank by that number — bypassing this comparative structure.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>An egalitarian SWF sensitive to relational facts better captures the structure of moral reasoning that Scanlonian contractualism requires.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Both the utilitarian and prioritarian frameworks share the error of aggregation; what is needed is a framework sensitive to the comparative claims structure of moral reasoning.</span></div>
+          </div>
+          <div class="arg-block" data-arg="1" onclick="openModal('voorhoeve',1,'opp')">
+            <div class="arg-title"><span>Argument IV — Prioritarianism is individualistic; equality is relational</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Prioritarianism considers only the absolute welfare level of each person in isolation — two distributions with identical welfare vectors are ranked identically regardless of their history or relational structure.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Equality matters as a feature of relationships between persons — a society in which some are systematically disadvantaged fails relational equality even if absolute levels are acceptable.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>This relational fact cannot be captured by any function of the individual welfare vector, however weighted.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The prioritarian SWF, being purely individualistic, cannot capture the relational dimension of equality that an adequate social welfare function must incorporate.</span></div>
+          </div>
+          <div class="arg-block" data-arg="2" onclick="openModal('voorhoeve',2,'opp')">
+            <div class="arg-title"><span>Argument V — Relational equality is a welfare-based consideration</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The relational facts about inequality — what it means for persons to stand in relations of subordination or disadvantage — are part of what affects how persons fare.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>An account of social goodness that ignores these relational facts is incomplete as a welfare-sensitive framework, not just as a justice framework.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Neither the utilitarian nor the prioritarian SWF, operating solely on individual welfare vectors, can incorporate these relational facts.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The relational dimension of equality is not an external constraint on welfare maximisation but part of what a complete welfare-sensitive social evaluation must include.</span></div>
+          </div>
+          <div class="arg-block" data-arg="5" onclick="openModal('voorhoeve',5,'opp')">
+            <div class="arg-title"><span>Argument VI — Policy evaluation must be distribution-sensitive</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>A policy raising total welfare while increasing inequality may be worse than one raising it less while reducing inequality.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>This is not because equality is traded off against welfare, but because relational equality is itself part of what a welfare-sensitive evaluation must capture.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Neither the utilitarian nor the prioritarian SWF can register this consideration since both operate solely on individual welfare vectors.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>An egalitarian SWF sensitive to distributional relations is required for adequate policy evaluation; neither utilitarian nor prioritarian frameworks can provide it.</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end opp col-body -->
+  </div><!-- end opp col -->
+
+</div><!-- end columns -->
+
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh"><div>No image linked yet</div><code>Set src in IMAGES object in script</code></div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+/* ── IMAGE DATA ── */
+var IMAGES={
+  broome:{1:{src:"",caption:"Broome — Equal moral worth"},2:{src:"",caption:"Broome — DMU"},3:{src:"",caption:"Broome — Ungrounded weighting"},4:{src:"",caption:"Broome — Repugnant conclusion"},5:{src:"",caption:"Broome — Determinacy"}},
+  harsanyi:{1:{src:"",caption:"Harsanyi — Veil of ignorance"},6:{src:"",caption:"Harsanyi — Aggregation theorem"},3:{src:"",caption:"Harsanyi — Fairness objections"},5:{src:"",caption:"Harsanyi — Cardinality"},7:{src:"",caption:"Harsanyi — Prioritarianism as risk aversion"}},
+  adler:{1:{src:"",caption:"Adler — Equal moral worth"},2:{src:"",caption:"Adler — DMU independence"},3:{src:"",caption:"Adler — Grounded weighting"},4:{src:"",caption:"Adler — Indeterminacy"},5:{src:"",caption:"Adler — Tractability"},6:{src:"",caption:"Adler — Levelling-down"},7:{src:"",caption:"Adler — Distributional indifference"}},
+  voorhoeve:{1:{src:"",caption:"Voorhoeve — Individualism vs relational equality"},2:{src:"",caption:"Voorhoeve — Relational equality as welfare"},3:{src:"",caption:"Voorhoeve — Aggregation is the error"},4:{src:"",caption:"Voorhoeve — Levelling-down"},5:{src:"",caption:"Voorhoeve — Policy evaluation"},6:{src:"",caption:"Voorhoeve — Relational egalitarianism"},7:{src:"",caption:"Voorhoeve — Separateness of persons"}}
+};
+
+/* ── STATE ── state[side] = { speaker, view, speechScroll, logicScroll } */
+var state={
+  prop:{speaker:'broome', view:'speech', speechScroll:0, logicScroll:0},
+  opp:{speaker:'adler', view:'speech', speechScroll:0, logicScroll:0}
+};
+
+/* ── SPEAKER SWITCHER ── */
+function switchSpeaker(side, speaker, btn){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+
+  /* save scroll for current speaker/view */
+  saveScroll(side);
+
+  /* hide old speaker panel and header */
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+
+  /* update state */
+  st.speaker=speaker;
+  st.view='speech';
+  st.speechScroll=0;
+  st.logicScroll=0;
+
+  /* show new speaker panel and header */
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+
+  /* reset tab state for new speaker */
+  var header=document.getElementById(side+'-'+speaker+'-header');
+  header.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  header.querySelectorAll('.tab')[0].classList.add('active');
+
+  /* show speech, hide logic */
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  sp.classList.remove('hidden');
+  lg.classList.add('hidden');
+
+  /* reset scroll */
+  body.scrollTop=0;
+
+  /* update speaker buttons */
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+/* ── TAB SWITCHER ── */
+function sw(side, speaker, view, el){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+
+  /* save scroll for current view */
+  saveScroll(side);
+
+  /* update tab buttons */
+  var header=document.getElementById(side+'-'+speaker+'-header');
+  header.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+
+  /* update state */
+  st.view=view;
+
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+
+  if(view==='speech'){
+    sp.classList.remove('hidden');
+    lg.classList.add('hidden');
+    body.scrollTop=st.speechScroll||0;
+  } else {
+    sp.classList.add('hidden');
+    lg.classList.remove('hidden');
+    body.scrollTop=st.logicScroll||0;
+  }
+}
+
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech') st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+
+/* ── MODAL ── */
+function openModal(speaker, n, side){
+  var d=(IMAGES[speaker]||{})[n]||{src:"",caption:speaker+" — arg "+n};
+  document.getElementById('mTitle').textContent=d.caption;
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.style.display='none';ph.style.display='none'}
+  else{img.style.display='none';ph.style.display='flex'}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none'}
+function imgFail(){document.getElementById('mImg').style.display='none';var p=document.getElementById('mPh');p.style.display='flex';p.querySelector('div').textContent='Image failed to load'}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal()}
+
+/* ── TOOLTIPS ── */
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');
+  if(!hl) return;
+  var tip=hl.querySelector('.tooltip');
+  if(!tip) return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2;
+  var vw=window.innerWidth;
+  var margin=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  var clampedX=Math.min(Math.max(cx,tw/2+margin),vw-tw/2-margin);
+  tip.style.left=clampedX+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');
+  if(!hl) return;
+  var tip=hl.querySelector('.tooltip');
+  if(tip) tip.style.display='none';
+});
+</script>
