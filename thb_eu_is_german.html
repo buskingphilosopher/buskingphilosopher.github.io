@@ -1,0 +1,586 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,var(--font-serif,serif);background:var(--bg);color:var(--text)}
+
+.motion-header{padding:.9rem 2rem .75rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:5px;font-weight:500}
+.motion-title{font-size:17px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 64px);min-height:500px}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-bar::-webkit-scrollbar{height:2px}
+.speaker-bar::-webkit-scrollbar-thumb{background:var(--bdr2)}
+.speaker-btn{font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;padding:7px 12px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp .speaker-btn.active{color:var(--opp-red)}
+
+.col-header{padding:.6rem 1.1rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem;flex-wrap:wrap}
+.pill{font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:var(--font-sans,sans-serif);font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:var(--font-sans,sans-serif);font-size:10px;color:var(--text3);margin-top:1px;margin-bottom:5px;line-height:1.4}
+
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:var(--font-sans,sans-serif);padding:4px 13px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.3rem;font-size:13px;line-height:1.9;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.8rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.2rem 0 .2rem;display:block}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+
+.tooltip{display:none;position:fixed;font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;font-style:normal;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.logic-view{display:flex;flex-direction:column;gap:.8rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+
+.arg-title{padding:6px 10px;font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+
+.arg-premises{padding:8px 10px 4px}
+.premise{display:flex;gap:8px;margin-bottom:6px;font-family:var(--font-sans,sans-serif);font-size:11.5px;line-height:1.55;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:8px;padding:6px 10px;font-family:var(--font-sans,sans-serif);font-size:11.5px;line-height:1.55;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hidden{display:none}
+
+.modal-wrap{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:8px;border:1px solid var(--bdr2);width:380px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:var(--font-sans,sans-serif);font-size:12px;font-weight:500;color:var(--text)}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:14px;line-height:1;padding:3px 6px;border-radius:4px}
+.modal-close:hover{background:var(--bg4)}
+.modal-bd{padding:.8rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;background:var(--bg3);min-height:130px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:1.5rem;color:var(--text3);font-family:var(--font-sans,sans-serif);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.modal-ph code{font-size:10px;background:var(--bg4);padding:2px 6px;border-radius:3px}
+.modal-cap{margin-top:.5rem;font-family:var(--font-sans,sans-serif);font-size:11px;color:var(--text3)}
+.page{position:relative;overflow:hidden}
+</style>
+
+<div class="page" id="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Believes the European Union Has Always Been German Expansionism in Disguise"</div>
+</div>
+
+<div class="columns">
+
+<!-- ══════════════════ PROPOSITION ══════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','streeck',this)">Streeck</button>
+  </div>
+
+  <div class="col-header" id="prop-streeck-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Wolfgang Streeck</span></div>
+    <div class="col-position">Time-consistency and mandate independence — CBI means instrument independence not objective independence; the time-consistency problem makes political monetary policy systematically biased toward inflation</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','streeck','speech',this)">Speech</div><div class="tab" onclick="sw('prop','streeck','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="prop-alesina-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Alberto Alesina</span></div>
+    <div class="col-position">Empirical case — CBI correlates with lower inflation at no output cost; credibility is institutional capital; the European evidence provides a natural experiment</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','alesina','speech',this)">Speech</div><div class="tab" onclick="sw('prop','alesina','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="prop-bernanke-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Ben Bernanke</span></div>
+    <div class="col-position">Crisis response — 2008 demonstrates that independence enables decisive emergency action that elected governments could not have taken; speed and insulation from political economy were essential</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','bernanke','speech',this)">Speech</div><div class="tab" onclick="sw('prop','bernanke','logic',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ── STREECK ── -->
+    <div class="speaker-panel active" id="prop-streeck-panel">
+      <div id="prop-streeck-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The motion invites us to examine a structural fact that is almost embarrassingly well-documented, yet rarely stated plainly: the institutional architecture of European integration has, decade by decade, been remade in the image of German economic preferences — export discipline, low inflation, fiscal austerity, wage restraint — and imposed upon a continent of states that neither share those preferences nor possess the adjustment mechanisms that would make them compatible with their own economic conditions. This is not an accusation of malice. It is an analysis of structural outcomes.</p>
+
+        <span class="section">I. THE ORDOLIBERAL IMPRINT ON EUROPEAN INSTITUTIONS</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Instrument vs objective independence — mandate accountability</span>Let us begin with monetary architecture. The Maastricht Treaty of 1992 created a European Central Bank modelled explicitly on the Bundesbank — not merely inspired by it, but, as the Christian Science Monitor reported at the time, "a near replica" in structure, mandate, and administration. The ECB's sole primary mandate is price stability; it has no employment mandate, unlike the Federal Reserve. This was a direct German constitutional preference, rooted in the ordoliberal tradition of the Freiburg School, and it was exported wholesale to the entire eurozone. The ECB in 2011 — in the depths of a sovereign debt crisis — raised interest rates because of inflation concerns, a decision that exacerbated the crisis in peripheral economies and that a Fed with a dual mandate would almost certainly not have taken. That decision had German preferences written through it. But the monetary architecture is only part of the picture. The Stability and Growth Pact, the Fiscal Compact, the Macroeconomic Imbalances Procedure — each of these governance mechanisms encodes the ordoliberal principle that fiscal rectitude is the primary obligation of member states. Critically, the Macroeconomic Imbalances Procedure, which is supposed to discipline both surplus and deficit countries, sets the alert threshold for current account deficits at 4% of GDP — but for surpluses at 6%. Germany's current account surplus has exceeded 6% of GDP consistently since 2012, reaching 8.5% in 2015 — one of the largest sustained surpluses in the history of modern economics. The IMF and US Treasury both issued formal warnings. The European Commission opened a procedure. Germany demurred. The asymmetry between the institutional treatment of deficits (enforced with fines and conditionality) and surpluses (tolerated despite formal thresholds) is not accidental. It reflects whose preferences designed the system.</span></p>
+
+        <span class="section">II. THE CURRENT ACCOUNT SURPLUS AS STRUCTURAL DOMINANCE</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Time-consistency problem — government faces systematic inflation bias</span>This brings me to what Yanis Varoufakis has called "monetary mercantilism" — and what the proposition considers the most important structural argument. Germany's export-led growth model generates persistent current account surpluses. Before the euro, a persistent surplus would have caused the Deutschmark to appreciate, correcting the imbalance automatically. Within the eurozone, this exchange-rate mechanism is abolished. Germany therefore benefits from an implicit real exchange rate subsidy: the euro is weaker than a standalone Deutschmark would be, because it aggregates the weaker economies of the south, keeping German exports artificially competitive on world markets. The counterpart of Germany's surplus is the periphery's deficit. Capital flows generated by German surplus countries rushed into peripheral economies before 2008, fuelling unsustainable credit booms and real estate bubbles. When the financial crisis reversed those flows, the burden of adjustment fell entirely on deficit countries — through austerity, unemployment, and wage suppression — while Germany's surplus continued to accumulate. The IMF estimated in 2016 that Germany's real exchange rate was 15–20% undervalued relative to its economic fundamentals. In a currency union, that undervaluation cannot self-correct. The periphery pays the price; Germany absorbs the benefit.</span></p>
+
+        <span class="section">III. SELECTIVE APPLICATION OF ORDOLIBERAL PRINCIPLES</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Democratic accountability through mandate transparency</span>Here is the argument that the opposition will find most difficult to answer. If Germany's insistence on fiscal austerity, strict liability, and sound money were genuine ideological commitments rather than strategic interests, we would expect them to be applied consistently — including when their application conflicts with German national interests. They are not. When the ECB's bond-purchasing programmes under Mario Draghi threatened to mutualise eurozone risk, Germany's constitutional court objected strenuously — and yet Germany ultimately acquiesced, because the collapse of the euro would have been catastrophic for German export markets. When Volkswagen faced a €14.7 billion emissions fraud settlement, the German government lobbied intensively against the application of EU competition rules that it aggressively enforces in other contexts. Ordoliberalism, the academic Gabriel Goodliffe argues in his published analysis, was pursued as a strategic idea "when it was consistent with core German economic and political interests" — and deferred when it was not. This is not ideology. It is interest dressed in ideological language.</span></p>
+
+        <span class="section">IV. THE PHILOSOPHICAL POINT: LEGITIMACY WITHOUT ACCOUNTABILITY</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Time-consistency problem — government faces systematic inflation bias</span>The deepest problem with German hegemony through European institutions is not its material consequences — serious as those are — but its democratic structure. When Germany imposes preferences on Greece, Italy, or Spain through the conditionality of troika programmes, it does so without any direct accountability relationship to Greek, Italian, or Spanish voters. The German finance minister is elected by Germans, accountable to Germans, and answerable to the German constitutional court. Yet his decisions govern the healthcare systems, pension ages, and labour markets of populations who did not vote for him and cannot remove him. This is not a European demos. It is a German bureaucracy with a European franchise. The motion captures this dynamic with precision: the EU has been German expansionism in disguise — not because Germans want an empire, but because that is what a currency union without political union, governed by the largest economy's preferences, structurally produces.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-streeck-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('streeck',1,'prop')">
+          <div class="arg-title"><span>Arg I — CBI means instrument independence, not democratic removal</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Central bank independence means freedom to set monetary instruments, not to set monetary objectives — objectives remain democratically determined.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The inflation target (2%) is a political choice; how to achieve it (Bank Rate, QE) is a technical choice requiring specialist expertise.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Separating technical execution from political determination preserves democratic accountability while enabling expert implementation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>CBI is a division of labour between democratic objective-setting and expert instrument-setting — it enhances rather than undermines democratic accountability.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('streeck',2,'prop')">
+          <div class="arg-title"><span>Arg II — The time-consistency problem creates systematic inflation bias under political control</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When private agents have committed to nominal wages and prices, a government faces a temptation to inflate — gaining a short-run boost to real output at the cost of higher inflation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Rational private agents anticipate this temptation and build higher inflation into expectations, preventing the government from achieving low inflation even if it genuinely intends to.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>CBI provides a credible commitment device — an institution that cannot be instructed to accommodate political pressure and therefore anchors expectations at low inflation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Without CBI, the time-consistency problem produces a systematic inflation bias; CBI is the institutional solution to this structural problem of political monetary policy.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('streeck',3,'prop')">
+          <div class="arg-title"><span>Arg III — CBI is accountable through mandate transparency</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Democratic legitimacy in monetary policy comes from a clear, publicly determined mandate and rigorous accountability for its execution — not from day-to-day political instruction.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Independent central banks are subject to more demanding and transparent accountability than most ministerial decisions — published minutes, parliamentary testimony, quarterly reports.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Political control, by contrast, means monetary policy set with one eye on the electoral calendar — as the UK's 25% inflation in 1975 demonstrated.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>CBI delivers more rigorous accountability than political control of monetary policy — the democratic legitimacy objection points toward CBI rather than against it.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ALESINA ── -->
+    <div class="speaker-panel" id="prop-alesina-panel">
+      <div id="prop-alesina-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleague King has made the theoretical case. I want to make the empirical case. In the social sciences, theory must be checked against evidence. And the evidence on central bank independence is the most compelling body of empirical work in political economy.</p>
+
+        <span class="section">On the Alesina-Summers findings</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Empirical evidence — CBI delivers lower inflation at no output cost</span>In a 1993 paper with Lawrence Summers, we established the following: across OECD countries, there is a strong negative correlation between central bank independence and average inflation. Countries with more independent central banks have significantly lower average inflation. The correlation is robust — it survives controls for fiscal policy, trade openness, exchange rate regime, and a variety of institutional variables. More striking than the inflation finding is the output finding: there is no significant correlation between central bank independence and real economic outcomes — growth, unemployment, output variability. Countries with independent central banks do not pay for their lower inflation with worse real economic performance. The alleged trade-off between inflation and output, which underlies the political case for keeping monetary policy under electoral control, does not show up in the cross-country data.</span></p>
+
+        <span class="section">On the credibility premium</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Time-consistency problem — government faces systematic inflation bias</span>The credibility premium is the mechanism through which independence delivers better outcomes. When a central bank is independent and has established a track record of hitting its inflation target, private agents incorporate this expectation into their behaviour. Workers do not demand high nominal wage increases because they expect low inflation. Firms do not raise prices pre-emptively. Bond markets do not demand a high inflation risk premium. The result is that price stability can be maintained at a lower real cost — less output sacrifice when inflation needs to be reduced, because expectations are already anchored. A non-independent central bank, by contrast, must continually demonstrate its credibility through costly disinflation. Because private agents expect political accommodation, they build higher inflation into expectations. The central bank is trapped in a cycle of credibility destruction and costly reconstruction that the independent central bank avoids by never destroying credibility in the first place.</span></p>
+
+        <span class="section">On the European evidence</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Credibility capital and European convergence</span>The European experience provides a natural experiment. In the 1980s, countries of what would become the eurozone had very different inflation rates. Germany, with its constitutionally entrenched Bundesbank, had inflation below 3%. Italy and France, with less independent central banks, had inflation of 10% or more. When these countries joined the European Monetary System and began to coordinate monetary policy with Germany, they progressively acquired German credibility — not merely by matching German interest rates but by building credible low-inflation institutions. Italian and French inflation converged toward German levels. Interest rate differentials narrowed. The cost of disinflation was real, but the long-run gain was a credible low-inflation environment those countries had not been able to achieve domestically. Credibility is institutional capital. It takes time to build, it is costly to establish, and it delivers permanent benefits once established.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-alesina-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="4" onclick="openModal('alesina',4,'prop')">
+          <div class="arg-title"><span>Arg I — Empirical evidence: CBI lowers inflation at no output cost</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Cross-country data shows a strong negative correlation between central bank independence and average inflation across OECD countries.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The same data shows no significant correlation between CBI and real economic outcomes — growth, unemployment, or output variability.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The correlation is robust to controls for fiscal policy, trade openness, exchange rate regime, and other institutional variables.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The empirical record establishes that CBI delivers lower inflation without sacrificing real economic performance — the alleged inflation-output trade-off does not appear in the cross-country data.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('alesina',2,'prop')">
+          <div class="arg-title"><span>Arg II — The credibility premium: lower disinflation costs</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Credible independent central banks anchor inflation expectations, reducing the wage and price pressures that make disinflation costly.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Non-independent central banks must repeatedly prove credibility through costly disinflation as private agents expect political accommodation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The credibility premium — lower disinflation costs for independent banks — is the mechanism through which CBI delivers better outcomes at no real cost.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Credibility is institutional capital that independent central banks accumulate and non-independent ones cannot — the credibility premium explains the empirical inflation-output finding.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('alesina',5,'prop')">
+          <div class="arg-title"><span>Arg III — European convergence as a natural experiment</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the 1980s, eurozone countries had dramatically different inflation rates correlated with central bank independence — Germany below 3%, Italy and France at 10%+.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>EMS membership allowed high-inflation countries to import Bundesbank credibility — producing convergence toward German inflation rates as institutional credibility was acquired.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This convergence — driven by acquired institutional credibility — provides a quasi-experimental demonstration of the mechanism the theoretical literature predicts.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The European convergence episode provides empirical confirmation that credibility is institutional capital — importable through institutional commitment, demonstrating CBI's mechanism in practice.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BERNANKE ── -->
+    <div class="speaker-panel" id="prop-bernanke-panel">
+      <div id="prop-bernanke-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleagues have made the theoretical and empirical cases. I want to make the practical case — the case from crisis. I was Chair of the Federal Reserve during the 2008 financial crisis. What that experience taught me about the value of central bank independence is the most direct and compelling argument in this debate.</p>
+
+        <span class="section">On what 2008 required</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">2008 crisis — independence enabled decisive action political paralysis prevented</span>In autumn 2008, the global financial system was within days — perhaps hours — of complete collapse. The failure of Lehman Brothers triggered a run on the shadow banking system. Money market funds broke the buck. Commercial paper markets froze. Interbank lending stopped. The Federal Reserve extended emergency lending facilities to institutions that had never before had access to the Fed's balance sheet. It provided dollar swap lines to foreign central banks to prevent a global dollar shortage from triggering cascading failures. It intervened in the commercial paper market, the money market, and the mortgage-backed securities market. It ultimately expanded its balance sheet from approximately $900 billion to over $2 trillion in the space of a few months. These actions were enormously controversial, attacked from left and right simultaneously. Congress was in paralysis — it took three attempts to pass TARP legislation, and the first failure nearly destroyed the recovery it was designed to begin.</span></p>
+
+        <span class="section">On what independence made possible</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Instrument vs objective independence — mandate accountability</span>What made the Federal Reserve's response possible was its independence. Because the Fed did not require Congressional authorisation for its emergency lending operations — conducted under Section 13(3) of the Federal Reserve Act — it could act in hours rather than weeks. Because it did not require Treasury approval for each individual intervention, it could respond to the specific and rapidly changing needs of a crisis evolving faster than any deliberative political process could track. An elected government facing the same situation would have been paralysed. The political economy of crisis intervention is brutal: every institution that receives emergency support becomes a political target. A Treasury Secretary who proposed the measures the Fed took would have faced immediate Congressional opposition, legal challenges, and political attacks that would have prevented timely action.</span></p>
+
+        <span class="section">On the distributional objection</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">QE distributional consequences — democratic legitimacy of asset purchases</span>The objection that the Fed's crisis actions illustrate the problem with independence — that an independent bank inevitably serves financial sector interests — conflates two things. The Fed's crisis actions were not undertaken to benefit the financial sector. They were undertaken to prevent the collapse of the financial sector from destroying the real economy — from producing a depression that would have impoverished millions of ordinary households through unemployment, falling asset prices, and the destruction of savings. The evidence from the Great Depression, which the Fed's crisis management was explicitly designed to prevent repeating, suggests that the consequences of allowing financial collapse to run its course fall hardest on those with the least financial resilience. The 2008 response was imperfect — the distributional consequences of QE were not fully anticipated. But the alternative — policy paralysed by political process, and a full financial collapse — would have been worse.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-bernanke-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="6" onclick="openModal('bernanke',6,'prop')">
+          <div class="arg-title"><span>Arg I — 2008 demonstrates that independence enables decisive crisis response</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The 2008 crisis required massive, immediate, unprecedented interventions — emergency lending facilities, dollar swaps, market interventions — that needed to be deployed in hours, not weeks.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Congressional paralysis (TARP failed on first vote) demonstrated that elected governments could not have acted with the speed and certainty the crisis required.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Fed's independence — legal authority to act without legislative approval under Section 13(3) — enabled the decisive response that prevented complete financial collapse.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>2008 demonstrates that CBI is a crisis asset — enabling the speed and decisiveness that political processes cannot deliver when systemic failure is imminent.</span></div>
+        </div>
+        <div class="arg-block" data-arg="1" onclick="openModal('bernanke',1,'prop')">
+          <div class="arg-title"><span>Arg II — Political economy of crisis intervention prevents elected governments from acting</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Every crisis intervention that supports financial institutions becomes a political target — "bailout of Wall Street" narratives create political pressure that constrains elected officials.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>An independent central bank, while not immune to political criticism, can act on professional judgement of systemic necessity without requiring legislative approval for each measure.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The speed advantage of independence is not merely logistical — it reflects the ability to make professionally grounded decisions free from the political economy that paralyses legislative responses.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The political economy of crisis intervention creates a systematic bias toward inaction by elected governments — CBI enables the decisiveness that prevents systemic failure from becoming economic catastrophe.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7" onclick="openModal('bernanke',7,'prop')">
+          <div class="arg-title"><span>Arg III — The financial sector objection conflates beneficiary and instrument</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Crisis interventions that support financial institutions are designed to prevent financial collapse from destroying the real economy — the financial sector is the instrument, not the beneficiary.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Great Depression evidence shows that financial collapse without intervention falls hardest on those with least financial resilience — workers, small depositors, the unemployed.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The alternative to independent crisis intervention — legislative paralysis and financial collapse — produces worse distributional outcomes than the imperfect intervention.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The financial sector bias objection conflates the instrument of crisis response with its beneficiary — crisis intervention through independent central banks serves the real economy, not primarily the financial sector.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- prop body -->
+</div><!-- prop col -->
+
+<!-- ══════════════════ OPPOSITION ══════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','palley',this)">Palley</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','turner',this)">Turner</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','rajan',this)">Rajan</button>
+  </div>
+
+  <div class="col-header" id="opp-palley-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Thomas Palley</span></div>
+    <div class="col-position">CBI serves financial sector interests — inflation targeting is a class project; the time-consistency framing is creditor-biased; the 1970s reflect distributional conflict, not monetary irresponsibility</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','palley','speech',this)">Speech</div><div class="tab" onclick="sw('opp','palley','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="opp-turner-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Adair Turner</span></div>
+    <div class="col-position">Post-2008 democratic deficit — QE is fiscal policy by another name; the Fisher separation theorem no longer holds; CBI has accumulated a democratic legitimacy deficit that is now chronic</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','turner','speech',this)">Speech</div><div class="tab" onclick="sw('opp','turner','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="opp-rajan-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Raghuram Rajan</span></div>
+    <div class="col-position">Coordination problem and systemic risk — independent central banks have a systematic bias toward financial accommodation; CBI created conditions for 2008; expectations anchoring does not require formal independence</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','rajan','speech',this)">Speech</div><div class="tab" onclick="sw('opp','rajan','logic',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ── PALLEY ── -->
+    <div class="speaker-panel active" id="opp-palley-panel">
+      <div id="opp-palley-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The proposition has made a sophisticated case. The time-consistency argument is theoretically elegant. The Alesina-Summers findings are genuinely important. And the 2008 story is compelling in its urgency. I want to argue that, taken together, these arguments prove something quite different from what the proposition intends — that the case for central bank independence is a case for a particular distribution of economic power masquerading as a technical institutional arrangement.</p>
+
+        <span class="section">On whose preferences central banks actually serve</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Democratic accountability through mandate transparency</span>The most important question about central bank independence is rarely asked: whose preferences do independent central banks actually serve? The answer is not "the preferences of no one" or "the preferences of the economy in the abstract." Central banks are staffed by people with backgrounds, training, and social networks. The overwhelming majority of senior central bank officials in the advanced economies are trained economists who have spent significant portions of their careers in financial institutions or in academic departments with close ties to them. Their professional formation, their understanding of good monetary policy, and their intuitions about acceptable trade-offs all reflect this formation. The result is not corruption — these are generally honest people. The result is a systematic bias: independent central banks consistently prioritise low inflation over low unemployment, consistently treat creditor interests as the baseline of policy, and consistently interpret their mandates in ways more comfortable for the financial sector than for workers and households.</span></p>
+
+        <span class="section">On the time-consistency problem reframed</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Time-consistency problem — government faces systematic inflation bias</span>The time-consistency argument illustrates this bias perfectly. The problem it identifies — political pressure to inflate — is framed entirely from the perspective of creditors. From the perspective of debtors and workers, the problem with unrestrained central bank independence looks very different: it is the systematic bias toward deflation, toward high real interest rates, toward tight credit, that distributes income from debtors to creditors and from workers to capital owners. The framing of the time-consistency problem as the central problem of monetary policy is itself a political choice — one that reflects whose interests the framers were most worried about protecting.</span></p>
+
+        <span class="section">On inflation targeting as a class project</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Empirical evidence — CBI delivers lower inflation at no output cost</span>The shift to inflation targeting in the 1990s was not a politically neutral technical improvement. It was a response to the distributional conflicts of the 1970s, in which labour had the bargaining power to translate nominal wage gains into real wage gains through wage-price dynamics. Inflation targeting, combined with central bank independence, was the institutional mechanism through which the creditor class reasserted control over that dynamic. The countries that adopted independent central banks with inflation targets in the 1990s — the UK, Sweden, New Zealand, Canada — did so in the context of deliberate political projects to shift the balance of bargaining power away from labour and toward capital. The 1970s inflation cited by my opponent King was not the product of irresponsible politicians printing money. It was the product of genuine distributional conflict — workers and capital competing for shares of national income in a context of oil price shocks. The resolution of that conflict through CBI was its resolution in favour of capital.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-palley-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="3" onclick="openModal('palley',3,'opp')">
+          <div class="arg-title"><span>Arg I — Independent central banks are systematically biased toward financial sector preferences</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Central bank officials are predominantly trained in financial economics and have career networks in the financial sector — their professional formation shapes their policy preferences.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This formation produces a systematic institutional bias: prioritising low inflation over low unemployment, treating creditor interests as the policy baseline.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This bias is not corrected by formal independence — it is entrenched by it, since independence insulates central bankers from the democratic pressures that would otherwise correct the bias.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>CBI does not produce neutral technical policy — it produces policy systematically biased toward financial sector and creditor preferences, insulated from democratic correction.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('palley',2,'opp')">
+          <div class="arg-title"><span>Arg II — The time-consistency problem is framed from a creditor perspective</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The time-consistency problem identifies "pressure to inflate" as the central threat to monetary policy — a framing that takes creditor interests as the baseline.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>From a debtor/worker perspective, the symmetric problem is CBI's systematic bias toward deflation, high real interest rates, and tight credit — redistributing income from labour to capital.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The choice to frame the time-consistency problem from the creditor perspective rather than the debtor perspective is itself a political choice, not a neutral technical observation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The time-consistency argument for CBI is not a neutral theoretical insight but a creditor-perspective framing of distributional conflict — it identifies one distributional bias (inflation) while ignoring another (deflation).</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('palley',4,'opp')">
+          <div class="arg-title"><span>Arg III — CBI and inflation targeting were instruments of distributional conflict resolution in favour of capital</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>1970s inflation reflected distributional conflict — labour and capital competing for income shares — not monetary irresponsibility by politicians.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Inflation targeting with CBI resolved this conflict by institutionally constraining the mechanism through which labour could translate nominal wage gains into real gains.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The "lower inflation" the Alesina-Summers findings celebrate represents the resolution of distributional conflict in capital's favour — a political outcome, not a technical improvement.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>CBI and inflation targeting are political instruments of distributional conflict resolution — the empirical inflation reduction they deliver represents a class outcome, not a neutral economic improvement.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TURNER ── -->
+    <div class="speaker-panel" id="opp-turner-panel">
+      <div id="opp-turner-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleague Palley has made the political economy case against central bank independence. I want to make a different and complementary argument — one grounded in what has happened since 2008. My argument is that the post-2008 world has rendered the intellectual foundations of central bank independence obsolete, and that the case for independence rests on assumptions about what central banks do that are no longer true.</p>
+
+        <span class="section">On the Fisher separation theorem and why it no longer holds</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Instrument vs objective independence — mandate accountability</span>The case for CBI rests on a version of the Fisher separation theorem — the idea that monetary policy and fiscal policy can be cleanly separated: monetary policy is a purely technical instrument affecting the level of nominal demand without distributional consequences, while fiscal policy is the politically contested domain of redistribution and public expenditure choices. On this view, the division of labour is clear and defensible. Governments make the politically contested choices about taxing and spending. Central banks make the technically demanding choices about the level of nominal demand. The two domains are separable, and central banks can operate independently precisely because their domain is technical rather than political. But the events of 2008 and their aftermath have made this separation untenable.</span></p>
+
+        <span class="section">On QE as fiscal policy by another name</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">QE distributional consequences — democratic legitimacy of asset purchases</span>When the Federal Reserve, the Bank of England, and the ECB engaged in quantitative easing — purchasing trillions of assets — they were not making purely technical decisions about nominal demand. They were making decisions about which assets to support, which institutions to assist, and which sectors of the economy to favour. They were making distributional choices of enormous consequence. The Bank of England's Asset Purchase Facility involved the purchase of £895 billion of assets, primarily gilts. This suppressed long-term interest rates, boosting asset prices — equities, property, bonds — disproportionately held by the wealthy. The Bank of England's own research estimated that the first £200 billion of QE raised asset values by approximately £600 billion, with the top 5% holding 40% of those assets. This was a distributional intervention that, had it been proposed as a fiscal measure, would have required Parliamentary approval and would have been bitterly contested.</span></p>
+
+        <span class="section">On the coordination problem</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">2008 crisis — independence enabled decisive action political paralysis prevented</span>There is a final underappreciated argument against CBI in the post-2008 world: the problem of macroeconomic coordination. The UK's experience between 2010 and 2015 illustrates this: the Treasury was pursuing aggressive fiscal consolidation through spending cuts and tax increases, while the Bank of England was attempting to support nominal demand through low interest rates and asset purchases. Each policy, taken individually, was internally coherent. Taken together, they produced a slow recovery that required unprecedented monetary stimulus to prevent outright recession. The institutional separation of fiscal and monetary policy created a coordination failure that neither institution could individually resolve. An independent central bank is not a coordination mechanism. It is an independent institution. And independent institutions, by definition, do not coordinate — they pursue their mandates. In a world where the interaction between fiscal and monetary policy determines macroeconomic outcomes, institutional independence is a recipe for coordination failure.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-turner-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('turner',1,'opp')">
+          <div class="arg-title"><span>Arg I — Fisher separation no longer holds; monetary and fiscal policy are not separable</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>CBI's intellectual foundation is the Fisher separation theorem — monetary policy is technical (level of nominal demand) while fiscal policy is political (redistribution, expenditure).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Post-2008 central bank interventions — QE, asset purchases, emergency lending — involve decisions about which assets to support, which sectors to favour, and which risk premia to compress: inherently distributional choices.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>When monetary policy has distributional consequences indistinguishable from fiscal policy, the intellectual basis for insulating it from democratic accountability collapses.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Fisher separation theorem that justifies CBI no longer holds — post-2008 central banking is not the technical instrument the CBI architecture was designed for.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7" onclick="openModal('turner',7,'opp')">
+          <div class="arg-title"><span>Arg II — QE is fiscal policy with enormous distributional consequences</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Bank of England's £895bn asset purchase programme boosted asset prices — equities, property, bonds — disproportionately held by the wealthiest households.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>BoE research estimated the first £200bn of QE raised asset values by ~£600bn, with the top 5% holding 40% of those assets — a massive upward distributional transfer.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A fiscal measure with identical distributional consequences would require Parliamentary approval and democratic contest — QE achieved the same effect without either.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>QE represents fiscal policy by another name — unelected central bankers making distributional choices of a scale and type that the CBI mandate was never designed to authorise.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal('turner',6,'opp')">
+          <div class="arg-title"><span>Arg III — CBI creates coordination failure between fiscal and monetary policy</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The UK 2010–2015 experience showed fiscal consolidation and monetary easing working at cross-purposes — individually coherent, collectively producing a slow recovery requiring unprecedented stimulus.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Institutional independence prevents the coordination needed when fiscal-monetary interaction determines macroeconomic outcomes.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The cost of coordination failure — prolonged below-potential recovery — is borne disproportionately by workers and households rather than by the institutions responsible.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>CBI creates a systematic coordination problem between fiscal and monetary policy — in an era where their interaction is decisive, institutional independence is a recipe for macroeconomic failure.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RAJAN ── -->
+    <div class="speaker-panel" id="opp-rajan-panel">
+      <div id="opp-rajan-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to close the opposition's case with an argument that takes the proposition's strongest points seriously — more seriously, perhaps, than the proposition expects — while demonstrating that the conclusion it draws does not follow. I am not a critic of central banking. I have been a central banker. What I want to argue is that the form of independence that has developed in the advanced economies has generated systemic risks that the proposition's account ignores.</p>
+
+        <span class="section">On the political economy of easy money</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Time-consistency problem — government faces systematic inflation bias</span>The time-consistency argument holds that governments face a systematic bias toward inflation because of electoral incentives — and that CBI removes this bias. But the post-2008 experience reveals the opposite problem: a systematic bias toward monetary easing among independent central banks that has nothing to do with electoral pressure. The Federal Reserve, the Bank of England, the ECB, and the Bank of Japan all maintained interest rates at or near zero for periods far longer than any analysis of economic fundamentals would justify. They did this not because of electoral pressure — they face no elections — but because of institutional incentives the time-consistency literature entirely ignores. Independent central banks are judged by financial markets. Their officials move between central banks and financial institutions. The financial sector strongly prefers low interest rates — which support asset prices, reduce debt service costs, and make balance sheets easier to manage. The systematic bias of independent central banks is not toward inflation, as the proposition argues. It is toward financial sector accommodation.</span></p>
+
+        <span class="section">On what CBI made it easier to ignore before 2008</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">2008 crisis — independence enabled decisive action political paralysis prevented</span>In the years before 2008, the Federal Reserve under Greenspan and the Bank of England under King failed to take action against the build-up of financial sector risk that produced the crisis. The political insulation that independence provided made it easier to ignore the accumulating risks. A Treasury that was also responsible for monetary policy might have been more alert to the financial stability risks — because a financial crisis produces fiscal costs that elected politicians must account for. An independent central bank, insulated from the fiscal consequences of financial sector failure, faces weaker incentives to police financial stability. The 2008 crisis was, in part, the product of a form of central bank independence that separated monetary policy from financial stability and from the fiscal consequences of getting financial stability wrong. Independence enabled the crisis response. It also enabled the policy failures that made the crisis necessary.</span></p>
+
+        <span class="section">On what actually anchors expectations</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Credibility capital and European convergence</span>My final argument is about what actually anchors inflation expectations — and whether CBI is necessary for this. Germany before the formally independent Bundesbank — before the constitutional independence the proposition celebrates — had very low inflation. Japan's central bank, before it was formally made independent in 1998, had some of the lowest inflation in the world during the 1980s. The Federal Reserve was not formally independent in the legal sense through much of the post-war period, yet delivered decades of relatively stable prices. What anchors inflation expectations is not formal independence. It is a political consensus — a societal commitment to price stability sufficiently broad and robust that monetary policy reliably reflects it. When that consensus exists, formal independence and informal independence deliver similar results. When it does not exist — when there is genuine societal disagreement about the desirable inflation rate — formal independence does not resolve the disagreement. It merely suppresses it, concentrating the costs on those with the least economic power.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-rajan-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="2" onclick="openModal('rajan',2,'opp')">
+          <div class="arg-title"><span>Arg I — Independent central banks have a systematic bias toward financial accommodation</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Independent central banks are judged by financial markets and their officials circulate through financial institutions — creating institutional incentives to accommodate financial sector preferences.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Post-2008, the Fed, BoE, ECB, and BoJ all maintained near-zero interest rates far beyond what economic fundamentals justified — not from electoral pressure but from institutional preference for financial accommodation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The systematic bias of independent central banks is therefore not toward inflation (as the time-consistency argument warns) but toward financial sector accommodation — a different distortion, uncorrected by independence.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>CBI does not eliminate systematic monetary policy bias — it replaces electoral bias toward inflation with institutional bias toward financial accommodation, creating its own distortions.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal('rajan',6,'opp')">
+          <div class="arg-title"><span>Arg II — CBI reduced incentives to police financial stability before 2008</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Financial crises produce large fiscal costs — bailouts, stimulus, lost tax revenue — that elected governments must account for, giving them incentives to police financial stability.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>An independent central bank, insulated from the fiscal consequences of financial sector failure, faces weaker incentives to restrain risk-taking in the financial sector.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Greenspan-era Fed and pre-2008 BoE both failed to act against accumulating financial sector risk — failures that the political insulation of independence made easier to sustain.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>CBI created the conditions for the 2008 crisis by reducing central bank incentives to police financial stability — independence enabled the crisis response but also enabled the policy failures that made it necessary.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('rajan',5,'opp')">
+          <div class="arg-title"><span>Arg III — Expectation anchoring requires political consensus, not formal independence</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Germany (pre-formal independence), Japan (pre-1998 formal independence), and the post-war Fed all achieved low inflation without the formal CBI the proposition celebrates.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>What anchors inflation expectations is a political consensus — a societal commitment to price stability broad enough that monetary policy reliably reflects it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Where this consensus exists, formal independence is unnecessary; where it does not, formal independence suppresses rather than resolves the underlying distributional conflict.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>CBI is not necessary to anchor inflation expectations — political consensus does this work; the appropriate response to monetary instability is to build the political institutions that generate that consensus.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- opp body -->
+</div><!-- opp col -->
+
+</div><!-- columns -->
+
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh"><div>No image linked yet</div><code>Set src in IMAGES object in script</code></div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+var IMAGES={
+  streeck:{1:{src:"",caption:"Streeck — Instrument vs objective independence"},2:{src:"",caption:"Streeck — Time-consistency problem"},3:{src:"",caption:"Streeck — Democratic accountability through mandate"}},
+  alesina:{2:{src:"",caption:"Alesina — The credibility premium"},4:{src:"",caption:"Alesina — Empirical evidence: lower inflation at no output cost"},5:{src:"",caption:"Alesina — European convergence as natural experiment"}},
+  bernanke:{1:{src:"",caption:"Bernanke — Political economy prevents elected governments acting"},6:{src:"",caption:"Bernanke — 2008: independence enabled decisive crisis response"},7:{src:"",caption:"Bernanke — Beneficiary vs instrument of crisis intervention"}},
+  palley:{2:{src:"",caption:"Palley — Time-consistency framed from creditor perspective"},3:{src:"",caption:"Palley — CBI biased toward financial sector preferences"},4:{src:"",caption:"Palley — CBI as instrument of distributional conflict resolution"}},
+  turner:{1:{src:"",caption:"Turner — Fisher separation theorem no longer holds"},6:{src:"",caption:"Turner — CBI creates fiscal-monetary coordination failure"},7:{src:"",caption:"Turner — QE is fiscal policy with distributional consequences"}},
+  rajan:{2:{src:"",caption:"Rajan — Independent CBs biased toward financial accommodation"},5:{src:"",caption:"Rajan — Expectation anchoring requires political consensus"},6:{src:"",caption:"Rajan — CBI reduced incentives to police financial stability"}}
+};
+
+var state={
+  prop:{speaker:'streeck',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'palley',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
+  document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
+  body.scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+function sw(side,speaker,view,el){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(view==='speech'){
+    sp.classList.remove('hidden');lg.classList.add('hidden');
+    body.scrollTop=st.speechScroll||0;
+  } else {
+    sp.classList.add('hidden');lg.classList.remove('hidden');
+    body.scrollTop=st.logicScroll||0;
+  }
+}
+
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech') st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+
+function openModal(speaker,n,side){
+  var d=(IMAGES[speaker]||{})[n]||{src:"",caption:speaker+" — argument "+n};
+  document.getElementById('mTitle').textContent=d.caption;
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.style.display='none';ph.style.display='none'}
+  else{img.style.display='none';ph.style.display='flex'}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none'}
+function imgFail(){document.getElementById('mImg').style.display='none';var p=document.getElementById('mPh');p.style.display='flex';p.querySelector('div').textContent='Image failed to load'}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal()}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl) return;
+  var tip=hl.querySelector('.tooltip');if(!tip) return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2,vw=window.innerWidth,m=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  tip.style.left=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m)+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl) return;
+  var tip=hl.querySelector('.tooltip');if(tip) tip.style.display='none';
+});
+</script>
