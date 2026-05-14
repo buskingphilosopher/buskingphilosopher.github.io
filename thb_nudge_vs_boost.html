@@ -1,0 +1,585 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,var(--font-serif,serif);background:var(--bg);color:var(--text)}
+
+.motion-header{padding:.9rem 2rem .75rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:5px;font-weight:500}
+.motion-title{font-size:17px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 64px);min-height:500px}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-bar::-webkit-scrollbar{height:2px}
+.speaker-bar::-webkit-scrollbar-thumb{background:var(--bdr2)}
+.speaker-btn{font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;padding:7px 12px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp .speaker-btn.active{color:var(--opp-red)}
+
+.col-header{padding:.6rem 1.1rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem;flex-wrap:wrap}
+.pill{font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:var(--font-sans,sans-serif);font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:var(--font-sans,sans-serif);font-size:10px;color:var(--text3);margin-top:1px;margin-bottom:5px;line-height:1.4}
+
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:var(--font-sans,sans-serif);padding:4px 13px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.3rem;font-size:13px;line-height:1.9;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.8rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.2rem 0 .2rem;display:block}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+
+.tooltip{display:none;position:fixed;font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;font-style:normal;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.logic-view{display:flex;flex-direction:column;gap:.8rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+
+.arg-title{padding:6px 10px;font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+
+.arg-premises{padding:8px 10px 4px}
+.premise{display:flex;gap:8px;margin-bottom:6px;font-family:var(--font-sans,sans-serif);font-size:11.5px;line-height:1.55;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:8px;padding:6px 10px;font-family:var(--font-sans,sans-serif);font-size:11.5px;line-height:1.55;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hidden{display:none}
+
+.modal-wrap{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:8px;border:1px solid var(--bdr2);width:380px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:var(--font-sans,sans-serif);font-size:12px;font-weight:500;color:var(--text)}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:14px;line-height:1;padding:3px 6px;border-radius:4px}
+.modal-close:hover{background:var(--bg4)}
+.modal-bd{padding:.8rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;background:var(--bg3);min-height:130px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:1.5rem;color:var(--text3);font-family:var(--font-sans,sans-serif);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.modal-ph code{font-size:10px;background:var(--bg4);padding:2px 6px;border-radius:3px}
+.modal-cap{margin-top:.5rem;font-family:var(--font-sans,sans-serif);font-size:11px;color:var(--text3)}
+.page{position:relative;overflow:hidden}
+</style>
+
+<div class="page" id="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Prefers Nudge to Boost as a Framework for Behavioural Public Policy"</div>
+</div>
+
+<div class="columns">
+
+<!-- ══════════════════ PROPOSITION ══════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','thaler',this)">Thaler</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','sunstein',this)">Sunstein</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','bovens',this)">Bovens</button>
+  </div>
+
+  <div class="col-header" id="prop-thaler-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Richard Thaler</span></div>
+    <div class="col-position">Libertarian paternalism — nudge preserves freedom while improving outcomes; choice architecture is inevitable; nudge benefits everyone immediately including the most vulnerable</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','thaler','speech',this)">Speech</div><div class="tab" onclick="sw('prop','thaler','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="prop-sunstein-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Cass Sunstein</span></div>
+    <div class="col-position">Democratic legitimacy and institutional realism — choice architecture is unavoidable; nudge is transparent and accountable; the empirical record of nudge is vastly stronger than that of boost</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','sunstein','speech',this)">Speech</div><div class="tab" onclick="sw('prop','sunstein','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="prop-bovens-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Luc Bovens</span></div>
+    <div class="col-position">Policy goals outcomes not agency — the goal of policy is good outcomes not rational cultivation; boost is paternalism in disguise; environmental design of agency is not manipulation</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','bovens','speech',this)">Speech</div><div class="tab" onclick="sw('prop','bovens','logic',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ── THALER ── -->
+    <div class="speaker-panel active" id="prop-thaler-panel">
+      <div id="prop-thaler-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to begin with an uncomfortable fact about human cognition that most people in this room accept in theory but whose implications they have not fully worked through. Human beings are not the homo economicus of classical economic theory. We have evolved biases, heuristics, and cognitive shortcuts that served us well in ancestral environments and that sometimes serve us poorly in the environments we actually inhabit. We are loss averse. We are present-biased. We are susceptible to framing effects. We anchor on irrelevant numbers. We follow defaults without examining them.</p>
+
+        <span class="section">On what a nudge is and why it works</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Libertarian paternalism — nudge preserves choice while improving outcomes</span>A nudge is a feature of the choice environment that predictably alters people's behaviour without forbidding any options and without significantly changing economic incentives. The placement of healthy food at eye level in a school cafeteria is a nudge. The automatic enrolment of employees in pension schemes is a nudge. Nudges work by operating on the choice environment rather than on the deliberative capacities of the person making the choice — they are System 1 interventions, operating on the automatic, intuitive processing system. The philosophical foundation is libertarian paternalism: paternalistic in the sense that we want to steer people toward choices that make them better off as judged by their own values; libertarian in the sense that we preserve freedom of choice — nobody is required to follow the default. A well-designed choice environment helps people act on their values. A poorly designed one — shaped by whatever happens to serve commercial interests — makes it harder.</span></p>
+
+        <span class="section">On the comparison with boost</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Nudge is immediate, universal and equitable; boost is slow, resource-intensive and unequally distributed</span>Boost — the alternative framework — holds that the appropriate response to bounded rationality is to train people's deliberative capacities: to teach statistical reasoning, to cultivate risk literacy. I want to make three observations. First, boost is slow — training deliberative competences takes time, resources, and sustained engagement that most real-world policy interventions cannot provide. Nudge works immediately, at scale, and for everyone. Second, boost is unequally distributed — the people who most benefit from boost are people who are already relatively advantaged. The people most systematically harmed by poorly designed choice environments — who are most subject to exploitation by default settings, manipulative framing, and dark patterns — are people with less education, less time, and less cognitive bandwidth. Nudge helps everyone, immediately. Boost helps those already well-positioned to help themselves.</span></p>
+
+        <span class="section">On misidentifying the problem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Choice architecture is inevitable — the question is who designs it and for whose benefit</span>Third, and most importantly, boost misidentifies the problem. The problem is not that people lack the capacity to reason well in some abstract sense. The problem is that they face choice environments systematically designed — by commercial interests — to exploit their biases. The solution is not to teach everyone to resist exploitation. The solution is to design choice environments that do not exploit. Nudge does this. Boost leaves people in the same exploitative environment, merely more resistant to it — and less resistant than the commercial interests arrayed against them, who have unlimited resources and every incentive to stay one step ahead.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-thaler-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('thaler',1,'prop')">
+          <div class="arg-title"><span>Arg I — Nudge is libertarian paternalism: improves outcomes while preserving freedom</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Human cognition is bounded — systematic biases produce deviations from choices that reflect people's own goals on reflection.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Nudge alters choice environments to make it easier to act on one's own goals without forbidding alternatives or changing incentives.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This combination — paternalistic goals, libertarian means — avoids overriding individual judgment while correcting for systematic bias.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Nudge is the appropriate policy response to bounded rationality — it improves outcomes without restricting freedom.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('thaler',2,'prop')">
+          <div class="arg-title"><span>Arg II — Nudge is immediate and equitable; boost is slow and unequally distributed</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Boost requires sustained training investment and benefits those with educational background and cognitive bandwidth — primarily the already-advantaged.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Those most harmed by exploitative choice environments — those with less education, time, and cognitive bandwidth — benefit most from nudge and least from boost.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Nudge produces immediate, large-scale benefits for all, including those most vulnerable to badly-designed defaults.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>On equity grounds, nudge is preferable — it helps everyone immediately, while boost primarily helps those who are already well-positioned.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('thaler',3,'prop')">
+          <div class="arg-title"><span>Arg III — Boost misidentifies the problem: the enemy is commercial exploitation of biases</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The problem is not abstract irrationality but choice environments deliberately designed by commercial interests to exploit cognitive biases.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Boost leaves the exploitative environment intact and arms individuals against commercial interests with vastly greater resources and incentives to exploit.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Nudge redesigns the environment so it does not exploit — addressing the source rather than hardening the targets.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Nudge correctly addresses the source of the problem — exploitative choice environments — while boost merely hardens individuals against a battle they will systematically lose.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SUNSTEIN ── -->
+    <div class="speaker-panel" id="prop-sunstein-panel">
+      <div id="prop-sunstein-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleague Thaler has made the case for nudge from the psychology of bounded rationality. I want to make the case from democratic legitimacy and institutional realism — the argument that nudge is not merely effective but appropriate for democratic governance in ways that boost is not.</p>
+
+        <span class="section">On the choice architecture problem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Choice architecture is inevitable — the question is who designs it and for whose benefit</span>Choice architecture is ubiquitous and inevitable. Whenever a government, institution, or private entity designs a system in which choices are made, it must decide on defaults — what happens if the person does nothing. It must decide on the order and presentation of options. These design decisions affect behaviour systematically — they are nudges whether or not the designer intends them to be. The question is not whether to nudge but whether to nudge well or badly. My opponents argue that boost is preferable to nudge because it respects human agency and cultivates genuine deliberative competence. But they have not answered the prior question: while we are waiting for boost to cultivate deliberative competence — a process that takes years or decades — what do we do about the choice architecture that exists right now and is currently shaping behaviour? The choice is not between nudging and not nudging. It is between well-designed nudges that serve people's interests and poorly-designed defaults that serve commercial interests.</span></p>
+
+        <span class="section">On democratic legitimacy</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Nudge does not bypass agency — it helps people act on their own values; opt-out rights are genuine</span>Boost advocates argue that nudge is paternalistic — that it substitutes the planner's judgement for the individual's. I want to challenge this characterisation. A nudge that changes the default from non-enrolment to automatic enrolment in a pension scheme is not substituting the planner's preferences for the employee's. It is recognising that the employee has a preference — to save for retirement — that they are systematically failing to act on because of present bias and inertia. The nudge helps the employee act on their own preference. What makes a nudge democratically legitimate is transparency. NICE's guidance on default opt-in for organ donation in England was publicly debated for years before implementation. The automatic enrolment policy was subject to Parliamentary scrutiny and public consultation. These are democratically chosen policy instruments, subject to the same scrutiny as any other policy. Boost, by contrast, requires prior decisions about which competences to cultivate and which heuristics to teach — normative choices that also require democratic legitimation, and which the boost framework has not engaged with.</span></p>
+
+        <span class="section">On the empirical record</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Nudge has a strong empirical record; boost's evidence of durable cross-domain transfer is mixed</span>The evidence that nudge works is overwhelming. Automatic enrolment in the UK increased pension saving participation rates from below 55% to over 85% within three years. Default organ donation in Wales produced a measurable increase in donation rates. Simplified application processes for financial assistance dramatically increased take-up among those entitled to it. These are large effects, achieved quickly, at low cost, without restricting anyone's freedom. The evidence that boost works — that it produces durable improvements in decision quality that transfer across contexts and persist over time — is considerably more mixed. Gigerenzer's studies show improved statistical reasoning in specific trained domains. They do not show that this improvement transfers reliably to untrained domains or persists without reinforcement. The effect sizes for real-world decision improvement from statistical reasoning training are modest compared to the effect sizes from well-designed defaults.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-sunstein-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="3" onclick="openModal('sunstein',3,'prop')">
+          <div class="arg-title"><span>Arg I — Choice architecture is unavoidable; the question is who designs it</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Every system in which choices are made requires defaults — what happens when the person does nothing; these always influence behaviour.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The current defaults are set by commercial interests to exploit biases rather than serve people's goals; the choice is not between nudging and not nudging.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The choice is between well-designed nudges that serve people's interests and poorly-designed defaults that serve commercial interests.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Since choice architecture is unavoidable, the question is only whether it serves citizens or exploiters — nudge is the framework for ensuring it serves citizens.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('sunstein',4,'prop')">
+          <div class="arg-title"><span>Arg II — Transparent, democratically scrutinised nudges are legitimately accountable</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Nudges that are publicly announced, subject to democratic scrutiny, and openly justified — like automatic enrolment and organ donation defaults — are qualitatively different from covert manipulation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These nudges help people act on their own preferences (saving for retirement, donating organs) that present bias and inertia prevent them from acting on directly.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Boost's choices about which competences to cultivate are equally normative and equally require democratic legitimation — the boost framework has not engaged with this requirement.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Transparent nudge is democratically legitimate — and boost's normative choices are no less in need of democratic legitimation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('sunstein',5,'prop')">
+          <div class="arg-title"><span>Arg III — Nudge's empirical record dramatically exceeds boost's</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Nudge has produced large, documented, immediate effects — pension enrolment from 55% to 85%, increased organ donation rates, dramatically improved financial assistance take-up.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Boost's evidence of durable, cross-domain transfer of decision quality improvement is considerably weaker — domain-specific gains do not reliably generalise.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The appropriate standard for a public policy framework is real-world effect at scale — on which nudge clearly outperforms boost.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The empirical evidence strongly favours nudge over boost as a framework for policy — effect sizes, scale, and durability all point in the same direction.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BOVENS ── -->
+    <div class="speaker-panel" id="prop-bovens-panel">
+      <div id="prop-bovens-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to make the philosophical case for nudge — the argument that the boost framework, however attractive it sounds, rests on a mistaken picture of what good public policy should be trying to achieve.</p>
+
+        <span class="section">On the goal of policy</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Policy should target outcomes not rational cultivation — boost confuses the instrument with the goal</span>The boost framework holds that good policy should cultivate the rational agency of citizens — help people reason better, deliberate more carefully, and make choices they would endorse on reflection. This sounds admirable. But it gets the goal of policy wrong. The goal of public policy is not to cultivate rational agency. It is to produce good outcomes for the people whose wellbeing it is responsible for. These are different goals, and they can conflict. Consider a simple case: a public health policy wants to increase physical activity among sedentary adults. A nudge approach might redesign office environments to default to standing desks, make stairs more prominent, provide walking-friendly meeting routes. A boost approach might provide training in the cognitive habits of health-conscious decision-making. Which approach is more likely to increase physical activity? Almost certainly nudge. The behaviour change is immediate, large, and does not depend on the acquisition and maintenance of cognitive skills that many people will find difficult to develop and sustain. Boost produces people who think more carefully about physical activity. Thinking more carefully about physical activity is not the same as doing more of it.</span></p>
+
+        <span class="section">On the dignity objection</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Nudge does not bypass agency — it helps people act on their own values; opt-out rights are genuine</span>The most powerful philosophical argument for boost over nudge is the dignity objection: that nudge treats people as objects to be manipulated rather than agents to be engaged, that it bypasses rational capacities rather than appealing to them. I accept the importance of dignity and deny that nudge violates it. The dignity objection assumes that the appropriate way to respect a person's agency is to engage with their deliberative capacities — to give them information, arguments, and training that help them reason to better choices. But this picture of agency is too narrow. People do not only exercise agency through deliberation. They exercise agency through habit, through environment, through the embedding of values in routines and contexts that make acting on those values easier. A person who has set up automatic transfers to their savings account has not abdicated their agency — they have used their agency wisely by creating an environment in which they do not need to re-decide to save every month. Nudge, understood correctly, is the public policy equivalent of this kind of self-design.</span></p>
+
+        <span class="section">On boost as paternalism in disguise</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Boost is paternalism about which cognitive capacities to cultivate — not less normative than nudge</span>Boost advocates characterise nudge as paternalistic but claim boost is not. But boost is also paternalistic. It decides which cognitive capacities to cultivate, which heuristics to teach, and which domains of decision-making to prioritise. These choices embed normative views about what counts as good reasoning and what goals people should be equipped to pursue. The difference between nudge and boost is not that one is paternalistic and the other is not. It is that nudge is transparent about using the structure of choice to promote specific outcomes, while boost presents its paternalism as the cultivation of neutral rational capacities — capacities that are, on examination, shaped by normative views that are every bit as contestable as the nudge designer's view of what outcomes to promote.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-bovens-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="6" onclick="openModal('bovens',6,'prop')">
+          <div class="arg-title"><span>Arg I — The goal of policy is outcomes, not rational cultivation</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The goal of public policy is good outcomes for the people whose wellbeing it is responsible for — not the cultivation of rational agency as an end in itself.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Boost produces better deliberation; nudge produces better behaviour — and for most policy domains, better behaviour is the goal.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The gap between better deliberation and better behaviour can be large — thinking more carefully about physical activity is not the same as doing more of it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Nudge is preferable because it targets outcomes directly; boost confuses the cultivation of a capacity with the achievement of the goal that capacity is supposed to serve.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('bovens',4,'prop')">
+          <div class="arg-title"><span>Arg II — Nudge supports agency; agency is not only deliberative</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>People exercise agency not only through deliberation but through habit, environment, and the embedding of values in routines that make acting on those values easier.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A person who creates automatic savings transfers is exercising their agency wisely — designing an environment that supports their goals rather than requiring constant re-decision.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Nudge is the public policy equivalent of this kind of self-design — creating environments in which people's values are supported rather than undermined by the default.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The dignity objection to nudge rests on an impoverished conception of agency that excludes environmental and habitual dimensions — a richer conception of agency supports nudge, not boost.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7" onclick="openModal('bovens',7,'prop')">
+          <div class="arg-title"><span>Arg III — Boost is paternalism in disguise, not an escape from it</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Boost decides which cognitive capacities to cultivate, which heuristics to teach, and which domains to prioritise — choices that embed normative views about good reasoning and worthy goals.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These normative views are no less contestable than the nudge designer's view of what outcomes to promote.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Nudge is transparent about its normativity; boost conceals its normativity behind the appearance of cultivating neutral rational capacities.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Boost is paternalism in disguise — no less normative than nudge but less honest about it; nudge's transparency about its normative commitments is a virtue, not a vice.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- prop body -->
+</div><!-- prop col -->
+
+<!-- ══════════════════ OPPOSITION ══════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','gigerenzer',this)">Gigerenzer</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','hertwig',this)">Hertwig</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','mousavi',this)">Mousavi / Siegel</button>
+  </div>
+
+  <div class="col-header" id="opp-gigerenzer-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Gerd Gigerenzer</span></div>
+    <div class="col-position">Ecological rationality — nudge misdiagnoses the problem; heuristics are adaptive not deficient; boost trains genuine competence that transfers across contexts; natural frequency formats demonstrate the mechanism</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','gigerenzer','speech',this)">Speech</div><div class="tab" onclick="sw('opp','gigerenzer','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="opp-hertwig-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Ralph Hertwig</span></div>
+    <div class="col-position">Ethical case for boost — nudge bypasses rational agency constitutively; learned helplessness erodes the deliberative muscle; transparency does not cure manipulation; boost respects whose values policy expresses</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','hertwig','speech',this)">Speech</div><div class="tab" onclick="sw('opp','hertwig','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="opp-mousavi-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Mousavi / Siegel</span></div>
+    <div class="col-position">Democratic competence and political theory — nudge assumes citizens are subjects to be managed; boost builds the competences democracy requires; nudge creates a self-serving bureaucratic constituency; boost is harder to institutionalise but more important</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','mousavi','speech',this)">Speech</div><div class="tab" onclick="sw('opp','mousavi','logic',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ── GIGERENZER ── -->
+    <div class="speaker-panel active" id="opp-gigerenzer-panel">
+      <div id="opp-gigerenzer-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to challenge the proposition at its foundation — not merely at the level of policy effectiveness but at the level of the psychological theory on which nudge rests. The nudge framework is built on a picture of human cognition that I believe is fundamentally wrong. And a policy framework built on a wrong theory of the mind will produce worse outcomes than one built on a correct theory.</p>
+
+        <span class="section">On ecological rationality — the correct picture of human cognition</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Libertarian paternalism — nudge preserves choice while improving outcomes</span>The nudge framework inherits its psychological foundations from the heuristics-and-biases research programme of Kahneman and Tversky — which identifies systematic deviations from rational choice theory as cognitive biases. But this programme judges human cognition against the wrong standard. Human cognition did not evolve to satisfy the axioms of rational choice theory. It evolved to make good decisions under uncertainty, with limited time and limited information, in uncertain, complex, rapidly changing environments. And for this purpose — making good decisions in real environments under real constraints — simple heuristics often outperform the full machinery of rational calculation. This is ecological rationality. The take-the-best heuristic — consult one good reason and ignore the rest — outperforms multiple regression in environments with limited information. The recognition heuristic — prefer the recognised option — outperforms complex deliberation where name recognition tracks quality. The 1/N heuristic — divide resources equally — outperforms complex portfolio optimisation when the future is uncertain.</span></p>
+
+        <span class="section">On what nudge gets wrong about heuristics</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Choice architecture is inevitable — the question is who designs it and for whose benefit</span>The nudge framework treats heuristics as cognitive deficiencies to be routed around. It identifies the bias — status quo bias, present bias — and designs choice architecture that exploits the bias to produce a better outcome. The person's heuristics are used against them, in service of an outcome the designer has determined is beneficial. But if heuristics are adaptive responses to environmental conditions rather than cognitive deficiencies, then routing around them is not obviously beneficial. A heuristic that makes the person accept the default without deliberation may reflect not laziness but a reasonable judgment that deliberation in this domain is not worth the cognitive investment. Overriding this judgment — exploiting the person's disposition to accept defaults — is not helping them act on their own values. It is substituting the designer's values for the person's implicit assessment of the value of deliberation.</span></p>
+
+        <span class="section">On what boost gets right — genuine competence transfer</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Nudge has a strong empirical record; boost's evidence of durable cross-domain transfer is mixed</span>The evidence for the efficacy of boost is more impressive than my proposition colleagues suggest. Studies on natural frequency representations — replacing probability statements like "10% of patients will experience adverse effects" with frequency formats like "10 out of 100 patients will experience adverse effects" — show large and robust improvements in statistical reasoning across populations. These improvements are genuine — they reflect a real change in people's ability to reason about probabilistic information. And crucially, the improvement transfers. People trained in natural frequency reasoning apply the insight to novel problems they have not seen before. This is the fundamental advantage of boost over nudge. Nudge produces compliance in the specific domain where it is applied. Boost produces competence that transfers across domains. A person automatically enrolled in a pension scheme has not acquired any capacity that helps them make better financial decisions in other contexts. A person trained to reason about long-term consequences has acquired a tool applicable wherever present bias is relevant.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-gigerenzer-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('gigerenzer',1,'opp')">
+          <div class="arg-title"><span>Arg I — Heuristics are ecologically rational, not cognitively deficient</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Nudge's psychological foundation — the heuristics-and-biases programme — judges human cognition against classical rational choice theory, a standard human cognition did not evolve to meet.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Human heuristics are adaptive responses to real decision environments — take-the-best, recognition heuristic, and 1/N frequently outperform rational calculation in environments with limited information or uncertain futures.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Treating adaptive heuristics as deficiencies to be routed around misdiagnoses the problem and misdirects the intervention.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Nudge is built on a false theory of human cognition — its premise that heuristics are deficiencies to be bypassed is wrong, which undermines the entire framework.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('gigerenzer',3,'opp')">
+          <div class="arg-title"><span>Arg II — Nudge exploits heuristics against their own adaptive function</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Nudge exploits the tendency to accept defaults — a heuristic that may reflect a rational implicit assessment that deliberation is not worth the cognitive investment in that domain.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Exploiting a person's disposition to accept defaults to produce an outcome the designer has determined is beneficial substitutes the designer's values for the person's implicit assessment.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is the wrong relationship between policy and citizen — it uses the person's own cognitive tendencies against their own judgment.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Nudge exploits adaptive heuristics against their ecological function — it is not correcting biases but weaponising adaptive responses against the persons who have them.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('gigerenzer',5,'opp')">
+          <div class="arg-title"><span>Arg III — Boost produces genuine cross-domain competence; nudge produces domain-specific compliance</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Natural frequency representations produce large, robust, transferable improvements in statistical reasoning — the improvement applies to novel problems not encountered in training.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A nudged person has been moved to a better outcome in one domain but has acquired no transferable competence; a boosted person has a tool applicable across all domains where the relevant reasoning applies.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>For a policy framework, transferability is a crucial advantage — competence that applies across life domains is worth far more than domain-specific compliance.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Boost's transferable competence is far more valuable than nudge's domain-specific compliance — the proposition's framework produces compliance, not capability.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HERTWIG ── -->
+    <div class="speaker-panel" id="opp-hertwig-panel">
+      <div id="opp-hertwig-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleague Gigerenzer has challenged the psychological foundations of nudge. I want to make the ethical case for boost — the argument that nudge is not merely less effective than its advocates claim but morally problematic in ways that its elegant philosophical packaging conceals.</p>
+
+        <span class="section">On what nudge actually does to agency</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Nudge does not bypass agency — it helps people act on their own values; opt-out rights are genuine</span>Let me be precise about the mechanism through which nudge achieves its effects. A nudge works by operating on System 1 — the automatic, fast, intuitive processing system — rather than on System 2 — the deliberate, slow, reflective system. It changes behaviour without engaging the person's deliberative capacities. The person automatically enrolled in a pension scheme does not deliberate about whether to save. The person who chooses the healthier food because it is at eye level does not deliberate about their diet. This is presented as a virtue. But the capacity to deliberate — to reflect on options, to weigh considerations, to make choices that express one's values — is not merely a cognitive capacity. It is constitutive of moral agency. A person who has been nudged to a particular choice has not expressed their agency. They have been steered by someone else's design of their choice environment. The fact that they could have opted out does not vindicate their agency — opting out requires precisely the deliberative engagement that the nudge was designed to bypass.</span></p>
+
+        <span class="section">On learned helplessness and the erosion of deliberation</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Policy should target outcomes not rational cultivation — boost confuses the instrument with the goal</span>There is a further concern about nudge that I think is insufficiently appreciated: the risk of learned helplessness. If people are systematically nudged toward good choices — if their defaults are always set correctly, their options always presented in the most beneficial order — they will, over time, lose the habit of deliberation. They will become dependent on the design of their choice environment rather than on their own judgment. The muscle of deliberation atrophies if it is never exercised. The social psychology literature on self-efficacy is clear: people's sense of competence and self-efficacy is built through the experience of making decisions, sometimes getting them wrong, learning from mistakes, and developing judgment through practice. A person who is systematically nudged toward correct choices is denied the experience of developing judgment. They are like a person kept on a moving walkway — they arrive at the right destination, but they have not developed the capacity to walk.</span></p>
+
+        <span class="section">On transparency and the limits of opt-out</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Nudge is immediate, universal and equitable; boost is slow, resource-intensive and unequally distributed</span>Sunstein argued that nudge is democratically legitimate because it is transparent. But there is a structural difference between persuasion and nudge that makes transparency insufficient to address the manipulation concern. Persuasion works through the person's deliberative capacities — it presents reasons, evidence, and arguments that the person can evaluate and accept or reject. The person's rational agency is engaged, and the person's acceptance of the persuasion is an expression of their rational assessment. Nudge works through mechanisms that bypass deliberation. Changing the default exploits inertia. Placing healthy food at eye level exploits salience bias. Announcing that you are exploiting someone's inertia does not make the exploitation less exploitative. Moreover: the nudge systematically favours those whose genuine preferences happen to align with the default. Those whose genuine preferences differ face extra friction. The nudge is not neutral between preferences — it is systematically biased toward the designer's view of what preferences people should have.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-hertwig-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="4" onclick="openModal('hertwig',4,'opp')">
+          <div class="arg-title"><span>Arg I — Nudge bypasses deliberation constitutively; opt-out does not restore agency</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Nudge achieves its effects by operating on System 1 — automatic, pre-deliberative processing — bypassing the deliberative capacities that constitute moral agency.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A person who has been nudged to a choice has not expressed their agency — they have been steered by someone else's design of their environment.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Opt-out rights do not restore agency because opting out requires precisely the deliberative engagement that the nudge was designed to bypass — the asymmetry is structural, not correctable.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Nudge constitutively bypasses moral agency — the opt-out is not a genuine vindication of agency but an afterthought that presupposes what the nudge was designed to prevent.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal('hertwig',6,'opp')">
+          <div class="arg-title"><span>Arg II — Systematic nudging produces learned helplessness and atrophied deliberation</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The capacity for deliberation, like any capacity, requires exercise — it atrophies when systematically bypassed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Self-efficacy research shows that the sense of competence and agency is built through experience of decision-making, including mistakes — not through being steered to correct outcomes.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A population systematically nudged toward correct choices is a population denied the developmental experience of building judgment.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Systematic nudging produces learned helplessness — dependence on the design of one's choice environment rather than on one's own judgment — which is individually and socially costly.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('hertwig',2,'opp')">
+          <div class="arg-title"><span>Arg III — Transparency does not cure nudge's manipulation; nudge is not neutral between preferences</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Persuasion works through deliberative engagement — the person can evaluate and reject reasons; nudge works through mechanisms that bypass deliberation — announcing them does not change this.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Nudge systematically favours those whose genuine preferences align with the default; those whose genuine preferences differ face extra friction to act on them.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A policy instrument that is structurally biased toward one set of preferences over others is not neutral — it is not the designer's role to decide whose preferences face friction.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Transparency is insufficient to legitimate nudge — announcing that you are exploiting inertia does not stop it being exploitation; nudge structurally favours the designer's preferred preferences.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MOUSAVI ── -->
+    <div class="speaker-panel" id="opp-mousavi-panel">
+      <div id="opp-mousavi-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to close the opposition's case with an argument that goes beyond psychological and ethical concerns to the level of political theory. My argument is that the choice between nudge and boost is not merely a choice between two policy instruments. It is a choice between two conceptions of the relationship between state and citizen — and that the nudge conception is dangerous for self-governing democratic societies.</p>
+
+        <span class="section">On what nudge assumes about citizens</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Boost is paternalism in disguise, not an escape from it</span>The nudge framework rests on a particular conception of the citizen: as a bundle of preferences and biases, to be managed by expert designers of choice architecture, so as to produce outcomes that are good for the bundle. The citizen is not, in this picture, a self-governing agent who participates in collective decisions about the direction of public policy. The citizen is a subject of governance — a person whose behaviour is to be shaped by the state, however benevolently. This conception is politically dangerous for two reasons. First, it concentrates power: enormous power accrues to whoever designs the choice architecture — determining defaults, information presentation, and option framing for millions of people. These decisions are made by experts, not by the people whose choices are being shaped. Second, it undermines the epistemic conditions for democracy: democratic self-government requires citizens capable of forming, revising, and expressing genuine preferences about public matters — who can evaluate evidence, weigh arguments, and participate in collective deliberation. A citizenry systematically nudged toward good choices — rather than cultivated in the competences required for good judgment — is poorly equipped for democratic participation.</span></p>
+
+        <span class="section">On boost and democratic competence</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Nudge has a strong empirical record; boost's evidence of durable cross-domain transfer is mixed</span>The boost framework, by contrast, is a framework for building democratic competence. When we teach people statistical reasoning, we are not merely equipping them to make better personal decisions about health and finance. We are equipping them to evaluate evidence about public policy — to assess claims about the effectiveness of government programmes, to recognise the manipulation of statistics in political debate, to be better informed citizens. When we cultivate risk literacy, we are equipping citizens to participate meaningfully in public debates about environmental risk, public health policy, and technological governance. The competences that boost cultivates — statistical reasoning, risk literacy, recognition of cognitive biases — are precisely the competences that effective democratic citizenship requires. A society that invests in boosting its citizens is investing in the conditions of its own democratic health. A society that invests in nudging its citizens is investing in their manageability.</span></p>
+
+        <span class="section">On the political economy of nudge</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Choice architecture is inevitable — the question is who designs it and for whose benefit</span>The nudge framework developed in academia and migrated to government through behavioural insights units — staffed by psychologists and economists with strong institutional interests in the expansion of nudge as a policy instrument. Behavioural insights teams are most useful to governments when nudge is the primary policy instrument — they have institutional incentives to advocate for its expansion and to resist the substitution of boost for nudge even where boost might be more appropriate. This is a standard public choice observation about the interests of bureaucratic actors. Boost is harder to institutionalise. It requires sustained investment in education, in training, in the development of new curricula and pedagogical approaches. It does not produce a new class of state actors with interests in its expansion. Its benefits accumulate slowly and are harder to measure. These are political disadvantages that have made boost less attractive to governments — but they are not moral disadvantages. They are the costs of taking seriously the project of building citizens rather than managing subjects.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-mousavi-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="7" onclick="openModal('mousavi',7,'opp')">
+          <div class="arg-title"><span>Arg I — Nudge conceives of citizens as subjects to be managed, not agents to participate</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Nudge treats citizens as bundles of preferences and biases to be managed by expert choice architects — not as self-governing agents participating in collective political decisions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This concentrates power in expert designers and undermines the epistemic conditions for democratic self-government — a citizenry managed rather than cultivated cannot participate meaningfully in collective deliberation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Democratic societies require citizens capable of forming and revising genuine preferences about public matters — systematic nudging produces the opposite.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Nudge is politically dangerous for democratic societies — it embeds a conception of the citizen as subject rather than agent, and concentrates policy power in unaccountable expert designers.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('mousavi',5,'opp')">
+          <div class="arg-title"><span>Arg II — Boost builds democratic competence; nudge builds manageability</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Statistical reasoning, risk literacy, and bias recognition are the competences that effective democratic citizenship requires — evaluating evidence, resisting political manipulation, participating in collective deliberation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Boost cultivates precisely these competences; nudge cultivates compliance with expert-designed defaults in specific domains.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A society that invests in boost is investing in the conditions of democratic health; a society that invests in nudge is investing in the manageability of its citizens.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>From a democratic theory perspective, boost is clearly preferable — it builds the competences democracy requires; nudge builds the compliance that expert governance prefers.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('mousavi',3,'opp')">
+          <div class="arg-title"><span>Arg III — Nudge's institutional popularity reflects bureaucratic self-interest, not moral superiority</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Behavioural insights units have institutional interests in the expansion of nudge — they are most useful when nudge is the primary policy instrument.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Boost is harder to institutionalise and does not create a bureaucratic constituency with interests in its expansion — making it politically less attractive despite being morally more important.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A policy framework's popularity with governments is not evidence of its moral superiority — it may reflect its compatibility with existing bureaucratic interests.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Nudge's institutional dominance reflects bureaucratic self-interest, not moral superiority — the difficulty of institutionalising boost is a political disadvantage, not a moral one.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- opp body -->
+</div><!-- opp col -->
+
+</div><!-- columns -->
+
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh"><div>No image linked yet</div><code>Set src in IMAGES object in script</code></div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+var IMAGES={
+  thaler:{1:{src:"",caption:"Thaler — Libertarian paternalism"},2:{src:"",caption:"Thaler — Nudge is immediate and equitable"},3:{src:"",caption:"Thaler — Boost misidentifies the problem"}},
+  sunstein:{3:{src:"",caption:"Sunstein — Choice architecture is unavoidable"},4:{src:"",caption:"Sunstein — Transparent nudge is democratically legitimate"},5:{src:"",caption:"Sunstein — Empirical record favours nudge"}},
+  bovens:{4:{src:"",caption:"Bovens — Nudge supports environmental agency"},6:{src:"",caption:"Bovens — Policy targets outcomes not rational cultivation"},7:{src:"",caption:"Bovens — Boost is paternalism in disguise"}},
+  gigerenzer:{1:{src:"",caption:"Gigerenzer — Heuristics are ecologically rational"},3:{src:"",caption:"Gigerenzer — Nudge exploits adaptive heuristics"},5:{src:"",caption:"Gigerenzer — Boost produces cross-domain competence"}},
+  hertwig:{2:{src:"",caption:"Hertwig — Transparency does not cure nudge"},4:{src:"",caption:"Hertwig — Nudge bypasses agency constitutively"},6:{src:"",caption:"Hertwig — Systematic nudging produces learned helplessness"}},
+  mousavi:{3:{src:"",caption:"Mousavi — Nudge's popularity reflects bureaucratic interest"},5:{src:"",caption:"Mousavi — Boost builds democratic competence"},7:{src:"",caption:"Mousavi — Nudge conceives citizens as subjects"}}
+};
+
+var state={
+  prop:{speaker:'thaler',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'gigerenzer',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
+  document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
+  body.scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+function sw(side,speaker,view,el){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(view==='speech'){
+    sp.classList.remove('hidden');lg.classList.add('hidden');
+    body.scrollTop=st.speechScroll||0;
+  } else {
+    sp.classList.add('hidden');lg.classList.remove('hidden');
+    body.scrollTop=st.logicScroll||0;
+  }
+}
+
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech') st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+
+function openModal(speaker,n,side){
+  var d=(IMAGES[speaker]||{})[n]||{src:"",caption:speaker+" — argument "+n};
+  document.getElementById('mTitle').textContent=d.caption;
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.style.display='none';ph.style.display='none'}
+  else{img.style.display='none';ph.style.display='flex'}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none'}
+function imgFail(){document.getElementById('mImg').style.display='none';var p=document.getElementById('mPh');p.style.display='flex';p.querySelector('div').textContent='Image failed to load'}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal()}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl) return;
+  var tip=hl.querySelector('.tooltip');if(!tip) return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2,vw=window.innerWidth,m=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  tip.style.left=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m)+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl) return;
+  var tip=hl.querySelector('.tooltip');if(tip) tip.style.display='none';
+});
+</script>
