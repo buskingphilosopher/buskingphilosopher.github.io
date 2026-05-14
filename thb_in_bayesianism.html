@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>This House Believes in Bayesianism</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Fira+Code:wght@300;400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0f0d;
+  --bg2:#141511;
+  --bg3:#1b1c18;
+  --bg4:#232419;
+  --bdr:rgba(200,210,160,.08);
+  --bdr2:rgba(200,210,160,.16);
+  --text:#dddbc8;
+  --text2:#9a9882;
+  --text3:#58574a;
+  --gold:#b8c46a;
+  --gold2:#d4e07a;
+
+  --prop-green:#7ab87a;
+  --prop-pill:#1a2e1a;
+  --prop-pill-bdr:#3a5e3a;
+  --opp-red:#c07070;
+  --opp-pill:#2e1a1a;
+  --opp-pill-bdr:#5e3a3a;
+
+  --a1bg:rgba(180,220,100,.1);--a1brd:rgba(180,220,100,.4);--a1tip:#c4dc64;
+  --a2bg:rgba(100,200,200,.1);--a2brd:rgba(100,200,200,.38);--a2tip:#64c8c8;
+  --a3bg:rgba(200,160,80,.1);--a3brd:rgba(200,160,80,.38);--a3tip:#c8a050;
+  --a4bg:rgba(180,100,200,.1);--a4brd:rgba(180,100,200,.38);--a4tip:#b464c8;
+  --a5bg:rgba(100,160,220,.1);--a5brd:rgba(100,160,220,.38);--a5tip:#64a0dc;
+  --a6bg:rgba(220,120,80,.1);--a6brd:rgba(220,120,80,.38);--a6tip:#dc7850;
+  --a7bg:rgba(160,220,140,.1);--a7brd:rgba(160,220,140,.38);--a7tip:#a0dc8c;
+}
+
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* ── NOISE OVERLAY ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.6;
+}
+
+/* ── HEADER ── */
+.motion-header{
+  position:relative;z-index:2;
+  padding:.9rem 2rem .7rem;
+  border-bottom:1px solid var(--bdr);
+  text-align:center;
+  background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.motion-header::before{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  opacity:.35;
+}
+.motion-eyebrow{
+  font-family:'Fira Code',monospace;
+  font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);font-weight:400;
+}
+.motion-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:19px;font-weight:300;font-style:italic;
+  color:var(--text);letter-spacing:.02em;line-height:1.3;
+}
+.motion-title strong{font-weight:500;font-style:normal;color:var(--gold2)}
+
+/* ── COLUMNS ── */
+.columns{
+  display:grid;grid-template-columns:1fr 1fr;
+  height:calc(100vh - 62px);
+  position:relative;z-index:1;
+}
+.col{display:flex;flex-direction:column;overflow:hidden}
+.col.prop{border-right:1px solid var(--bdr)}
+
+/* ── SPEAKER BAR ── */
+.speaker-bar{
+  display:flex;align-items:stretch;
+  border-bottom:1px solid var(--bdr);
+  background:var(--bg3);
+  flex-shrink:0;
+}
+.speaker-btn{
+  font-family:'Fira Code',monospace;font-size:10px;font-weight:400;
+  padding:9px 16px;cursor:pointer;white-space:nowrap;
+  border:none;border-right:1px solid var(--bdr);
+  color:var(--text3);background:transparent;
+  transition:color .2s,background .2s;flex-shrink:0;
+  letter-spacing:.05em;
+}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp .speaker-btn.active{color:var(--opp-red)}
+
+/* ── COL HEADER ── */
+.col-header{
+  padding:.65rem 1.2rem 0;
+  border-bottom:1px solid var(--bdr);
+  flex-shrink:0;background:var(--bg2);
+}
+.col-header-top{display:flex;align-items:center;gap:.6rem;margin-bottom:3px;flex-wrap:wrap}
+.pill{
+  font-family:'Fira Code',monospace;font-size:9px;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 9px;border-radius:2px;
+}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{
+  font-family:'Cormorant Garamond',serif;
+  font-size:17px;font-weight:400;font-style:italic;color:var(--text);
+}
+.col-position{
+  font-family:'Fira Code',monospace;font-size:9px;
+  color:var(--text3);margin-top:1px;letter-spacing:.02em;line-height:1.5;
+}
+.tabs{display:flex;gap:0;margin-top:6px}
+.tab{
+  font-family:'Fira Code',monospace;
+  padding:5px 14px;font-size:10px;letter-spacing:.06em;
+  color:var(--text3);cursor:pointer;
+  border:1px solid var(--bdr);border-bottom:none;
+  border-radius:3px 3px 0 0;background:var(--bg);
+  margin-right:3px;user-select:none;
+  transition:color .15s,background .15s;
+}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}
+.opp .tab.active{color:var(--opp-red)}
+
+/* ── BODY ── */
+.col-body{
+  flex:1;overflow-y:auto;
+  padding:1.3rem 1.5rem;
+  font-size:15px;line-height:2;
+  color:var(--text2);
+}
+.col-body::-webkit-scrollbar{width:2px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:1px}
+
+.speaker-panel{display:none}
+.speaker-panel.active{display:block}
+
+/* ── SPEECH TEXT ── */
+.speech-text p{margin-bottom:.9rem}
+.speech-text .salut{color:var(--text3);font-style:italic;font-size:14px}
+.speech-text em{color:var(--text3)}
+.speech-text .formula{
+  font-family:'Fira Code',monospace;font-size:12px;
+  background:var(--bg3);border:1px solid var(--bdr);border-radius:3px;
+  padding:6px 14px;margin:.5rem 0 .9rem;display:block;
+  color:var(--gold2);letter-spacing:.04em;line-height:1.7;
+}
+.speech-text .section{
+  font-family:'Fira Code',monospace;font-size:9.5px;
+  text-transform:uppercase;letter-spacing:.14em;
+  color:var(--text3);margin:1.5rem 0 .3rem;display:block;
+}
+
+/* ── LOGIC VIEW ── */
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{
+  border-left:2px solid;background:var(--bg2);
+  overflow:hidden;cursor:pointer;
+  transition:background .15s;
+}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{
+  padding:8px 12px;
+  font-family:'Fira Code',monospace;font-size:9.5px;font-weight:500;
+  text-transform:uppercase;letter-spacing:.09em;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--bdr);
+}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+.arg-premises{padding:10px 12px 6px}
+.premise{
+  display:flex;gap:10px;margin-bottom:8px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:14px;line-height:1.7;color:var(--text2);
+}
+.plabel{
+  font-family:'Fira Code',monospace;
+  font-weight:500;min-width:16px;font-size:10px;
+  color:var(--text3);padding-top:2px;flex-shrink:0;
+}
+.conclusion{
+  display:flex;gap:10px;padding:8px 12px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:14px;line-height:1.7;
+  border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500;
+}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+/* ── HIGHLIGHTS ── */
+.hl{
+  border-radius:2px;padding:1px 2px;
+  position:relative;display:inline;cursor:default;
+}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{
+  display:none;position:fixed;
+  font-family:'Fira Code',monospace;font-size:10px;
+  font-weight:400;font-style:normal;
+  white-space:nowrap;z-index:200;pointer-events:none;
+  background:var(--bg4);border:1px solid var(--bdr2);
+  border-radius:3px;padding:5px 11px;
+  box-shadow:0 4px 16px rgba(0,0,0,.7);
+  color:var(--text);transform:translateX(-50%);
+}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.hidden{display:none!important}
+
+/* ── MODAL ── */
+.modal-wrap{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.8);z-index:100;
+  align-items:center;justify-content:center;
+}
+.modal-wrap.open{display:flex}
+.modal{
+  background:var(--bg2);border-radius:4px;
+  border:1px solid var(--bdr2);width:400px;max-width:92%;overflow:hidden;
+}
+.modal-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.6rem 1rem;border-bottom:1px solid var(--bdr);
+}
+.modal-hd-title{
+  font-family:'Fira Code',monospace;font-size:11px;
+  font-weight:400;color:var(--text);letter-spacing:.05em;
+}
+.modal-close{
+  background:none;border:1px solid var(--bdr);
+  cursor:pointer;color:var(--text2);font-size:14px;
+  line-height:1;padding:3px 7px;border-radius:2px;
+}
+.modal-close:hover{background:var(--bg4)}
+.modal-bd{padding:.85rem}
+.modal-img-wrap{
+  border:1px solid var(--bdr);border-radius:3px;overflow:hidden;
+  background:var(--bg3);min-height:130px;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{
+  text-align:center;padding:1.5rem;color:var(--text3);
+  font-family:'Fira Code',monospace;font-size:11px;
+  display:flex;flex-direction:column;align-items:center;gap:.4rem;
+}
+.modal-ph code{font-size:9px;background:var(--bg4);padding:2px 6px;border-radius:2px}
+.modal-cap{margin-top:.5rem;font-family:'Fira Code',monospace;font-size:10px;color:var(--text3);letter-spacing:.04em}
+</style>
+</head>
+<body>
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House · Philosophy of Science</div>
+  <div class="motion-title">"<strong>This House Believes in Bayesianism</strong> as the correct normative theory of rational belief and scientific inference"</div>
+</div>
+
+<div class="columns">
+
+  <!-- ═══════════════════════════════ PROPOSITION ═══════════════════════════════ -->
+  <div class="col prop" id="col-prop">
+
+    <div class="speaker-bar prop" id="prop-speaker-bar">
+      <button class="speaker-btn active" onclick="switchSpeaker('prop','bradley',this)">Bradley</button>
+      <button class="speaker-btn" onclick="switchSpeaker('prop','lewis',this)">David Lewis</button>
+    </div>
+
+    <!-- BRADLEY HEADER -->
+    <div class="col-header" id="prop-bradley-header">
+      <div class="col-header-top">
+        <span class="pill prop">Proposition</span>
+        <span class="col-subtitle">Richard Bradley</span>
+      </div>
+      <div class="col-position">For Bayesianism — from decision theory and the Dutch Book argument</div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('prop','bradley','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('prop','bradley','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+
+    <!-- LEWIS HEADER -->
+    <div class="col-header hidden" id="prop-lewis-header">
+      <div class="col-header-top">
+        <span class="pill prop">Proposition</span>
+        <span class="col-subtitle">David Lewis</span>
+      </div>
+      <div class="col-position">For Bayesianism — from the Principal Principle and Humean supervenience</div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('prop','lewis','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('prop','lewis','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+
+    <div class="col-body" id="prop-body">
+
+      <!-- ── BRADLEY ── -->
+      <div class="speaker-panel active" id="prop-bradley-panel">
+        <div id="prop-bradley-speech" class="speech-text">
+          <p class="salut">Mr President,</p>
+          <p>We are gathered to debate whether Bayesianism — the view that rational degrees of belief are probabilities, updated by conditionalization — constitutes the correct normative theory of scientific reasoning. I shall argue that it does, and that the alternatives on offer fail to provide a coherent substitute.</p>
+          <p>The Bayesian framework is deceptively simple in statement. A rational agent's degrees of belief — credences — must satisfy the axioms of probability calculus, and upon learning evidence <em>E</em>, the agent should update by conditionalizing:</p>
+          <span class="formula">P_new(H) = P_old(H | E) = P_old(H ∧ E) / P_old(E)</span>
+          <p>This is not dogma. It is the unique updating rule that is consistent with both the agent's prior probability function and the formal constraints on rational belief. Let me explain why.</p>
+          <span class="section">On the Dutch Book argument</span>
+          <p><span class="hl" data-arg="1"><span class="tooltip">The Dutch Book argument for probabilism</span>The Dutch Book argument — due to Ramsey and de Finetti — establishes that if an agent's credences violate the probability axioms, a clever bookmaker can construct a set of bets that the agent will accept but which guarantee a net loss regardless of how the world turns out. This is a synchronic incoherence: the agent is effectively paying a penalty for irrationality at every moment. The probability axioms are not arbitrary constraints; they are the conditions that must be satisfied if an agent is to avoid being exploitable in this most basic way. An agent who accepts that rationality requires non-exploitability accepts the probability axioms.</span></p>
+          <span class="section">On dynamic coherence and conditionalization</span>
+          <p><span class="hl" data-arg="2"><span class="tooltip">The diachronic Dutch Book for conditionalization</span>A parallel diachronic argument establishes conditionalization as the uniquely rational updating rule. If an agent plans to update on evidence by any rule other than conditionalization, a Dutch Book can be constructed across time — bets placed before and after learning the evidence that guarantee a net loss. This was established by David Lewis and Paul Teller. The agent who updates by conditionalization is dynamically coherent; the agent who does not will be exploitable across time regardless of the evidence she receives. Conditionalization is thus not merely one updating rule among many — it is the one demanded by diachronic rationality.</span></p>
+          <span class="section">On the representation theorem</span>
+          <p><span class="hl" data-arg="3"><span class="tooltip">The argument from representation theorems</span>The Dutch Book argument is sometimes thought to be too pragmatic — it grounds epistemic norms in practical exploitability. A more foundational approach comes from the representation theorems of Ramsey, Savage, and Jeffrey. If an agent's preferences over acts satisfy certain structural axioms — completeness, transitivity, the sure-thing principle — then there exists a probability function and a utility function such that the agent acts as if she is maximising expected utility with respect to those functions. The probability function is the agent's belief representation; the utility function is her value representation. The axioms are conditions of practical rationality, and Bayesianism is their epistemic consequence.</span></p>
+          <span class="section">On Jeffrey's objection — and my response to it</span>
+          <p><span class="hl" data-arg="4"><span class="tooltip">Bradley's response to Jeffrey's objection from uncertain evidence</span>Richard Jeffrey, my distinguished opponent, raised a genuine challenge to standard Bayesian conditionalization: in many real situations, evidence does not arrive in the form of a proposition learned with certainty. When I glance at a piece of cloth in dim light and form a probabilistic judgment about its colour, there is no proposition <em>E</em> I learn with probability 1. Jeffrey's response was to propose Jeffrey conditionalization, which allows updating on a probability distribution over a partition. I accept this as a genuine extension of the Bayesian framework — not a refutation. It shows that Bayesianism is generalisable rather than brittle. The commitment is to coherent probabilistic updating, not to the specific form of strict conditionalization.</span></p>
+          <span class="section">On the problem of the priors</span>
+          <p><span class="hl" data-arg="5"><span class="tooltip">The argument from convergence on priors</span>The objection from the subjectivity of priors is the most persistent. If agents with radically different priors reach radically different posteriors, Bayesian agents cannot claim to have reached objective conclusions. But this objection understates the power of Bayesian convergence theorems. Under repeated conditionalization on evidence that distinguishes among hypotheses, agents with different priors — provided they do not assign prior probability zero to the true hypothesis — will converge to the same posterior. The subjectivity of priors is asymptotically washed out by the evidence. Moreover, the existence of prior disagreement is not distinctive to Bayesianism; every framework for scientific inference permits initial disagreement. The Bayesian framework is unique in providing a rigorous mechanism for that disagreement to be resolved by evidence.</span></p>
+          <p>I urge the House to vote for the proposition. Bayesianism is not one approach among many equally coherent alternatives. It is the theory of rational belief under uncertainty, and the alternatives have not produced a serious rival.</p>
+          <p><em>Thank you.</em></p>
+        </div>
+        <div id="prop-bradley-logic" class="logic-view hidden">
+          <div class="arg-block" data-arg="1">
+            <div class="arg-title"><span>Argument I — Dutch Book argument for probabilism</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>A rational agent's credences should not be exploitable — she should not accept bets guaranteed to lose regardless of outcome.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>If credences violate the probability axioms, a Dutch Book can always be constructed against the agent — a set of bets she accepts but which guarantee net loss.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>If credences satisfy the probability axioms, no such Dutch Book can be constructed.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Rationality requires credences that satisfy the probability axioms — probabilism is established by the Dutch Book argument.</span></div>
+          </div>
+          <div class="arg-block" data-arg="2">
+            <div class="arg-title"><span>Argument II — Diachronic Dutch Book for conditionalization</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Dynamic coherence requires that an agent's plans for future updating, combined with her current credences, do not produce a guaranteed loss across time.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Any updating rule other than conditionalization allows a diachronic Dutch Book — a series of bets placed before and after evidence that guarantees net loss.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Conditionalization uniquely avoids this diachronic exploitation.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Diachronic rationality uniquely requires conditionalization as the updating rule; alternatives are dynamically incoherent.</span></div>
+          </div>
+          <div class="arg-block" data-arg="3">
+            <div class="arg-title"><span>Argument III — The representation theorem</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>If preferences over acts satisfy the axioms of completeness, transitivity, and the sure-thing principle, a unique probability-utility representation exists.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>These axioms are conditions of practical rationality — not arbitrary formal constraints.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The probability function in this representation is the agent's rational credence function.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Bayesian credences follow necessarily from the formal conditions of practical rationality; they are not an optional epistemic commitment.</span></div>
+          </div>
+          <div class="arg-block" data-arg="4">
+            <div class="arg-title"><span>Argument IV — Jeffrey conditionalization extends, not refutes, Bayesianism</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Jeffrey's objection shows that evidence often arrives probabilistically rather than as certainty — standard conditionalization fails to cover this case.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Jeffrey conditionalization generalises the updating rule to handle probabilistic evidence while preserving the core Bayesian commitment to coherent probabilistic updating.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The generalisation shows that Bayesianism is a flexible research programme, not a brittle dogma.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Jeffrey's challenge motivates a more general form of Bayesian updating rather than an abandonment of the Bayesian framework.</span></div>
+          </div>
+          <div class="arg-block" data-arg="5">
+            <div class="arg-title"><span>Argument V — Convergence of posteriors resolves the prior problem</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Bayesian merging-of-opinion theorems establish that agents with different priors, provided none assign probability zero to the truth, converge in posteriors under repeated conditionalization.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Prior disagreement is not distinctive to Bayesianism — all frameworks permit initial disagreement but few provide a mechanism for its resolution.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The Bayesian framework uniquely shows how evidence, over time, washes out prior subjectivity.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The subjectivity of priors is not a fatal objection; Bayesian convergence theorems show that the evidence does the needed work of objectification.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── LEWIS ── -->
+      <div class="speaker-panel" id="prop-lewis-panel">
+        <div id="prop-lewis-speech" class="speech-text">
+          <p class="salut">Mr President,</p>
+          <p>My colleague Professor Bradley has established the formal foundations of Bayesianism through the Dutch Book and representation theorems. I want to press deeper and ask what Bayesian credences are <em>about</em> — what connects our subjective degrees of belief to the objective features of the world that make those beliefs reasonable or unreasonable. This is the question that I have tried to address through what I call the Principal Principle, and it is, I believe, the deepest contribution that Bayesian philosophy of science can offer.</p>
+          <span class="section">On the Principal Principle</span>
+          <p><span class="hl" data-arg="1"><span class="tooltip">The Principal Principle</span>The connection between subjective credence and objective chance is governed by what I call the Principal Principle: a rational agent's credence in a proposition, conditional on the proposition that the objective chance of that proposition is <em>x</em> and on any admissible background information, should be <em>x</em>. This principle is not derivable from the probability axioms alone — it is a substantive constraint connecting the Bayesian framework to the objective physical world. Without it, Bayesian credences float free of reality. With it, Bayesian epistemology is anchored in objective features of the world.</span></p>
+          <span class="section">On Humean supervenience and the metaphysics of chance</span>
+          <p><span class="hl" data-arg="2"><span class="tooltip">The argument from Humean supervenience</span>The sceptic will say that objective chances are mysterious — what are they, and how do they ground credences? My answer is that chances supervene on the complete history of occurrent facts — the Humean mosaic of point-by-point local qualitative facts. The best-systems analysis of laws and chances identifies them with what emerges from the best summary of that mosaic: the system of propositions that best balances simplicity, strength, and fit. This is not an inflationary metaphysics of nomic necessity; it is a deflationary account on which chance is a natural feature of the world, fully available to serve as the anchor of rational credence.</span></p>
+          <span class="section">On the problem of old evidence</span>
+          <p><span class="hl" data-arg="3"><span class="tooltip">The response to the problem of old evidence</span>Clark Glymour raised a penetrating objection to Bayesian confirmation theory: when Einstein showed that general relativity predicted the precession of Mercury's perihelion — a datum already known for decades — this seemed to confirm the theory. But on standard Bayesian conditionalization, evidence already known and assigned probability 1 cannot raise the probability of any hypothesis. How can known evidence confirm? The Bayesian reply is to distinguish the agent's credence function at the time of the theory's evaluation from the historical credence that gave the evidence probability 1. Counterfactual reasoning — asking what probability the agent would have assigned to the evidence absent knowledge of the theory — restores the confirmatory power of old evidence without abandoning the Bayesian framework.</span></p>
+          <span class="section">On chance, credence, and the success of science</span>
+          <p><span class="hl" data-arg="4"><span class="tooltip">The argument from the success of science</span>The opponents of Bayesianism must explain why science works — why the process of updating beliefs on evidence has produced reliable theories about the world. The Bayesian explanation is direct: by the Principal Principle, agents who track objective chances through their credences, and update by conditionalization, will reliably learn truths about high-probability features of the world. The convergence of scientific communities on common theories is explicable as the washing out of prior disagreement through repeated conditionalization on shared evidence. No rival account of scientific inference provides as elegant or complete an explanation of the success of science.</span></p>
+          <span class="section">On the unity of theoretical and practical reason</span>
+          <p><span class="hl" data-arg="5"><span class="tooltip">The argument from the unity of theoretical and practical reason</span>One of the great virtues of the Bayesian framework, rarely sufficiently appreciated, is that it unifies theoretical and practical reason under a single structure. Theoretical rationality governs how we update beliefs; practical rationality governs how we act on them. The Bayesian account provides a single framework — credences, utilities, and expected utility maximisation — within which both are explained. The alternative frameworks proposed by my opponents — van Fraassen's constructive empiricism, for example — sever the connection between belief and action in ways that make rational agency deeply puzzling. The Bayesian framework is the only one that keeps theoretical and practical reason together.</span></p>
+          <p><em>Thank you.</em></p>
+        </div>
+        <div id="prop-lewis-logic" class="logic-view hidden">
+          <div class="arg-block" data-arg="1">
+            <div class="arg-title"><span>Argument I — The Principal Principle anchors credence to chance</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Rational credences must be connected to objective features of the world — a credence function that ignores chances is epistemically irresponsible.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The Principal Principle provides this connection: rational credence conditional on known chance equals that chance.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>This principle is a substantive constraint the Bayesian framework can accommodate and no rival framework can as elegantly express.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The Principal Principle establishes that Bayesian credences are not merely subjective — they are anchored to objective chance through a principled constraint.</span></div>
+          </div>
+          <div class="arg-block" data-arg="2">
+            <div class="arg-title"><span>Argument II — The best-systems account grounds objective chance</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Objective chances, if they are to serve as anchors for credence, must be scientifically tractable — not spooky nomic necessities.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The best-systems analysis identifies chances with features of the best summary of the Humean mosaic — a deflationary, empirically grounded metaphysics.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>On this account, the Principal Principle connects credence to something real and scientifically respectable.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The Humean metaphysics of chance provides a scientifically respectable grounding for the objective anchor of Bayesian credence.</span></div>
+          </div>
+          <div class="arg-block" data-arg="3">
+            <div class="arg-title"><span>Argument III — Old evidence is handled by counterfactual reasoning</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The problem of old evidence arises because evidence already known cannot raise the probability of a hypothesis on standard conditionalization.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Counterfactual reasoning — considering what credence one would have assigned absent knowledge of the theory — restores the confirmation relation.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>This move is available to Bayesians and represents a natural extension of the framework rather than a retreat from it.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The problem of old evidence is soluble within the Bayesian framework through principled counterfactual reasoning about credences.</span></div>
+          </div>
+          <div class="arg-block" data-arg="4">
+            <div class="arg-title"><span>Argument IV — Bayesianism explains the success of science</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Agents tracking objective chances via the Principal Principle and updating by conditionalization will reliably learn truths about high-probability features of the world.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Scientific convergence across communities is explicable as the washout of prior disagreement through shared conditionalization on common evidence.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>No rival account of inference provides as complete or elegant an explanation of why science works.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Bayesianism provides the best explanation of the success of science; rival frameworks either presuppose or are parasitic upon Bayesian reasoning.</span></div>
+          </div>
+          <div class="arg-block" data-arg="5">
+            <div class="arg-title"><span>Argument V — The unity of theoretical and practical reason</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>A complete account of rational agency requires a unified framework for both belief and action.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The Bayesian framework — credences, utilities, and expected utility maximisation — provides this unity.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Rival frameworks, including constructive empiricism, sever the connection between belief and action and cannot explain rational agency.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Only the Bayesian framework unifies theoretical and practical reason; alternatives leave rational agency inexplicable.</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end prop body -->
+  </div><!-- end prop col -->
+
+  <!-- ═══════════════════════════════ OPPOSITION ═══════════════════════════════ -->
+  <div class="col opp" id="col-opp">
+
+    <div class="speaker-bar opp" id="opp-speaker-bar">
+      <button class="speaker-btn active" onclick="switchSpeaker('opp','jeffrey',this)">Richard Jeffrey</button>
+      <button class="speaker-btn" onclick="switchSpeaker('opp','vanfraassen',this)">van Fraassen</button>
+    </div>
+
+    <!-- JEFFREY HEADER -->
+    <div class="col-header" id="opp-jeffrey-header">
+      <div class="col-header-top">
+        <span class="pill opp">Opposition</span>
+        <span class="col-subtitle">Richard Jeffrey</span>
+      </div>
+      <div class="col-position">Against strict Bayesianism — from radical probabilism and the problem of priors</div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('opp','jeffrey','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('opp','jeffrey','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+
+    <!-- VAN FRAASSEN HEADER -->
+    <div class="col-header hidden" id="opp-vanfraassen-header">
+      <div class="col-header-top">
+        <span class="pill opp">Opposition</span>
+        <span class="col-subtitle">Bas van Fraassen</span>
+      </div>
+      <div class="col-position">Against Bayesianism — from constructive empiricism and the problem of laws</div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('opp','vanfraassen','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('opp','vanfraassen','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+
+    <div class="col-body" id="opp-body">
+
+      <!-- ── JEFFREY ── -->
+      <div class="speaker-panel active" id="opp-jeffrey-panel">
+        <div id="opp-jeffrey-speech" class="speech-text">
+          <p class="salut">Mr President,</p>
+          <p>I find myself in an unusual position. I am one of the architects of the Bayesian framework, and I have spent my career extending and refining it. And yet I am here to argue against the motion — not because I reject probability theory as a framework for rational belief, but because the motion as stated — that Bayesianism is <em>the correct</em> normative theory — makes a claim that goes far beyond what the Bayesian framework has established, and papering over those gaps has caused serious confusion in philosophy of science.</p>
+          <p>I want to press three lines of objection that I regard as genuine and unresolved.</p>
+          <span class="section">On strict conditionalization and the nature of evidence</span>
+          <p><span class="hl" data-arg="1"><span class="tooltip">The problem of probabilistic evidence</span>Standard Bayesian conditionalization assumes that evidence arrives in the form of a proposition that the agent comes to believe with probability 1. But this is an idealisation that almost never describes actual epistemic situations. When I see that the sky is red at dusk, I do not come to assign probability 1 to any precisely formulated proposition. My experience shifts a whole range of credences simultaneously, in ways that are not straightforwardly captured by conditionalising on a single proposition. I proposed Jeffrey conditionalization to handle this case — and my opponents tonight have helpfully accepted it. But this acceptance reveals a concession: standard Bayesian conditionalization is inadequate as a description of how evidence actually works, and the Bayesian framework required substantial modification before it could even address the real phenomenology of learning.</span></p>
+          <span class="section">On the problem of the priors — more serious than convergence suggests</span>
+          <p><span class="hl" data-arg="2"><span class="tooltip">The problem of the priors as a genuine objection</span>Professor Bradley has invoked the convergence of posteriors as a response to the problem of priors. But this response is far too quick. The convergence theorems require the true hypothesis to have non-zero prior probability. For this to be guaranteed, we would need some principled method for assigning prior probabilities to all hypotheses in our space — including hypotheses not yet conceived. The Bayesian framework gives us no such method. The problem of the priors is not merely that agents begin with different priors; it is that the framework cannot tell us what a rational prior is, yet requires priors for its machinery to operate. Without a solution to this problem, Bayesianism is an engine that needs fuel it cannot produce.</span></p>
+          <span class="section">On probability zero and unexpected evidence</span>
+          <p><span class="hl" data-arg="3"><span class="tooltip">The problem of zero-probability evidence</span>A related problem is more acute: what happens when an agent receives evidence to which she assigned probability zero? Standard conditionalization breaks down — dividing by zero is undefined. Yet scientists regularly receive evidence that was genuinely unexpected — not merely improbable, but outside the space of possibilities their prior probability function was defined over. Kuhnian paradigm shifts, the discovery of quantum mechanical phenomena, the detection of gravitational waves — all represent the arrival of evidence that no prior Bayesian framework could have adequately anticipated. A normative theory that cannot handle the most significant episodes of scientific progress is not adequate as a theory of scientific reasoning.</span></p>
+          <span class="section">On what Bayesianism explains and what it does not</span>
+          <p><span class="hl" data-arg="4"><span class="tooltip">The limits of Bayesian confirmation theory</span>Bayesian confirmation theory tells us how credences should change given a prior and evidence. It is essentially a theory of updating, not a theory of the rationality of hypotheses independent of an agent's starting point. It cannot tell us whether any particular hypothesis deserves high or low credence in the first place — only how credences should evolve. But the substantive questions of scientific reasoning — why does general relativity deserve our credence, what makes the standard model of particle physics well-confirmed — cannot be answered merely by pointing to updating dynamics. They require an account of the rationality of prior plausibility judgements, which Bayesianism does not provide.</span></p>
+          <span class="section">On radical probabilism as the honest Bayesian position</span>
+          <p><span class="hl" data-arg="5"><span class="tooltip">The argument for radical probabilism</span>My preferred response to these problems is what I call radical probabilism: giving up the claim that Bayesian updating is the uniquely rational response to evidence, and accepting that rational agents may have a wider range of permissible responses to their epistemic situations. The Dutch Book arguments establish that credences must be probabilities; they do not establish that conditionalization is the uniquely rational updating rule. We should retain probabilism — the probability axioms as constraints — while acknowledging that the normative story about updating is underdetermined by the formal framework. This is honest Bayesianism. The motion's claim that Bayesianism is <em>the</em> correct theory demands more than the arguments deliver.</span></p>
+          <p><em>Thank you.</em></p>
+        </div>
+        <div id="opp-jeffrey-logic" class="logic-view hidden">
+          <div class="arg-block" data-arg="1">
+            <div class="arg-title"><span>Argument I — Standard conditionalization fails on realistic evidence</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Standard Bayesian conditionalization requires evidence to arrive as a proposition learned with probability 1.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Actual epistemic situations rarely if ever present evidence in this form — experience shifts whole ranges of credences simultaneously.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Jeffrey conditionalization, required to handle this case, is a substantial modification that reveals the inadequacy of standard Bayesian theory.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Standard Bayesian conditionalization is empirically inadequate; the modifications required to handle realistic evidence reveal that the framework is less complete than its proponents claim.</span></div>
+          </div>
+          <div class="arg-block" data-arg="2">
+            <div class="arg-title"><span>Argument II — Convergence theorems do not solve the prior problem</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Convergence theorems require each agent to assign non-zero prior probability to the true hypothesis — but this requires a solution to the problem of the priors.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The Bayesian framework provides no principled method for assigning priors, especially over unconceived hypotheses.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>A framework that requires priors but cannot produce them is normatively incomplete.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The convergence response to the prior problem is circular — it presupposes what it needs to establish.</span></div>
+          </div>
+          <div class="arg-block" data-arg="3">
+            <div class="arg-title"><span>Argument III — Zero-probability evidence breaks the framework</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>When evidence has prior probability zero, conditionalization is undefined — division by zero fails.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The most significant episodes of scientific progress involve evidence outside the anticipated hypothesis space — Kuhnian paradigm shifts, unexpected discoveries.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>A normative theory of scientific inference that cannot handle these episodes is inadequate as a theory of scientific reasoning.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Bayesian conditionalization is structurally incapable of handling the most epistemically significant episodes in the history of science.</span></div>
+          </div>
+          <div class="arg-block" data-arg="4">
+            <div class="arg-title"><span>Argument IV — Bayesianism explains updating, not prior plausibility</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Bayesian confirmation theory is a theory of updating — how credences change relative to a prior.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>It cannot answer questions about the rationality of priors independently of an agent's starting point.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The substantive questions of scientific reasoning — why theories merit credence — require an account of prior plausibility that Bayesianism cannot provide.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Bayesianism is at best a partial theory of scientific rationality — it explains updating but not the prior plausibility judgements on which updating depends.</span></div>
+          </div>
+          <div class="arg-block" data-arg="5">
+            <div class="arg-title"><span>Argument V — Radical probabilism is the honest Bayesian position</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The Dutch Book arguments establish that credences must be probabilities — but not that conditionalization is the uniquely rational updating rule.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Radical probabilism retains the probability axioms as constraints while permitting a wider range of rationally permissible updating responses.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The motion's claim — that Bayesianism is <em>the</em> correct normative theory — demands more than the Dutch Book arguments deliver.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Radical probabilism is the honest position: probabilism is established; strict conditionalization as the uniquely rational updating rule is not.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── VAN FRAASSEN ── -->
+      <div class="speaker-panel" id="opp-vanfraassen-panel">
+        <div id="opp-vanfraassen-speech" class="speech-text">
+          <p class="salut">Mr President,</p>
+          <p>My colleague Richard Jeffrey has offered the opposition's technical case from inside the Bayesian tradition. I want to approach the question from a different angle — from the philosophy of science itself, and from the view that Bayesianism, even in its most sophisticated forms, cannot provide an adequate account of scientific understanding because it systematically mischaracterises the epistemic aims of science.</p>
+          <p>I speak from the standpoint of constructive empiricism. I do not dispute that the probability axioms are coherence constraints on rational credences. What I dispute is whether the Bayesian framework, so understood, is the framework within which scientific understanding is best articulated.</p>
+          <span class="section">On the epistemic aims of science</span>
+          <p><span class="hl" data-arg="1"><span class="tooltip">The argument from the epistemic aims of science</span>The Bayesian picture of science represents it as the enterprise of updating credences over a fixed hypothesis space in response to evidence. But this picture imposes a deeply inappropriate structure on scientific practice. Scientists do not approach their discipline with a prior probability distribution over all possible theories; they operate within frameworks — paradigms, research programmes, theoretical traditions — that determine what counts as evidence, what counts as a hypothesis, and what questions are worth asking. Bayesianism, by treating the hypothesis space as given and the prior as the agent's starting point, ignores the most epistemically significant activities of science: the construction of new conceptual frameworks, the development of new observational techniques, and the revision of what counts as evidence.</span></p>
+          <span class="section">On the problem of empirical adequacy versus truth</span>
+          <p><span class="hl" data-arg="2"><span class="tooltip">The argument from empirical adequacy</span>The motion asks us to believe that Bayesianism correctly describes how credences in scientific theories ought to evolve. But this requires that we are assigning credences to the truth of scientific theories — credences that the theories correctly describe unobservable entities and processes. I have argued extensively that the aim of science is not truth but empirical adequacy: a theory is acceptable if it saves the phenomena — if it correctly predicts what is observable. Bayesian agents assigning credences to the truth of theories are making epistemic commitments that the evidence cannot justify. The Bayesian framework, by requiring credences over all of logical space, commits its users to beliefs about unobservable matters that outrun the evidential warrant.</span></p>
+          <span class="section">On the problem of symmetry and the reference class</span>
+          <p><span class="hl" data-arg="3"><span class="tooltip">The symmetry argument against Bayesian priors</span>Even granting that credences should be probabilities, the question of what determines rational prior probabilities remains deeply problematic in a way that is not addressed by either the Dutch Book argument or the Principal Principle. The Principle of Indifference — assigning equal probability to symmetric cases — famously generates contradictions when the same situation is described under different parameterisations. The Bayesian response has been to abandon indifference principles and retreat to subjective priors. But this concedes that the framework cannot determine what rational initial credences are — only that, once chosen, they must be updated by conditionalization. This is a framework that can tell you how to reason but not what to believe, and that is an insufficiently normative theory.</span></p>
+          <span class="section">On probability and acceptance</span>
+          <p><span class="hl" data-arg="4"><span class="tooltip">The argument from the distinction between probability and acceptance</span>Isaac Levi and others have argued that the Bayesian framework conflates two importantly distinct epistemic states: having a credence in a proposition and accepting a proposition for the purposes of reasoning. Scientific practice involves the acceptance of theories as working hypotheses — not the assignment of high credences to them. Newton's mechanics was accepted as a framework for reasoning despite widespread awareness of anomalies. This acceptance is not captured by any credence assignment, however high. The Bayesian framework, by reducing all epistemic states to credences, cannot model the distinction between degrees of belief and commitments to theoretical frameworks that is central to scientific practice.</span></p>
+          <span class="section">On voluntarism about belief and the reflection principle</span>
+          <p><span class="hl" data-arg="5"><span class="tooltip">The argument from the reflection principle</span>The Bayesian framework is committed to a form of epistemic voluntarism — the view that agents can rationally adopt any prior they choose, provided they subsequently update correctly. My own Reflection Principle — that an agent's current credence in a proposition should equal her expectation of her future credence — has been proposed as a rationality constraint on Bayesian agents. But this principle generates paradoxes when agents have imperfect self-knowledge or face the possibility of non-standard updating. The Bayesian framework generates more internal puzzles than its proponents acknowledge, and these puzzles are symptoms of a deeper tension between the formal elegance of the theory and the complexity of actual epistemic practice.</span></p>
+          <p>I conclude not that the probability calculus is wrong, but that Bayesianism as a complete normative theory of scientific inference systematically overstates its achievements and understates its difficulties. The House should reject the motion.</p>
+          <p><em>Thank you.</em></p>
+        </div>
+        <div id="opp-vanfraassen-logic" class="logic-view hidden">
+          <div class="arg-block" data-arg="1">
+            <div class="arg-title"><span>Argument I — Bayesianism mischaracterises scientific practice</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The Bayesian picture treats the hypothesis space and prior as given — but the most significant scientific activities involve constructing new frameworks and determining what counts as evidence.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Scientific reasoning is conducted within paradigms and research programmes that are not themselves objects of prior probability assignment.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>A normative theory that cannot model the construction and revision of conceptual frameworks mischaracterises science at its most important moments.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Bayesianism's static picture of a fixed hypothesis space over which priors are defined fails to capture the dynamic, framework-revising character of scientific practice.</span></div>
+          </div>
+          <div class="arg-block" data-arg="2">
+            <div class="arg-title"><span>Argument II — Credences in truth outrun evidential warrant</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Bayesian conditionalization assigns credences to the truth of theories — including their claims about unobservable entities.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The aim of science is empirical adequacy — saving the observable phenomena — not truth about unobservables.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Assigning credences to the truth of theories commits agents to beliefs about unobservables that the observable evidence cannot justify.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Bayesian credences over theoretical hypotheses make epistemic commitments that outrun what scientific evidence can warrant; constructive empiricism is more epistemically modest and appropriate.</span></div>
+          </div>
+          <div class="arg-block" data-arg="3">
+            <div class="arg-title"><span>Argument III — The reference class problem defeats rational priors</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Indifference principles for assigning rational priors generate contradictions under different parameterisations of the same situation.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Retreating to subjective priors concedes that the framework cannot determine rational initial credences — only their subsequent evolution.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>A theory that cannot determine what is rational to believe initially, only how beliefs should evolve, is insufficiently normative.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The reference class problem shows that Bayesianism cannot determine rational priors — undermining its claim to be a complete normative theory of rational belief.</span></div>
+          </div>
+          <div class="arg-block" data-arg="4">
+            <div class="arg-title"><span>Argument IV — Credence conflates with acceptance</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Scientific practice involves the acceptance of theories as working frameworks — distinct from assigning high credences to their truth.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Theories are accepted despite known anomalies; this acceptance cannot be modelled as a high credence assignment.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>A framework that reduces all epistemic states to credences cannot model this distinction.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Bayesianism's reduction of all epistemic states to credences cannot capture the distinction between accepting a theory and believing it true — a distinction central to scientific practice.</span></div>
+          </div>
+          <div class="arg-block" data-arg="5">
+            <div class="arg-title"><span>Argument V — The Reflection Principle generates paradoxes</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The Reflection Principle — that current credence should equal expected future credence — is a plausible rationality constraint on Bayesian agents.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The Principle generates paradoxes when agents have imperfect self-knowledge or face the possibility of non-standard updating.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>These paradoxes are symptoms of a tension between the formal elegance of Bayesianism and the complexity of actual epistemic practice.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The Reflection Principle paradoxes reveal that Bayesianism has unresolved internal tensions that undermine its claim to be a complete and consistent normative theory.</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end opp body -->
+  </div><!-- end opp col -->
+
+</div><!-- end columns -->
+
+<!-- ── MODAL ── -->
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh">
+          <div>No image linked</div>
+          <code>Set src in IMAGES object in script</code>
+        </div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var IMAGES={
+  bradley:{1:{src:'',caption:'Bradley — Dutch Book argument'},2:{src:'',caption:'Bradley — Diachronic Dutch Book'},3:{src:'',caption:'Bradley — Representation theorem'},4:{src:'',caption:'Bradley — Jeffrey conditionalization'},5:{src:'',caption:'Bradley — Convergence of posteriors'}},
+  lewis:{1:{src:'',caption:'Lewis — Principal Principle'},2:{src:'',caption:'Lewis — Humean supervenience & chance'},3:{src:'',caption:'Lewis — Old evidence'},4:{src:'',caption:'Lewis — Success of science'},5:{src:'',caption:'Lewis — Unity of theoretical and practical reason'}},
+  jeffrey:{1:{src:'',caption:'Jeffrey — Probabilistic evidence'},2:{src:'',caption:'Jeffrey — The prior problem'},3:{src:'',caption:'Jeffrey — Zero-probability evidence'},4:{src:'',caption:'Jeffrey — Limits of Bayesian confirmation'},5:{src:'',caption:'Jeffrey — Radical probabilism'}},
+  vanfraassen:{1:{src:'',caption:'van Fraassen — Epistemic aims of science'},2:{src:'',caption:'van Fraassen — Empirical adequacy vs truth'},3:{src:'',caption:'van Fraassen — Reference class problem'},4:{src:'',caption:'van Fraassen — Credence vs acceptance'},5:{src:'',caption:'van Fraassen — Reflection Principle'}}
+};
+
+var state={
+  prop:{speaker:'bradley',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'jeffrey',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
+  document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){sp.classList.remove('hidden');lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{sp.classList.add('hidden');lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+
+function openModal(speaker,n,side){
+  var d=(IMAGES[speaker]||{})[n]||{src:'',caption:speaker+' — arg '+n};
+  document.getElementById('mTitle').textContent=d.caption;
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.style.display='none';ph.style.display='none';}
+  else{img.style.display='none';ph.style.display='flex';}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none';}
+function imgFail(){document.getElementById('mImg').style.display='none';document.getElementById('mPh').style.display='flex';document.getElementById('mPh').querySelector('div').textContent='Image failed to load';}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open');}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal();}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2,vw=window.innerWidth,margin=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  tip.style.left=Math.min(Math.max(cx,tw/2+margin),vw-tw/2-margin)+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
