@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decision Under Deep Uncertainty — Debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Spectral:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f3ee;
+  --bg2:#edeae3;
+  --bg3:#e3dfd6;
+  --bg4:#d8d3c9;
+  --bdr:rgba(60,50,30,.1);
+  --bdr2:rgba(60,50,30,.2);
+  --text:#2a2318;
+  --text2:#5a5040;
+  --text3:#9a8e78;
+  --ink:#1a1510;
+  --rule:rgba(60,50,30,.15);
+
+  --prop-col:#3a5a3a;
+  --prop-pill-bg:#e8f0e8;
+  --prop-pill-bdr:#b8d0b8;
+  --opp-col:#6a2020;
+  --opp-pill-bg:#f0e8e8;
+  --opp-pill-bdr:#d0b8b8;
+
+  --a1bg:rgba(40,100,60,.08);--a1brd:rgba(40,100,60,.35);--a1tip:#2a6438;
+  --a2bg:rgba(100,60,160,.08);--a2brd:rgba(100,60,160,.32);--a2tip:#643c96;
+  --a3bg:rgba(160,100,20,.08);--a3brd:rgba(160,100,20,.32);--a3tip:#966414;
+  --a4bg:rgba(160,40,40,.08);--a4brd:rgba(160,40,40,.32);--a4tip:#962828;
+  --a5bg:rgba(20,80,140,.08);--a5brd:rgba(20,80,140,.32);--a5tip:#14508c;
+  --a6bg:rgba(120,60,20,.08);--a6brd:rgba(120,60,20,.32);--a6tip:#783c14;
+  --a7bg:rgba(40,100,120,.08);--a7brd:rgba(40,100,120,.32);--a7tip:#286478;
+}
+
+html,body{height:100%;overflow:hidden}
+body{font-family:'EB Garamond',Georgia,serif;background:var(--bg);color:var(--text)}
+
+.motion-header{
+  padding:.85rem 2.5rem .75rem;
+  border-bottom:1px solid var(--rule);
+  text-align:center;background:var(--bg2);
+  position:relative;
+}
+.motion-header::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(60,50,30,.25),transparent);
+}
+.motion-eyebrow{
+  font-family:'DM Mono',monospace;font-size:9px;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--text3);font-weight:400;margin-bottom:5px;
+}
+.motion-title{
+  font-family:'EB Garamond',serif;
+  font-size:18px;font-weight:400;font-style:italic;
+  color:var(--ink);letter-spacing:.01em;line-height:1.4;
+}
+.motion-title em{font-style:normal;font-weight:600}
+
+.columns{
+  display:grid;grid-template-columns:1fr 1fr;
+  height:calc(100vh - 60px);
+}
+.col{display:flex;flex-direction:column;overflow:hidden}
+.col.prop{border-right:1px solid var(--rule)}
+
+.speaker-bar{
+  display:flex;align-items:stretch;
+  border-bottom:1px solid var(--bdr);
+  background:var(--bg3);flex-shrink:0;
+}
+.speaker-btn{
+  font-family:'DM Mono',monospace;font-size:10px;font-weight:400;
+  padding:8px 15px;cursor:pointer;
+  border:none;border-right:1px solid var(--bdr);
+  color:var(--text3);background:transparent;
+  transition:color .15s,background .15s;flex-shrink:0;
+  white-space:nowrap;letter-spacing:.04em;
+}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp .speaker-btn.active{color:var(--opp-col)}
+
+.col-header{
+  padding:.6rem 1.3rem 0;
+  border-bottom:1px solid var(--bdr);
+  flex-shrink:0;background:var(--bg2);
+}
+.col-header-top{display:flex;align-items:baseline;gap:.7rem;margin-bottom:2px;flex-wrap:wrap}
+.pill{
+  font-family:'DM Mono',monospace;font-size:9px;font-weight:400;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:2px 8px;border-radius:2px;
+  flex-shrink:0;
+}
+.pill.prop{background:var(--prop-pill-bg);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill-bg);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{
+  font-family:'EB Garamond',serif;
+  font-size:18px;font-weight:400;font-style:italic;color:var(--ink);
+}
+.col-criterion{
+  font-family:'DM Mono',monospace;font-size:9px;
+  letter-spacing:.06em;font-weight:500;
+  padding:2px 8px;border-radius:2px;border:1px solid var(--bdr2);
+  color:var(--text2);background:var(--bg3);
+  white-space:nowrap;
+}
+.col-position{
+  font-family:'Spectral',serif;font-size:12px;font-style:italic;
+  color:var(--text3);margin-top:1px;line-height:1.5;
+}
+.tabs{display:flex;gap:0;margin-top:6px}
+.tab{
+  font-family:'DM Mono',monospace;
+  padding:5px 13px;font-size:10px;letter-spacing:.05em;
+  color:var(--text3);cursor:pointer;
+  border:1px solid var(--bdr);border-bottom:none;
+  border-radius:3px 3px 0 0;background:var(--bg3);
+  margin-right:3px;user-select:none;
+  transition:color .15s,background .15s;
+}
+.tab.active{background:var(--bg2)}
+.prop .tab.active{color:var(--prop-col)}
+.opp .tab.active{color:var(--opp-col)}
+
+.col-body{
+  flex:1;overflow-y:auto;
+  padding:1.2rem 1.5rem;
+  font-size:15.5px;line-height:1.9;
+  color:var(--text2);
+}
+.col-body::-webkit-scrollbar{width:2px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2)}
+
+.speaker-panel{display:none}
+.speaker-panel.active{display:block}
+
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic;font-size:14px}
+.speech-text em{color:var(--text3)}
+.speech-text .formula{
+  font-family:'DM Mono',monospace;font-size:11.5px;
+  background:var(--bg3);border-left:2px solid var(--bdr2);
+  padding:6px 14px;margin:.4rem 0 .85rem;display:block;
+  color:var(--ink);letter-spacing:.03em;line-height:1.8;
+}
+.speech-text .section{
+  font-family:'DM Mono',monospace;font-size:9px;
+  text-transform:uppercase;letter-spacing:.15em;
+  color:var(--text3);margin:1.4rem 0 .3rem;display:block;
+}
+
+.logic-view{display:flex;flex-direction:column;gap:.85rem}
+.arg-block{
+  border-left:2px solid;background:var(--bg2);
+  overflow:hidden;cursor:pointer;transition:background .12s;
+}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{
+  padding:7px 11px;
+  font-family:'DM Mono',monospace;font-size:9px;font-weight:500;
+  text-transform:uppercase;letter-spacing:.09em;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--bdr);
+}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+.arg-premises{padding:9px 11px 5px}
+.premise{
+  display:flex;gap:9px;margin-bottom:7px;
+  font-family:'EB Garamond',serif;
+  font-size:14.5px;line-height:1.65;color:var(--text2);
+}
+.plabel{
+  font-family:'DM Mono',monospace;
+  font-weight:400;min-width:16px;font-size:10px;
+  color:var(--text3);padding-top:2px;flex-shrink:0;
+}
+.conclusion{
+  display:flex;gap:9px;padding:7px 11px;
+  font-family:'EB Garamond',serif;
+  font-size:14.5px;line-height:1.65;
+  border-top:1px solid var(--bdr);background:var(--bg3);
+  font-style:italic;
+}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hl{border-radius:1px;padding:1px 1px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{
+  display:none;position:fixed;
+  font-family:'DM Mono',monospace;font-size:10px;
+  font-weight:400;font-style:normal;
+  white-space:nowrap;z-index:200;pointer-events:none;
+  background:var(--bg4);border:1px solid var(--bdr2);
+  border-radius:2px;padding:4px 10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+  color:var(--ink);transform:translateX(-50%);
+}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.hidden{display:none!important}
+
+.modal-wrap{
+  display:none;position:fixed;inset:0;
+  background:rgba(26,21,16,.7);z-index:100;
+  align-items:center;justify-content:center;
+}
+.modal-wrap.open{display:flex}
+.modal{
+  background:var(--bg2);border-radius:3px;
+  border:1px solid var(--bdr2);width:380px;max-width:92%;overflow:hidden;
+}
+.modal-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.6rem 1rem;border-bottom:1px solid var(--bdr);
+}
+.modal-hd-title{font-family:'DM Mono',monospace;font-size:10px;color:var(--text);letter-spacing:.04em}
+.modal-close{
+  background:none;border:1px solid var(--bdr);cursor:pointer;
+  color:var(--text2);font-size:14px;line-height:1;padding:3px 7px;border-radius:2px;
+}
+.modal-close:hover{background:var(--bg3)}
+.modal-bd{padding:.85rem}
+.modal-img-wrap{
+  border:1px solid var(--bdr);border-radius:2px;overflow:hidden;
+  background:var(--bg3);min-height:120px;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{
+  text-align:center;padding:1.5rem;color:var(--text3);
+  font-family:'DM Mono',monospace;font-size:10px;
+  display:flex;flex-direction:column;align-items:center;gap:.4rem;
+}
+.modal-ph code{font-size:9px;background:var(--bg4);padding:2px 6px;border-radius:2px}
+.modal-cap{margin-top:.5rem;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.03em}
+</style>
+</head>
+<body>
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House · Decision Theory &amp; Political Philosophy</div>
+  <div class="motion-title">"This House believes that rational choice under <em>deep uncertainty</em> requires the maximin principle — choosing the option whose worst outcome is least bad"</div>
+</div>
+
+<div class="columns">
+
+  <!-- ═══════════════════════ PROPOSITION ═══════════════════════ -->
+  <div class="col prop" id="col-prop">
+
+    <div class="speaker-bar prop" id="prop-speaker-bar">
+      <button class="speaker-btn active" onclick="switchSpeaker('prop','rawls',this)">Rawls</button>
+      <button class="speaker-btn" onclick="switchSpeaker('prop','voorhoeve',this)">Voorhoeve</button>
+    </div>
+
+    <div class="col-header" id="prop-rawls-header">
+      <div class="col-header-top">
+        <span class="pill prop">Proposition</span>
+        <span class="col-subtitle">John Rawls</span>
+        <span class="col-criterion">Maximin</span>
+      </div>
+      <div class="col-position">Maximin is the uniquely rational principle under genuine ignorance of probabilities, and the sole basis for just institutions</div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('prop','rawls','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('prop','rawls','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+
+    <div class="col-header hidden" id="prop-voorhoeve-header">
+      <div class="col-header-top">
+        <span class="pill prop">Proposition</span>
+        <span class="col-subtitle">Alex Voorhoeve</span>
+        <span class="col-criterion">Threshold Maximin</span>
+      </div>
+      <div class="col-position">A refined maximin — absolute priority below a welfare threshold, balanced aggregation above it</div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('prop','voorhoeve','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('prop','voorhoeve','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+
+    <div class="col-body" id="prop-body">
+
+      <!-- ══ RAWLS ══ -->
+      <div class="speaker-panel active" id="prop-rawls-panel">
+        <div id="prop-rawls-speech" class="speech-text">
+          <p class="salut">Mr President,</p>
+          <p>The motion before this House poses the central question of rational and political philosophy in its most austere form: when we cannot assign probabilities to outcomes, how should we choose? I shall argue that the maximin principle — choosing the option whose worst possible outcome is best — is the only rational answer, and further that this answer is not merely theoretically satisfying but is the foundation of a theory of justice.</p>
+          <span class="section">On what distinguishes deep uncertainty from risk</span>
+          <p><span class="hl" data-arg="1"><span class="tooltip">Deep uncertainty vs risk</span>We must begin by marking a distinction that my opponents will try to obscure. Risk is uncertainty with known probabilities: I know there is a one-in-six chance of rolling a six. Deep uncertainty — what Knight called genuine uncertainty and what I call the situation of the original position — is uncertainty without even a probability distribution over outcomes. When we are behind the veil of ignorance, we do not merely lack knowledge of which social position we will occupy. We lack any principled basis for assigning probabilities to those positions. The counsel that we should simply assume each position is equally likely — the Principle of Insufficient Reason — is not a theorem but a question-begging stipulation, and Harsanyi's reliance on it is precisely what undermines his argument.</span></p>
+          <span class="section">On the three conditions that justify maximin</span>
+          <p><span class="hl" data-arg="2"><span class="tooltip">Three conditions for maximin</span>The maximin principle is not a universal rule for rational choice. It is the rational rule under three jointly sufficient conditions. First, one has no reliable basis for estimating probabilities. Second, the chooser is indifferent to gains above a satisfactory minimum — gains above the threshold do not compensate for the risk of catastrophic loss. Third, the worst outcomes of the alternatives are intolerably bad — what I call the strains of commitment. When all three conditions hold simultaneously, maximising expected utility is not rational boldness; it is recklessness masquerading as rationality. And in the original position, all three conditions hold.</span></p>
+          <span class="section">On the strains of commitment</span>
+          <p><span class="hl" data-arg="3"><span class="tooltip">The strains of commitment argument</span>The deepest argument for maximin concerns what I call the strains of commitment. A principle of justice must be one that persons can actually live by — one that does not demand that those in the worst social positions affirm the justice of a system that has treated them catastrophically for the benefit of the better-off. If persons behind the veil of ignorance chose principles that might place them in positions of severe deprivation, and if they then found themselves in those positions, they could not sincerely affirm the justice of those principles. The maximin principle, by guaranteeing the best possible worst outcome, is the only principle that survives this test.</span></p>
+          <span class="section">On the objection from the Principle of Insufficient Reason</span>
+          <p><span class="hl" data-arg="4"><span class="tooltip">Against the Principle of Insufficient Reason</span>Professor Harsanyi and those who follow him assume that ignorance of probabilities licenses assigning equal probabilities to all outcomes — the Principle of Insufficient Reason. But this principle generates contradictions. If I am equally ignorant about whether I will be born into the top half or the bottom half of the income distribution, and equally ignorant about whether I will be in the top or bottom quarter of each half, I generate different probability distributions depending on how I partition the space. There is no principled partition; the Principle of Insufficient Reason is thus not a solution to the problem of ignorance but a concealment of it. Maximin requires no such spurious probabilities.</span></p>
+          <span class="section">On minimax regret and the Hurwicz criterion as half-measures</span>
+          <p><span class="hl" data-arg="5"><span class="tooltip">Against minimax regret and Hurwicz</span>My opponents may reach for minimax regret — minimising the maximum loss relative to what one could have achieved — or for Hurwicz's weighted combination of best and worst outcomes. Both are improvements on pure expected utility maximisation under ignorance; both acknowledge that worst-case outcomes demand special attention. But both introduce elements — the regret calculation, the Hurwicz coefficient α — that are themselves underdetermined in conditions of deep uncertainty. What value of α expresses rational caution? Minimax regret requires comparing outcomes across states of nature in ways that presuppose a common metric not available under genuine ignorance. Maximin alone requires only an ordering of outcomes — the minimal information available under deep uncertainty.</span></p>
+          <p>Gentlemen, the veil of ignorance is not a thought experiment. It is the situation of moral reasoning about institutions. And from behind that veil, only maximin is rational.</p>
+          <p><em>Thank you.</em></p>
+        </div>
+        <div id="prop-rawls-logic" class="logic-view hidden">
+          <div class="arg-block" data-arg="1" onclick="openModal('rawls',1)">
+            <div class="arg-title"><span>I — Deep uncertainty is not risk</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Risk involves known probabilities; deep uncertainty involves no principled probability assignment over outcomes.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The original position is a situation of deep uncertainty, not risk — there is no basis for assigning equal probabilities to social positions.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Expected utility maximisation is rational under risk but not under deep uncertainty where probabilities are unavailable.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The argument from expected utility, and Harsanyi's average utilitarian derivation, fail because they presuppose probabilities that are unavailable in conditions of genuine ignorance.</span></div>
+          </div>
+          <div class="arg-block" data-arg="2" onclick="openModal('rawls',2)">
+            <div class="arg-title"><span>II — Three conditions jointly justify maximin</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Maximin is rationally required when: (a) no reliable probability estimates are available, (b) gains above a satisfactory threshold are not worth catastrophic risk, and (c) the worst outcomes are intolerably bad.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>All three conditions hold in the original position and in any choice situation involving potential catastrophic and irreversible outcomes.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>No other decision rule satisfies all three conditions simultaneously — each alternative either requires probabilities or tolerates catastrophic worst cases.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Under the three conditions that define deep uncertainty with catastrophic stakes, maximin is the uniquely rational decision rule.</span></div>
+          </div>
+          <div class="arg-block" data-arg="3" onclick="openModal('rawls',3)">
+            <div class="arg-title"><span>III — The strains of commitment</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>A principle of justice must be one that persons could sincerely affirm even if they find themselves in the worst positions it sanctions.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Principles permitting severe deprivation for the benefit of the better-off cannot be sincerely affirmed by those in the worst positions.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Maximin, by guaranteeing the best possible worst outcome, uniquely survives this test of affirmability.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The strains of commitment argument establishes maximin as the only principle of justice that rational persons behind the veil could sincerely commit to living by.</span></div>
+          </div>
+          <div class="arg-block" data-arg="4" onclick="openModal('rawls',4)">
+            <div class="arg-title"><span>IV — Principle of Insufficient Reason generates contradictions</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The Principle of Insufficient Reason assigns equal probabilities to outcomes when none are known — but the resulting probability distribution depends on how one partitions the outcome space.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Different partitions of the same situation under genuine ignorance yield different, incompatible probability assignments.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>A principle that generates contradictory probability assignments is not a solution to the problem of ignorance.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The Principle of Insufficient Reason, Harsanyi's substitute for genuine probability knowledge, is internally contradictory and cannot ground expected utility calculations.</span></div>
+          </div>
+          <div class="arg-block" data-arg="5" onclick="openModal('rawls',5)">
+            <div class="arg-title"><span>V — Rival criteria are underdetermined</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Minimax regret requires comparing outcomes across states of nature using a common metric not available under deep uncertainty.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The Hurwicz criterion requires specification of the optimism coefficient α — itself underdetermined under genuine ignorance.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Maximin requires only an ordinal ranking of worst outcomes — the minimal information available in all cases of deep uncertainty.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Maximin alone requires only information that is available under genuine uncertainty; all rival criteria presuppose information that is unavailable.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ VOORHOEVE ══ -->
+      <div class="speaker-panel" id="prop-voorhoeve-panel">
+        <div id="prop-voorhoeve-speech" class="speech-text">
+          <p class="salut">Mr President,</p>
+          <p>Professor Rawls has made the classical case for maximin. I want to make a more refined case — one that retains the central insight of maximin while addressing its most serious internal difficulties. The view I defend is what I call threshold maximin or leximin with a welfare floor: below a critical threshold of decent human functioning, the interests of the worst-off have absolute priority; above that threshold, standard aggregative reasoning is appropriate.</p>
+          <span class="section">On the limits of pure maximin</span>
+          <p><span class="hl" data-arg="1"><span class="tooltip">The limits of pure maximin</span>Pure maximin, as Professor Rawls defends it, faces a genuine internal problem. It implies that we should always prefer a policy that raises the welfare of the single worst-off person by one unit over a policy that raises the welfare of a billion people by a million units each — provided the worst-off person remains worst off. This implication is extreme, and I think it stems not from a deep commitment to justice but from an excessive formalism. The correct insight behind maximin is not that the worst-off always trump in all circumstances, but that we owe a special, non-negotiable duty of concern to those below a threshold of decent life.</span></p>
+          <span class="section">On the welfare threshold</span>
+          <p><span class="hl" data-arg="2"><span class="tooltip">The welfare threshold argument</span>What I call the welfare threshold is the level of welfare below which a person's life lacks the conditions for basic human functioning and dignity — the level below which she cannot reasonably be asked to accept the ordinary risks and trade-offs of social cooperation. Below this threshold, the absolutism of maximin is correct: no aggregative calculation justifies leaving persons below it for the benefit of the better-off. Above the threshold, the urgency disappears and standard aggregative or prioritarian reasoning becomes appropriate. This is not an ad hoc qualification. It follows from the same reasoning that supports maximin — the strains of commitment argument applies with full force only below the threshold.</span></p>
+          <span class="section">On separateness of persons and interpersonal aggregation</span>
+          <p><span class="hl" data-arg="3"><span class="tooltip">Separateness of persons supports threshold maximin</span>The deepest objection to both pure utilitarianism and Harsanyi's expected utility approach is that they aggregate across persons in ways that treat the separateness of persons as morally irrelevant. A large benefit to one person compensates for a smaller loss to another — but this ignores that these are distinct lives, not a single life in which gains in one period compensate for losses in another. Threshold maximin respects the separateness of persons where it matters most — below the threshold — while permitting sensible aggregation where the individual stakes are not catastrophic. It is the most defensible position in the moral space between absolute priority for the worst-off and indifference to distribution.</span></p>
+          <span class="section">On Bradley's decision-theoretic objections</span>
+          <p><span class="hl" data-arg="4"><span class="tooltip">Response to decision-theoretic objections</span>Professor Bradley will argue from decision theory that any departure from expected utility maximisation violates coherence conditions on rational choice. But this argument assumes that the coherence constraints of decision theory are the appropriate norms for ethical choice under deep uncertainty about welfare distributions. I deny this assumption. Decision theory characterises rationality for a single agent choosing among gambles for her own benefit. The choice of principles of justice is not this: it is a choice of rules that will govern the claims of distinct persons against one another, under genuine uncertainty about who those persons will be and what claims they will have. The coherence norms of expected utility theory do not transfer without argument to this domain.</span></p>
+          <span class="section">On Binmore's evolutionary objection</span>
+          <p><span class="hl" data-arg="5"><span class="tooltip">Response to Binmore's evolutionary critique</span>Ken Binmore has argued that the original position, properly understood using evolutionary game theory, selects for average utilitarianism rather than maximin — because agents who maximise expected utility outcompete those who maximise minimum outcomes. But this argument shows at most that evolved social norms tend toward average utilitarianism. It says nothing about whether such norms are morally correct. Rawls's project is normative, not descriptive or evolutionary. The fact that natural selection might produce Harsanyian preferences in social bargaining is entirely compatible with the moral conclusion that those preferences are not what justice requires. Evolutionary stability is not moral justification.</span></p>
+          <p><em>Thank you.</em></p>
+        </div>
+        <div id="prop-voorhoeve-logic" class="logic-view hidden">
+          <div class="arg-block" data-arg="1" onclick="openModal('voorhoeve',1)">
+            <div class="arg-title"><span>I — Pure maximin is too extreme</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Pure maximin implies preferring a tiny gain for the worst-off over massive gains for billions of others — an implication almost universally judged extreme.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>This extreme implication is not required by the genuine insight behind maximin — the special duty to those facing catastrophic outcomes.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>A threshold maximin view retains the correct insight while avoiding the extreme implication.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Threshold maximin is superior to pure maximin because it captures the correct moral insight without the indefensible extreme cases.</span></div>
+          </div>
+          <div class="arg-block" data-arg="2" onclick="openModal('voorhoeve',2)">
+            <div class="arg-title"><span>II — The welfare threshold is principled</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Below a welfare threshold, a person's life lacks the conditions for basic human functioning — making any aggregative trade-off against her interests unreasonable.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Above the threshold, the urgency disappears and standard aggregative reasoning becomes appropriate.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The strains of commitment argument applies with full force only to situations below the threshold.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The welfare threshold is not ad hoc — it demarcates the domain in which the considerations supporting maximin apply, from the domain in which they do not.</span></div>
+          </div>
+          <div class="arg-block" data-arg="3" onclick="openModal('voorhoeve',3)">
+            <div class="arg-title"><span>III — Separateness of persons grounds threshold maximin</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The separateness of persons means that gains for one person do not, as a matter of moral logic, compensate for losses to another — persons are not one life across which gains and losses average out.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>This consideration is most forceful where the loss is catastrophic — below the threshold of decent functioning.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Threshold maximin honours the separateness of persons in exactly the domain where it has most force.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Threshold maximin is grounded in the separateness of persons — a consideration that utilitarianism and expected utility maximisation both violate at precisely the worst moments.</span></div>
+          </div>
+          <div class="arg-block" data-arg="4" onclick="openModal('voorhoeve',4)">
+            <div class="arg-title"><span>IV — Decision-theoretic coherence does not transfer to justice</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Decision-theoretic coherence constraints are derived from conditions on rational individual choice among gambles.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The choice of principles of justice concerns the claims of distinct persons against each other — a different domain with different normative structure.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Coherence constraints from individual decision theory do not transfer without argument to the domain of interpersonal justice.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The decision-theoretic objection to threshold maximin commits a domain error — importing norms of individual rationality into a context governed by the distinct norms of interpersonal justice.</span></div>
+          </div>
+          <div class="arg-block" data-arg="5" onclick="openModal('voorhoeve',5)">
+            <div class="arg-title"><span>V — Evolutionary stability is not moral justification</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Binmore's evolutionary game-theoretic argument shows that average utilitarian norms may be evolutionarily stable — that agents with such preferences outcompete maximiners.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Evolutionary stability is a descriptive fact about which strategies prevail in competitive environments — not a normative fact about which principles are morally correct.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The normative project of political philosophy cannot be settled by evolutionary arguments without committing the naturalistic fallacy.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Binmore's evolutionary critique of Rawls shows at most that maximin norms are not evolutionarily stable — a point consistent with their being morally required.</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ OPPOSITION ═══════════════════════ -->
+  <div class="col opp" id="col-opp">
+
+    <div class="speaker-bar opp" id="opp-speaker-bar">
+      <button class="speaker-btn active" onclick="switchSpeaker('opp','harsanyi',this)">Harsanyi</button>
+      <button class="speaker-btn" onclick="switchSpeaker('opp','bradley',this)">Bradley</button>
+      <button class="speaker-btn" onclick="switchSpeaker('opp','binmore',this)">Binmore</button>
+    </div>
+
+    <div class="col-header" id="opp-harsanyi-header">
+      <div class="col-header-top">
+        <span class="pill opp">Opposition</span>
+        <span class="col-subtitle">John Harsanyi</span>
+        <span class="col-criterion">Expected Utility</span>
+      </div>
+      <div class="col-position">Rational choice under uncertainty is expected utility maximisation — even behind the veil, maximin is irrational risk aversion</div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('opp','harsanyi','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('opp','harsanyi','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+
+    <div class="col-header hidden" id="opp-bradley-header">
+      <div class="col-header-top">
+        <span class="pill opp">Opposition</span>
+        <span class="col-subtitle">Richard Bradley</span>
+        <span class="col-criterion">Minimax Regret &amp; Hurwicz</span>
+      </div>
+      <div class="col-position">Even granting deep uncertainty, maximin is not uniquely rational — minimax regret and the Hurwicz criterion are superior</div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('opp','bradley','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('opp','bradley','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+
+    <div class="col-header hidden" id="opp-binmore-header">
+      <div class="col-header-top">
+        <span class="pill opp">Opposition</span>
+        <span class="col-subtitle">Ken Binmore</span>
+        <span class="col-criterion">Evolutionary / Egalitarian Bargaining</span>
+      </div>
+      <div class="col-position">The original position, properly understood via game theory, selects average utilitarianism — not maximin</div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('opp','binmore','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('opp','binmore','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+
+    <div class="col-body" id="opp-body">
+
+      <!-- ══ HARSANYI ══ -->
+      <div class="speaker-panel active" id="opp-harsanyi-panel">
+        <div id="opp-harsanyi-speech" class="speech-text">
+          <p class="salut">Mr President,</p>
+          <p>Professor Rawls has presented maximin as the voice of rational caution under deep uncertainty. I want to show that maximin is not rational caution but irrational phobia — the systematisation of extreme risk aversion into a principle of justice — and that expected utility maximisation is the correct standard of rational choice even behind the veil of ignorance.</p>
+          <span class="section">On the Principle of Insufficient Reason and equiprobability</span>
+          <p><span class="hl" data-arg="1"><span class="tooltip">Defence of the Principle of Insufficient Reason</span>Rawls claims that there is no basis for assigning probabilities to social positions behind the veil. But this is simply incorrect. The Principle of Insufficient Reason — assigning equal probabilities to events when one has no evidence favouring any over the others — is not a question-begging stipulation but the unique probability assignment consistent with total symmetry of information. If you know nothing that distinguishes position A from position B, assigning equal probability is not an assumption; it is the only assignment that does not arbitrarily privilege one position over another. The veil of ignorance creates precisely this symmetry. Behind it, equal probabilities are mandatory.</span></p>
+          <span class="section">On maximin as infinite risk aversion</span>
+          <p><span class="hl" data-arg="2"><span class="tooltip">Maximin implies infinite risk aversion</span>Maximin, as a decision rule, is equivalent to infinite risk aversion — a preference so extreme that it would refuse any chance of gain, however large, to avoid any chance of worsening the worst outcome, however small. Consider: maximin would prefer a world where the worst-off person has welfare level 10 and everyone else has welfare level 11, over a world where the worst-off has welfare 9 and everyone else has welfare 10,000. This is not rational caution. This is a pathological prioritisation of the worst case that no coherent account of rational preferences could sustain. A tiny reduction in the worst outcome matters infinitely more than a vast improvement for all others — this is not justice but a kind of obsessive focus that is antithetical to rational choice.</span></p>
+          <span class="section">On the aggregation theorem and rational social choice</span>
+          <p><span class="hl" data-arg="3"><span class="tooltip">The aggregation theorem</span>My 1955 aggregation theorem establishes that if individual preferences are rational in the von Neumann-Morgenstern sense, and if social preferences respect the Pareto principle, then the social welfare function must be a weighted sum of individual utility functions. With equal weighting — which the veil of ignorance demands — we obtain average utilitarianism. This is not a philosophical argument that can be resisted by appeal to intuitions about the worst-off. It is a mathematical theorem. To reject expected utility in the original position, one must reject either individual rationality or the Pareto principle — both of which are more firmly established than maximin.</span></p>
+          <span class="section">On the strains of commitment — a misleading argument</span>
+          <p><span class="hl" data-arg="4"><span class="tooltip">Against the strains of commitment</span>Rawls argues that persons in the worst position could not sincerely affirm principles that sanctioned their deprivation. But this argument proves too much. Persons in the worst position under average utilitarian arrangements might also find those arrangements hard to affirm from their position — this is simply a feature of any system that does not guarantee the maximum for the worst-off. More fundamentally, the strains of commitment argument is a psychological observation about what people can tolerate, not a logical argument about what is just. Justice is not determined by what the least fortunate can psychologically affirm. If it were, justice would be held hostage to the most extreme psychological fragility.</span></p>
+          <span class="section">On what rational persons would actually choose</span>
+          <p><span class="hl" data-arg="5"><span class="tooltip">Rational persons choose expected utility</span>What would a rational person actually choose behind the veil of ignorance? Not the obsessive focus on the worst case that maximin recommends. A rational person — one who does not suffer from infinite risk aversion — would weigh all possible positions equally and choose the arrangement that maximises her expected utility across them. This is precisely what average utilitarianism recommends. The claim that rational persons would adopt maximin depends on attributing to them an extreme and incoherent risk preference that is not required by rationality and is, if anything, a symptom of irrationality. Maximin is not wisdom. It is a phobia dressed in philosophical language.</span></p>
+          <p><em>Thank you.</em></p>
+        </div>
+        <div id="opp-harsanyi-logic" class="logic-view hidden">
+          <div class="arg-block" data-arg="1" onclick="openModal('harsanyi',1)">
+            <div class="arg-title"><span>I — Equal probabilities are mandatory under symmetry</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>When an agent has no evidence distinguishing one outcome from another, the Principle of Insufficient Reason uniquely assigns equal probabilities to each.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The veil of ignorance creates complete symmetry across social positions — the agent has no evidence distinguishing any position from any other.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Assigning unequal probabilities under this symmetry would arbitrarily privilege some positions over others.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Behind the veil of ignorance, equal probabilities across social positions are mandatory — not arbitrary — making expected utility calculations not only permissible but required.</span></div>
+          </div>
+          <div class="arg-block" data-arg="2" onclick="openModal('harsanyi',2)">
+            <div class="arg-title"><span>II — Maximin implies infinite risk aversion</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Maximin is equivalent to preferring any reduction in the worst outcome over any gain, however large, to others — this is the structure of infinite risk aversion.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Infinite risk aversion is not a coherent rational preference — it makes all tradeoffs involving worst-case improvements infinitely valuable regardless of magnitude.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Rational choice requires coherent, bounded preferences over outcomes.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Maximin is a formalisation of infinite risk aversion, which is not a coherent rational preference — it is a pathological decision rule, not a rational one.</span></div>
+          </div>
+          <div class="arg-block" data-arg="3" onclick="openModal('harsanyi',3)">
+            <div class="arg-title"><span>III — The aggregation theorem mandates average utilitarianism</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>If individual preferences are vNM-rational and social preferences satisfy the Pareto principle, the social welfare function is a weighted sum of individual utilities.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The veil of ignorance requires equal weighting — yielding average utilitarianism as the uniquely mandated SWF.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Rejecting average utilitarianism requires rejecting individual rationality or the Pareto principle — both more firmly established than maximin.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The aggregation theorem establishes average utilitarianism as the mathematically mandated conclusion of premises more secure than maximin — making maximin irrational, not merely imprudent.</span></div>
+          </div>
+          <div class="arg-block" data-arg="4" onclick="openModal('harsanyi',4)">
+            <div class="arg-title"><span>IV — Strains of commitment is a psychological not a justice argument</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The strains of commitment argument is the claim that the worst-off could not psychologically affirm principles sanctioning their deprivation.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>What persons can psychologically affirm is a fact about psychological tolerance, not about what is morally just.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Justice cannot be held hostage to the most extreme psychological fragility — this would make any principle unjust if someone found it intolerably burdensome.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The strains of commitment argument conflates psychological tolerance with moral justification — it does not establish that maximin is just, only that the worst-off might prefer it.</span></div>
+          </div>
+          <div class="arg-block" data-arg="5" onclick="openModal('harsanyi',5)">
+            <div class="arg-title"><span>V — Rational persons choose expected utility maximisation</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Rational persons are not infinitely risk averse — they weigh all outcomes by their probability and magnitude.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Behind the veil of ignorance with equal probabilities, maximising expected utility means maximising average welfare — average utilitarianism.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Maximin's recommendation requires attributing to rational persons a preference structure they would not and should not have.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>What rational persons would actually choose behind the veil of ignorance is average utilitarianism — maximin requires an irrational risk preference that no coherent theory of rationality can recommend.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ BRADLEY ══ -->
+      <div class="speaker-panel" id="opp-bradley-panel">
+        <div id="opp-bradley-speech" class="speech-text">
+          <p class="salut">Mr President,</p>
+          <p>The debate so far has been framed as a choice between maximin and expected utility maximisation. I want to challenge this framing. Even granting Professor Rawls's premise that deep uncertainty precludes probability assignments, maximin does not follow as the uniquely rational response. The decision-theoretic literature offers better alternatives — specifically minimax regret and the Hurwicz criterion — that are more sensitive to the full structure of decision problems under ignorance.</p>
+          <span class="section">On minimax regret</span>
+          <p><span class="hl" data-arg="1"><span class="tooltip">Minimax regret as an alternative to maximin</span>The minimax regret criterion — developed by Leonard Savage and Jürgen Niehans — advises choosing the option that minimises the maximum regret one could experience. Regret is measured as the difference between what one actually obtains and what one could have obtained by choosing differently, given how the world turned out. Crucially, minimax regret does not require probability assignments — it operates on the same ordinal information as maximin. But unlike maximin, it is sensitive to the opportunity costs of caution: the cost of the maximin choice, measured in what one sacrifices by avoiding the worst case, is part of the minimax regret calculation. Maximin ignores these opportunity costs entirely.</span></p>
+          <span class="section">On the Hurwicz criterion</span>
+          <p><span class="hl" data-arg="2"><span class="tooltip">The Hurwicz criterion as a generalisation</span>The Hurwicz criterion, due to Leonid Hurwicz, proposes a weighted average of the best and worst outcomes of each option:
+          </p>
+          <span class="formula">H(α, option) = α · (worst outcome) + (1−α) · (best outcome)</span>
+          <p>The parameter α ∈ [0,1] represents the agent's degree of pessimism. When α = 1, Hurwicz reduces to maximin. When α = 0, it reduces to maximax — choosing the option with the best possible outcome. Rational choice under deep uncertainty, I submit, involves selecting some intermediate value of α appropriate to the stakes. The motion's claim that α = 1 is rationally mandated — that we should be maximally pessimistic — is precisely what requires justification, and Rawls does not provide it. He stipulates maximin rather than deriving it.</span></p>
+          <span class="section">On the objection that α is underdetermined</span>
+          <p><span class="hl" data-arg="3"><span class="tooltip">Defending the Hurwicz criterion against underdetermination</span>Rawls objects that the Hurwicz criterion is underdetermined because the choice of α is not constrained by the criterion itself. But this objection, if pressed, defeats maximin too — why should the degree of pessimism be maximal rather than merely high? The appropriate response to underdetermination is not to collapse to an extreme case and call it uniquely rational, but to acknowledge that deep uncertainty creates genuine indeterminacy in the choice of decision rule. My position is that the decision theory of deep uncertainty is itself uncertain — a point that favours neither maximin nor expected utility, but does favour a framework flexible enough to model the choice of risk attitude.</span></p>
+          <span class="section">On dominance reasoning and when maximin is appropriate</span>
+          <p><span class="hl" data-arg="4"><span class="tooltip">When maximin is and is not appropriate</span>There is a genuinely good decision-theoretic argument for something like maximin: the argument from dominance. If option A produces a better outcome than option B in every possible state of the world, A dominates B and should be chosen. Extended to the case where one option has a better worst case and is not worse in any other case, something like maximin reasoning is warranted. But this reasoning applies only in cases of lexical dominance — where one option is genuinely better in the worst case without sacrificing better outcomes elsewhere. When there are genuine trade-offs between worst-case protection and better expected or best-case outcomes, dominance reasoning does not select maximin, and Rawls's argument does not show otherwise.</span></p>
+          <span class="section">On the decision-theoretic status of Rawls's three conditions</span>
+          <p><span class="hl" data-arg="5"><span class="tooltip">The three conditions do not uniquely select maximin</span>Rawls specifies three conditions under which maximin is appropriate. I accept that conditions of deep uncertainty with catastrophic worst cases are special. But the three conditions, even jointly, do not uniquely select maximin over minimax regret or an appropriately calibrated Hurwicz criterion. Both of these alternatives are also responsive to the badness of worst outcomes, neither requires probability assignments, and both take into account information about the full outcome matrix that maximin ignores. The motion claims maximin is uniquely rational under these conditions. This claim is false. Multiple decision criteria satisfy the conditions, and maximin is merely one of them — not the most defensible one.</span></p>
+          <p><em>Thank you.</em></p>
+        </div>
+        <div id="opp-bradley-logic" class="logic-view hidden">
+          <div class="arg-block" data-arg="1" onclick="openModal('bradley',1)">
+            <div class="arg-title"><span>I — Minimax regret is superior to maximin</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Minimax regret minimises maximum opportunity cost — the loss relative to what one could have achieved given how the world turns out.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Unlike maximin, minimax regret is sensitive to the costs of excessive caution — what one sacrifices by protecting the worst case at the expense of better outcomes.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Minimax regret operates on the same ordinal information as maximin and requires no probability assignments.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Minimax regret is at least as information-efficient as maximin while being more sensitive to the full structure of the decision problem — making it a superior criterion under deep uncertainty.</span></div>
+          </div>
+          <div class="arg-block" data-arg="2" onclick="openModal('bradley',2)">
+            <div class="arg-title"><span>II — Hurwicz generalises maximin</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The Hurwicz criterion H(α) = α·(worst) + (1−α)·(best) generalises maximin (α=1) and maximax (α=0) as limiting cases.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Rational choice under deep uncertainty involves selecting an α appropriate to the stakes — not stipulating that α = 1 without argument.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Rawls provides no argument that maximal pessimism (α = 1) is rationally mandated rather than merely high pessimism (α close to 1).</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Maximin is a special case of a family of rational decision rules; the motion's claim that it is uniquely rational requires showing that α = 1 is mandated, which Rawls has not done.</span></div>
+          </div>
+          <div class="arg-block" data-arg="3" onclick="openModal('bradley',3)">
+            <div class="arg-title"><span>III — Underdetermination afflicts maximin too</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Rawls objects that Hurwicz is underdetermined because α is not uniquely fixed by the criterion — but the same argument shows that choosing α = 1 (maximin) is itself a choice not uniquely fixed by the conditions of deep uncertainty.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Deep uncertainty creates genuine indeterminacy in the choice of decision rule — a point that should produce humility about any single rule's claim to uniqueness.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The appropriate response is a framework that models the choice of risk attitude, not collapse to an extreme case.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The underdetermination objection to Hurwicz applies with equal force to maximin — neither is uniquely determined by conditions of deep uncertainty, and this concession is unavoidable.</span></div>
+          </div>
+          <div class="arg-block" data-arg="4" onclick="openModal('bradley',4)">
+            <div class="arg-title"><span>IV — Maximin is warranted only under dominance</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The strongest decision-theoretic argument for maximin-style reasoning is dominance: if one option is better in the worst case without being worse in any other case, it should be chosen.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>When genuine trade-offs exist between worst-case protection and better expected or best-case outcomes, dominance reasoning does not select maximin.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Most real decision problems under deep uncertainty involve such genuine trade-offs.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Maximin is warranted by dominance reasoning only in the special case where it does not sacrifice better outcomes — not in the general case the motion asserts.</span></div>
+          </div>
+          <div class="arg-block" data-arg="5" onclick="openModal('bradley',5)">
+            <div class="arg-title"><span>V — Rawls's conditions do not uniquely select maximin</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Rawls's three conditions for maximin (no probabilities, indifference above threshold, intolerably bad worst outcomes) are reasonable conditions for cautious decision-making.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Both minimax regret and the Hurwicz criterion with high α also satisfy these conditions — they require no probabilities, are responsive to the worst case, and take stakes seriously.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Multiple decision rules satisfy the conditions, so the conditions do not uniquely select maximin.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Rawls's three conditions are jointly insufficient to select maximin uniquely — the motion's claim of unique rational mandate for maximin is unestablished.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ BINMORE ══ -->
+      <div class="speaker-panel" id="opp-binmore-panel">
+        <div id="opp-binmore-speech" class="speech-text">
+          <p class="salut">Mr President,</p>
+          <p>Both previous speakers have treated the original position as a thought experiment about individual rational choice in isolation. I want to argue that this is the fundamental error underlying the entire debate. The original position is a bargaining problem — a problem in which the principles of justice emerge from a strategic interaction among rational agents — and evolutionary game theory, not individual decision theory, is the correct tool for analysing it. When properly analysed, the original position selects average utilitarianism, not maximin.</p>
+          <span class="section">On the original position as a bargaining problem</span>
+          <p><span class="hl" data-arg="1"><span class="tooltip">The original position is a bargaining problem</span>Rawls treats the original position as if it were the decision problem of a single isolated agent choosing behind a veil of ignorance. But the original position is populated by many persons, all choosing simultaneously. This is not an individual decision problem; it is a bargaining problem. The appropriate framework is Nash bargaining theory, or its evolutionary extension — not individual decision theory under uncertainty. When the original position is analysed as a bargaining problem, the equilibrium concept selects average utilitarianism, because average utilitarianism corresponds to the Nash bargaining solution with equal bargaining weights.</span></p>
+          <span class="section">On evolutionary stability and the empirical original position</span>
+          <p><span class="hl" data-arg="2"><span class="tooltip">Evolutionary stability argument</span>The evolutionary approach asks not what a single ideally rational agent would choose from behind a veil, but what norms of justice would emerge and be stable in a population of agents who repeatedly interact under conditions of impartiality. The answer, established by evolutionary game theory, is that norms approximating average utilitarianism are evolutionarily stable — they resist invasion by alternative norms — while maximin norms are not. This is not merely a descriptive point. If we ask what principles of justice could be sustained as stable social arrangements — could actually function as principles that persons live by — average utilitarian norms pass the test and maximin norms fail it.</span></p>
+          <span class="section">On Rawls's use of the original position</span>
+          <p><span class="hl" data-arg="3"><span class="tooltip">Rawls misuses the original position device</span>Rawls introduces the veil of ignorance to achieve impartiality — to model the idea that principles of justice should not be biased toward any particular person's interests. This is a sound methodological aim. But Rawls then makes two unjustified moves. First, he treats the original position as an individual decision problem, ignoring its strategic character. Second, he imports maximin as the decision rule for this individual problem without deriving it from the conditions of the original position. The veil of ignorance secures impartiality; it does not, by itself, mandate maximin. The additional stipulation of maximin is a substantive and unjustified addition to the original position framework.</span></p>
+          <span class="section">On the Nash bargaining solution and equal division</span>
+          <p><span class="hl" data-arg="4"><span class="tooltip">Nash bargaining selects average utilitarianism</span>The Nash bargaining solution with equal bargaining weights divides the cooperative surplus equally among agents in expected utility terms. Behind the veil of ignorance, where all persons have equal bargaining weight by assumption, the Nash solution selects the arrangement that maximises average expected utility — average utilitarianism. This is not a coincidence. The Nash solution is the unique solution satisfying the axioms of efficiency, symmetry, scale invariance, and independence of irrelevant alternatives — axioms that are themselves conditions of impartiality and rationality. Average utilitarianism follows from conditions Rawls himself should accept.</span></p>
+          <span class="section">On the role of maximin in Rawls's actual argument</span>
+          <p><span class="hl" data-arg="5"><span class="tooltip">Maximin as a rhetorical device</span>I want to make a diagnostic observation about the structure of Rawls's argument. Maximin does the real work in Rawls's theory not because it is rationally mandated by the original position but because Rawls has constructed the original position to select what he already knows he wants — the difference principle. The features of the original position — the choice of maximin as the decision rule, the fineness of the outcome partition, the treatment of the worst case — are all calibrated to produce the difference principle. This is the original position as reverse-engineering, not as derivation. A properly constructed original position, with the right decision theory, selects average utilitarianism.</span></p>
+          <p><em>Thank you.</em></p>
+        </div>
+        <div id="opp-binmore-logic" class="logic-view hidden">
+          <div class="arg-block" data-arg="1" onclick="openModal('binmore',1)">
+            <div class="arg-title"><span>I — The original position is a bargaining problem</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The original position is populated by many persons choosing simultaneously — it is a bargaining problem, not an individual decision problem.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>The appropriate framework for bargaining problems is Nash bargaining theory or its evolutionary extension — not individual decision theory under uncertainty.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Rawls's application of maximin as an individual decision rule mischaracterises the strategic structure of the original position.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>The original position is structurally a bargaining problem; Rawls's application of individual decision theory to it is a category error that vitiates his derivation of maximin.</span></div>
+          </div>
+          <div class="arg-block" data-arg="2" onclick="openModal('binmore',2)">
+            <div class="arg-title"><span>II — Average utilitarian norms are evolutionarily stable</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>Evolutionary game theory asks which norms are stable in populations of interacting agents — which norms resist invasion by alternatives.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Norms approximating average utilitarianism are evolutionarily stable under conditions of repeated impartial interaction; maximin norms are not.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>Principles of justice must be sustainable as stable social arrangements — must be norms that persons can actually live by and that resist defection.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Average utilitarian norms pass the test of evolutionary and social stability that maximin norms fail — making them more adequate as principles of justice.</span></div>
+          </div>
+          <div class="arg-block" data-arg="3" onclick="openModal('binmore',3)">
+            <div class="arg-title"><span>III — The veil secures impartiality, not maximin</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The veil of ignorance is introduced to secure impartiality — to prevent principles of justice from being biased toward particular persons' interests.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>Impartiality is secured by the veil alone; maximin is an additional substantive constraint imported without derivation from the conditions of the original position.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The original position does not, by its own structure, mandate maximin rather than any other impartial decision rule.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Rawls's original position secures impartiality but does not derive maximin from it — maximin is added as an unjustified stipulation to an otherwise sound methodological device.</span></div>
+          </div>
+          <div class="arg-block" data-arg="4" onclick="openModal('binmore',4)">
+            <div class="arg-title"><span>IV — Nash bargaining selects average utilitarianism</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The Nash bargaining solution with equal weights is the unique solution satisfying efficiency, symmetry, scale invariance, and independence of irrelevant alternatives.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>These axioms are conditions of impartiality and rationality that Rawls himself endorses.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The Nash solution with equal weights selects average utilitarianism — the arrangement that maximises average expected utility.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Average utilitarianism follows from the Nash bargaining solution applied to the original position — derived from axioms Rawls endorses, not stipulated as a decision rule.</span></div>
+          </div>
+          <div class="arg-block" data-arg="5" onclick="openModal('binmore',5)">
+            <div class="arg-title"><span>V — The original position is reverse-engineered to select maximin</span><span class="img-hint">click for image</span></div>
+            <div class="arg-premises">
+              <div class="premise"><span class="plabel">1.</span><span>The features of Rawls's original position — the decision rule, the partition of outcomes, the treatment of the worst case — are all calibrated to produce the difference principle.</span></div>
+              <div class="premise"><span class="plabel">2.</span><span>A properly constructed original position using the correct decision theory selects average utilitarianism, not maximin.</span></div>
+              <div class="premise"><span class="plabel">3.</span><span>The original position is methodologically valid as a device for securing impartiality but invalid as a derivation of maximin.</span></div>
+            </div>
+            <div class="conclusion"><span class="plabel">∴</span><span>Rawls has reverse-engineered the original position to select the conclusion he wanted — a methodologically valid impartiality device does not thereby validate its built-in decision rule.</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh">
+          <div>No image linked</div>
+          <code>Set src in IMAGES object</code>
+        </div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var IMAGES={
+  rawls:{1:{src:'',caption:'Rawls — Deep uncertainty vs risk'},2:{src:'',caption:'Rawls — Three conditions for maximin'},3:{src:'',caption:'Rawls — Strains of commitment'},4:{src:'',caption:'Rawls — Against Principle of Insufficient Reason'},5:{src:'',caption:'Rawls — Rivals are underdetermined'}},
+  voorhoeve:{1:{src:'',caption:'Voorhoeve — Limits of pure maximin'},2:{src:'',caption:'Voorhoeve — The welfare threshold'},3:{src:'',caption:'Voorhoeve — Separateness of persons'},4:{src:'',caption:'Voorhoeve — Decision theory vs justice'},5:{src:'',caption:'Voorhoeve — Against Binmore'}},
+  harsanyi:{1:{src:'',caption:'Harsanyi — Equal probabilities mandatory'},2:{src:'',caption:'Harsanyi — Maximin as infinite risk aversion'},3:{src:'',caption:'Harsanyi — Aggregation theorem'},4:{src:'',caption:'Harsanyi — Strains of commitment is psychological'},5:{src:'',caption:'Harsanyi — Rational persons choose EU'}},
+  bradley:{1:{src:'',caption:'Bradley — Minimax regret'},2:{src:'',caption:'Bradley — Hurwicz criterion'},3:{src:'',caption:'Bradley — Underdetermination afflicts all'},4:{src:'',caption:'Bradley — Dominance reasoning'},5:{src:'',caption:'Bradley — Three conditions insufficient'}},
+  binmore:{1:{src:'',caption:'Binmore — Original position as bargaining'},2:{src:'',caption:'Binmore — Evolutionary stability'},3:{src:'',caption:'Binmore — Veil secures impartiality only'},4:{src:'',caption:'Binmore — Nash bargaining solution'},5:{src:'',caption:'Binmore — Reverse-engineering critique'}}
+};
+
+var state={
+  prop:{speaker:'rawls',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'harsanyi',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
+  document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){sp.classList.remove('hidden');lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{sp.classList.add('hidden');lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+
+function openModal(speaker,n){
+  var d=(IMAGES[speaker]||{})[n]||{src:'',caption:speaker+' arg '+n};
+  document.getElementById('mTitle').textContent=d.caption;
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.style.display='none';ph.style.display='none';}
+  else{img.style.display='none';ph.style.display='flex';}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none';}
+function imgFail(){document.getElementById('mImg').style.display='none';document.getElementById('mPh').style.display='flex';document.getElementById('mPh').querySelector('div').textContent='Image failed to load';}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open');}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal();}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2,vw=window.innerWidth,mg=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  tip.style.left=Math.min(Math.max(cx,tw/2+mg),vw-tw/2-mg)+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
