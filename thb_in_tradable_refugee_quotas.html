@@ -1,0 +1,585 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,var(--font-serif,serif);background:var(--bg);color:var(--text)}
+
+.motion-header{padding:.9rem 2rem .75rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:5px;font-weight:500}
+.motion-title{font-size:17px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 64px);min-height:500px}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-bar::-webkit-scrollbar{height:2px}
+.speaker-bar::-webkit-scrollbar-thumb{background:var(--bdr2)}
+.speaker-btn{font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;padding:7px 12px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp .speaker-btn.active{color:var(--opp-red)}
+
+.col-header{padding:.6rem 1.1rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem;flex-wrap:wrap}
+.pill{font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:var(--font-sans,sans-serif);font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:var(--font-sans,sans-serif);font-size:10px;color:var(--text3);margin-top:1px;margin-bottom:5px;line-height:1.4}
+
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:var(--font-sans,sans-serif);padding:4px 13px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.3rem;font-size:13px;line-height:1.9;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.8rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.2rem 0 .2rem;display:block}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+
+.tooltip{display:none;position:fixed;font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;font-style:normal;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.logic-view{display:flex;flex-direction:column;gap:.8rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+
+.arg-title{padding:6px 10px;font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+
+.arg-premises{padding:8px 10px 4px}
+.premise{display:flex;gap:8px;margin-bottom:6px;font-family:var(--font-sans,sans-serif);font-size:11.5px;line-height:1.55;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:8px;padding:6px 10px;font-family:var(--font-sans,sans-serif);font-size:11.5px;line-height:1.55;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hidden{display:none}
+
+.modal-wrap{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:8px;border:1px solid var(--bdr2);width:380px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:var(--font-sans,sans-serif);font-size:12px;font-weight:500;color:var(--text)}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:14px;line-height:1;padding:3px 6px;border-radius:4px}
+.modal-close:hover{background:var(--bg4)}
+.modal-bd{padding:.8rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;background:var(--bg3);min-height:130px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:1.5rem;color:var(--text3);font-family:var(--font-sans,sans-serif);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.modal-ph code{font-size:10px;background:var(--bg4);padding:2px 6px;border-radius:3px}
+.modal-cap{margin-top:.5rem;font-family:var(--font-sans,sans-serif);font-size:11px;color:var(--text3)}
+.page{position:relative;overflow:hidden}
+</style>
+
+<div class="page" id="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Believes in Tradable Refugee Quotas"</div>
+</div>
+
+<div class="columns">
+
+<!-- ══════════════════ PROPOSITION ══════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','trebilcock',this)">Trebilcock</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','dreher',this)">Dreher / Lindqvist</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','carens',this)">Carens</button>
+  </div>
+
+  <div class="col-header" id="prop-trebilcock-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Trebilcock / Bauer</span></div>
+    <div class="col-position">Market design case — the current system is a catastrophic collective action failure; tradable quotas expand total protection and redistribute the burden from geographic accident to principled capacity</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','trebilcock','speech',this)">Speech</div><div class="tab" onclick="sw('prop','trebilcock','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="prop-dreher-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Dreher / Lindqvist</span></div>
+    <div class="col-position">Political economy case — harmonised burden-sharing has failed; tradable quotas change incentives to create political sustainability and a positive constituency for protection</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','dreher','speech',this)">Speech</div><div class="tab" onclick="sw('prop','dreher','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="prop-carens-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Joseph Carens</span></div>
+    <div class="col-position">Cosmopolitan concession — even a committed open borders theorist should support tradable quotas as a second-best that dramatically improves on the status quo in a non-ideal world</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','carens','speech',this)">Speech</div><div class="tab" onclick="sw('prop','carens','logic',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ── TREBILCOCK ── -->
+    <div class="speaker-panel active" id="prop-trebilcock-panel">
+      <div id="prop-trebilcock-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to begin with a fact that should embarrass every participant in the conventional debate about refugee policy. Approximately 110 million people are currently forcibly displaced — the highest number since records began. The 1951 Refugee Convention, ratified by 149 states, obliges those states to provide protection to qualifying refugees. In practice, the system operates as a tragic lottery: refugees end up wherever geography determines, which correlates almost perfectly with factors that have no moral relevance to who should receive protection. Turkey hosts more refugees than the United Kingdom — not because Turkey has the most generous policy but because Syria is its neighbour. Uganda hosts more than most European states — not because Uganda has greater capacity but because its neighbours are unstable.</p>
+
+        <span class="section">On the burden-sharing problem</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Collective action failure — refugee protection as a global public good</span>The central failure of the current system is a collective action problem. Every state would prefer that other states bear the costs of refugee protection. Every state has an incentive to under-provide protection — to make its territory inhospitable, to process claims slowly, to interpret refugee status narrowly — because the costs of protection fall on the hosting state while the benefits are shared globally. Refugee protection is a global public good — it benefits the entire international community — and like all public goods, it is subject to free-riding. The refugee burden falls on states that happen to be geographically proximate to instability and that typically have the fewest resources to devote to protection. Tradable quotas address this problem directly. Each state is assigned an obligation — based on capacity (GDP, population, territory) — to host a certain number of refugees. States that choose not to meet their obligation directly can pay other states to meet it on their behalf.</span></p>
+
+        <span class="section">On why this produces better outcomes</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Tradable quotas expand total protection and generate resources for quality</span>Under the status quo: states proximate to refugee crises bear the burden; wealthier states bear little; the total number of refugees protected is determined by the willingness of proximate states. Under tradable quotas: every state bears a notional obligation determined by capacity rather than geography; states that prefer to pay contribute financially; that financial contribution enables states with high hosting capacity to provide better resources. The key insight is that tradable quotas do not merely redistribute the refugee burden — they expand it. By creating a financial flow from states that buy quota exemptions to states that sell quota fulfilment, the system generates resources that can be used to improve the quality and quantity of refugee protection. A Uganda that hosts refugees because it is paid to do so is a Uganda with resources to actually provide protection — housing, education, employment access — rather than merely warehousing people in camps.</span></p>
+
+        <span class="section">On the commodification objection</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Commodification objection — protection vs persons</span>The most powerful objection is that refugees are not goods; asylum is a right, not a commodity; trading obligations degrades the moral meaning of protection. But this confuses two different things: the moral status of the individual refugee and the institutional arrangements through which states discharge their obligations. Consider carbon emissions trading: it allows states and companies to trade the right to emit carbon dioxide. This does not mean the atmosphere belongs to whoever buys permits. It means a shared obligation to reduce emissions can be more efficiently discharged through trading than through uniform mandatory targets. Nobody argues carbon trading degrades the moral significance of climate change. The same logic applies here. The quota system does not say refugees are commodities. It says states' obligations to protect refugees can be discharged through a combination of direct hosting and financial contribution — one that produces more total protection than direct hosting alone.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-trebilcock-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('trebilcock',1,'prop')">
+          <div class="arg-title"><span>Arg I — Refugee protection is a public good subject to collective action failure</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Refugee protection is a global public good — it benefits the international community — and is therefore subject to systematic free-riding by states.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The current system produces the predicted public goods result: under-provision, with the burden falling on proximate states with least capacity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Tradable quotas address this by assigning obligations based on capacity, ensuring every state bears a notional share rather than free-riding on geography.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Tradable quotas solve the collective action failure at the heart of the current refugee protection system.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('trebilcock',2,'prop')">
+          <div class="arg-title"><span>Arg II — Tradable quotas expand total protection by generating financial flows</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Financial flows from quota-buying states to quota-selling states generate resources to improve the quality and quantity of refugee protection.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>States with high hosting capacity and lower incomes can use these resources to provide genuine protection — housing, education, employment — rather than bare warehousing.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Total protection expands because the trading system channels global willingness to pay into actual protection capacity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Tradable quotas expand total refugee protection beyond what the status quo achieves — the mechanism translates financial flows into improved protection outcomes.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('trebilcock',3,'prop')">
+          <div class="arg-title"><span>Arg III — Commodification objection confuses the moral status of persons with institutional arrangements</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Trading mechanisms for obligations — carbon markets, debt trading, quota systems — do not imply that the underlying subject is a commodity with market value.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Tradable refugee quotas trade states' obligations, not refugees themselves — the moral status of each refugee is unaffected by how states choose to meet their obligations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The refugee's rights are better vindicated under the trading system than under the status quo because total protection is greater.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The commodification objection mistakes trading states' obligations for commodifying refugees — correcting this error dissolves the objection.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DREHER ── -->
+    <div class="speaker-panel" id="prop-dreher-panel">
+      <div id="prop-dreher-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleague has made the theoretical case. I want to make the political economy case — that tradable quotas are not merely theoretically superior to the current system but are the only reform with any realistic prospect of producing the political coalitions necessary to actually work.</p>
+
+        <span class="section">On the politics of refugee protection</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Harmonisation has failed — domestic politics systematically defeats burden-sharing agreements</span>The dominant approach to international refugee burden-sharing has been harmonisation — attempting to agree common standards, processing procedures, and distribution mechanisms through multilateral negotiation. This approach has failed. Not because harmonisation is a bad idea but because the political conditions for it do not and will not exist. In virtually every advanced economy, domestic political pressure is consistently against accepting more refugees — not because voters are heartless but because they have legitimate concerns about the pace of integration, the fiscal costs of protection, and the management of cultural change. Governments that sign harmonised burden-sharing agreements face strong domestic pressure to defect — and they do defect, through slow processing, narrow interpretation of refugee status, and physical border enforcement. The EU relocation scheme during the 2015 crisis agreed to relocate 160,000 asylum seekers. It actually relocated fewer than 35,000. The gap between commitment and performance is the systematic product of domestic political incentives that make defection more attractive than compliance.</span></p>
+
+        <span class="section">On what tradable quotas change</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Tradable quotas change political incentives — compliance at lower political cost, positive constituency</span>Tradable quotas change the political economy of burden-sharing in two important ways. First, they allow states to comply with their obligations at lower political cost. A state whose domestic politics resists accepting refugees can meet its obligations by paying another state to do so. The obligation remains. The state meets it. The political cost of meeting it is reduced. This makes compliance more politically sustainable. Second, they create a positive constituency for refugee protection in states that currently have no stake in the system. Under the current system, states that host few refugees have no financial interest in maintaining or expanding protection. Under a quota system with trading, states that sell quota fulfilment — Uganda, Ethiopia, Jordan — have a direct financial interest in a well-functioning quota system. They become advocates for the system rather than bystanders. This creates a political coalition — between humanitarian-leaning states in the global North and high-capacity states in the global South — that currently does not exist.</span></p>
+
+        <span class="section">On the evidence from analogous systems</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">EU-Turkey analogy — financial incentives improve protection outcomes</span>The concern that trading mechanisms produce perverse outcomes in human rights contexts is not without foundation. But the evidence from analogous systems is more encouraging than critics suggest. The Temporary Protection initiative in Poland following the Russian invasion of Ukraine shows that states with financial incentives to host displaced persons — through EU financial support — provided dramatically better protection than states without such incentives. The EU's support for Turkey under the 2016 statement produced, for a period, significantly improved management of refugee flows and better conditions for refugees in Turkey than had existed previously. These demonstrate the core mechanism: financial incentives change behaviour in the direction of better refugee protection, and states that are paid to host refugees provide better protection than states that are merely obligated to do so.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-dreher-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="4" onclick="openModal('dreher',4,'prop')">
+          <div class="arg-title"><span>Arg I — Harmonisation has systematically failed due to domestic political incentives</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Harmonised burden-sharing requires states to accept obligations their domestic politics will not tolerate — creating systematic incentives to defect.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The EU 2015 relocation scheme agreed to relocate 160,000 but relocated fewer than 35,000 — the gap is the documented product of domestic political defection, not implementation failure.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Any reform that does not change the domestic political incentives for defection will reproduce the same outcome.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Harmonisation has failed and will continue to fail — a reform that changes the political economy of compliance is required.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('dreher',5,'prop')">
+          <div class="arg-title"><span>Arg II — Tradable quotas reduce compliance costs and create a pro-protection coalition</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>States can meet obligations by paying rather than hosting — reducing the domestic political cost of compliance and making defection less attractive.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>States in the global South that sell quota fulfilment gain a direct financial stake in a well-functioning quota system — becoming advocates for protection rather than bystanders.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This creates a North-South coalition for refugee protection that currently does not exist and that harmonisation cannot generate.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Tradable quotas change the political economy of refugee protection in ways that make compliance politically sustainable and generate a pro-protection coalition.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal('dreher',6,'prop')">
+          <div class="arg-title"><span>Arg III — Financial incentives demonstrably improve refugee protection in analogous systems</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Poland's EU-supported Temporary Protection shows that financial incentives produce dramatically better refugee protection than unfunded obligations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The EU-Turkey 2016 statement produced improved management of refugee flows when payment was forthcoming, demonstrating the mechanism's responsiveness to financial incentives.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Both cases demonstrate the core mechanism: states paid to host refugees provide better protection than states merely obligated to do so.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The empirical evidence from analogous systems demonstrates that financial incentives improve refugee protection outcomes — the mechanism the proposition relies on is documented and operative.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CARENS ── -->
+    <div class="speaker-panel" id="prop-carens-panel">
+      <div id="prop-carens-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to make what might seem a surprising argument for a philosopher known for his commitment to open borders. I want to argue that even someone who shares my starting point — even someone who believes that states have much more extensive obligations to refugees and migrants than they currently acknowledge — should support tradable refugee quotas.</p>
+
+        <span class="section">On ideal theory and non-ideal theory</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Non-ideal theory — second-best improvements over the status quo are morally required</span>There is a distinction in political philosophy between ideal theory and non-ideal theory. Ideal theory asks: what would a just world look like? Non-ideal theory asks: given the unjust world we actually inhabit, what reforms should we pursue? My ideal theory answer to the refugee question is something close to open borders — a world in which the accident of birthplace does not determine whether you have access to safety and prosperity. But I live in the world, not in ideal theory. And in the world, the question is not whether to implement open borders — that is not politically available — but whether tradable refugee quotas represent an improvement over the status quo. I believe they do.</span></p>
+
+        <span class="section">On the direction of change</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Tradable quotas expand total protection and generate resources for quality</span>The relevant question for non-ideal theory is not whether a reform is ideally just but whether it is directionally correct — whether it moves the world toward justice rather than away from it. Tradable refugee quotas are directionally correct in two respects. First, they increase total refugee protection — financial flows from states unwilling to host to states willing and able to do so expand the total number of refugees who receive meaningful protection. A world in which 10 million refugees receive protection through a quota trading system is better than a world in which 5 million receive protection through a dysfunctional status quo. Second, they shift the basis of refugee protection from geographic accident to principled obligation. Under the current system, the refugee burden is determined entirely by proximity to crisis — a morally arbitrary factor. Under a quota system, it is determined by a formula reflecting capacity — a morally relevant factor. This is progress.</span></p>
+
+        <span class="section">On the objection from perfectionism</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Commodification objection — protection vs persons</span>The most important objection from my own theoretical perspective is this: by accepting tradable quotas as a second-best, am I not legitimating a system that falls far short of what justice requires, and thereby making the ideal solution harder to achieve? I want to reject this objection. The perfect is not the enemy of the good. A system that protects more refugees, distributes the burden more fairly, and creates political incentives for states to maintain rather than erode protection obligations is better than the alternative — even if it is not ideal. The history of international refugee law is a history of incremental improvements achieved through pragmatic compromise. The 1951 Refugee Convention was itself a compromise — it excluded most of those who needed protection and gave states enormous discretion in implementation. And yet it was better than what preceded it. Tradable quotas are a compromise. They are better than what we have. In a non-ideal world, that is sufficient reason to support them.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-carens-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="7" onclick="openModal('carens',7,'prop')">
+          <div class="arg-title"><span>Arg I — Non-ideal theory requires pursuing second-best improvements, not ideal solutions</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Ideal theory identifies what justice requires; non-ideal theory asks what reforms should be pursued given the unjust world we actually inhabit.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Open borders and the full realisation of refugee rights are not politically available in the current world — the relevant question is what improvements are achievable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Tradable quotas represent an achievable improvement over the status quo — more total protection, fairer distribution of burden.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Even committed cosmopolitans should support tradable quotas — non-ideal theory requires pursuing the best achievable improvement, not only ideal justice.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('carens',2,'prop')">
+          <div class="arg-title"><span>Arg II — Tradable quotas are directionally correct: more protection, fairer distribution</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Tradable quotas increase total refugee protection by channelling financial flows to high-capacity states.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>They shift the basis of the refugee burden from geographic accident — a morally arbitrary factor — to principled capacity — a morally relevant factor.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Directional correctness — moving toward justice rather than away from it — is the appropriate standard for non-ideal theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Tradable quotas pass the non-ideal theory test — they move the world toward justice in both the quantity and the distribution of refugee protection.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('carens',3,'prop')">
+          <div class="arg-title"><span>Arg III — Perfectionism does not justify rejecting achievable improvements</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The 1951 Refugee Convention was itself a compromise falling far short of ideal refugee protection — and yet it was the foundation for all subsequent improvements.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Refusing second-best improvements on the grounds that they fall short of the ideal does not advance the ideal — it leaves things worse than they need to be.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Tradable quotas improve on the status quo — this is sufficient reason to support them in a non-ideal world.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The perfectionist objection does not defeat the case for tradable quotas — in a non-ideal world, achievable improvements are morally required even when they fall short of the ideal.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- prop body -->
+</div><!-- prop col -->
+
+<!-- ══════════════════ OPPOSITION ══════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','walzer',this)">Walzer</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','czaika',this)">Czaika / de Haas</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','arendt',this)">Arendt / Benhabib</button>
+  </div>
+
+  <div class="col-header" id="opp-walzer-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Michael Walzer</span></div>
+    <div class="col-position">Communitarian case — refugees are not goods; asylum is recognition not service delivery; commodification corrupts the meaning of protection; domestic politics is not an acceptable constraint</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','walzer','speech',this)">Speech</div><div class="tab" onclick="sw('opp','walzer','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="opp-czaika-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Czaika / de Haas</span></div>
+    <div class="col-position">Empirical case against — the model's assumptions do not hold; race to the bottom in protection quality; the EU-Turkey evidence shows conditional compliance, not genuine protection</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','czaika','speech',this)">Speech</div><div class="tab" onclick="sw('opp','czaika','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="opp-arendt-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Arendt / Benhabib</span></div>
+    <div class="col-position">Rights-based case — asylum is not a quota obligation but a right owed to a person; refugees need membership not service delivery; tradable quotas address the wrong question and eliminate pressure to address the right one</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','arendt','speech',this)">Speech</div><div class="tab" onclick="sw('opp','arendt','logic',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ── WALZER ── -->
+    <div class="speaker-panel active" id="opp-walzer-panel">
+      <div id="opp-walzer-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>There are things that money can buy, and things that money should not buy. This distinction is not sentimental. It reflects a serious philosophical claim about the relationship between the nature of a good and the norms that should govern its distribution. Different social goods have different social meanings, and the appropriate distributive principles for a good must be derived from its social meaning rather than from a universal market calculus.</p>
+
+        <span class="section">On what asylum means</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Commodification objection — protection vs persons</span>Asylum is not a service. It is not a product. It is recognition — the recognition that a human being, confronted with persecution, has a claim on the protection of the human community that no state can legitimately deny. The 1951 Refugee Convention is not a burden-sharing agreement. It is a statement of obligation — an acknowledgment that the Holocaust had demonstrated that states cannot be permitted to expel, persecute, or abandon people to violence without the international community having an obligation to respond. The Convention's statement that no state shall return a refugee to a place where their life or freedom would be threatened is not a quota. It is a right. It attaches to the individual. It cannot be transferred, traded, or discharged by financial payment to another state.</span></p>
+
+        <span class="section">On what tradability does to the meaning of asylum</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Commodification objection — protection vs persons</span>When we introduce tradability into the refugee protection system, we change what protection means. Protection is no longer recognition of an individual's humanity and their claim to safety. It becomes a fiscal obligation that can be discharged by payment — more like a carbon credit than like a welcome. This transformation is not merely symbolic. A state that hosts refugees because it has been paid to do so has a different relationship with those refugees than a state that hosts them because it recognises their humanity and its obligations. The paid state has commercial incentives: to minimise the cost of each refugee, to maximise throughput, to provide the minimum required by the contract rather than the maximum required by decency. The host-state's relationship to the refugee becomes that of a contractor to a client — with all the incentives for cost-cutting and quality minimisation that commercial relationships generate.</span></p>
+
+        <span class="section">On the carbon trading analogy and why it fails</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Tradable quotas expand total protection and generate resources for quality</span>My opponents will deploy the carbon trading analogy. A carbon credit represents a share of the global atmosphere's absorptive capacity. It is fungible because one tonne of CO₂ absorbed is equivalent to any other tonne, wherever it is absorbed. A refugee is not fungible. A Syrian refugee fleeing political persecution is not equivalent — from the perspective of her rights and humanity — to any other unit of protection obligation. Her claim to asylum is a claim to recognition of her particular situation, her particular vulnerability, and her particular need for protection. The trading system treats her as interchangeable with any other unit of protection demand. She is not. Moreover: my proposition colleague argued that domestic politics in wealthy states is an acceptable constraint on the design of refugee protection systems. I reject this concession. The task of political leadership is not to design systems optimally compatible with the worst impulses of domestic politics. It is to build the political conditions under which better obligations can be met.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-walzer-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="3" onclick="openModal('walzer',3,'opp')">
+          <div class="arg-title"><span>Arg I — Asylum is recognition, not service delivery — it cannot be traded</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Asylum is recognition of a person's claim to protection by virtue of their humanity — a right that attaches to the individual, not a quota obligation that states can discharge through payment.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The non-refoulement principle of the 1951 Convention is not a quota — it is an individual right that cannot be transferred, traded, or discharged by financial payment to another state.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Tradability converts recognition into service delivery — changing what asylum means and the relationship between host state and refugee.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Tradable refugee quotas are incompatible with the nature of asylum as recognition — they corrupt the moral meaning of protection by converting it into a commercial arrangement.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('walzer',2,'opp')">
+          <div class="arg-title"><span>Arg II — Refugees are not fungible; the carbon trading analogy fails</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Carbon credits are fungible because one tonne of CO₂ absorbed is equivalent to any other, wherever it is absorbed — the traded unit is genuinely identical.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A refugee's claim to asylum is a claim to recognition of their particular situation, vulnerability, and need — it is not equivalent to any other unit of protection demand.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Treating refugees as fungible units of protection demand misrepresents the nature of the right being vindicated.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The carbon trading analogy fails because the traded units are not fungible in the morally relevant sense — refugees are persons with particular claims, not equivalent units of a global public good.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('walzer',4,'opp')">
+          <div class="arg-title"><span>Arg III — Domestic politics is not an acceptable constraint on refugee obligations</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The proposition concedes that its system is designed to be compatible with domestic political resistance to refugee hosting — treating that resistance as a fixed constraint.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Political leadership's task is to build the political conditions under which obligations can be met — not to design systems optimally compatible with avoiding those obligations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Designing around domestic resistance legitimates it and reduces pressure on states to meet their obligations directly.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Taking domestic political resistance as a fixed constraint concedes too much — it legitimises the failure to meet obligations rather than addressing its causes.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CZAIKA ── -->
+    <div class="speaker-panel" id="opp-czaika-panel">
+      <div id="opp-czaika-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleague Walzer has made the moral case against tradable refugee quotas. I want to make the empirical case — the argument that tradable quotas will not produce the outcomes the proposition claims, and that the mechanisms through which they are supposed to improve protection quality will in practice produce the opposite.</p>
+
+        <span class="section">On what the proposition's model assumes</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Collective action failure — refugee protection as a global public good</span>The proposition's argument rests on a sequence of assumptions that need to be made explicit. First, states that buy quota exemptions will actually pay, and payments will be calibrated to the actual cost of providing protection. Second, states that sell quota fulfilment will use revenues to provide genuine, high-quality protection — rather than pocketing revenues while warehousing refugees in camps. Third, the quota formula will be set at a level that generates adequate total protection. Fourth, the trading market will function efficiently — prices set competitively rather than through bilateral monopolies, not gamed through creative accounting of who counts as a refugee. Each of these assumptions is questionable. Together, they constitute a theoretical architecture that the political and institutional realities of international refugee protection will likely not sustain.</span></p>
+
+        <span class="section">On the race to the bottom</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Tradable quotas change political incentives — compliance at lower political cost, positive constituency</span>The most serious empirical concern about tradable quotas is that they will produce a systematic reduction in protection quality through competitive under-provision. States that sell quota fulfilment — states in the global South with high hosting capacity — will compete with one another for revenues that buying states generate. This competition creates downward pressure on the price of protection and, therefore, downward pressure on the quality of protection. A state that offers to house refugees at minimum cost will attract quota purchases from states that prefer cheap exemptions to expensive ones. States attempting to provide high-quality protection will find themselves priced out of the market by states offering cheaper, lower-quality alternatives. We have directly relevant evidence: Australia's offshore processing arrangement with Papua New Guinea and Nauru produced conditions of such deplorable quality — systematic mental health deterioration, sexual abuse, indefinite detention — that they were condemned by international human rights organisations. These conditions were the product of a system in which the purchaser was not the entity experiencing the conditions, and therefore had no direct incentive to ensure quality. Tradable refugee quotas institutionalise this structure across the entire international refugee system.</span></div></p>
+
+        <span class="section">On the EU–Turkey evidence reconsidered</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">EU-Turkey analogy — financial incentives improve protection outcomes</span>The proposition cited the EU–Turkey statement of 2016 as evidence that financial incentives improve refugee protection. I want to examine that evidence more carefully. The statement involved the EU paying Turkey six billion euros to manage Syrian refugee flows. What did this produce? Turkey did host large numbers of Syrian refugees — approximately 3.5 million at its peak. But the vast majority had no legal status, no right to work, and no access to formal education. They lived in legal limbo, dependent on Turkish political goodwill that proved increasingly unreliable. Turkey used the refugees as a political bargaining chip, twice threatening to "open the gates" to leverage EU concessions on other issues. This is what financial incentives for refugee hosting actually look like in practice: compliance that is contingent on continued payment and political favour, that can be withdrawn as political conditions change, and that provides minimum quality protection rather than genuine asylum. This is not an advertisement for tradable refugee quotas. It is a warning against them.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-czaika-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('czaika',1,'opp')">
+          <div class="arg-title"><span>Arg I — The proposition's model rests on assumptions that will not hold</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The proposition assumes: payments will be made and calibrated to real costs; revenues will be used for protection not pocketed; quota formulae will be set at adequate levels; markets will function efficiently without gaming.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Each assumption is individually questionable and collectively implausible given the political and institutional realities of international refugee protection.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A policy that only works if all its assumptions hold simultaneously is not robust enough for the domain in which it is being deployed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proposition's model is theoretically elegant but empirically fragile — its assumptions are unlikely to hold in the institutional context of international refugee protection.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('czaika',5,'opp')">
+          <div class="arg-title"><span>Arg II — Competition among quota-selling states produces a race to the bottom in protection quality</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>States selling quota fulfilment will compete on price, creating downward pressure on the cost and quality of protection — states offering cheaper, lower-quality protection will attract more quota purchases.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Australian offshore processing model — where the purchasing state bore no consequences for conditions — produced conditions condemned by international human rights bodies.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Tradable quotas institutionalise this separation of purchase from consequence across the entire international system.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Competitive quota trading will produce a race to the bottom in protection quality — the market mechanism creates precisely the incentives that undermine the protection it purports to provide.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal('czaika',6,'opp')">
+          <div class="arg-title"><span>Arg III — EU-Turkey evidence shows conditional compliance, not genuine protection</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Under the EU-Turkey statement, 3.5m Syrian refugees in Turkey had no legal status, no right to work, and no access to formal education — dependent on Turkish political goodwill.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Turkey twice used the refugees as a political bargaining chip, threatening to withdraw compliance to leverage EU concessions on unrelated issues.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Financial incentives produced compliance that was contingent, instrumentalised, and provided minimum rather than genuine protection.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The EU-Turkey evidence, properly read, is a warning against tradable quotas — financial incentives produce conditional compliance at minimum quality, not the genuine protection the proposition claims.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ARENDT ── -->
+    <div class="speaker-panel" id="opp-arendt-panel">
+      <div id="opp-arendt-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to make the deepest philosophical argument against tradable refugee quotas — an argument that challenges not merely the mechanism but the conceptual framework within which the proposition operates. The proposition treats the refugee problem as a burden-sharing problem. I want to argue that this framing is wrong, and that the wrong framing produces the wrong solution.</p>
+
+        <span class="section">On Hannah Arendt and the right to have rights</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Non-ideal theory — second-best improvements over the status quo are morally required</span>Hannah Arendt, writing in the aftermath of the Second World War, identified the fundamental political problem of her time: the existence of millions of stateless people who had been stripped of citizenship and therefore had no political community within which to exercise their rights. Arendt argued that human rights — as typically conceived — depend for their realisation on membership in a political community. A person without a state, without citizenship, without membership in any political community, has no institutional framework within which to exercise their rights. Rights require a political home. And the denial of that home — statelessness — is not merely the deprivation of a benefit but the deprivation of the capacity to have rights at all. The lesson for refugee protection is this: what refugees need is not a service delivery arrangement. What they need is membership — genuine membership in a political community that recognises their humanity, grants them rights, and makes them accountable to and protected by the institutions of that community. The tradable quota system does not provide this. It provides service delivery: an obligation to house, feed, and process a certain number of persons, discharged by whoever wins the tender.</span></p>
+
+        <span class="section">On the right to asylum as a right</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Commodification objection — protection vs persons</span>Seyla Benhabib has argued that the right to asylum is not merely a humanitarian desideratum created by treaty. It is a fundamental human right — a right that attaches to the person by virtue of their humanity. If the right to asylum is a fundamental human right, then states' obligations with respect to asylum are not quota obligations — obligations to accept a certain number of persons. They are genuine rights obligations — triggered by the presence of a person in need of protection and that cannot be discharged by financial payment to another state. The tradable quota system, by its structure, implies that states' obligations are quota obligations. This is not a rights framework. It is a welfare framework — treating protection as a good to be produced and distributed, rather than as a right to be vindicated.</span></p>
+
+        <span class="section">On the wrong question and the right one</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Non-ideal theory — second-best improvements over the status quo are morally required</span>The tradable quota proposal is a symptom of a failure of political imagination — the failure to recognise that the refugee crisis is not primarily a burden-sharing problem but a political problem, rooted in the structure of the international state system itself. The refugee crisis is produced by states — states that persecute their citizens, wage war on their populations, and generate the conditions in which millions have no viable option but flight. The response should be political: the strengthening of international accountability mechanisms for states that generate refugees, the development of institutions capable of providing genuine political membership to stateless persons, and the transformation of international refugee law from a burden-sharing system into a genuine rights system. The tradable quota proposal addresses none of this. Moreover: by providing a market-based solution, the tradable quota system reduces the pressure on wealthy states to contribute to the political conditions that generate refugees. A state that can buy its way out of its refugee obligations has no incentive to address the causes of refugee crises. The market solution is not merely inadequate. It is actively counterproductive.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-arendt-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="7" onclick="openModal('arendt',7,'opp')">
+          <div class="arg-title"><span>Arg I — Refugees need membership, not service delivery</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Arendt's analysis shows that what stateless persons need is membership in a political community — not the delivery of services but the recognition that makes rights possible.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Tradable quotas provide service delivery — housing, food, processing — not membership; they leave refugees dependent on the contingent goodwill of a contracted provider.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A system that provides service delivery without membership does not vindicate refugees' fundamental need — it manages their exclusion more efficiently.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Tradable quotas fail at the deepest level — they address the symptom (displaced persons needing services) while leaving the underlying problem (statelessness, exclusion from political membership) intact.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('arendt',3,'opp')">
+          <div class="arg-title"><span>Arg II — Asylum is a rights obligation, not a quota obligation</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If the right to asylum is a fundamental human right, states' obligations are triggered by the presence of a person in need of protection — not capped at a quota that can be discharged by payment.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Tradable quotas imply quota obligations — that states' duty is to protect up to X persons, discharging the rest through payment; this is a welfare framework, not a rights framework.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A framework that treats a fundamental right as a quota misunderstands the nature of rights and what is owed to persons who hold them.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Tradable quotas are incompatible with a rights-based understanding of asylum — they convert a right owed to persons into a quota obligation dischareable by payment.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('arendt',4,'opp')">
+          <div class="arg-title"><span>Arg III — Tradable quotas address the wrong question and eliminate pressure to address the right one</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The refugee crisis is produced by states — states that persecute, wage war, and generate the conditions of flight; the appropriate response is political accountability of refugee-generating states.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A state that can buy its way out of refugee obligations has no incentive to address the causes of refugee crises or to support the political mechanisms that would prevent them.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Tradable quotas therefore reduce pressure on the political responses that would actually address the root causes of refugee crises.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Tradable quotas are not merely inadequate — they are counterproductive, reducing the pressure on wealthy states to address the political conditions that generate refugees.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- opp body -->
+</div><!-- opp col -->
+
+</div><!-- columns -->
+
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh"><div>No image linked yet</div><code>Set src in IMAGES object in script</code></div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+var IMAGES={
+  trebilcock:{1:{src:"",caption:"Trebilcock — Collective action failure"},2:{src:"",caption:"Trebilcock — Tradable quotas expand total protection"},3:{src:"",caption:"Trebilcock — Commodification objection: obligations vs persons"}},
+  dreher:{4:{src:"",caption:"Dreher — Harmonisation has systematically failed"},5:{src:"",caption:"Dreher — Tradable quotas change political incentives"},6:{src:"",caption:"Dreher — Financial incentives improve protection"}},
+  carens:{2:{src:"",caption:"Carens — Directional correctness"},3:{src:"",caption:"Carens — Perfectionism does not defeat second-best"},7:{src:"",caption:"Carens — Non-ideal theory requires achievable improvements"}},
+  walzer:{2:{src:"",caption:"Walzer — Refugees are not fungible"},3:{src:"",caption:"Walzer — Asylum is recognition not service delivery"},4:{src:"",caption:"Walzer — Domestic politics is not an acceptable constraint"}},
+  czaika:{1:{src:"",caption:"Czaika — Proposition model assumptions are fragile"},5:{src:"",caption:"Czaika — Race to the bottom in protection quality"},6:{src:"",caption:"Czaika — EU-Turkey: conditional compliance not genuine protection"}},
+  arendt:{3:{src:"",caption:"Arendt/Benhabib — Asylum is a rights obligation not a quota"},4:{src:"",caption:"Arendt/Benhabib — Tradable quotas address the wrong question"},7:{src:"",caption:"Arendt/Benhabib — Refugees need membership not service delivery"}}
+};
+
+var state={
+  prop:{speaker:'trebilcock',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'walzer',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
+  document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
+  body.scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+function sw(side,speaker,view,el){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(view==='speech'){
+    sp.classList.remove('hidden');lg.classList.add('hidden');
+    body.scrollTop=st.speechScroll||0;
+  } else {
+    sp.classList.add('hidden');lg.classList.remove('hidden');
+    body.scrollTop=st.logicScroll||0;
+  }
+}
+
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech') st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+
+function openModal(speaker,n,side){
+  var d=(IMAGES[speaker]||{})[n]||{src:"",caption:speaker+" — argument "+n};
+  document.getElementById('mTitle').textContent=d.caption;
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.style.display='none';ph.style.display='none'}
+  else{img.style.display='none';ph.style.display='flex'}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none'}
+function imgFail(){document.getElementById('mImg').style.display='none';var p=document.getElementById('mPh');p.style.display='flex';p.querySelector('div').textContent='Image failed to load'}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal()}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl) return;
+  var tip=hl.querySelector('.tooltip');if(!tip) return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2,vw=window.innerWidth,m=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  tip.style.left=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m)+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl) return;
+  var tip=hl.querySelector('.tooltip');if(tip) tip.style.display='none';
+});
+</script>
