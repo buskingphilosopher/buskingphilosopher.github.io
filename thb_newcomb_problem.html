@@ -81,12 +81,14 @@ body{
   display:grid;
   grid-template-columns:1fr 1fr;
   height:calc(100vh - 72px);
+  min-height:0;
 }
 .col{
   display:flex;
   flex-direction:column;
   overflow:hidden;
   background:var(--bg);
+  min-height:0;
 }
 .col.prop{border-right:1px solid var(--bdr)}
 
@@ -192,6 +194,7 @@ body{
 .col-body{
   flex:1;
   overflow-y:auto;
+  min-height:0;
   padding:1.2rem 1.5rem;
   font-size:13px;
   line-height:2;
@@ -522,7 +525,7 @@ body{
         <span class="section">The tickle defence</span>
         <p><span class="hl" data-arg="2"><span class="tooltip">Against the dominance argument</span>Consider a parallel case: smoking and cancer. The evidential decision theorist might seem to say: don't smoke, because smoking is evidence for lung cancer. But the causal decision theorist objects that smoking doesn't cause cancer via rational deliberation — the correlation is explained by a common genetic cause. The tickle defence says the rational agent's disposition to smoke produces a tickle — a pre-decisional signal — that explains why the agent smokes and independently predicts the cancer. But in Newcomb's problem, this defence is not available. The Predictor reads your deliberative character — your decision-theoretic dispositions — and those dispositions are precisely the subject of rational assessment. There is no tickle that explains the correlation independent of the rationality of the choice. The Predictor predicts you because of how you reason. A theory of rational reasoning that is self-defeating when reasoned through is defective.</span></p>
         <span class="section">On the lesson from Prisoner's Dilemma</span>
-        <p><span class="hl" data-arg="3"><span class="tooltip">Argument from the type of agent you are</span>In a Prisoner's Dilemma between two committed causal decision theorists, both defect. In a Prisoner's Dilemma between two committed evidential decision theorists who recognise their shared rationality as evidence, both cooperate. The causal decision theorists each get worse outcomes. This is not accidental. Causal decision theory, by refusing to treat the agent's own reasoning disposition as evidence about outcomes, systematically recommends against strategies that would produce better results when deployed among similarly-reasoning agents. Newcomb's problem is the pure case of this general pathology.</span></div></p>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Argument from the type of agent you are</span>In a Prisoner's Dilemma between two committed causal decision theorists, both defect. In a Prisoner's Dilemma between two committed evidential decision theorists who recognise their shared rationality as evidence, both cooperate. The causal decision theorists each get worse outcomes. This is not accidental. Causal decision theory, by refusing to treat the agent's own reasoning disposition as evidence about outcomes, systematically recommends against strategies that would produce better results when deployed among similarly-reasoning agents. Newcomb's problem is the pure case of this general pathology.</span></p>
         <span class="section">On Lewis's objection — the deliberational autonomy argument</span>
         <p><span class="hl" data-arg="4"><span class="tooltip">Argument from rational pre-commitment</span>David Lewis argues that the one-boxer has confused being the kind of person who one-boxes with the act of one-boxing — that a sophisticated agent should recognise the Predictor has already acted and choose on that basis. But this conflation is precisely what a sophisticated evidential decision theorist endorses, not disavows. The agent's choice is evidence about her type; her type is what the Predictor read. Separating the type from the choice, as Lewis demands, severs the evidential connection that makes one-boxing rational. It is Lewis who has made the error — treating a deliberating agent as if she were already a physical system whose outputs are determined, while simultaneously asking her to deliberate.</span></p>
         <span class="section">On why one-boxing is the correct rational recommendation</span>
@@ -817,59 +820,4 @@ function switchSpeaker(side,speaker,btn){
   document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
   document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
   document.getElementById(side+'-body').scrollTop=0;
-  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
-  btn.classList.add('active');
-}
-
-function sw(side,speaker,view,el){
-  var st=state[side];
-  saveScroll(side);
-  var hdr=document.getElementById(side+'-'+speaker+'-header');
-  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
-  el.classList.add('active');
-  st.view=view;
-  var sp=document.getElementById(side+'-'+speaker+'-speech');
-  var lg=document.getElementById(side+'-'+speaker+'-logic');
-  var body=document.getElementById(side+'-body');
-  if(view==='speech'){sp.classList.remove('hidden');lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
-  else{sp.classList.add('hidden');lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
-}
-
-function saveScroll(side){
-  var st=state[side];
-  var body=document.getElementById(side+'-body');
-  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
-}
-
-function openModal(speaker,n,side){
-  var d=(IMAGES[speaker]||{})[n]||{src:"",caption:speaker+" — arg "+n};
-  document.getElementById('mTitle').textContent=d.caption;
-  document.getElementById('mCap').textContent=d.caption;
-  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
-  if(d.src){img.src=d.src;img.style.display='none';ph.style.display='none';}
-  else{img.style.display='none';ph.style.display='flex';}
-  document.getElementById('modalWrap').classList.add('open');
-}
-function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none';}
-function imgFail(){document.getElementById('mImg').style.display='none';var p=document.getElementById('mPh');p.style.display='flex';p.querySelector('div').textContent='Image failed to load';}
-function closeModal(){document.getElementById('modalWrap').classList.remove('open');}
-function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal();}
-
-document.addEventListener('mouseover',function(e){
-  var hl=e.target.closest('.hl');if(!hl)return;
-  var tip=hl.querySelector('.tooltip');if(!tip)return;
-  var r=hl.getBoundingClientRect();
-  var cx=r.left+r.width/2;var vw=window.innerWidth;var margin=8;
-  tip.style.display='block';
-  var tw=tip.offsetWidth;
-  var clampedX=Math.min(Math.max(cx,tw/2+margin),vw-tw/2-margin);
-  tip.style.left=clampedX+'px';
-  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
-});
-document.addEventListener('mouseout',function(e){
-  var hl=e.target.closest('.hl');if(!hl)return;
-  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
-});
-</script>
-</body>
-</html>
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('acti
