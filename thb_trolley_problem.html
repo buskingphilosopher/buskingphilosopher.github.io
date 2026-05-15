@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Trolley Problem — A Philosophical Symposium</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 12px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.6rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.65}
+.speech-text .case-box strong{color:var(--text);font-weight:600}
+
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:default;transition:background .15s}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+
+/* Distinguishing-views matrix */
+.matrix{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:11px}
+.matrix-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--bdr)}
+.matrix-row:last-child{border-bottom:none}
+.matrix-row.hd{background:var(--bg4)}
+.matrix-cell{padding:5px 9px;color:var(--text2);line-height:1.5;border-right:1px solid var(--bdr)}
+.matrix-cell:last-child{border-right:none}
+.matrix-cell.label{color:var(--text3);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Philosophical Symposium</div>
+  <div class="motion-title">"This House Believes it is Permissible to Redirect Harm to Save the Greater Number"</div>
+  <div class="motion-sub">The Trolley Problem — Six Positions, Six Speakers &bull; Foot &middot; Thomson &middot; Kamm &middot; Kagan &middot; Otsuka &middot; Scanlon</div>
+</div>
+
+<div class="columns">
+
+<!-- ═══════════════════════════════════════════
+     LEFT COLUMN — Foot · Thomson · Kamm
+═══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','foot',this)">Foot</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','thomson',this)">Thomson</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','kamm',this)">Kamm</button>
+  </div>
+
+  <!-- FOOT HEADER -->
+  <div class="col-header" id="prop-foot-header">
+    <div class="col-header-top"><span class="pill prop">Founder</span><span class="col-subtitle">Philippa Foot</span></div>
+    <div class="col-position">The Doctrine of Double Effect &amp; the doing/allowing distinction &mdash; permissible redirection, impermissible use</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','foot','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','foot','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- THOMSON HEADER -->
+  <div class="col-header hidden" id="prop-thomson-header">
+    <div class="col-header-top"><span class="pill prop">Founder</span><span class="col-subtitle">Judith Jarvis Thomson</span></div>
+    <div class="col-position">Rights, agent-relative permissions &amp; the loop case &mdash; where Thomson departed from Foot and later from herself</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','thomson','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','thomson','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- KAMM HEADER -->
+  <div class="col-header hidden" id="prop-kamm-header">
+    <div class="col-header-top"><span class="pill prop">Casuist</span><span class="col-subtitle">Frances Kamm</span></div>
+    <div class="col-position">Doctrine of Triple Effect &amp; Principle of Permissible Harm &mdash; the most architecturally ambitious deontological framework</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','kamm','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','kamm','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ FOOT ══ -->
+    <div class="speaker-panel active" id="prop-foot-panel">
+      <div id="prop-foot-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to begin by presenting the cases that started this debate — not because they are familiar, but because the precise structure of each case carries the entire philosophical weight, and it is easy to lose sight of that structure in abstract theorising.</p>
+        <div class="case-box"><strong>Switch Case.</strong> A runaway trolley is heading toward five workmen on the main track who will certainly be killed. You can divert the trolley onto a side track, where one workman will be killed. Nothing else can be done. Should you pull the switch?<br><br><strong>Fat Man.</strong> A runaway trolley is heading toward five. You are on a bridge above the track next to a very large man. The only way to stop the trolley is to push the large man off the bridge; his body will stop the trolley. Should you push him?</div>
+        <p>Most people say: yes to Switch, no to Fat Man. This asymmetry is the explanandum. My task — and, I would argue, the task of moral philosophy — is to identify the principle that explains and justifies it.</p>
+        <span class="section">i. the doctrine of double effect</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">DDE — intended vs. foreseen harm</span>The Doctrine of Double Effect holds that there is a morally crucial distinction between harm that is <em>intended</em> as a means or as an end, and harm that is <em>foreseen but not intended</em> — a side-effect of achieving a legitimate goal. In Switch, the death of the one workman is a foreseen but unintended consequence of diverting the trolley. We intend to redirect the trolley away from five; the death of the one is a tragic side-effect. In Fat Man, we intend to use the large man's body as an obstacle — his death is not merely foreseen but is causally necessary to our plan. We kill him as a means. The DDE holds that intending harm — even for good ends — is categorically different from foreseeing it. This categorical distinction explains and justifies the asymmetry.</span></p>
+        <span class="section">ii. the doing/allowing distinction</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Doing vs. allowing — negative vs. positive duties</span>My framework also rests on a distinction between negative duties — duties not to harm — and positive duties — duties to aid. Negative duties are, in general, stronger than positive duties. In Switch, the question is whether one may redirect an existing threat; we are asking about the scope of our negative duty not to harm the one. In Fat Man, we are asking whether a positive duty to save the five can override the negative duty not to kill the one. Because negative duties against intentional killing are particularly strong, they resist override by the arithmetic of lives saved. The asymmetry between Switch and Fat Man reflects the asymmetry between redirecting a threat and deploying a person as a tool.</span></p>
+        <span class="section">iii. what distinguishes me from thomson</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Foot vs. Thomson — DDE vs. rights-based agent-relative</span>Thomson later argued that my DDE framework cannot handle the Loop Case — where the trolley runs around a loop such that the one person's body physically stops it — and replaced it with a rights-based framework centred on the agent's claim to redirect threats aimed at herself. I disagree. The Loop Case, properly understood, is still explicable by DDE: one does not intend the death of the one as a means; the body's stopping the trolley is a contingent physical effect that the agent need not conceptualise as the goal. The death is, even here, a foreseen side-effect of redirecting the trolley away from five. Thomson's rights framework, by contrast, generates implausible results in cases where one has no prior claim to redirect — it over-restricts and over-permits simultaneously.</span></p>
+        <span class="section">iv. the transplant objection</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Transplant case — test of DDE</span>The strongest test of DDE is the Transplant Case: a surgeon can save five patients who need organ transplants by killing one healthy patient and distributing her organs. The numbers are the same as Switch. DDE says the transplant is impermissible: the surgeon would intend the healthy patient's death as a means to the end of harvesting her organs. The surgeon cannot say the death is a mere side-effect — she needs the patient to be dead in order to use the organs. This result — that the Transplant is impermissible — matches our moral intuitions overwhelmingly, and it demonstrates that DDE is tracking something genuinely morally significant, not merely producing ad hoc verdicts.</span></p>
+        <p>The asymmetry between Switch and Fat Man is not arbitrary. It reflects deep features of moral agency, intention, and the structure of obligations. I conclude: Switch is permissible; Fat Man is not; the DDE explains both.</p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-foot-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Doctrine of Double Effect: intended vs. foreseen harm</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>It is categorically impermissible to intend harm to an innocent person, whether as an end or as a means to a good end.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>It may be permissible to perform an action that foreseeably causes harm as a side-effect, provided the good effect is proportionate and not achieved through the harm.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In Switch, the one's death is foreseen but not intended — the trolley is redirected away from five; the death is a side-effect. In Fat Man, the one's death is intended as a means — his body must be used as an obstacle.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Switch is permissible (foreseen side-effect); Fat Man is not (intended means). DDE explains the asymmetry that numerics alone cannot.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Negative vs. positive duties: the asymmetry of obligation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Negative duties — not to harm — are in general stronger than positive duties — to aid.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Switch involves redirecting an existing threat (negative duty scope); Fat Man involves deploying a person as a tool to discharge a positive duty to save five.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Strong negative duties against intentional killing are not overridden by the arithmetic of lives that a positive duty to rescue would generate.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The asymmetric strength of negative over positive duties independently explains and justifies the Switch/Fat Man asymmetry.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument III &mdash; The Transplant case: confirming DDE's moral significance</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In Transplant, a surgeon saves five patients by killing one healthy person to harvest her organs. The numbers are identical to Switch.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>DDE holds Transplant impermissible: the healthy patient's death is intended as a means — it is causally necessary to the plan of organ harvesting.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This verdict matches near-universal moral intuition, confirming DDE tracks genuine moral significance rather than producing arbitrary outputs.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Transplant case provides strong confirmatory evidence for DDE: a framework correctly distinguishing Switch from Transplant is tracking a genuinely important moral distinction.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument IV &mdash; Against Thomson: DDE handles Loop without a rights framework</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Thomson argued DDE cannot handle Loop (where the one's body stops the trolley) and replaced it with a rights-based framework.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Under DDE, Loop is permissible: the agent redirects the trolley away from five; the one's death is a foreseen side-effect, not intended as means — the agent need not conceptualise stopping the trolley through the body as her goal.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Thomson's rights framework generates implausible verdicts in cases where the agent has no prior self-protective claim to redirect, and generates over-restrictions elsewhere.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>DDE is sufficient to handle Loop; Thomson's rights-based successor framework is less parsimonious and generates worse results in adjacent cases.</span></div>
+        </div>
+      </div>
+    </div><!-- end foot -->
+
+    <!-- ══ THOMSON ══ -->
+    <div class="speaker-panel" id="prop-thomson-panel">
+      <div id="prop-thomson-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I introduced the trolley problem to philosophy in 1976, drawing on Foot's earlier work, and I have had the unusual experience of changing my own mind — publicly — about the correct solution. I want to be frank about where I started, where I ended, and why the journey matters.</p>
+        <div class="case-box"><strong>Loop Case.</strong> The trolley is heading toward five. You can divert it down a loop track. At the far end of the loop stands one person. The trolley will hit the one, and his body will stop it — the trolley would otherwise continue around the loop and hit the five. Should you divert?</div>
+        <span class="section">i. my 1985 position: the rights framework</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Thomson 1985 — rights-based agent permission</span>In my 1985 paper, I argued that the relevant distinction in Switch is not DDE — not the intended/foreseen distinction — but a distinction about <em>rights</em> and <em>claims over the threat</em>. The bystander who pulls the switch is redirecting a threat that the trolley poses. She has, I argued, a kind of agent-relative permission grounded in the fact that the threat is already heading toward someone — she is choosing which person faces it, not originating a new threat against the one. In Fat Man, by contrast, she is not redirecting an existing threat — she is using the fat man's body as a means, originating a new causal sequence against him. The distinction is not about what she intends, but about what she does to whom.</span></p>
+        <span class="section">ii. the loop case and my problem</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Loop — Thomson's self-critique and problem for DDE</span>The Loop Case was designed to cause trouble for DDE. In Loop, the trolley would, if diverted, travel around the loop and hit the five again unless stopped by the one's body. The one's death is therefore not a mere side-effect — it is causally necessary to saving the five. DDE, applied strictly, seems to condemn the diversion as impermissible, since the one's death is a means. But this seems wrong: Loop seems morally equivalent to Switch. In my 1985 paper I argued that my rights-based framework handles Loop correctly — the bystander is redirecting a threat, not using the one as a means. However, I later came to doubt this. In <em>The Realm of Rights</em> (1990) I repudiated my earlier explanation and acknowledged that the Loop Case remains genuinely troubling for any framework, including my own.</span></p>
+        <span class="section">iii. what distinguishes me from foot</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Thomson vs. Foot — intention vs. rights-structure of agency</span>Foot's DDE locates the moral distinction in the <em>agent's intention</em>. My framework — even in its 1985 version — locates it in the <em>structure of the agent's action relative to others' rights</em>. For Foot, what makes Fat Man wrong is that the agent intends the fat man's death as a means. For me, what makes it wrong is that the agent uses the fat man's body as an instrument — a violation of his right not to be used in this way — independent of exactly what the agent intends. This matters because intention is opaque and manipulable: an agent could divert the trolley in Loop while sincerely claiming not to intend the one's death, even though the death is causally necessary. My framework captures what is wrong about certain killings at the level of action-structure rather than the agent's inner states.</span></p>
+        <span class="section">iv. what distinguishes me from kamm</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Thomson vs. Kamm — parsimony vs. case-matching precision</span>Kamm's project — pursued with extraordinary patience across thousands of pages — is to match our considered judgements across every variation of the trolley problem through an increasingly fine-grained set of principles: the Doctrine of Triple Effect, the Principle of Permissible Harm, the Doctrine of Productive Purity. I have two reservations. First: the complexity of Kamm's principles risks making them unfalsifiable — any intuition can be matched if you add enough structure. Second: I am not convinced that all the intuitions Kamm tries to match are robust enough to serve as data. Some may be artefacts of framing, presentation order, or failure to appreciate relevant variables. The project of systematic casuistry has value, but it may be building an elaborate edifice on foundations that are less solid than they appear.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-thomson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Rights and threat-redirection: the 1985 framework</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The morally relevant distinction in Switch vs. Fat Man is not the agent's intention but the structure of the action relative to persons' rights.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In Switch, the bystander redirects an existing threat — she chooses who faces it, but does not originate a new threat against the one.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In Fat Man, the bystander uses the fat man's body as an instrument — originating a new causal sequence against him, violating his right not to be so used.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The distinction between permissible threat-redirection and impermissible body-use explains Switch/Fat Man independently of DDE, grounding it in action-structure rather than agent-intention.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Loop Case: a problem for DDE and for Thomson</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In Loop, the one's death is causally necessary to stopping the trolley — his body physically stops it. DDE applied strictly seems to condemn Loop as impermissible (intended means).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But Loop seems morally equivalent to Switch — both involve redirecting the trolley with one death as result. Condemning Loop while permitting Switch is deeply counterintuitive.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Thomson's 1985 rights-framework initially handled Loop as permissible redirection, but she repudiated this in 1990, acknowledging the Loop Case remains genuinely unresolved.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Loop Case is a genuine test case that exposes the limits of both DDE and Thomson's rights framework; honest acknowledgement of unresolved difficulty is philosophically more credible than spurious resolution.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Action-structure vs. inner intention: Thomson's advantage over Foot</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>DDE locates moral distinctions in the agent's intention — a mental state that is opaque to others and manipulable by the agent.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Thomson locates the distinction in the structure of the action relative to others' rights — a feature observable in the causal and relational structure of what is done, not in the agent's reported inner states.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A framework grounded in action-structure is less vulnerable to manipulation and more suitable as a public moral standard than one grounded in private intention.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Thomson's action-structure framework is methodologically superior to DDE's intention-based framework, even if both yield identical verdicts in the standard cases.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Against Kamm: the limits of systematic casuistry</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Kamm's project generates increasingly complex principles to match considered judgements across proliferating trolley variants.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The complexity risks making the principles unfalsifiable — any intuition can be matched with sufficient structural elaboration.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Not all trolley intuitions are robust enough to serve as data — some may be artefacts of framing or irrelevant variables rather than genuine moral perceptions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Systematic casuistry has value but risks elaborating an edifice on unstable intuitive foundations; the project of matching every variant may be less philosophically fruitful than it appears.</span></div>
+        </div>
+      </div>
+    </div><!-- end thomson -->
+
+    <!-- ══ KAMM ══ -->
+    <div class="speaker-panel" id="prop-kamm-panel">
+      <div id="prop-kamm-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>Both Foot and Thomson have made enormous contributions to this debate. I want to argue that both frameworks — DDE and Thomson's rights-based account — are insufficient to handle the full range of cases that the trolley problem generates, and that a more architecturally complex set of principles is required.</p>
+        <p>I am aware that my work is described as requiring extraordinary patience and tolerance for complexity. I accept the description. The moral phenomena are complex. A framework simpler than the phenomena will inevitably either over-permit or over-restrict. My task is to track the phenomena accurately.</p>
+        <span class="section">i. why DDE fails on the loop case</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Kamm vs. DDE — Loop and Doctrine of Triple Effect</span>DDE holds that harm intended as a means is impermissible. In Loop, the one's death is causally necessary to stopping the trolley — a strict DDE reading condemns it. Yet Loop is intuitively permissible. I proposed the <em>Doctrine of Triple Effect</em> to handle this. The DTE holds that a greater good that we cause, and whose expected existence is a condition of our action, may justify a lesser harm that we do not necessarily intend and need not have as our purpose. In Loop, the agent acts <em>because</em> the trolley will stop — she need not act <em>in order to</em> stop it through the body. This because/in-order-to distinction explains why Loop is permissible even if the death is causally necessary, without abandoning the general prohibition on using persons as mere means.</span></p>
+        <span class="section">ii. the principle of permissible harm and productive purity</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">PPH and DPP — Kamm's architectonic principles</span>In my later work I developed the Principle of Permissible Harm (PPH) and its successor, the Doctrine of Productive Purity (DPP). These principles hold that it is permissible to cause harm if the harm is a side-effect of, or is produced by, what itself produces the greater good — and not if the harm is a means to the greater good, or if the greater good is a side-effect of the harm. The key distinction is <em>how the harm relates structurally to the good</em>: whether the good flows from the same productive process as the harm, or whether the good flows from the harm itself. In Switch, the good (saving five) flows from the same act as the harm (the trolley being redirected) — not from the harm. In Fat Man, the good flows <em>from</em> the harm — the body stopping the trolley <em>is</em> what produces the good. DPP thus explains Switch, Loop, and Fat Man within a unified framework.</span></p>
+        <span class="section">iii. the six-behind-one and lazy susan cases</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Complex cases — Kamm's method distinguishes where others cannot</span>Consider the Six-Behind-One Case: six people are on a track, one in front of five, and you can divert the trolley to a track with one person — but that person's body, if hit, will swing around and hit the original six. Intuitively, this diversion is permissible because the original redirection is a permissible threat-redirection; the subsequent contact with the six is a further foreseen-but-not-intended consequence. Or the Lazy Susan Case: five people sit on a large rotating table; one sits on an arm extending from it. Rotating the table to save the five will bring the one into the path of the trolley. My framework correctly distinguishes these cases, producing verdicts that match refined intuitions, while DDE and Thomson's framework either produce the wrong verdict or cannot distinguish the cases at all.</span></p>
+        <span class="section">iv. what distinguishes me from kagan</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Kamm vs. Kagan — casuistry vs. consequentialist pressure</span>Kagan argues that if our principles do match all the trolley intuitions, we still face the question of whether those principles have a plausible rationale — and he suspects they do not. I want to resist this scepticism. The rationale for the DDE-family of principles is: persons may not be treated as mere means. This is a rationale of the highest moral seriousness, grounded in what it means to respect persons as ends in themselves. Kagan's worry — that distinctions based on intention, causation, and the structure of harm-production seem arbitrary unless independently motivated — mistakes the complexity of the phenomenon for arbitrariness in the framework. The distinctions track real features of what it means to use someone, to harm someone as a side-effect, and to produce good through a process that incidentally harms.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-kamm-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; DTE: why Loop is permissible despite causal necessity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>DDE condemns Loop as impermissible because the one's death is causally necessary to stopping the trolley — it appears to be an intended means.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Doctrine of Triple Effect distinguishes acting <em>because</em> an effect will occur from acting <em>in order to</em> produce that effect. In Loop, the agent acts because the trolley will stop, not in order to stop it through the body — the death need not be intended.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A greater good whose expected existence conditions the action may justify lesser harm not intended and not used as means.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>DTE explains Loop's permissibility without abandoning the prohibition on using persons as means: the <em>because/in-order-to</em> distinction does genuine moral work that DDE's intended/foreseen distinction cannot.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Doctrine of Productive Purity: the harm-good structural relation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Harm is permissible when it is a side-effect of, or produced by, what itself produces the greater good — not when the greater good is produced by the harm.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In Switch: the good (saving five) flows from the same act as the harm — not from the harm itself. In Fat Man: the good flows from the harm (the body stopping the trolley).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>DPP thus correctly distinguishes Switch (permissible), Loop (permissible), and Fat Man (impermissible) within a unified framework.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>DPP captures the morally relevant structural relationship between harm and good that DDE and Thomson's framework approximate but cannot articulate precisely.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The fine-grained cases: where only Kamm's framework delivers</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Six-Behind-One and Lazy Susan cases generate intuitions that neither DDE nor Thomson's rights framework can correctly explain or distinguish.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Kamm's DPP produces verdicts matching these refined intuitions: Six-Behind-One is permissible; certain Lazy Susan variants are impermissible.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A moral framework that generates correct verdicts across a wider range of cases is, all else equal, superior to one that generates correct verdicts in fewer.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The breadth of cases Kamm's framework handles correctly is a positive argument for its greater adequacy, not merely evidence of its complexity.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Against Kagan: complexity is not arbitrariness</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Kagan argues that even if casuistic principles match trolley intuitions, the distinctions they turn on may lack a plausible independent rationale.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The rationale for DDE-family principles — that persons may not be used as mere means — is among the most powerful and independently motivated principles in moral philosophy.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The complexity of casuistic distinctions (intended/foreseen, means/side-effect, harm-producing-good/good-from-harm) reflects the genuine complexity of what it means to use, harm, and respect persons — not arbitrary system-building.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Kagan's arbitrariness objection conflates complexity of phenomenon with arbitrariness of framework; the distinctions Kamm draws are independently motivated by the Kantian prohibition on using persons as mere means.</span></div>
+        </div>
+      </div>
+    </div><!-- end kamm -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════════════════════════════
+     RIGHT COLUMN — Kagan · Otsuka · Scanlon
+═══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','kagan',this)">Kagan</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','otsuka',this)">Otsuka</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','scanlon',this)">Scanlon</button>
+  </div>
+
+  <!-- KAGAN HEADER -->
+  <div class="col-header" id="opp-kagan-header">
+    <div class="col-header-top"><span class="pill opp">Challenger</span><span class="col-subtitle">Shelly Kagan</span></div>
+    <div class="col-position">Against deontological constraints — the consequentialist pressure test &amp; the rationale demand</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','kagan','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','kagan','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- OTSUKA HEADER -->
+  <div class="col-header hidden" id="opp-otsuka-header">
+    <div class="col-header-top"><span class="pill opp">Rights theorist</span><span class="col-subtitle">Michael Otsuka</span></div>
+    <div class="col-position">Moral Equivalence Thesis &amp; responsible agency — innocent threats, bystanders, and the liability to be harmed</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','otsuka','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','otsuka','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- SCANLON HEADER -->
+  <div class="col-header hidden" id="opp-scanlon-header">
+    <div class="col-header-top"><span class="pill opp">Contractualist</span><span class="col-subtitle">T.M. Scanlon</span></div>
+    <div class="col-position">Contractualism, individual claims &amp; the numbers problem — what we owe to each person separately</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','scanlon','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','scanlon','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ KAGAN ══ -->
+    <div class="speaker-panel active" id="opp-kagan-panel">
+      <div id="opp-kagan-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My position in this symposium is unusual. I am not primarily here to defend a particular solution to the trolley problem. I am here to press a prior question that I believe the deontological tradition — represented by Foot, Thomson, and especially Kamm — has not adequately answered: even if we can construct a set of principles that matches our intuitions across the trolley cases, does that constitute a moral theory? And do those principles have a rationale that is independently defensible?</p>
+        <div class="pull">"Imagine we have discovered a principle that perfectly matches our intuitions across all variants of the trolley problem. We should still ask: why does this principle hold? If the distinctions it turns on — intended vs. foreseen, means vs. side-effect, redirected vs. originated threat — have no independent moral rationale, the principle is an elaborate description of our intuitions, not an explanation of them."</div>
+        <span class="section">i. the rationale demand</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Rationale demand — beyond intuition-matching</span>Moral philosophy requires more than matching intuitions. It requires explaining <em>why</em> the distinctions that generate the verdicts are morally significant. The DDE family of principles distinguishes intended from foreseen harm. But why should intention matter morally, and in precisely the way DDE specifies? The standard answer — that intending harm involves a will directed toward evil, while merely foreseeing it does not — faces the objection that the outcomes are identical. The five are saved; the one dies; the trolley is diverted. The moral quality of those outcomes does not change depending on what was going on in the agent's head. If outcomes are what matter morally, the intention distinction is irrelevant. If outcomes are not what matter morally — if something about the agent's relationship to the harm matters — then we need a theory of that relationship, which DDE does not provide.</span></p>
+        <span class="section">ii. the problem with deontological constraints</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Constraints — the irrationality objection and the paradox of deontology</span>Deontological constraints — prohibitions on harming one even to prevent greater harm to many — face what I have called the problem of moral thresholds. If killing one to save five is prohibited, what about killing one to save a million? At some point, virtually everyone accepts that the constraint can be overridden by sufficiently extreme numbers. But then the constraint is not an absolute prohibition — it is a threshold. And if it is a threshold, we need a principled account of where the threshold lies. Neither Foot, Thomson, nor Kamm provide such an account. Their frameworks operate as if constraints were absolute — or as if the threshold is high enough never to be reached in practice — but neither of these positions is satisfying. A theory that can be overridden but cannot specify when is not a complete theory.</span></p>
+        <span class="section">iii. consequentialist pressure</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Consequentialist pressure — why the numbers do matter</span>The deepest pressure on deontological frameworks comes from the numbers. In Switch, we save five and kill one. The deontologist says this can be permissible because the one's death is a foreseen side-effect. But in Fat Man, we save five and kill one — and the deontologist says this is impermissible because the one's death is intended as means. The consequentialist says: the outcomes are the same; the distinction is a piece of moral metaphysics that tracks nothing in the world. I am not claiming the consequentialist is straightforwardly right. I am claiming that this pressure is philosophically serious — that Foot, Thomson, and Kamm have not adequately discharged it. The burden of showing that intention and causation track genuine moral distinctions, and not merely psychological discomfort with certain kinds of agency, has not been met.</span></p>
+        <span class="section">iv. what distinguishes me from the others</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Kagan's position — pressure without a solution</span>Scanlon tries to answer the numbers question via contractualism; Otsuka via moral responsibility and the moral equivalence thesis. Both are serious attempts. My contribution is different: I press the question of whether any principle that matches trolley intuitions can be given a rationale that does not ultimately collapse back into either consequentialism or into bare intuition. I am not certain the answer is no. But I am certain the question has not been adequately engaged. Kamm's extraordinary enterprise of casuistry — generating ever more refined principles to match ever more exotic trolley variants — is admirable in its precision but may be answering the wrong question. The question is not: what principle matches our intuitions? It is: which intuitions should we trust, and why?</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-kagan-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The rationale demand: intuition-matching is not explanation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A moral principle that matches our intuitions across all cases has not thereby been justified — it has been described.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Justification requires an independent account of why the distinctions the principle turns on (intended/foreseen, means/side-effect) are morally significant.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No such account has been satisfactorily provided: the standard explanations (will directed toward evil; relationship of the agent to the harm) either collapse into consequentialism or invoke mere psychological discomfort.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Even a complete casuistic matching of trolley intuitions would not constitute a moral theory; the rationale demand is the central unresolved challenge for the deontological tradition.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Deontological constraints need a threshold theory</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Deontological constraints prohibit certain actions regardless of consequences — but virtually everyone accepts they can be overridden at sufficiently extreme stakes.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If constraints have a threshold, a complete theory must specify where it lies and why — neither DDE, Thomson's framework, nor Kamm's DPP provides this.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A constraint theory that cannot specify its own threshold is theoretically incomplete at precisely the point where it is most needed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Deontological constraint theories that cannot specify their override conditions are theoretically incomplete; the threshold problem is not a peripheral difficulty but a central one.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument III &mdash; Consequentialist pressure: outcomes are identical, only psychology differs</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In Switch and Fat Man, the outcomes are identical: five saved, one killed, trolley stopped.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The moral difference (permissible vs. impermissible) is grounded entirely in the structure of the agent's intention and the causal route to the harm.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the intention/causation distinction tracks nothing in the outcomes of the world, there must be an independent account of why it generates moral differences — and that account remains inadequately provided.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Consequentialist pressure on deontological frameworks is not discharged by asserting that intention matters — it requires an explanation of why it matters that does not collapse into either consequentialism or ungrounded intuition.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Which intuitions should we trust?</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Systematic casuistry takes a wide range of trolley intuitions as data to be matched — but not all intuitions are equally trustworthy.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Some trolley intuitions may be artefacts of framing, scope insensitivity, or the artificial constraints of thought experiments rather than genuine moral perceptions.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The prior question — which intuitions to trust — must be answered before the project of matching them is undertaken.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The casuistic project of matching trolley intuitions presupposes an answer to the prior question of which intuitions should be trusted as moral data — a question the project itself does not answer.</span></div>
+        </div>
+      </div>
+    </div><!-- end kagan -->
+
+    <!-- ══ OTSUKA ══ -->
+    <div class="speaker-panel" id="opp-otsuka-panel">
+      <div id="opp-otsuka-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to approach the trolley problem from a direction none of the preceding speakers has taken: through the concept of moral responsibility and what I have called the Moral Equivalence Thesis. My central claim is that the morally relevant distinction in the trolley cases is not primarily about intention, about the structure of harm-causation, or about rights to redirect threats — but about the moral responsibility of the person who is harmed for the threat that endangers others.</p>
+        <div class="case-box"><strong>Falling Person.</strong> An evil villain throws an innocent person off a rooftop. As she falls, she will crush and kill you unless you shoot her first. Are you permitted to shoot her?<br><br><strong>Moral Equivalence Thesis.</strong> Innocent Threat (Falling Person) is on a moral par with Innocent Bystander — one who is not at all responsible for whatever endangers your life. If killing a Bystander is impermissible, killing Innocent Threat is likewise impermissible.</div>
+        <span class="section">i. the moral equivalence thesis</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Moral Equivalence Thesis — responsible agency grounds liability</span>The standard view in the literature — held by many self-defence theorists — is that an Innocent Threat, though morally blameless, is nonetheless liable to be killed in self-defence because she poses a threat. I reject this. Moral responsibility for posing a threat is what grounds liability to be defensively harmed. Falling Person is no more morally responsible for the threat she poses than an innocent bystander — she was thrown by a villain. Therefore, she retains the same moral status as a bystander. And since killing innocent bystanders is generally impermissible, killing Falling Person is likewise impermissible. This has direct consequences for the trolley cases: if the one workman on the side track is not responsible for the threat posed by the trolley, his moral status — as potential victim — is equivalent to any other bystander.</span></p>
+        <span class="section">ii. the loop case and otsuka's framework</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Loop — Otsuka's DDE and DTE engagement</span>In my 2008 paper I engaged directly with Kamm's Doctrine of Triple Effect on the Loop Case. My argument was that we can explain Loop's permissibility without the because/in-order-to distinction, by noting that in Loop the agent does not use the one as a means in the morally objectionable sense: the agent redirects the trolley; the one's body stopping it is a causal consequence the agent need not conceptualise as her instrument. The moral responsibility framework adds a further dimension: the one workman in Loop is not morally responsible for the threat posed by the trolley — his body is incidentally in the causal path, not because of any action of his — and this confirms that his moral status is as a bystander, not as a liable threat. This does not make it permissible to use him as a means; it makes the permissibility of redirection depend on the structural analysis of what is done to him.</span></p>
+        <span class="section">iii. what distinguishes me from thomson and foot</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Otsuka vs. Foot/Thomson — responsible agency vs. DDE vs. rights</span>Foot grounds the Switch/Fat Man distinction in DDE — the agent's intention. Thomson grounds it in action-structure — whether the agent redirects an existing threat or uses a person's body. I ground it in the moral responsibility of the person harmed for the threat that endangers others. This matters in cases where Foot and Thomson give the wrong or indeterminate answer. Suppose the one workman on the side track is the person who negligently caused the trolley to lose its brakes. He is now at least partially responsible for the threat. On my framework, his reduced moral status — grounded in his partial responsibility — gives us stronger reason to permit redirecting the trolley toward him than if he were a completely innocent bystander. Foot and Thomson have no resources to make this distinction; it falls outside both DDE and the rights-based action-structure framework.</span></p>
+        <span class="section">iv. innocent aggressors and the limits of the thesis</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Innocent Aggressor — MET and its limits</span>My framework implies that an Innocent Aggressor — someone who threatens your life because of an intention to kill you but whose actions are beyond their control (e.g., a hypnotised assailant) — is on a moral par with Innocent Threat, who is on a moral par with Bystander. Since killing bystanders is impermissible, killing Innocent Aggressor is impermissible even in self-defence. This is the most counterintuitive implication of my thesis, and I acknowledge it. It shows that the Moral Equivalence Thesis is demanding — more demanding than either DDE or Thomson's rights framework. But I believe this implication is correct: the hypnotised assailant is no more responsible for the threat they pose than Falling Person, and treating them as liable to be killed is treating them as a tool for their hypnotist's purposes, which is a form of disrespect that cannot be justified by the good of the potential victim's survival.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-otsuka-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Moral Equivalence Thesis: responsibility grounds liability</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Moral responsibility for posing a lethal threat is what grounds a person's liability to be defensively harmed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Innocent Threat (e.g., Falling Person thrown by a villain) is no more morally responsible for the threat she poses than an innocent bystander — she has the same moral status.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Since killing innocent bystanders is generally impermissible, killing Innocent Threat is likewise impermissible — the moral equivalence thesis.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Liability to defensive harm is grounded in moral responsibility for the threat, not mere causal involvement in it; the standard self-defence view that Innocent Threats are liable is mistaken.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument II &mdash; Responsibility-graded permissibility: what Foot and Thomson cannot see</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>DDE and Thomson's action-structure framework give the same verdict regardless of the target's degree of moral responsibility for the threat.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Otsuka's framework generates graded verdicts: greater responsibility for the threat = stronger reason to permit redirecting harm toward that person.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This gradation is morally significant — we should distinguish a completely innocent bystander from a person who negligently caused the threat — and a complete theory must accommodate it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Moral responsibility-grounding delivers verdicts that DDE and Thomson's framework cannot, because neither can register the moral significance of the target's degree of causal responsibility for the danger.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument III &mdash; Loop without DTE: structural analysis plus responsibility</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In Loop, the one is not morally responsible for the trolley threat — he is incidentally in the causal path, not an agent of it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The agent who diverts in Loop does not use the one as a means in the morally objectionable sense — she redirects the trolley; the body stopping it is a causal consequence she need not conceptualise as her instrument.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These two conditions together — no use-as-means and no responsible agency in the threat — explain Loop's permissibility without invoking Kamm's because/in-order-to distinction.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Otsuka's responsibility framework, combined with a structural analysis of use-as-means, explains Loop's permissibility more parsimoniously than Kamm's DTE.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Innocent Aggressors: the demanding implication of MET</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>An Innocent Aggressor (e.g., a hypnotised assailant) intends to kill you but is not morally responsible for those intentions — they are beyond his control.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>By MET, Innocent Aggressor is on a moral par with Innocent Threat, who is on a moral par with Bystander — killing him is impermissible even in self-defence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This demanding implication is correct: killing Innocent Aggressor treats him as a tool for his hypnotist's purposes, which disrespects his status as a person not responsible for his actions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>MET's demanding implications — including the impermissibility of killing Innocent Aggressors in self-defence — are not a reductio of the thesis but the correct moral verdict, reflecting the priority of moral responsibility over mere causal involvement.</span></div>
+        </div>
+      </div>
+    </div><!-- end otsuka -->
+
+    <!-- ══ SCANLON ══ -->
+    <div class="speaker-panel" id="opp-scanlon-panel">
+      <div id="opp-scanlon-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I approach the trolley problem from the perspective of contractualism — the view that morality concerns what principles governing our conduct could not be reasonably rejected by any person who is moved by the aim of reaching agreement with others on principles for mutual governance. I believe this approach both illuminates the trolley cases and exposes a shared error in the frameworks of Foot, Thomson, and Kamm.</p>
+        <div class="pull">"The question is not: what rule produces the best aggregate outcome? Nor: what rule respects the agent's intention? It is: what principle could not be reasonably rejected by any person affected — including the one who will die? Answering that question requires attending to what each person is owed, separately, not what the aggregate of persons requires."</div>
+        <span class="section">i. the contractualist approach to switch</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Contractualism — individual claims and reasonable rejection</span>In Switch, consider what each person could reasonably claim. Each of the five can object, from their own standpoint, to a principle permitting the bystander to do nothing — such a principle leaves them to die when a life-saving diversion is available. The one can object to a principle permitting diversion — it allows his death. Who has the stronger individual objection? Each of the five objects to being left to die when saved at cost of one; the one objects to being killed when five would otherwise die. I argue, following the contractualist logic, that the principle permitting diversion cannot be reasonably rejected by the one — his individual objection, taken from his own standpoint alone, is outweighed not by aggregating five against one, but by the comparative strength of individual claims. Each of the five has a claim as strong as the one's — and there are five such claims he cannot reasonably ask to be ignored entirely.</span></p>
+        <span class="section">ii. why this is not consequentialism — the tie-breaking argument</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Tie-breaking — contractualism vs. aggregation</span>This sounds like aggregation — five outweigh one. But the contractualist logic is different. I am not summing deaths or utilities across persons. I am asking whether the one's individual objection to a principle permitting diversion is as strong as any individual claim on the other side. Each of the five has a claim equally strong as the one's — each faces the same prospect of death, each has the same stake. When individual claims are tied or comparable, the existence of more persons with equally strong claims provides a tie-breaking reason to act in their favour. This is not aggregation; it is comparative evaluation of individual claims, with numbers serving only as tie-breakers between equally weighted individual standpoints.</span></p>
+        <span class="section">iii. fat man from the contractualist standpoint</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Fat Man — contractualist explanation without intention</span>How does contractualism handle Fat Man? The fat man can reasonably reject any principle that permits using his body as an obstacle — not because such use involves an impermissible intention (Foot's ground), or because it violates his right not to have his body used (Thomson's ground), but because no person could reasonably be required to accept a principle that licenses their being used as a physical instrument for others' benefit. The objection is grounded in what it means to be related to others as one who cannot be treated as a means to their ends — a relational rather than intentional or structural claim. The fat man's individual standpoint generates an objection that the five's individual standpoints cannot defeat.</span></p>
+        <span class="section">iv. what distinguishes me from kamm and what I owe otsuka</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Scanlon vs. Kamm and Otsuka — relational vs. casuistic vs. responsibility</span>Kamm's framework generates principles by systematically varying cases and extracting the distinctions that match our intuitions. Otsuka's framework grounds permissibility in the target's moral responsibility for the threat. My framework asks a different question: what principle could not be reasonably rejected by any affected party, considered from their individual standpoint? This is a more fundamental question because it grounds moral principles in the interpersonal standpoint of justification — not in the casuistic structure of cases or the metaphysics of responsibility. I acknowledge a deep debt to Otsuka's observation that the one's lack of responsibility for the threat matters — this is captured, in my framework, by the claim that a person who has done nothing to contribute to the danger has particularly strong grounds for rejecting a principle that permits using them as a tool. Otsuka grounds this in moral metaphysics; I ground it in reasonable rejection. Both, I think, are tracking the same moral truth.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-scanlon-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Contractualism: individual claims and reasonable rejection in Switch</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A principle is morally permissible only if no person affected could reasonably reject it from their own individual standpoint.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In Switch, each of the five has an individual claim as strong as the one's — each faces the same prospect of death, each has the same stake in the outcome.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The one cannot reasonably reject a principle permitting diversion when five individuals each have claims from their individual standpoints that are no weaker than his, and that he cannot ask to be entirely ignored.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Switch is permissible under contractualism because the principle permitting diversion cannot be reasonably rejected by the one when five equally positioned individuals support it from their own standpoints.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The tie-breaking argument: why this is not aggregation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Contractualism does not aggregate deaths or utilities — it evaluates whether individual objections can be reasonably sustained given individual claims on the other side.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When individual claims are comparable in strength, the existence of more persons with claims of equal strength provides a tie-breaking reason — not a superior aggregate claim.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This tie-breaking reasoning is genuinely distinct from aggregation: it never sums benefits across persons; it asks whether any individual could reasonably reject a principle given comparable individual claims against it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Contractualism avoids the aggregation objection (that numbers cannot override individual rights) while still explaining why we should save the greater number when individual claims are comparable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Fat Man: the relational ground of impermissibility</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The fat man can reasonably reject any principle permitting his body to be used as a physical obstacle — such use treats him as an instrument rather than as a person to whom justification is owed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This reasonable rejection is grounded in what each person is owed as a member of a community of mutual justification — not in intention (Foot) or rights-structure (Thomson) but in the relational demand that no one be used without justification they could accept.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The five's individual claims — each equal in strength to the fat man's — do not defeat his objection, because using him as a means cannot be justified to him from his standpoint by reference to their five claims.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Fat Man is impermissible under contractualism because the fat man could reasonably reject any principle permitting his use as a physical instrument, and the five's individual claims do not provide justification he could accept for being so treated.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; Contractualism's advantage: grounding in interpersonal justification</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Kamm's casuistry matches intuitions through structural case analysis without providing a grounding account of why those structures are morally significant.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Otsuka's responsibility thesis grounds permissibility in the metaphysics of moral responsibility — correct, but foundationally opaque about why responsibility generates liability.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Contractualism grounds permissibility in the interpersonal standpoint of justification — what principles each person could reasonably reject — which provides both a rationale for why structures matter and an explanation of why responsibility is morally relevant (persons who contributed to the threat cannot as reasonably reject bearing its costs).</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Contractualism provides what Kamm's casuistry and Otsuka's responsibility thesis both lack: a foundational account of why the morally relevant distinctions are morally relevant, grounded in the interpersonal structure of justification.</span></div>
+        </div>
+      </div>
+    </div><!-- end scanlon -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'foot',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'kagan',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){
+    if(sp)sp.classList.remove('hidden');
+    if(lg)lg.classList.add('hidden');
+    body.scrollTop=st.speechScroll||0;
+  } else {
+    if(sp)sp.classList.add('hidden');
+    if(lg)lg.classList.remove('hidden');
+    body.scrollTop=st.logicScroll||0;
+  }
+}
+
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');
+  if(!hl)return;
+  var tip=hl.querySelector('.tooltip');
+  if(!tip)return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2;
+  var vw=window.innerWidth;
+  var m=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');
+  if(!hl)return;
+  var tip=hl.querySelector('.tooltip');
+  if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
