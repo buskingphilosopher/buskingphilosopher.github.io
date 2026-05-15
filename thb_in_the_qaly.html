@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THB: The QALY is an Acceptable Measure of Health for Public Policy</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+
+.motion-header{padding:.9rem 2rem .75rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:17px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:8px 14px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+
+.col-header{padding:.65rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.65rem;margin-bottom:.45rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px}
+.tabs{display:flex;gap:0;margin-top:5px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.2rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Believes the QALY is an Acceptable Measure of Health for Public Policy Usage"</div>
+</div>
+
+<div class="columns">
+
+<!-- ═══════════════════════════════════════════════
+     PROPOSITION COLUMN
+     Speakers: Alan Williams · Lord O'Donnell (WELLBY)
+═══════════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','williams',this)">Williams</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','odonnell',this)">O'Donnell (WELLBY)</button>
+  </div>
+
+  <!-- WILLIAMS HEADER -->
+  <div class="col-header" id="prop-williams-header">
+    <div class="col-header-top">
+      <span class="pill prop">Proposition</span>
+      <span class="col-subtitle">Alan Williams</span>
+    </div>
+    <div class="col-position">For the QALY — from health economics and fair innings</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','williams','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','williams','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- O'DONNELL HEADER -->
+  <div class="col-header hidden" id="prop-odonnell-header">
+    <div class="col-header-top">
+      <span class="pill prop">Proposition</span>
+      <span class="col-subtitle">Lord Gus O'Donnell</span>
+    </div>
+    <div class="col-position">For the WELLBY — extending the QALY framework to subjective wellbeing</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','odonnell','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','odonnell','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ── WILLIAMS ── -->
+    <div class="speaker-panel active" id="prop-williams-panel">
+
+      <div id="prop-williams-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I will concede, at the outset, more than the opposition expects. The QALY is an imperfect instrument. Its utility weights are elicited by imperfect methods from imperfect respondents. It combines years and quality by a multiplication that involves contestable assumptions. Its use in any threshold-based decision rule involves moral choices that cannot themselves be resolved by health economics alone. All of this I freely grant.</p>
+        <p>And then I ask the opposition a single question: <em>compared to what?</em> Because this debate is not between the QALY and some superior instrument of perfect clarity. It is between the QALY and the alternatives that actually exist — political allocation, disease-specific advocacy, clinician discretion, historical precedent, pharmaceutical lobbying, and the unchecked market.</p>
+        <div class="pull">"All resource allocation decisions in healthcare involve implicit judgements about whose health matters, by how much, and at what cost. The QALY makes those judgements explicit, transparent, and challengeable. The alternative is not to avoid those judgements — it is to make them in secret, driven by whoever shouts loudest."</div>
+        <span class="section">i. the inescapability of comparison</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Opportunity cost &amp; transparency</span>The NHS spends over £180 billion annually. That sum is not unlimited. Every pound spent on one treatment is a pound not spent on another. Some principle of comparison is logically unavoidable. Without a structured measure like the QALY, allocation reverts to mechanisms demonstrably worse on any serious metric of fairness: politically salient diseases attract resources disproportionate to their burden; rare diseases with powerful advocacy groups crowd out more cost-effective interventions; pharmaceutical marketing shapes clinical practice for commercial rather than patient benefit. Against this reality, the QALY is not merely defensible — it is a significant moral advance.</span></p>
+        <span class="section">ii. the fair innings argument</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Fair innings — intergenerational equity</span>The opposition argues the QALY discriminates against the elderly. I want to turn this on its head. Is it fair that a 70-year-old and a 7-year-old receive equal priority when each gains the same QALYs? Most people's intuition is that the child's claim is stronger — not because the elderly person's life has less intrinsic value, but because the child has had less of a life. This is what I have called the "fair innings" argument. There is a morally relevant sense in which a person who has lived to 70 has had more of what life has to offer than one who dies at 7. Priority weighting reflecting this is not ageism — it is intergenerational fairness. Norman Daniels, using Rawlsian methodology, reaches an identical conclusion from behind the veil of ignorance.</span></p>
+        <span class="section">iii. transparency and democratic accountability</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Transparency &amp; accountability</span>The QALY's most underrated virtue is precisely its transparency. When NICE uses a cost-per-QALY threshold to refuse a drug, the decision is visible, documented, and challengeable. Clinicians, patients, and researchers can scrutinise the evidence, contest the utility weights, challenge the modelling assumptions, and — through the formal appeals process — have the decision reversed. This has happened repeatedly: end-of-life weightings, orphan disease exceptions, and severity adjustments have all been incorporated into NICE methodology in response to reasoned critique. Contrast this with clinical discretion, which is invisible and unchallengeable.</span></p>
+        <span class="section">iv. the disability objection — a distinction the opposition elides</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Measurement vs. allocation — disability</span>The disability discrimination objection conflates two distinct QALY uses. First: evaluating cost-effectiveness of a treatment for a given condition. Second: prioritising between patients. The discrimination concern arises primarily in the second use. But the first — which constitutes the vast majority of NICE's work — does not implicate discrimination at all. Whether a new drug produces 0.8 more QALYs than standard care for rheumatoid arthritis patients is a question purely about incremental effectiveness within a defined group. The disability paradox critique is largely irrelevant here. NICE's 2022 severity modifier, end-of-life weighting, and distributional cost-effectiveness analysis address the second use. The framework is responsive; the opposition attacks its worst version.</span></p>
+        <span class="section">v. the US counter-example</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Comparative systems — US without QALYs</span>The US Inflation Reduction Act legislatively prohibits QALY-based Medicare evaluation. The result is not better healthcare for disabled patients. It is higher drug prices, no systematic negotiating mechanism, and spending twice the UK's per capita with materially worse population health outcomes. Spending is concentrated in the final months of life for high-income patients; preventive care for the poor is chronically underfunded. The QALY-free world the opposition implicitly defends already exists — and it is called the American healthcare system. That is not a recommendation.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-williams-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Opportunity cost: the inescapability of comparison</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Healthcare budgets are finite; every allocation decision forgoes alternatives.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Without a structured comparative measure, allocation defaults to lobbying, clinical inertia, and political salience — each systematically biased.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The QALY provides a transparent, challengeable basis for comparison where none otherwise exists.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>A structured comparative measure is a moral necessity; the QALY is the most defensible available candidate.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — The fair innings argument</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A person who has lived a full life has received more of what life offers than one who dies young.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This generates a morally relevant asymmetry in the strength of claims on life-extending treatment.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>QALY-based frameworks can, and should, incorporate this asymmetry through age-sensitive weighting — this is not ageism but intergenerational fairness.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Age-weighting within a QALY framework expresses a defensible principle of fairness; the ageism objection mistakes a feature for a flaw.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Transparency as democratic advantage</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Value judgements about whose health matters are unavoidable in any allocation system.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The QALY makes those judgements explicit, auditable, and subject to formal challenge — in ways that clinical discretion, political allocation, and market pricing do not.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Democratic legitimacy requires that consequential value choices be transparent and contestable.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The QALY's transparency is a democratic virtue that the alternatives cannot match; attacking it is implicitly defending less accountable mechanisms.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Measurement vs. allocation: the disability objection is misdirected</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The disability discrimination objection applies to using QALYs to compare patients — but most NICE decisions compare treatments within patient groups, not patients against each other.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>NICE's severity weighting (2022), end-of-life exception, and distributional CEA address the residual cases where the objection does apply.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A framework that incorporates ethical objections through iterative reform is responsive, not irreparably flawed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The disability discrimination critique is misdirected at QALY measurement and largely addressed by NICE's evolved methodology.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — The US counter-example: QALY-free is not justice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The US has legislatively prohibited QALY-based Medicare evaluation, providing a natural experiment.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The result is twice the UK's per-capita spending with worse population health outcomes and systematic underinvestment in preventive care for lower-income patients.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The absence of structured cost-effectiveness analysis does not produce justice — it produces pharmaceutical rent extraction and allocation by willingness-to-pay.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The QALY-free world exists and is demonstrably worse for the populations the opposition claims to protect; opposing QALYs defends that world.</span></div>
+        </div>
+      </div>
+
+    </div><!-- end williams panel -->
+
+    <!-- ── O'DONNELL / WELLBY ── -->
+    <div class="speaker-panel" id="prop-odonnell-panel">
+
+      <div id="prop-odonnell-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleague Professor Williams has defended the QALY on its own terms. I want to go further: to argue that the QALY's most serious imperfections point not toward its abandonment but toward its natural successor — the Wellbeing-Adjusted Life Year, or WELLBY — and that the WELLBY answers, with considerable elegance, the most serious philosophical objections the opposition has raised.</p>
+        <div class="pull">"The QALY asks: how healthy was this year? The WELLBY asks: how good was this year? Those are not the same question. And the difference between them is not technical — it is a difference about what we fundamentally owe each other as members of a political community."</div>
+        <span class="section">i. what the wellby is</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">WELLBY definition &amp; structure</span>The WELLBY, formalised by Layard, De Neve, O'Donnell and colleagues in a 2020 BMJ paper, is a one-point change in life satisfaction on a 0–10 Likert scale, sustained for one year, for one individual. Where the QALY multiplies life-years by a utility weight derived from population health-state preferences, the WELLBY captures individuals' own global assessments of how their lives are going — integrating health, employment, relationships, housing, autonomy, meaning, and social connection in a single self-reported number. HM Treasury has assigned a value of £13,000 per WELLBY (2019 prices), anchored by pegging to the QALY: since full health corresponds to approximately 8/10 on the life satisfaction scale, and indifference between life and death to approximately 1/10, one WELLBY = £70,000 ÷ 7 ≈ £10,000.</span></p>
+        <span class="section">ii. the wellby dissolves the disability paradox</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Disability paradox — WELLBY uses lived not imagined experience</span>The opposition's most telling argument is that QALY utility weights are derived from general population surveys that systematically underestimate disabled people's actual quality of life. Under the WELLBY framework, this concern dissolves almost entirely. When a person with paraplegia rates their life satisfaction at 6.5/10, that self-report — not a non-disabled person's imagination of life at 6.5 — is the input to the measure. Albrecht and Devlieger's disability paradox research, far from being an argument against measurement, is the empirical motivation for precisely the kind of self-reported subjective wellbeing measure the WELLBY employs.</span></p>
+        <span class="section">iii. the cross-sectoral advantage the qaly cannot provide</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Cross-sectoral comparison — healthcare vs. housing, employment</span>The QALY is structurally unable to compare a cancer drug with an employment programme, a surgical innovation with a housing intervention, or a pharmaceutical treatment with a community mental health service. The WELLBY provides the common currency that allows a government to ask — rigorously — whether £100m produces more wellbeing spent on antidepressants or job creation, hip replacements or loneliness reduction. The LSE's analysis of the British Household Panel Survey shows that the largest determinants of population life satisfaction are not medical: they are unemployment, relationship breakdown, mental illness, and physical pain. A policy framework that can only measure healthcare benefits will systematically underinvest in the welfare determinants that matter most.</span></p>
+        <span class="section">iv. the empirical foundation is now robust</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Cardinality — empirical tractability</span>The cardinality concern — whether a move from 6 to 7 means the same as a move from 8 to 9 — is empirically tractable rather than merely assumed. OECD guidelines note that treating life satisfaction as cardinal in regression analysis produces results consistent with non-parametric approaches. The Happier Lives Institute's review concludes that interpersonal cardinal comparisons are supported by the linguistic and psychological structure of the data. Large longitudinal datasets — BHPS, German SOEP, Australian HILDA — allow identification of causal wellbeing impacts with rigour comparable to clinical trial evidence. The WELLBY's measurement problems are correctable through improving methodology — not through abandoning the framework.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-odonnell-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The WELLBY: a principled extension of the QALY</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The QALY measures health-adjusted life years using population utility weights for health states.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The WELLBY measures wellbeing-adjusted life years using individuals' own life satisfaction reports — a broader and more complete welfare measure.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>HM Treasury and the World Happiness Report have both adopted the WELLBY as a feasible policy instrument, anchored to the existing QALY valuation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The WELLBY is a defensible, institutionally grounded successor to the QALY that retains its advantages while addressing its most serious philosophical limitations.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — The WELLBY dissolves the disability paradox</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The disability paradox arises because QALY weights use non-disabled people's imagined experience of disability, which systematically underestimates disabled people's actual wellbeing.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The WELLBY uses individuals' own life satisfaction reports — lived rather than imagined experience — eliminating this source of bias.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The opposition's strongest objection to the QALY (disability paradox) is thus a positive argument for the WELLBY, not an argument against structured welfare measurement.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The disability paradox motivates the WELLBY; it is not a reason to abandon welfare-based health measurement.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Cross-sectoral comparison: the QALY's structural blind spot</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The QALY cannot compare healthcare interventions with non-health interventions because non-health benefits do not produce QALYs.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The WELLBY provides a common welfare currency enabling comparison across housing, employment, mental health, and clinical care.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Welfare science shows the largest population wellbeing determinants are non-medical; a health-only measure systematically misallocates cross-government resources.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The WELLBY corrects the QALY's most significant structural limitation: its inability to inform cross-sectoral allocation decisions.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV — Cardinality and interpersonal comparability are empirically tractable</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>OECD analysis shows parametric and non-parametric treatments of life satisfaction data produce consistent findings, supporting cardinal usage.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Large longitudinal datasets enable causal identification of wellbeing impacts with precision comparable to RCT-level health evidence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Residual measurement uncertainty is correctable through methodological improvement, not a reason to abandon the framework.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The WELLBY's measurement challenges are tractable; they do not constitute a principled objection to the framework.</span></div>
+        </div>
+      </div>
+
+    </div><!-- end odonnell panel -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+<!-- ═══════════════════════════════════════════════
+     OPPOSITION COLUMN
+     Speakers: Hausman · Parfit · Broome · Fleurbaey
+═══════════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','hausman',this)">Hausman</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','parfit',this)">Parfit</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','broome',this)">Broome</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','fleurbaey',this)">Fleurbaey</button>
+  </div>
+
+  <!-- HAUSMAN HEADER -->
+  <div class="col-header" id="opp-hausman-header">
+    <div class="col-header-top">
+      <span class="pill opp">Opposition</span>
+      <span class="col-subtitle">Daniel Hausman</span>
+    </div>
+    <div class="col-position">Against the QALY — from philosophy of wellbeing and measurement</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','hausman','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','hausman','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- PARFIT HEADER -->
+  <div class="col-header hidden" id="opp-parfit-header">
+    <div class="col-header-top">
+      <span class="pill opp">Opposition</span>
+      <span class="col-subtitle">Derek Parfit</span>
+    </div>
+    <div class="col-position">Against QALY maximisation — from the separateness of persons and aggregation</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','parfit','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','parfit','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BROOME HEADER -->
+  <div class="col-header hidden" id="opp-broome-header">
+    <div class="col-header-top">
+      <span class="pill opp">Opposition</span>
+      <span class="col-subtitle">John Broome</span>
+    </div>
+    <div class="col-position">Against the QALY — from the philosophy of value and incommensurability</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','broome','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','broome','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- FLEURBAEY HEADER -->
+  <div class="col-header hidden" id="opp-fleurbaey-header">
+    <div class="col-header-top">
+      <span class="pill opp">Opposition</span>
+      <span class="col-subtitle">Marc Fleurbaey</span>
+    </div>
+    <div class="col-position">Against the QALY — from fairness, capabilities, and the WELLBY's own failures</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','fleurbaey','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','fleurbaey','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ── HAUSMAN ── -->
+    <div class="speaker-panel active" id="opp-hausman-panel">
+
+      <div id="opp-hausman-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The proposition's defence of the QALY is a pragmatist one: not that it is philosophically sound, but that it is pragmatically necessary. I want to challenge both the pragmatism and the philosophy, because the QALY is not merely imperfect — it is built, at its foundation, on a measurement of human welfare that is systematically and demonstrably wrong about what welfare is.</p>
+        <div class="pull">"The QALY does not merely measure health. It embeds a specific, contested philosophical claim: that life with disability or chronic illness is worth less than life without. That claim is not a health-scientific finding. It is a value judgement — and one that the empirical evidence about disabled people's actual wellbeing substantially contradicts."</div>
+        <span class="section">i. the disability paradox — a fundamental measurement failure</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Disability paradox — imagined vs. lived welfare</span>The QALY's quality weight is derived from general population surveys, not from the reported wellbeing of people actually living in the health states being valued. Albrecht and Devlieger coined the term "disability paradox" in 1999 to describe a well-documented phenomenon: people who have not experienced a disability consistently rate its quality of life significantly lower than people who actually live with it. The EQ-5D anchors disability as a reduced-value state made by people who systematically overpredict their misery — in ways that decades of affective forecasting research document. Using these values to make public policy decisions about who gets healthcare is not a measurement imprecision. It is a structural bias embedded in the framework's foundations.</span></p>
+        <span class="section">ii. laundered value judgements</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Hidden philosophical premises — laundered as science</span>The QALY presents itself as a neutral scientific instrument. It is neither. When NICE uses a cost-per-QALY threshold, it implicitly endorses: (a) a utilitarian aggregation procedure treating health as summable across individuals; (b) a theory of wellbeing equating preference satisfaction with welfare; (c) a commensurability claim — that health states at 0.5 utility are exactly twice as good as those at 0.25 — that philosophers of wellbeing regard as deeply problematic; and (d) a discount rate for future health states embedding contested time-preference assumptions. None of these philosophical commitments is self-evidently correct. They are encoded so deeply in the QALY's technical apparatus that they escape democratic scrutiny entirely — this is not transparency, it is the laundering of contested value choices through the appearance of scientific neutrality.</span></p>
+        <span class="section">iii. the CRPD incompatibility</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">CRPD — international human rights obligations</span>The UN Convention on the Rights of Persons with Disabilities, ratified by the UK in 2009, requires that healthcare be provided to disabled persons on an equal basis with others. The CRPD Committee has interpreted this to prohibit differential valuation of disabled people's lives in resource allocation. The CRPD embodies the social model of disability: reduced quality of life associated with disability is not intrinsic to the condition but is produced by inaccessible environments, inadequate support, and social stigma. Using QALY weights reflecting socially-produced disadvantage to determine healthcare access compounds that disadvantage by treating its effects as a fixed, legitimate constraint on entitlement. The motion asks if the QALY is "acceptable" for public policy in a state that has ratified obligations to provide equal healthcare access for disabled people. It is not.</span></p>
+        <span class="section">iv. palliative care — the measure's acknowledged failure</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Palliative care — structural incommensurability</span>Expert consensus — the QALY-time study (2020) — is that the QALY "in its current shape" is unsuitable for palliative care. Palliative care does not extend life, by design, and frequently cannot improve EQ-5D utility scores. Its value lies in dignity, pain management, family support, and the quality of dying — dimensions that standard QALY instruments are not designed to measure. Similarly, mental illness accounts for approximately 23% of the UK disease burden, yet QALY measurement maps poorly onto the relational, functional, and existential dimensions of mental health recovery. An "acceptable measure" that expert consensus finds structurally inadequate for all dying patients and partially inadequate for a quarter of the disease burden is not an acceptable measure.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-hausman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Disability paradox: the "Q" measures the wrong thing</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>QALY utility weights are derived from non-disabled people's imagined experience of disability, not from disabled people's reported wellbeing.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Decades of affective forecasting research show non-disabled people systematically overpredict misery associated with disability — the disability paradox.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Using these weights in public policy systematically undervalues disabled lives relative to their actual self-reported experience.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The "Q" in QALY does not measure what disabled people actually experience; it measures a biased imagining, making the measure structurally discriminatory.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Laundered value judgements: false neutrality</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The QALY embeds utilitarian aggregation, preference-satisfaction welfarism, cardinal commensurability, and time-discounting as silent technical premises.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Each premise is philosophically contested — capabilities theorists, contractualists, and pluralistic welfarists all reject one or more.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Embedding contested philosophical claims in technical apparatus rather than surfacing them for democratic scrutiny is not transparency — it is the appearance of transparency.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The QALY launders value judgements as scientific findings; its "transparency" is about calculation, not about the contested premises that make calculation possible.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — CRPD: international law prohibits QALY-based discrimination</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The CRPD (ratified UK 2009) requires healthcare on an equal basis for disabled persons; the Committee has interpreted this to prohibit differential valuation of disabled lives in allocation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>QALY weights reflecting socially-produced disability disadvantage compound that disadvantage by treating it as a fixed constraint on entitlement.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A measure incompatible with binding international human rights obligations is not "acceptable" for public policy usage.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The QALY's use in coverage decisions violates the UK's human rights obligations toward disabled people; "acceptable" is precisely what it is not.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Palliative care and mental health: structural incommensurability</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Expert consensus (QALY-time study, 2020) is that the QALY is structurally unsuitable for palliative care — it measures neither the value of a good death nor the relational goods of end-of-life support.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Mental illness accounts for ~23% of UK disease burden, yet QALY instruments fail to capture functional, relational, and existential recovery dimensions.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A measure acknowledged as structurally inadequate for the entirety of dying and for a quarter of disease burden fails the acceptability threshold on its own terms.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The QALY's acknowledged incommensurability with palliative and mental health value domains constitutes a decisive adequacy failure.</span></div>
+        </div>
+      </div>
+
+    </div><!-- end hausman -->
+
+    <!-- ── PARFIT ── -->
+    <div class="speaker-panel" id="opp-parfit-panel">
+
+      <div id="opp-parfit-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My contribution to this debate begins not with health economics but with what I believe is the most fundamental error embedded in QALY-based reasoning: the aggregation of benefits across persons as though persons were not separate, as though a sufficient mass of smaller benefits could always justify failing to prevent a great harm to a single individual. I want to argue that this error is not peripheral to the QALY framework — it is its structural core.</p>
+        <div class="pull">"It is not enough that the sum of benefits is large. What matters is that each person's situation is considered on its own terms. There is something deeply wrong with a framework that would deny a life-saving treatment to a severely ill patient because the same resources could produce more aggregate QALY gains distributed across many people with minor conditions."</div>
+        <span class="section">i. the separateness of persons</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Separateness of persons — Parfitian objection to aggregation</span>The utilitarian tradition — within which QALY maximisation sits — treats the social welfare function as the sum of individual utilities. But this sum treats persons as mere receptacles for utility, as though what matters is the total amount of good in the world rather than who receives it. I argued in <em>Reasons and Persons</em> that this is the deepest error of utilitarianism: it fails to take seriously the fact that persons are distinct — that my suffering cannot be compensated by your joy. A QALY lost by a dying patient is not the same kind of thing as the accumulation of small quality-of-life improvements across a thousand relatively healthy people, even if the arithmetic is equal. The separateness of persons demands a framework that takes seriously the claims of each individual, not merely the aggregate across all individuals.</span></p>
+        <span class="section">ii. the aggregation problem in healthcare</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Aggregation problem — small benefits to many vs. urgent needs of few</span>Consider two policies. Policy A prevents mild, temporary discomfort for one million people. Policy B prevents death for 100 severely ill patients. If the QALY sums favour Policy A, QALY maximisation selects it. But this result strikes virtually everyone as morally monstrous — and Scanlon's contractualism explains why: no individual who would benefit from Policy B could reasonably be asked to accept the priority given to Policy A's minor benefits. The separateness of persons means that the strength of individual claims matters, not merely the aggregate. Frances Kamm's detailed case analysis confirms that moral intuitions consistently resist this aggregation: there is a threshold below which the smallness of a benefit removes it from relevance in competition with a serious claim, regardless of the number of beneficiaries.</span></p>
+        <span class="section">iii. the non-identity between QALY gains</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">QALY non-identity — QALYs are not fungible across persons</span>QALY maximisation treats all QALYs as fungible — a QALY gained by one person is exactly equivalent to a QALY gained by another. But this fungibility assumption is deeply problematic. Consider: a QALY gained by restoring full health to a 30-year-old who was severely ill is not the same kind of thing as a QALY gained by marginally improving the quality of life of ten people with mild chronic conditions, even if the arithmetic is identical. The first represents the restoration of a person's capacity to live a full life; the second represents marginal enhancements to already tolerable lives. These are morally non-equivalent, and a framework that treats them as equivalent has already committed the error of treating persons as receptacles for a fungible commodity rather than as beings with distinct lives and projects.</span></p>
+        <span class="section">iv. the orphan disease problem</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Orphan diseases — systematic failure for small populations</span>QALY-based frameworks systematically fail patients with rare diseases — not because those diseases are less important, but because the QALY denominator (total population QALY gain) is small for small patient populations. Huntington's disease, spinal muscular atrophy, Pompe disease — treatments for these conditions routinely fail cost-per-QALY assessments. When countries fund these treatments anyway — as they do — they are implicitly acknowledging that the framework fails to capture something morally crucial about the urgency and severity of individual health needs that cannot be dissolved into aggregate arithmetic. The QALY's failure here is not incidental; it is the aggregation error expressed in its most visible form.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-parfit-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument I — The separateness of persons defeats aggregative QALY maximisation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The separateness of persons requires that each person's claims be taken seriously in themselves — a loss to one person cannot be compensated by gains to others (Parfit, <em>Reasons and Persons</em>).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>QALY maximisation treats QALYs as fungible across persons — summing them and maximising the total without regard to how gains and losses are distributed between distinct individuals.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A framework that ignores the separateness of persons at its structural core fails to respect persons as ends in themselves.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>QALY maximisation is grounded in the aggregative error that the separateness of persons directly refutes; the framework is philosophically inadmissible at its foundation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument II — The aggregation problem: urgent individual claims cannot be dissolved in aggregate arithmetic</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>QALY maximisation selects policies that produce the greatest aggregate QALY gain, even when this means denying life-saving treatment to few severely ill patients in favour of minor benefits to many.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Scanlon's contractualism shows no severely ill patient could reasonably be asked to accept this priority; Kamm's case analysis confirms the intuitive resistance is principled, not sentimental.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A policy framework generating results that no affected individual could reasonably accept fails the basic test of moral justifiability.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The aggregation problem is not peripheral to the QALY — it is its structural consequence; urgent individual claims cannot be dissolved in aggregate QALY arithmetic.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument III — QALYs are not fungible across persons or conditions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>QALY maximisation treats all QALYs as equivalent regardless of who gains them and under what circumstances.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Restoring a severely ill person's capacity for a full life and marginally improving ten people's already tolerable conditions are morally non-equivalent, even if arithmetically equal in QALYs.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A framework that treats morally non-equivalent gains as equivalent has embedded an error in its fundamental structure.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>QALYs are not fungible across persons and conditions; treating them as such is a categorical philosophical error, not a technical approximation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV — Orphan diseases: the aggregation error made visible</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Treatments for rare diseases routinely fail QALY thresholds because the population QALY gain is small, not because the conditions are unimportant.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When countries fund these treatments anyway, they implicitly acknowledge that individual urgency and severity cannot be dissolved into aggregate arithmetic.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This systematic failure is not incidental — it is the aggregation error expressing itself in its most visible and morally damaging form.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The QALY's systematic failure for rare disease patients reveals its foundational aggregative error; countries that fund orphan treatments implicitly repudiate the QALY framework's core logic.</span></div>
+        </div>
+      </div>
+
+    </div><!-- end parfit -->
+
+    <!-- ── BROOME ── -->
+    <div class="speaker-panel" id="opp-broome-panel">
+
+      <div id="opp-broome-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleagues have attacked the QALY from welfare philosophy and from the separateness of persons. I want to attack it from a different direction: from the philosophy of value itself, and specifically from the question of whether health states are genuinely commensurable on a single cardinal scale — which is what the QALY requires, and which I believe cannot be adequately defended.</p>
+        <div class="pull">"The QALY assumes that dying at 45 in perfect health and living to 90 at 0.5 utility are exactly equivalent — both worth 45 QALYs. This commensurability claim is not a measurement finding. It is a philosophical assumption of the most ambitious kind, and it is one that I do not believe can be sustained."</div>
+        <span class="section">i. the incommensurability of health states</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Incommensurability — health states resist cardinal scaling</span>The QALY requires that health states be placed on a cardinal scale from 0 (death) to 1 (perfect health) such that arithmetic operations — multiplication, addition, comparison — are meaningful. But health states are not like heights or temperatures that can be measured on a natural scale. They are complex combinations of pain, function, cognition, emotion, and social participation that resist reduction to a single number. The commensurability assumption embedded in the QALY — that a life at 0.6 utility for ten years (6 QALYs) is exactly equivalent to a life at 1.0 utility for six years (6 QALYs) — is a philosophical claim of the most ambitious kind. There is no reason to believe it is true, and considerable reason to believe it cannot even be made precise.</span></p>
+        <span class="section">ii. the utility measurement problem</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Measurement problem — utility elicitation is philosophically flawed</span>The two principal methods for eliciting health-state utility weights — time trade-off (TTO) and standard gamble (SG) — measure different things and give systematically different results. TTO asks how many years of full health you would trade for a given period in a specified health state. SG asks what probability of death you would accept for a chance of full health. These different framings capture different psychological responses: TTO measures aversion to duration in poor health; SG measures risk attitudes. Neither is a neutral measurement of welfare. The systematic divergence between TTO and SG values for identical health states reveals that neither is measuring a single underlying welfare quantity — they are measuring different cognitive responses to different decision frames. The QALY's claim to be measuring "health-related quality of life" is thus not vindicated by either method.</span></p>
+        <span class="section">iii. the problem of zero — death as a fixed point</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Death as zero — the anchoring assumption fails</span>The QALY anchors its scale at 0 = death, 1 = perfect health. But death is not a health state — it is the absence of any state. Anchoring at death requires treating the end of a person's existence as equivalent in scale terms to a specific welfare level, which is philosophically incoherent. Furthermore, some health states are rated below zero by respondents — worse than death. The QALY must accommodate these "states worse than death" by extending its scale below zero, but there is no principled basis for how far that extension should go or what it means to say that continued existence is worse than non-existence on a welfare scale. The zero anchor is philosophically arbitrary, and without it the cardinal scale collapses.</span></p>
+        <span class="section">iv. what the WELLBY inherits</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">WELLBY inherits cardinality problem — at greater scale</span>The proposition's second speaker offers the WELLBY as a resolution. But the WELLBY makes the commensurability assumption even more ambitiously: not merely that health states are commensurable on a cardinal scale, but that the entirety of a life's quality — its meaning, relationships, achievements, and suffering — can be captured by a number between zero and ten comparable across individuals, cultures, and life circumstances. The cardinality concern that afflicts the QALY afflicts the WELLBY at greater intensity. Scale norming — the documented phenomenon whereby individuals adjust what each number on the scale means in response to their circumstances, reference groups, and cultural context — means that a 7/10 from one person is not the same welfare quantity as a 7/10 from another. The WELLBY's solution to the QALY's problems introduces its own, graver version of the same fundamental difficulty.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-broome-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument I — Health states are not commensurable on a cardinal scale</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The QALY requires that health states be placed on a cardinal scale enabling arithmetic operations — multiplication, addition, comparison.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Health states are complex combinations of pain, function, cognition, emotion, and social participation that resist reduction to a single number on a natural scale.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The equivalence claim — 0.6 utility × 10 years = 1.0 utility × 6 years — is a philosophical assertion of commensurability that cannot be made precise, let alone verified.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The QALY's cardinal commensurability assumption is philosophically untenable; the arithmetic it performs on health states operates on numbers that do not represent what they are claimed to represent.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — TTO and SG measure different things: neither measures welfare</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Time trade-off and standard gamble — the principal utility elicitation methods — give systematically different values for identical health states.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>TTO captures aversion to duration in poor health; SG captures risk attitudes — these are distinct psychological responses to distinct decision frames.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The divergence between methods reveals that neither is measuring a single underlying welfare quantity; the QALY's welfare claim is not vindicated by either method.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The utility weights in the QALY do not measure health-related quality of life — they measure frame-dependent cognitive responses; the framework's empirical foundation is not what it purports to be.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument III — The zero anchor (death = 0) is philosophically incoherent</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The QALY anchors its scale at 0 = death, treating the end of a person's existence as a specific welfare level.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Death is not a health state — it is the absence of any state; treating it as a cardinal zero is philosophically incoherent.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>States rated "worse than death" extend the scale below zero without any principled basis for how far that extension goes or what it means.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The QALY's zero anchor is philosophically arbitrary; without a defensible anchor, the cardinal scale collapses and arithmetic operations on QALY values lose their meaning.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — The WELLBY inherits and magnifies the commensurability problem</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The WELLBY claims to capture the totality of life quality on a 0–10 scale commensurable across individuals, cultures, and circumstances.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Scale norming (documented in the PMC literature) means individuals adjust what each number means in response to circumstances and reference groups — a 7/10 from one person is not the same welfare quantity as a 7/10 from another.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The WELLBY thus inherits the cardinality and commensurability problems of the QALY, at a greater level of ambition about what it is measuring.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The WELLBY does not resolve the QALY's philosophical difficulties — it reproduces them at greater scale, claiming to measure more while facing the same foundational objections with less methodological warrant.</span></div>
+        </div>
+      </div>
+
+    </div><!-- end broome -->
+
+    <!-- ── FLEURBAEY ── -->
+    <div class="speaker-panel" id="opp-fleurbaey-panel">
+
+      <div id="opp-fleurbaey-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I approach this debate from the perspective of fairness economics and the capabilities approach — a tradition that insists welfare measurement must be sensitive not only to what people experience but to what people are able to do and to be, and to the fairness of the process by which health resources are allocated. Both the QALY and the WELLBY, I will argue, fail this test — though in different and instructive ways.</p>
+        <div class="pull">"A measure of health for public policy must ask not only how much welfare is produced, but for whom, under what conditions, and with what implications for the distribution of capabilities across persons. Neither the QALY nor the WELLBY asks these questions. Both are, in this fundamental sense, measures of the wrong thing."</div>
+        <span class="section">i. what the capabilities approach requires</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Capabilities approach — Sen and Nussbaum</span>Sen and Nussbaum argue that human welfare cannot be adequately captured by any single metric — whether utility, preference satisfaction, resources, or life satisfaction — because what matters for a good life is a plurality of capabilities: mobility, cognitive engagement, social participation, emotional expression, play, and control over one's political and material environment. A person who is provided with adequate caloric intake but denied mobility, education, and social participation is not doing well in any sense that respects what it means to be human. The QALY reduces health to a single utility dimension; the WELLBY reduces it to a single life satisfaction score. Both are, from the capabilities perspective, measures of the wrong thing. They can tell you how much welfare has been produced on their narrow conception; they cannot tell you whether a rich human life is being enabled.</span></p>
+        <span class="section">ii. the political economy of wellbeing maximisation</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Political economy — wellbeing maximisation risks autonomy</span>A policy framework that explicitly targets the maximisation of aggregate wellbeing — whether in QALYs or WELLBYs — creates a structural pressure toward interventions that are most effective at raising the measured metric, regardless of whether those interventions enhance autonomy, meaningful agency, or genuine human flourishing. Mill's "better Socrates dissatisfied than a fool satisfied" captures the intuition: a life of engaged critical reflection may score lower on life satisfaction than unreflective comfort, but that is not a reason to prefer the latter for purposes of social welfare. A government targeting WELLBY maximisation will be structurally drawn toward nudging citizens toward the conventional life paths — marriage, home ownership, religious practice — that correlate with higher self-reported satisfaction, regardless of autonomous choice. This is not welfare. It is paternalism dressed in empirical language.</span></p>
+        <span class="section">iii. the distributional adaptation problem — WELLBY's specific failure</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Adaptation — WELLBY's reverse disability paradox</span>The WELLBY's use of individuals' own life satisfaction reports, while better than the QALY's population utility weights for disability purposes, introduces a different and equally serious problem: it makes adaptation — the psychological mechanism by which people adjust their expectations and aspirations to their circumstances — determinative of policy priority. A person with a degenerative neurological condition who has adapted impressively and reports 7/10 life satisfaction receives less policy attention than their untreated clinical need would warrant. Someone with treatable severe depression, reporting 2/10, receives high priority. This is appropriate in one sense — treating severe depression is very important. But the WELLBY framework cannot distinguish between: (a) a low score reflecting genuine welfare deprivation treatable by healthcare; and (b) a low score reflecting circumstances (loneliness, poverty, meaninglessness) not remediable by medicine. It elides the distinction between health problems and life problems in a way that QALY-based health evaluation, for all its faults, deliberately avoids.</span></p>
+        <span class="section">iv. fairness requires more than welfare maximisation</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Fairness — distribution matters beyond welfare totals</span>My work on fair social choice theory argues that any adequate framework for health policy must be sensitive not merely to the total welfare produced but to the fairness of its distribution. Two policies with identical expected QALY or WELLBY totals may differ enormously in their distributional implications — one concentrating benefits among the already advantaged, one spreading them across the most deprived. A genuinely fair framework must incorporate ex ante fairness — giving each person a fair chance — and not merely ex post efficiency — maximising the total. Both the QALY and the WELLBY, as typically deployed, maximise totals. They are insensitive to the fairness of distribution in exactly the way that Rawlsian and egalitarian theories of justice demand sensitivity. Severity weighting and distributional CEA are patches that partially address this. They do not resolve the framework's foundational indifference to fairness.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-fleurbaey-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The capabilities approach: QALYs and WELLBYs measure the wrong thing</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Human welfare requires a plurality of capabilities — mobility, cognition, social participation, emotional expression, political agency — that cannot be captured by any single metric (Sen, Nussbaum).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The QALY reduces welfare to a single health-utility dimension; the WELLBY reduces it to a single life satisfaction score — both are systematically incomplete.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A measure that systematically omits dimensions of human welfare essential to a good life is not an acceptable measure of welfare for public policy.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Both the QALY and the WELLBY measure incomplete conceptions of welfare; from a capabilities perspective, both measure the wrong thing.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument II — Political economy of maximisation: autonomy and paternalism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A framework targeting aggregate wellbeing maximisation creates structural pressure toward interventions most effective at raising the metric, regardless of their effect on autonomy or genuine flourishing.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>WELLBY-maximising policy will favour conventional life paths (marriage, religious practice, homeownership) that correlate with higher life satisfaction scores over autonomous choices that may score lower.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Mill's "Socrates dissatisfied vs. fool satisfied" principle establishes that welfare maximisation on a satisfaction metric is not sufficient for respecting human dignity and autonomy.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Wellbeing maximisation — whether in QALYs or WELLBYs — risks reducing policy to paternalistic nudging toward conventional satisfaction, incompatible with respect for autonomous human agency.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument III — The WELLBY's adaptation problem reverses the disability paradox</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The WELLBY uses adapted patient preferences — those who have adjusted psychologically to their condition report higher satisfaction, receiving lower policy priority.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The WELLBY cannot distinguish low satisfaction reflecting treatable health deprivation from low satisfaction reflecting social circumstances (poverty, loneliness) not remediable by medicine.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This elision of health problems and life problems creates a different but equally serious allocation distortion to the QALY's disability paradox.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The WELLBY resolves the QALY's disability paradox by introducing its own adaptation problem; both instruments distort healthcare allocation in different but comparably serious ways.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV — Fairness requires distributional sensitivity beyond welfare totals</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Two policies identical in expected QALY or WELLBY totals may differ enormously in distributional justice — one concentrating benefits among the advantaged, one spreading them to the deprived.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Rawlsian and egalitarian justice require ex ante fairness — each person gets a fair chance — not merely ex post efficiency in total welfare production.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Both the QALY and the WELLBY, as typically deployed, maximise totals and are structurally insensitive to this distributive dimension.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Both the QALY and the WELLBY are inadequate frameworks for fair health policy because they maximise totals while remaining insensitive to the fairness of how those totals are distributed.</span></div>
+        </div>
+      </div>
+
+    </div><!-- end fleurbaey -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'williams',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'hausman',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker; st.view='speech'; st.speechScroll=0; st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var header=document.getElementById(side+'-'+speaker+'-header');
+  header.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  header.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp) sp.classList.remove('hidden');
+  if(lg) lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var header=document.getElementById(side+'-'+speaker+'-header');
+  header.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){
+    if(sp) sp.classList.remove('hidden');
+    if(lg) lg.classList.add('hidden');
+    body.scrollTop=st.speechScroll||0;
+  } else {
+    if(sp) sp.classList.add('hidden');
+    if(lg) lg.classList.remove('hidden');
+    body.scrollTop=st.logicScroll||0;
+  }
+}
+
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech') st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');
+  if(!hl) return;
+  var tip=hl.querySelector('.tooltip');
+  if(!tip) return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2;
+  var vw=window.innerWidth;
+  var margin=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  var clampedX=Math.min(Math.max(cx,tw/2+margin),vw-tw/2-margin);
+  tip.style.left=clampedX+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');
+  if(!hl) return;
+  var tip=hl.querySelector('.tooltip');
+  if(tip) tip.style.display='none';
+});
+</script>
+</body>
+</html>
