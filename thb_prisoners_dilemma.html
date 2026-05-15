@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Prisoner's Dilemma — House Debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Spectral:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f2ed;
+  --bg2:#eceae2;
+  --bg3:#e2dfd5;
+  --bg4:#d6d2c7;
+  --bdr:rgba(50,45,30,.1);
+  --bdr2:rgba(50,45,30,.22);
+  --text:#251f14;
+  --text2:#524a38;
+  --text3:#978b75;
+  --ink:#1c1710;
+  --rule:rgba(50,45,30,.14);
+
+  --prop-col:#1e4a6e;
+  --prop-pill-bg:#e6eef5;
+  --prop-pill-bdr:#a8c4dc;
+  --opp-col:#6e2e1a;
+  --opp-pill-bg:#f5ece6;
+  --opp-pill-bdr:#dca888;
+
+  --a1bg:rgba(20,70,120,.07);--a1brd:rgba(20,70,120,.34);--a1tip:#144878;
+  --a2bg:rgba(40,110,70,.07);--a2brd:rgba(40,110,70,.32);--a2tip:#1e6440;
+  --a3bg:rgba(140,90,20,.08);--a3brd:rgba(140,90,20,.34);--a3tip:#825210;
+  --a4bg:rgba(130,30,30,.07);--a4brd:rgba(130,30,30,.32);--a4tip:#7a1a1a;
+  --a5bg:rgba(80,40,140,.07);--a5brd:rgba(80,40,140,.3);--a5tip:#4a2482;
+  --a6bg:rgba(30,100,110,.07);--a6brd:rgba(30,100,110,.3);--a6tip:#1a5c66;
+  --a7bg:rgba(110,70,20,.07);--a7brd:rgba(110,70,20,.3);--a7tip:#663e10;
+}
+
+html,body{height:100%;overflow:hidden}
+body{font-family:'EB Garamond',Georgia,serif;background:var(--bg);color:var(--text)}
+
+.motion-header{
+  padding:.85rem 2.5rem .75rem;
+  border-bottom:1px solid var(--rule);
+  text-align:center;background:var(--bg2);
+  position:relative;flex-shrink:0;
+}
+.motion-header::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(50,45,30,.22),transparent);
+}
+.motion-eyebrow{
+  font-family:'DM Mono',monospace;font-size:9px;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--text3);font-weight:400;margin-bottom:5px;
+}
+.motion-title{
+  font-family:'EB Garamond',serif;
+  font-size:18px;font-weight:400;font-style:italic;
+  color:var(--ink);letter-spacing:.01em;line-height:1.4;
+}
+.motion-title em{font-style:normal;font-weight:600}
+.motion-sub{
+  font-family:'Spectral',serif;font-size:11px;font-style:italic;
+  color:var(--text3);margin-top:4px;letter-spacing:.02em;
+}
+
+.columns{
+  display:grid;grid-template-columns:1fr 1fr;
+  height:calc(100vh - 68px);
+}
+.col{display:flex;flex-direction:column;overflow:hidden}
+.col.prop{border-right:1px solid var(--rule)}
+
+.speaker-bar{
+  display:flex;align-items:stretch;
+  border-bottom:1px solid var(--bdr);
+  background:var(--bg3);flex-shrink:0;overflow-x:auto;
+}
+.speaker-btn{
+  font-family:'DM Mono',monospace;font-size:10px;font-weight:400;
+  padding:8px 14px;cursor:pointer;
+  border:none;border-right:1px solid var(--bdr);
+  color:var(--text3);background:transparent;
+  transition:color .15s,background .15s;flex-shrink:0;
+  white-space:nowrap;letter-spacing:.04em;
+}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp .speaker-btn.active{color:var(--opp-col)}
+
+.col-header{
+  padding:.6rem 1.3rem 0;
+  border-bottom:1px solid var(--bdr);
+  flex-shrink:0;background:var(--bg2);
+}
+.col-header-top{display:flex;align-items:baseline;gap:.7rem;margin-bottom:2px;flex-wrap:wrap}
+.pill{
+  font-family:'DM Mono',monospace;font-size:9px;font-weight:400;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:2px 8px;border-radius:2px;flex-shrink:0;
+}
+.pill.prop{background:var(--prop-pill-bg);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill-bg);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{
+  font-family:'EB Garamond',serif;
+  font-size:18px;font-weight:400;font-style:italic;color:var(--ink);
+}
+.col-position{
+  font-family:'Spectral',serif;font-size:12px;font-style:italic;
+  color:var(--text3);margin-top:1px;line-height:1.5;
+}
+.tabs{display:flex;gap:0;margin-top:6px}
+.tab{
+  font-family:'DM Mono',monospace;
+  padding:5px 13px;font-size:10px;letter-spacing:.05em;
+  color:var(--text3);cursor:pointer;
+  border:1px solid var(--bdr);border-bottom:none;
+  border-radius:3px 3px 0 0;background:var(--bg3);
+  margin-right:3px;user-select:none;
+  transition:color .15s,background .15s;
+}
+.tab.active{background:var(--bg2)}
+.prop .tab.active{color:var(--prop-col)}
+.opp .tab.active{color:var(--opp-col)}
+
+.col-body{
+  flex:1;overflow-y:auto;
+  padding:1.2rem 1.5rem;
+  font-size:15.5px;line-height:1.9;
+  color:var(--text2);
+}
+.col-body::-webkit-scrollbar{width:2px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2)}
+
+.speaker-panel{display:none}
+.speaker-panel.active{display:block}
+
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic;font-size:14px}
+.speech-text em{color:var(--text3)}
+.speech-text .matrix{
+  font-family:'DM Mono',monospace;font-size:11px;
+  background:var(--bg3);border-left:2px solid var(--bdr2);
+  padding:8px 16px;margin:.4rem 0 .85rem;display:block;
+  color:var(--ink);letter-spacing:.03em;line-height:1.9;
+}
+.speech-text .section{
+  font-family:'DM Mono',monospace;font-size:9px;
+  text-transform:uppercase;letter-spacing:.15em;
+  color:var(--text3);margin:1.4rem 0 .3rem;display:block;
+}
+
+.logic-view{display:flex;flex-direction:column;gap:.85rem}
+.arg-block{
+  border-left:2px solid;background:var(--bg2);
+  overflow:hidden;cursor:pointer;transition:background .12s;
+}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{
+  padding:7px 11px;
+  font-family:'DM Mono',monospace;font-size:9px;font-weight:500;
+  text-transform:uppercase;letter-spacing:.09em;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--bdr);
+}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+.arg-premises{padding:9px 11px 5px}
+.premise{
+  display:flex;gap:9px;margin-bottom:7px;
+  font-family:'EB Garamond',serif;
+  font-size:14.5px;line-height:1.65;color:var(--text2);
+}
+.plabel{
+  font-family:'DM Mono',monospace;
+  font-weight:400;min-width:16px;font-size:10px;
+  color:var(--text3);padding-top:2px;flex-shrink:0;
+}
+.conclusion{
+  display:flex;gap:9px;padding:7px 11px;
+  font-family:'EB Garamond',serif;
+  font-size:14.5px;line-height:1.65;
+  border-top:1px solid var(--bdr);background:var(--bg3);
+  font-style:italic;
+}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hl{border-radius:1px;padding:1px 1px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{
+  display:none;position:fixed;
+  font-family:'DM Mono',monospace;font-size:10px;
+  font-weight:400;font-style:normal;
+  white-space:nowrap;z-index:200;pointer-events:none;
+  background:var(--bg4);border:1px solid var(--bdr2);
+  border-radius:2px;padding:4px 10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.14);
+  color:var(--ink);transform:translateX(-50%);
+}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.hidden{display:none!important}
+
+.modal-wrap{
+  display:none;position:fixed;inset:0;
+  background:rgba(20,16,10,.72);z-index:100;
+  align-items:center;justify-content:center;
+}
+.modal-wrap.open{display:flex}
+.modal{
+  background:var(--bg2);border-radius:3px;
+  border:1px solid var(--bdr2);width:390px;max-width:92%;overflow:hidden;
+}
+.modal-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.6rem 1rem;border-bottom:1px solid var(--bdr);
+}
+.modal-hd-title{font-family:'DM Mono',monospace;font-size:10px;color:var(--text);letter-spacing:.04em}
+.modal-close{
+  background:none;border:1px solid var(--bdr);cursor:pointer;
+  color:var(--text2);font-size:14px;line-height:1;padding:3px 7px;border-radius:2px;
+}
+.modal-close:hover{background:var(--bg3)}
+.modal-bd{padding:.85rem}
+.modal-img-wrap{
+  border:1px solid var(--bdr);border-radius:2px;overflow:hidden;
+  background:var(--bg3);min-height:120px;
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{
+  text-align:center;padding:1.5rem;color:var(--text3);
+  font-family:'DM Mono',monospace;font-size:10px;
+  display:flex;flex-direction:column;align-items:center;gap:.4rem;
+}
+.modal-ph code{font-size:9px;background:var(--bg4);padding:2px 6px;border-radius:2px}
+.modal-cap{margin-top:.5rem;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.03em}
+</style>
+</head>
+<body>
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House · Ethics &amp; Rational Choice Theory</div>
+  <div class="motion-title">"The Prisoner's Dilemma shows that <em>individual rationality is collectively self-defeating</em> — and demands revision of our theories of practical reason"</div>
+  <div class="motion-sub">On self-interest, constrained maximisation, collective action, and what rationality really requires</div>
+</div>
+
+<div class="columns">
+
+<!-- ══════════════════════════════════════════
+     PROPOSITION
+     Parfit · Gauthier
+══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','parfit',this)">Parfit</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','gauthier',this)">Gauthier</button>
+  </div>
+
+  <!-- PARFIT HEADER -->
+  <div class="col-header" id="prop-parfit-header">
+    <div class="col-header-top">
+      <span class="pill prop">Proposition</span>
+      <span class="col-subtitle">Derek Parfit</span>
+    </div>
+    <div class="col-position">Self-interest theory is collectively self-defeating — the Dilemma exposes a fundamental defect in our dominant theory of practical reason</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','parfit','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','parfit','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- GAUTHIER HEADER -->
+  <div class="col-header hidden" id="prop-gauthier-header">
+    <div class="col-header-top">
+      <span class="pill prop">Proposition</span>
+      <span class="col-subtitle">David Gauthier</span>
+    </div>
+    <div class="col-position">Constrained maximisation — a rational agent disposes herself to cooperate, and this disposition is itself the more rational one</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','gauthier','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','gauthier','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ PARFIT ══ -->
+    <div class="speaker-panel active" id="prop-parfit-panel">
+      <div id="prop-parfit-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to begin with something that should disturb everyone in this chamber. The Prisoner's Dilemma is not a curiosity of game theory. It is a demonstration that the dominant theory of practical reason — the Self-Interest Theory, which holds that each person has most reason to do whatever will best serve her own long-run interest — is collectively self-defeating. When each agent acts as that theory recommends, all agents end up worse off than they would have been had each acted otherwise. A theory of rationality that systematically produces outcomes worse for everyone cannot be the correct theory of rationality. That is the argument. It is simple. Its implications are not.</p>
+
+        <span class="section">On the structure of the dilemma</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The self-defeat argument</span>Consider two prisoners, each facing the choice to confess or remain silent. Each knows that if both stay silent, both receive one year. If both confess, both receive eight years. If one confesses while the other stays silent, the confessor goes free and the silent prisoner receives ten years. Defection — confessing — strictly dominates cooperation for each prisoner individually: whatever the other does, you are better off confessing. And yet, when both reason this way, both receive eight years. Had both reasoned differently — had both cooperated — both would have received one year. The theory that told each to defect has made both worse off. This is not a paradox to be dissolved. It is a reductio of self-interest theory as a complete account of practical reason.</span></p>
+
+        <span class="section">On what collective self-defeat means</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Collective self-defeat as a criterion of theoretical failure</span>In Reasons and Persons I distinguish between theories that are individually self-defeating and those that are collectively self-defeating. A theory is collectively self-defeating when the universal adoption of what it recommends produces outcomes worse for everyone than the outcomes produced by the universal adoption of some alternative theory. Self-interest theory is collectively self-defeating in exactly this sense. This is not a peripheral defect. It is a defect at the very centre of the theory — a proof that the theory fails by its own standard, since the standard of self-interest theory is that each agent does well for herself, and collective adoption of the theory ensures that each agent does worse. A theory that fails by its own standard has failed comprehensively.</span></p>
+
+        <span class="section">On the range of cases the Dilemma describes</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">The dilemma's ubiquity</span>The opposition will say that the Prisoner's Dilemma describes an artificial situation — two prisoners in separate cells, unable to communicate or commit. But the structure of the Dilemma is reproduced in an enormous range of real situations: arms races between nuclear powers, overfishing of shared waters, climate change — where each nation's dominant strategy is to defect from emissions reduction while others bear the cost — tax evasion, antibiotic resistance, and the tragedy of the commons in almost every form it takes. The question whether individual rationality is collectively self-defeating is not a question about prison cells. It is a question about the structure of practical reason wherever individually rational agents interact over shared resources or shared risks.</span></p>
+
+        <span class="section">On what the Dilemma demands of practical reason</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The demand for revision of practical reason</span>What should we conclude? Not — as Gauthier will argue — that rational agents should simply adopt a disposition to cooperate as a more effective means to self-interest. That response concedes the self-interest framework and attempts to rescue it through a more sophisticated account of its implementation. My conclusion is deeper: the Dilemma shows that self-interest theory is the wrong framework. Morality — other-regarding concern — is not a constraint on rationality, nor a sophisticated strategy for self-interest. It is part of what practical reason requires. An agent who cares only about herself is not a perfectly rational agent who happens to be amoral. She is an agent with a defective theory of what she has reason to do. The Dilemma is the proof.</span></p>
+
+        <span class="section">On the separateness of persons and the impossibility of purely personal reasons</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Against purely personal reasons</span>The self-interest theorist believes that each person has reasons that are essentially indexed to herself — reasons that disappear when she is not among those affected. But consider: if it is bad that someone suffers, why should it matter whether that someone is me? The badness of suffering is not a property that varies with the identity of the sufferer. If anything matters at all, then what matters matters in a way that is not essentially personal. The Prisoner's Dilemma reveals this by showing that purely personal reasons, universally acted upon, produce outcomes bad for every person. The argument from collective self-defeat is thus not merely a practical argument about how to do better. It is an argument about the fundamental structure of practical reason — that reasons must be agent-neutral if they are to be adequate reasons at all.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-parfit-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('parfit',1)">
+          <div class="arg-title"><span>I — The self-defeat argument</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Self-interest theory holds that each agent has most reason to do whatever best serves her own long-run interest.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In the Prisoner's Dilemma, self-interest theory recommends defection for each agent — defection is the dominant strategy.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Universal defection produces an outcome worse for every agent than universal cooperation would have produced.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Self-interest theory is collectively self-defeating: its universal adoption makes every agent worse off by the theory's own standard, constituting a reductio of the theory.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('parfit',2)">
+          <div class="arg-title"><span>II — Collective self-defeat as a criterion of theoretical failure</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A theory of practical reason fails comprehensively if its universal adoption produces outcomes worse for everyone than some alternative theory's adoption would produce.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Self-interest theory's collective self-defeat is a defect at its centre — the theory fails by its own standard of promoting individual welfare.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No peripheral modification rescues a theory that fails by its own central standard.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Collective self-defeat is not a peripheral defect in self-interest theory — it is a proof of the theory's fundamental inadequacy as an account of practical reason.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('parfit',3)">
+          <div class="arg-title"><span>III — The Dilemma's structure is ubiquitous</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Prisoner's Dilemma structure — mutual defection dominating mutual cooperation — recurs in arms races, climate negotiations, commons tragedies, tax evasion, and antibiotic resistance.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A theory of practical reason must be adequate to the full range of situations agents face, including all cases with this structure.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Self-interest theory recommends the collectively self-defeating option in all of these cases.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The self-defeat of self-interest theory is not confined to artificial thought experiments — it afflicts the full range of real situations where the Dilemma's structure obtains.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('parfit',4)">
+          <div class="arg-title"><span>IV — The required revision is deep, not strategic</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Dilemma demands revision of practical reason — not merely a more sophisticated account of how self-interest is best pursued.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Other-regarding concern is not a constraint on rationality nor a strategy within it, but part of what practical reason genuinely requires.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An agent who cares only about herself does not have a complete theory of what she has reason to do — she has a defective one.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The revision required by the Dilemma is not strategic but foundational: morality enters as a constituent of rationality, not a modification of it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('parfit',5)">
+          <div class="arg-title"><span>V — Agent-neutral reasons are the only adequate reasons</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If something is bad — suffering, deprivation, death — its badness does not vary with whether it befalls me or another; badness is not an agent-indexed property.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Purely personal reasons, being agent-indexed, cannot capture the agent-neutral badness of outcomes that affect others.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Prisoner's Dilemma, by showing that purely personal reasons produce bad outcomes for everyone, reveals that these reasons are structurally insufficient as a complete account of practical reason.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Practical reason requires agent-neutral reasons — reasons that track the badness of outcomes regardless of who is affected; self-interest theory, by excluding these, is incomplete.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ GAUTHIER ══ -->
+    <div class="speaker-panel" id="prop-gauthier-panel">
+      <div id="prop-gauthier-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>Professor Parfit has given us the philosophical case from without: the Prisoner's Dilemma exposes the self-defeat of self-interest theory and demands that we revise our foundational account of practical reason. I want to press the case from within the self-interest framework itself — to show that even an agent committed to maximising her own outcomes has decisive reason to revise her theory of rational choice, and that this revision, when properly understood, vindicates the motion.</p>
+
+        <span class="section">On straightforward and constrained maximisation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Constrained vs straightforward maximisation</span>In Morals by Agreement I distinguish two dispositions a rational agent might have. A straightforward maximiser asks, at every decision point, which available action maximises her expected utility — and performs that action. A constrained maximiser disposes herself to cooperate in mutually beneficial interactions with others who are similarly disposed, provided the expected gain from cooperation exceeds what she could achieve alone. The crucial claim is this: the constrained maximiser does better, in expectation, than the straightforward maximiser — not as a lucky accident, but as a structural feature of the Prisoner's Dilemma and all situations with its payoff structure. The disposition to constrained maximisation is itself the more rational disposition.</span></p>
+
+        <span class="section">On why the disposition matters more than the act</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Dispositions and translucency</span>The opposition will say that at the moment of choice in a one-shot Prisoner's Dilemma, defection is always individually rational, regardless of one's dispositions. This objection misconceives where rationality enters. If agents are even partially translucent — if their dispositions are detectable by others to some degree — then an agent known to be a constrained maximiser will be selected as a cooperative partner, while an agent known to be a straightforward maximiser will not. In a world where cooperative opportunities arise repeatedly, the agent with the disposition to constrained maximisation will be included in more mutually beneficial interactions and will accumulate more welfare than the straightforward maximiser. The disposition is the rational object of choice, even if the act of cooperation in any single interaction appears sub-optimal from a myopic perspective.</span></p>
+
+        <span class="section">On the objection from act-evaluation</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against act-by-act evaluation</span>The standard objection — pressed most forcefully by Binmore — is that rational choice must be evaluated act by act at the moment of decision, and at that moment defection dominates. But this is to insist on a framework of evaluation that is itself part of what the Prisoner's Dilemma puts in question. If act-by-act maximisation systematically produces outcomes worse for every agent, then act-by-act maximisation is not the right framework for evaluating rationality. A theory of rationality that evaluates dispositions rather than acts — asking which dispositions produce the best outcomes for agents who adopt them — is a revision of our theory of practical reason of precisely the kind the motion demands. The Prisoner's Dilemma shows not only that self-interest theory is self-defeating but that act-evaluation is the wrong unit of assessment.</span></p>
+
+        <span class="section">On the connection between rationality and morality</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Morality as rational constraint</span>The conclusion I draw from constrained maximisation is more conservative than Parfit's. I do not claim that morality is a constituent of rationality in the sense that agent-neutral concern is built into what it means to have reasons. I claim something more modest and, I think, more defensible: morality — construed as the set of mutually beneficial constraints on self-interested behaviour — is rationally justified from within the self-interest framework itself, because agents who adopt moral constraints do better by their own lights than agents who do not. The Prisoner's Dilemma is the demonstration. What it demands of practical reason is not that we abandon self-interest but that we understand self-interest correctly — as best pursued through principled constraints rather than act-by-act maximisation.</span></p>
+
+        <span class="section">On the baseline and fair cooperation</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Fair division and the cooperative surplus</span>There is a further dimension to the revision the Dilemma demands: not only must rational agents dispose themselves to cooperate, they must cooperate on terms that are fair. An agent who cooperates only when the division of the cooperative surplus strongly favours her is not a constrained maximiser — she is a strategic cooperator whose disposition to cooperate is conditional on terms she could not reasonably expect others to accept. Genuine constrained maximisation requires that the division of the cooperative surplus be proportionate to each agent's contribution and opportunity cost — what I call the minimax relative concession principle. The Dilemma thus demands not only that we revise our theory of practical reason away from act-by-act maximisation, but that we build into the revised theory a principle of fair division that is itself a rational constraint.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-gauthier-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('gauthier',1)">
+          <div class="arg-title"><span>I — Constrained maximisation outperforms straightforward maximisation</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A constrained maximiser disposes herself to cooperate in mutually beneficial interactions with similarly disposed others; a straightforward maximiser acts to maximise utility at every decision point.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In all situations with the Prisoner's Dilemma payoff structure, a constrained maximiser does better in expectation than a straightforward maximiser.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A rational agent chooses the disposition that produces the best expected outcomes — constrained maximisation is therefore the more rational disposition.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Constrained maximisation is rationally superior to straightforward maximisation — the Prisoner's Dilemma demands revision of practical reason from act-maximisation to disposition-maximisation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('gauthier',2)">
+          <div class="arg-title"><span>II — Translucency makes disposition choice decisive</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If agents are even partially translucent — their dispositions detectable to some degree — constrained maximisers will be preferentially selected as cooperative partners.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Being selected as a cooperative partner produces gains unavailable to straightforward maximisers, who are identified and excluded from cooperative arrangements.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Over repeated interactions, the cumulative welfare advantage of the constrained maximiser is decisive.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>In a world of even partial translucency and repeated interaction, the disposition to constrained maximisation is rationally dominant — defection is not the uniquely rational strategy.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('gauthier',3)">
+          <div class="arg-title"><span>III — Act-by-act evaluation is itself what the Dilemma puts in question</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The standard objection to constrained maximisation insists on act-by-act evaluation: at the moment of choice, defection dominates.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But if act-by-act maximisation systematically produces outcomes worse for every agent, act-by-act maximisation is itself the defective framework — the Prisoner's Dilemma indicts the evaluative framework, not merely its application.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A disposition-based framework of evaluation is a revision of practical reason of exactly the kind the motion demands.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The insistence on act-by-act evaluation begs the question against the motion; the Dilemma shows that act-evaluation is the wrong unit of rationality assessment.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('gauthier',4)">
+          <div class="arg-title"><span>IV — Morality is rationally justified from within self-interest</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Morality — mutual beneficial constraints on self-interested behaviour — is rationally justified because agents who adopt moral constraints do better by their own lights than agents who do not.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This justification does not require abandoning self-interest but understanding it correctly — as best pursued through principled constraints.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Prisoner's Dilemma is the demonstration that unconstrained self-interest fails even by self-interest's own standard.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Morality is not external to self-interest but its rational completion; the Dilemma demands this revision from within the self-interest framework itself.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('gauthier',5)">
+          <div class="arg-title"><span>V — Fair division is a rational constraint on cooperation</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Genuine constrained maximisation requires cooperation on terms proportionate to each agent's contribution — the minimax relative concession principle.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Strategic cooperation conditional on terms heavily favouring oneself is not constrained maximisation but a disposition others would not reasonably accept.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A rational cooperative disposition must include a principle of fair division to be stable and mutually acceptable.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The revision of practical reason demanded by the Dilemma extends beyond cooperation to fair division — rationality requires both a cooperative disposition and a principle of proportionate surplus-sharing.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     OPPOSITION
+     Binmore · Kavka
+══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','binmore',this)">Binmore</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','kavka',this)">Kavka</button>
+  </div>
+
+  <!-- BINMORE HEADER -->
+  <div class="col-header" id="opp-binmore-header">
+    <div class="col-header-top">
+      <span class="pill opp">Opposition</span>
+      <span class="col-subtitle">Ken Binmore</span>
+    </div>
+    <div class="col-position">Defection is rational in the one-shot Dilemma — cooperation emerges from evolution and repeated interaction, not from revision of practical reason</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','binmore','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','binmore','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- KAVKA HEADER -->
+  <div class="col-header hidden" id="opp-kavka-header">
+    <div class="col-header-top">
+      <span class="pill opp">Opposition</span>
+      <span class="col-subtitle">Gregory Kavka</span>
+    </div>
+    <div class="col-position">The Toxin Puzzle and the Paradox of Deterrence — rationality and intention can be reconciled without revising theories of practical reason</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','kavka','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','kavka','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ BINMORE ══ -->
+    <div class="speaker-panel active" id="opp-binmore-panel">
+      <div id="opp-binmore-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>Professor Parfit has told us that the Prisoner's Dilemma exposes the self-defeat of individual rationality and demands a revision of practical reason. Professor Gauthier has told us that rational agents should adopt a disposition to constrained maximisation. Both are wrong, and wrong in ways that reveal a shared confusion about what the Prisoner's Dilemma actually shows and what rationality actually requires.</p>
+
+        <span class="section">On the one-shot dilemma and what it actually proves</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Defection is uniquely rational in the one-shot dilemma</span>In a genuine one-shot Prisoner's Dilemma — a single interaction between two agents who will never meet again, whose choices are simultaneous and unobservable — defection is uniquely rational. This is not a paradox requiring philosophical resolution. It is a mathematical theorem. For any set of payoffs satisfying the Dilemma's structure, the only Nash equilibrium is mutual defection. The proposition presents mutual defection as a regrettable outcome that reveals a defect in self-interest theory. But mutual defection is simply what two rational agents produce when they correctly apply the theory of games to their situation. The regrettable outcome is not produced by a defective theory of reason. It is produced by a genuinely difficult situation — one in which the constraints of the game make cooperation impossible to establish through individual rationality alone.</span></p>
+
+        <span class="section">On the confusion of the one-shot and the iterated game</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">One-shot vs iterated Dilemma</span>The proposition's case depends, almost entirely, on sliding between the one-shot and the iterated Prisoner's Dilemma without acknowledging the difference. In the iterated game — where players interact repeatedly over time — cooperation is indeed a Nash equilibrium under the folk theorem, achievable through strategies like tit-for-tat. Axelrod's celebrated tournaments showed that cooperative strategies can thrive when the shadow of the future is sufficiently long. But this result does not show that self-interest theory is self-defeating or that practical reason must be revised. It shows that when the game is iterated and agents can credibly threaten future punishment for defection, cooperation is the self-interested strategy. Self-interest theory handles the iterated case perfectly well. The proposition has confused the two cases and presented the iterated case as a refutation of self-interest theory in the one-shot case.</span></p>
+
+        <span class="section">On Gauthier's constrained maximisation</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against constrained maximisation</span>Gauthier's constrained maximisation faces a decisive objection: at the moment of decision in a one-shot interaction, a constrained maximiser who has disposed herself to cooperate faces a choice between honouring her disposition and doing what actually maximises her utility. If she is rational at the moment of choice, she will defect — since defection dominates. But if she will rationally defect at the moment of choice, a rational opponent who anticipates this will not cooperate either. The disposition to constrained maximisation is therefore not a stable disposition for a rational agent. Gauthier's proposal requires that a rational agent be committed to acting irrationally at the moment of choice — an incoherent demand on any plausible theory of rationality.</span></p>
+
+        <span class="section">On evolution and the emergence of cooperation</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Evolution explains cooperation without revising rationality</span>The real explanation of cooperation in Prisoner's Dilemma situations is evolutionary, not philosophical. Through repeated interactions in stable populations, cooperative strategies outcompete purely defecting strategies — not because cooperators are more rational, but because the ecological structure of repeated interaction makes cooperation more fit. Evolution and cultural learning produce the norms of reciprocity, fairness, and mutual obligation that sustain cooperation in human societies. These norms are not the deliverances of revised rational choice theory. They are the products of a selection process operating on behaviours and dispositions over time. Parfit and Gauthier have misidentified the phenomenon: they have found a problem that evolution solved, and proposed that philosophy should solve it instead. Philosophy is the wrong tool.</span></p>
+
+        <span class="section">On what the motion's demand for revision would actually require</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The cost of revising practical reason</span>The motion asks us to revise our theories of practical reason. Let us be clear about what this means. To revise practical reason so that cooperation is rationally required in the one-shot Prisoner's Dilemma is to make it rationally required even when the other agent is certain to defect — since the structure of the one-shot game gives each agent no information about the other's choice. An agent who cooperates when she knows the other will defect is not more rational than an agent who defects. She is simply worse off. The proposition's revision of practical reason, if consistently applied, would require agents to accept exploitation as the price of philosophical consistency. This is not a revision of practical reason. It is its abandonment.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-binmore-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('binmore',1)">
+          <div class="arg-title"><span>I — Defection is uniquely rational in the genuine one-shot game</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In a genuine one-shot Prisoner's Dilemma, mutual defection is the unique Nash equilibrium — no combination of payoffs satisfying the Dilemma's structure makes cooperation a best response.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Nash equilibrium is the correct solution concept for one-shot simultaneous games between rational agents.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Mutual defection is therefore not a regrettable failure of reason but the correct rational outcome of a genuinely difficult situation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Defection is uniquely rational in the one-shot Dilemma; the appearance of a paradox reflects the difficulty of the situation, not a defect in self-interest theory.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('binmore',2)">
+          <div class="arg-title"><span>II — The proposition conflates the one-shot and iterated game</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the iterated Prisoner's Dilemma, cooperation is a Nash equilibrium under the folk theorem — tit-for-tat and similar strategies establish cooperation through the shadow of future punishment.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This result shows that cooperation is the self-interested strategy in iterated games — self-interest theory handles the iterated case without revision.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition presents the iterated case as a refutation of self-interest theory in the one-shot case — a category error.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proposition's case rests on a confusion between the one-shot and iterated Prisoner's Dilemma; self-interest theory is vindicated in the iterated case and not refuted in the one-shot case.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('binmore',3)">
+          <div class="arg-title"><span>III — Constrained maximisation is unstable for a rational agent</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A constrained maximiser who has disposed herself to cooperate still faces, at the moment of choice, the dominant strategy of defection — cooperation is not her best response at the decision node.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A rational agent who anticipates her own future rational choice will defect — making her cooperative disposition incredible to informed opponents.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An incredible disposition does not produce cooperative partners — it produces exploitation by straightforward maximisers who identify the agent's disposition as a commitment device she will rationally abandon.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Constrained maximisation is not a stable disposition for a rational agent — it requires acting irrationally at the moment of choice, which rational agents will not do and rational opponents will anticipate.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('binmore',4)">
+          <div class="arg-title"><span>IV — Evolution explains cooperation without revising rationality</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Cooperative strategies outcompete purely defecting strategies in stable populations with repeated interaction — through evolutionary and cultural selection, not philosophical revision.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The norms of reciprocity and fairness sustaining human cooperation are products of selection processes, not deliverances of revised rational choice theory.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Philosophy is the wrong tool for solving a problem that evolution has already solved through a different mechanism.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The existence of cooperation in human societies does not vindicate the proposition's revision of practical reason — it vindicates the evolutionary account, which leaves rational choice theory intact.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('binmore',5)">
+          <div class="arg-title"><span>V — The demanded revision requires accepting exploitation</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If cooperation is rationally required in the one-shot Dilemma, it is required even when the other agent is known to be defecting — since the one-shot structure provides no information that would make defection conditional.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Cooperating when the other agent is certain to defect makes one worse off than defecting — one accepts the sucker's payoff.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A revision of practical reason that requires accepting the worst possible outcome for oneself is not a revision of rationality but its abandonment.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proposition's demanded revision of practical reason, consistently applied, requires agents to accept exploitation — this is not rational revision but capitulation dressed in philosophical language.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ KAVKA ══ -->
+    <div class="speaker-panel" id="opp-kavka-panel">
+      <div id="opp-kavka-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleague Binmore has made the game-theoretic case: defection is uniquely rational in the one-shot game, cooperation emerges through evolution, and no revision of practical reason is required. I want to press a different and in some ways more fundamental objection — one that takes the proposition's own concerns about rationality seriously and shows that those concerns, properly understood, do not support the motion.</p>
+
+        <span class="section">On the Toxin Puzzle and the limits of intention</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The Toxin Puzzle</span>Consider what I call the Toxin Puzzle. A billionaire offers you one million dollars if, at midnight tonight, you intend to drink a mildly unpleasant but harmless toxin tomorrow afternoon. You do not need to drink it — only to intend to. But here is the puzzle: can you rationally intend to drink the toxin? At the moment tomorrow afternoon when you would drink it, there is no reason to do so — the money has already been paid for the intention, not the drinking. A rational agent who knows she will have no reason to drink the toxin tomorrow cannot now form a sincere intention to drink it, because intentions are sensitive to the agent's expectations of her future reasons. And if she cannot sincerely intend it, she cannot earn the million. The puzzle shows that there are situations where straightforward rationality prevents agents from reaping available benefits — not because the theory is self-defeating in Parfit's sense, but because rational intention has limits that no revision of the theory removes.</span></p>
+
+        <span class="section">On the Paradox of Deterrence</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The Paradox of Deterrence</span>The Paradox of Deterrence has the same structure. A nation threatens to launch nuclear weapons if attacked — a threat that deters the attack. But if the attack occurs anyway, launching the weapons would be irrational: it would cause massive death for no benefit, since the deterrence has already failed. A rational nation that knows it would not launch if attacked cannot make a credible deterrent threat — and so cannot deter. The paradox reveals a genuine tension between the rationality of threats and the rationality of carrying them out. But the right response to this paradox is not to revise rationality so that following through on irrational threats becomes rational. The right response is to examine whether commitment devices — treaties, automated systems, credible precommitments — can make the threat credible without requiring irrational action.</span></p>
+
+        <span class="section">On why these puzzles do not support the motion</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Puzzles show limits, not defects requiring revision</span>Both the Toxin Puzzle and the Deterrence Paradox show that there are situations where an agent's inability to commit to future irrational actions prevents her from reaping available benefits. Parfit and Gauthier interpret this as showing that individual rationality is self-defeating and must be revised. But I draw a different conclusion: these cases show that rationality has limits — situations where being rational is costly — but they do not show that rationality is defective. The cost of rationality in these situations is the same as the cost of honesty or integrity in situations where dishonesty would pay. We do not conclude from the existence of such situations that we should revise our theory of honesty. We conclude that being honest is sometimes costly. Rationality is sometimes costly too. This is not a defect. It is a feature of a demanding standard.</span></p>
+
+        <span class="section">On the proposal to revise practical reason</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against revising practical reason</span>The proposition asks us to revise our theories of practical reason so that cooperation in the Prisoner's Dilemma becomes rationally required. But what would such a revision look like? One option — Gauthier's — is to evaluate dispositions rather than acts. Another — Parfit's — is to incorporate agent-neutral reasons into the basic structure of rationality. Both revisions purchase cooperation at a significant cost. Gauthier's revision requires that rational agents act, at the moment of choice, on dispositions they have adopted — even when those dispositions recommend against what would maximise utility at that moment. This is a revision of rationality that makes rationality backward-looking in a way that conflicts with the basic intuition that rational action responds to current reasons. Parfit's revision requires abandoning the idea that reasons are essentially related to the agent's own perspective — a revision so deep that it dissolves the concept of rational agency rather than revising it.</span></p>
+
+        <span class="section">On what the Dilemma actually demands</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Institutions not revised rationality</span>The correct conclusion from the Prisoner's Dilemma is not that we must revise our theory of practical reason. It is that we must design institutions that change the payoff structure of the game so that individual rationality and collective benefit align. When defection is punished by law, by reputation systems, by social sanction, or by treaty — the Dilemma's structure is altered. Cooperation becomes the dominant strategy because the payoffs have changed, not because rationality has changed. Hobbes understood this: the solution to the Prisoner's Dilemma is the Leviathan — a third party whose enforcement power transforms the game. The proposition's demand for a philosophical revision of rationality is unnecessary if the right institutional response is available. And it is always available, at least in principle. What the Dilemma demands is not better philosophy. It is better institutions.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-kavka-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('kavka',1)">
+          <div class="arg-title"><span>I — The Toxin Puzzle: rationality can prevent available benefit</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the Toxin Puzzle, a rational agent cannot sincerely intend to perform a future action she knows she will have no reason to perform — intentions are sensitive to expected future reasons.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This prevents the agent from earning a large available benefit — being rational is costly in this situation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>But the puzzle reveals a limit of rationality in structurally difficult situations — not a defect requiring revision of what rationality means.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Toxin Puzzle shows that rationality has limits and is sometimes costly — not that it is defective; the same diagnosis applies to the Prisoner's Dilemma.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('kavka',2)">
+          <div class="arg-title"><span>II — Deterrence Paradox: commitment devices, not revised rationality</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Paradox of Deterrence shows that a rational nation cannot make a credible nuclear deterrent threat, since carrying it out would be irrational after the deterrence fails.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The correct response is to examine whether commitment devices — treaties, automated systems, precommitments — can make the threat credible without requiring irrational action.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The institutional solution does not require revising what rationality means — only engineering the situation so that rational action and credible commitment align.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Deterrence Paradox, like the Prisoner's Dilemma, calls for institutional engineering rather than philosophical revision of practical reason.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('kavka',3)">
+          <div class="arg-title"><span>III — Costly rationality is not defective rationality</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>There are situations where being rational is costly — where a rational agent does worse than she would if she were irrational.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The existence of situations where honesty is costly does not show that our theory of honesty is defective; similarly, the existence of situations where rationality is costly does not show that our theory of rationality is defective.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A demanding standard that is sometimes costly is not thereby a defective standard.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Prisoner's Dilemma shows that rationality is sometimes costly — not that it is collectively self-defeating in a way that demands theoretical revision.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('kavka',4)">
+          <div class="arg-title"><span>IV — The proposed revisions are more costly than the problem</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Gauthier's revision makes rationality backward-looking — acting on adopted dispositions even when doing so conflicts with maximising utility at the moment of choice, violating the basic intuition that rational action responds to current reasons.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Parfit's revision requires abandoning the agent-relative structure of reasons — a revision so deep it dissolves the concept of rational agency rather than improving it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A revision more costly than the problem it addresses should not be adopted.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Both proposed revisions of practical reason introduce problems more severe than those they solve; the case for revision fails on a cost-benefit analysis of the theories themselves.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('kavka',5)">
+          <div class="arg-title"><span>V — Institutions solve the Dilemma; philosophy need not</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When defection is punished by law, reputation systems, social sanction, or treaty, the Dilemma's payoff structure is altered — cooperation becomes the dominant strategy because the payoffs have changed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Hobbesian solution — a third-party enforcer that transforms the game — changes rational choices by changing the game, not by changing what rationality means.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An institutional solution that makes cooperation individually rational within unrevised self-interest theory is available in principle in all real cases.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Prisoner's Dilemma demands better institutions, not revised philosophy; what looks like a failure of practical reason is a demand for political and institutional engineering.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh">
+          <div>No image linked</div>
+          <code>Set src in IMAGES object</code>
+        </div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var IMAGES={
+  parfit:{1:{src:'',caption:'Parfit — The self-defeat argument'},2:{src:'',caption:'Parfit — Collective self-defeat as theoretical failure'},3:{src:'',caption:'Parfit — Ubiquity of the Dilemma structure'},4:{src:'',caption:'Parfit — The required revision is deep'},5:{src:'',caption:'Parfit — Agent-neutral reasons'}},
+  gauthier:{1:{src:'',caption:'Gauthier — Constrained vs straightforward maximisation'},2:{src:'',caption:'Gauthier — Translucency and disposition choice'},3:{src:'',caption:'Gauthier — Act-by-act evaluation indicted'},4:{src:'',caption:'Gauthier — Morality from within self-interest'},5:{src:'',caption:'Gauthier — Fair division as rational constraint'}},
+  binmore:{1:{src:'',caption:'Binmore — Defection is uniquely rational'},2:{src:'',caption:'Binmore — One-shot vs iterated confusion'},3:{src:'',caption:'Binmore — Constrained maximisation is unstable'},4:{src:'',caption:'Binmore — Evolution explains cooperation'},5:{src:'',caption:'Binmore — Revision requires accepting exploitation'}},
+  kavka:{1:{src:'',caption:'Kavka — The Toxin Puzzle'},2:{src:'',caption:'Kavka — Deterrence Paradox and commitment devices'},3:{src:'',caption:'Kavka — Costly rationality is not defective rationality'},4:{src:'',caption:'Kavka — Proposed revisions are too costly'},5:{src:'',caption:'Kavka — Institutions solve the Dilemma'}}
+};
+
+var state={
+  prop:{speaker:'parfit',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'binmore',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
+  document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){sp.classList.remove('hidden');lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{sp.classList.add('hidden');lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+
+function openModal(speaker,n){
+  var d=(IMAGES[speaker]||{})[n]||{src:'',caption:speaker+' arg '+n};
+  document.getElementById('mTitle').textContent=d.caption;
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.style.display='none';ph.style.display='none';}
+  else{img.style.display='none';ph.style.display='flex';}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none';}
+function imgFail(){document.getElementById('mImg').style.display='none';document.getElementById('mPh').style.display='flex';document.getElementById('mPh').querySelector('div').textContent='Image failed to load';}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open');}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal();}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2,vw=window.innerWidth,mg=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  tip.style.left=Math.min(Math.max(cx,tw/2+mg),vw-tw/2-mg)+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
