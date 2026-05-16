@@ -1,0 +1,433 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,var(--font-serif,serif);background:var(--bg);color:var(--text)}
+
+.motion-header{padding:1.1rem 2rem .9rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:7px;font-weight:500}
+.motion-title{font-size:22px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 80px);min-height:500px}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.col-header{padding:.85rem 1.3rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;flex-wrap:wrap}
+.pill{font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;padding:4px 10px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:var(--font-sans,sans-serif);font-size:13px;font-style:italic;color:var(--text2)}
+
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:var(--font-sans,sans-serif);padding:6px 16px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:4px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.3rem 1.5rem;font-size:14.5px;line-height:2;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speech-text p{margin-bottom:.9rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:var(--font-sans,sans-serif);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+
+.tooltip{display:none;position:fixed;font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;font-style:normal;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.logic-view{display:flex;flex-direction:column;gap:1rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+
+.arg-title{padding:8px 12px;font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+
+.arg-premises{padding:10px 12px 6px;background:var(--bg2)}
+.premise{display:flex;gap:10px;margin-bottom:8px;font-family:var(--font-sans,sans-serif);font-size:12.5px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:11px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:10px;padding:8px 12px;font-family:var(--font-sans,sans-serif);font-size:12.5px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hidden{display:none}
+
+.modal-wrap{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:8px;border:1px solid var(--bdr2);width:380px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:var(--font-sans,sans-serif);font-size:12px;font-weight:500;color:var(--text)}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:15px;line-height:1;padding:3px 7px;border-radius:4px}
+.modal-close:hover{background:var(--bg4)}
+.modal-bd{padding:.9rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;background:var(--bg3);min-height:150px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:2rem;color:var(--text3);font-family:var(--font-sans,sans-serif);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.modal-ph code{font-size:10px;background:var(--bg4);padding:2px 6px;border-radius:3px}
+.modal-cap{margin-top:.6rem;font-family:var(--font-sans,sans-serif);font-size:11px;color:var(--text3)}
+.page{position:relative;overflow:hidden}
+</style>
+
+<div class="page" id="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Would Abolish the Standing Military"</div>
+</div>
+
+<div class="columns">
+
+  <div class="col prop" id="col-prop">
+    <div class="col-header">
+      <div class="col-header-top">
+        <span class="pill prop">Proposition</span>
+        <span class="col-subtitle">Speaking for the motion</span>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('prop','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('prop','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+    <div class="col-body">
+      <div id="prop-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to begin by clearing away a misunderstanding that will otherwise sabotage this entire debate. Military abolitionism is not pacifism. I am not standing here to tell you that violence is always wrong, that force is never justified, or that we should love our enemies into submission. I am making a harder and more interesting argument than that.</p>
+        <p>I am arguing that even if you accept that war can sometimes be just — even if you accept that force is sometimes morally necessary — the institution of the standing military is not the right way to provide it. The army, the navy, the air force: these are not morally neutral means. They are an institution with a logic of their own, and that logic is, on careful examination, inimical to the values it purports to serve.</p>
+
+        <span class="section">On what militaries actually do</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from military expansionism</span>The overwhelming majority of what military forces do, historically and in the present, is not defence. It is not the repelling of invaders. It is the projection of power — the maintenance of empire, the enforcement of economic interests, the intimidation of weaker states, the propping up of client regimes, the conduct of wars of choice dressed in the language of necessity. The United States has been at war for all but a handful of years since 1945. Britain has deployed military force in every decade since the Second World War. These are not defensive operations. They are the expression of standing military capacity seeking employment.</span></p>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from military expansionism</span>An institution that can project force will project force. Militaries are expensive. They require justification. They develop constituencies — defence contractors, military academies, officer classes, think tanks funded by arms manufacturers — whose institutional interests are served by the existence of threats. This is what Eisenhower meant when he warned of the military-industrial complex: not a conspiracy, but an institutional argument. Structures of incentive produce predictable behaviours, and a standing military produces predictable pressure toward its own use.</span></p>
+
+        <span class="section">On the moral corruption of military institutions</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The argument from moral corruption</span>The standing military requires, for its functioning, that human beings be trained to kill on command. Not to deliberate about whether killing is justified in a particular case. To kill on command. The virtue the military most requires of its members is not courage, and it is not justice. It is obedience. This is not an incidental feature of military organisation — it is a structural necessity. An army in which every soldier deliberates independently about whether each order is morally justified is not an army. It is a philosophy seminar.</span></p>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The argument from moral corruption</span>The result is an institution systematically organised to produce people who will commit acts that, outside the military context, we would recognise as murder, on the authority of a chain of command whose decisions they are not equipped to evaluate. We then express surprise when atrocities occur. Abu Ghraib. My Lai. The Haditha killings. These are not aberrations. They are the predictable outputs of an institution that trains people to subordinate moral judgement to institutional authority.</span></p>
+
+        <span class="section">On the availability heuristic and war</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">The argument from the availability heuristic</span>Human beings — and the states they constitute — reach for the tools that are available to them. When a problem presents itself as a security threat, states reach for military responses not because military responses are necessarily the most effective, but because military capacity is what they have. The existence of a standing military does not merely give states the capacity to use force. It shapes how states conceptualise their problems. When you have a hammer, problems start to look like nails. When you have a carrier strike group, problems start to look like targets. Abolition would force states to develop and invest in the full range of responses — diplomatic, economic, institutional, legal — rather than defaulting to the military instrument that is permanently available and permanently lobbying for its own use.</span></p>
+
+        <span class="section">On alternatives</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The argument from alternative security arrangements</span>The question "if we abolish standing militaries, how do we defend ourselves?" assumes that the only alternative to a permanent standing army is defencelessness. This assumption is false. Switzerland has long maintained a militia-based defence, distributing military capacity across the civilian population rather than concentrating it in a professional standing force. Costa Rica abolished its military in 1948 and has not been invaded. Iceland has no standing army. These cases demonstrate that the standing military is not the only conceivable arrangement for national security. The argument for abolition is not for defencelessness — it is for defence organised differently: through civilian-based defence, international institutions, and genuine collective security arrangements.</span></p>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The argument from the security dilemma</span>The security dilemma — that one state's defensive armament is another state's offensive threat — is not a law of nature. It is a consequence of organising security through competitive military accumulation. A world genuinely committed to collective security through international institutions, rather than maintaining standing forces as a hedge against those institutions' failure, would be a less dangerous world. The standing military is not the solution to insecurity. It is, in significant part, its cause.</span></p>
+
+        <span class="section">On just war theory's self-defeat</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">The argument from just war theory's self-defeat</span>Just war theory sets demanding conditions for the legitimate use of force — just cause, right intention, last resort, proportionality, competent authority. But applied to an institution rather than an individual act, just war theory reaches a troubling conclusion. An institution whose existence reliably produces unjust wars — wars of aggression, wars of economic interest, wars in which combatants are trained to bypass the moral reasoning just war requires — cannot be justified by the just war tradition, even if individual wars occasionally meet the criteria. The standing military is structured to produce unjust outcomes: the incentive structures, the institutional pressures, the trained incapacity for moral deliberation, the availability bias. A just war theorist who takes seriously both the conditions for just war and this institutional analysis should, on reflection, be a military abolitionist.</span></p>
+        <p>I am not asking you to be a pacifist. I am asking you to take the just war tradition seriously enough to follow it where it leads.</p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal(1,'prop')">
+          <div class="arg-title"><span>Argument I — Militaries generate expansionism</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Standing militaries create institutional constituencies — contractors, officer classes, think tanks — whose interests are served by ongoing threat and conflict.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Historically, the majority of military deployments have been offensive projections of power, not defensive responses to aggression.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An institution that can project force will, under institutional pressure, find reasons to do so.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Standing militaries generate systematic pressure toward military action that would not otherwise exist, producing wars beyond any defensive necessity.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal(2,'prop')">
+          <div class="arg-title"><span>Argument II — Military institutions corrupt moral agency</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Military effectiveness requires the suppression of individual moral deliberation in favour of obedience to command.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This suppression of moral agency is not incidental but structural — it is what militaries are designed to produce.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Atrocities such as Abu Ghraib and My Lai are predictable institutional outputs, not aberrations.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The standing military is structurally organised to produce moral corruption; atrocity is a feature, not a bug, of its institutional design.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal(3,'prop')">
+          <div class="arg-title"><span>Argument III — The availability heuristic</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>States, like individuals, reach for available tools — military capacity biases states toward military conceptualisation of problems.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This bias crowds out investment in diplomatic, economic, and institutional alternatives.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Abolition would force development of the full range of non-military security responses.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The standing military impoverishes the range of tools states bring to security problems; its absence would force investment in more effective alternatives.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal(4,'prop')">
+          <div class="arg-title"><span>Argument IV — Alternative security arrangements exist</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The standing professional military is not the only possible arrangement for national security.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Switzerland's militia model, Costa Rica's abolition, and Iceland's security without a standing army demonstrate real alternatives.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Civilian-based defence and genuine collective security offer paths to security that do not require permanent professional military institutions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Military abolition does not mean defencelessness — it means reorganising security through models that do not carry the institutional pathologies of the standing military.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal(5,'prop')">
+          <div class="arg-title"><span>Argument V — The security dilemma is constructed</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The security dilemma — whereby defensive armament appears threatening to neighbours — is not a natural law but a product of competitive military accumulation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Standing militaries generate the very threat environment they claim to respond to.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Genuine commitment to collective security institutions would reduce the dilemma rather than perpetuate it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The standing military is a cause of insecurity, not merely a response to it; abolition would reduce the threat environment it currently sustains.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal(6,'prop')">
+          <div class="arg-title"><span>Argument VI — Just war theory condemns the institution</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Just war theory requires that force meet demanding criteria — just cause, last resort, proportionality, right intention.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The standing military is institutionally structured to bypass these criteria: it trains obedience over deliberation and generates pressure toward aggressive use.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An institution that reliably produces unjust wars cannot be justified even if individual wars occasionally meet just war criteria.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Taking just war theory seriously at the institutional level leads to military abolitionism; the tradition undermines the institution it is typically invoked to justify.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col opp" id="col-opp">
+    <div class="col-header">
+      <div class="col-header-top">
+        <span class="pill opp">Opposition</span>
+        <span class="col-subtitle">Speaking against the motion</span>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('opp','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('opp','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+    <div class="col-body">
+      <div id="opp-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My opponent has made a sophisticated argument. He has been careful to distinguish his position from pacifism. He has invoked institutional analysis, cognitive psychology, and just war theory. He deserves a careful response. But careful does not mean deferential. On examination, the case for military abolitionism rests on empirical claims that are questionable, logical moves that do not hold, and a vision of international order that is a fantasy — and a dangerous one.</p>
+
+        <span class="section">On what militaries actually do — a selective reading</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from military expansionism</span>We are told that the overwhelming majority of what militaries do is project power rather than provide defence. This is presented as an empirical observation. It is, in fact, a selective reading of history. The standing military of Finland deterred Soviet aggression for decades. The British military participated in the liberation of occupied Europe. The militaries of South Korea, Taiwan, and the Baltic states exist in the presence of neighbours who have demonstrated, repeatedly, that the appetite for territorial expansion is real and active. The Polish military is not a colonial instrument seeking employment. It is a nation's answer to a geography that has made it the invasion corridor of Europe for three centuries. The institutional argument — that militaries create pressure toward aggressive use — may describe some militaries in some contexts. The policy conclusion of abolition is not proportionate to that diagnosis even where the diagnosis is correct.</span></p>
+
+        <span class="section">On moral corruption — institution vs. alternative</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The argument from moral corruption</span>The proposition argues that military institutions are morally corrupting because they require obedience rather than moral deliberation. This is a genuine tension — but it applies to every institution operating under conditions of urgency and hierarchy. The surgeon who stops mid-operation to deliberate about whether the patient deserves to be saved is not a moral hero. She is a danger. The firefighter who refuses a command because he has not personally assessed the risk is a liability. The requirement of disciplined obedience in high-stakes institutional contexts is a structural necessity, not corruption. And the military has, over centuries, developed mechanisms to manage the tension: military law, the laws of armed conflict, the obligation to refuse manifestly unlawful orders, the Nuremberg precedent. These mechanisms are imperfect — Abu Ghraib happened. But the conclusion from institutional failure is institutional reform, not abolition. We do not abolish police forces because police brutality exists.</span></p>
+
+        <span class="section">On the availability heuristic — an argument that proves too much</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">The argument from the availability heuristic</span>The proposition deploys cognitive psychology: when you have a hammer, problems look like nails. Perhaps. But this argument proves too much. States with large diplomatic services bias toward diplomatic solutions that may be inappropriate. States with powerful sanctions regimes bias toward economic coercion. The existence of any institutional tool creates pressure toward its use. The solution is civilian oversight ensuring appropriate tool selection — not abolition of all institutional capacity. Moreover, the availability heuristic cuts in precisely the opposite direction when applied to the abolitionist scenario. A state that has abolished its military faces a world in which other states retain military capacity and in which the tools available to it are limited. A strongly worded diplomatic note does not stop a tank.</span></p>
+
+        <span class="section">On alternatives — the fantasy of civilian-based defence</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The argument from alternative security arrangements</span>The proposition cites Switzerland, Costa Rica, and Iceland. These examples do not bear the weight placed on them. Switzerland has compulsory military service for all male citizens and a militia of considerable size, surrounded by NATO members. Costa Rica abolished its military after a civil war in a region where neighbours had no territorial ambitions toward it, with American security guarantees providing an implicit backstop. Iceland is a NATO member, defended by the collective military capacity of its allies including the most powerful military in human history. None of these cases demonstrates that a state can be secure in a contested neighbourhood without military capacity. They demonstrate that small states in benign strategic environments can free-ride on security provided by others. Civilian-based defence has never been demonstrated to work against a determined modern military aggressor.</span></p>
+
+        <span class="section">On the security dilemma — condition, not construction</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The argument from the security dilemma</span>We are told the security dilemma is not a law of nature but a consequence of competitive military accumulation. True in theory. A fantasy in practice. The security dilemma reflects a structural feature of anarchic international relations: the absence of a central authority capable of enforcing agreements. States arm not because they are belligerent but because they cannot credibly commit to one another not to arm, and because the cost of being wrong about a neighbour's intentions is existential. The proposition's remedy — invest in international institutions — begs the question. International institutions capable of guaranteeing security require member states to contribute military force. The United Nations has no army. NATO's collective defence guarantee is only as credible as the national militaries underpinning it. You cannot build collective security on the ruins of national military capacity.</span></p>
+
+        <span class="section">On just war theory — a misreading</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">The argument from just war theory's self-defeat</span>Just war theory is a framework for moral evaluation of acts of force, not a framework for institutional design. It tells us when war is justified — not how to organise the permanent institutions of a state. Moreover, the proposition's institutional claim — that standing militaries are structured to produce unjust wars — is an empirical claim requiring empirical evidence, not enumeration of cases where force was misused. One could equally argue that abolition would produce more unjust outcomes: more successful aggressions, more genocide conducted without possibility of armed humanitarian intervention, more oppression of populations who cannot defend themselves. The empirical case for abolition requires showing not merely that militaries sometimes produce unjust outcomes, but that abolition would produce better outcomes overall. That case has not been made.</span></p>
+
+        <span class="section">The real world</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">The argument from Ukraine</span>In February 2022, Russian tanks crossed into Ukraine. The Ukrainian military resisted. Civilians took up arms. The country did not fall in three days, as Russian planners expected, because Ukraine had invested in military capacity, military training, and military culture. A Ukraine that had abolished its military in pursuit of the proposition's vision would not exist today as a sovereign state. Its population would be living under occupation — or worse. This is not a hypothetical. This is what the world actually looks like. And any argument for military abolition that cannot account for this fact — that cannot explain what Ukraine should have done instead — is not a serious argument for a serious world.</span></p>
+        <p>I oppose the motion.</p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal(1,'opp')">
+          <div class="arg-title"><span>Argument I — The expansionism claim is selective</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The claim that militaries primarily project power rather than provide defence is a selective reading that ignores Finland, the Baltic states, Taiwan, Poland, and others.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Even where the institutional pressure toward aggressive use exists, the remedy is democratic oversight and arms control, not abolition.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Abolition is disproportionate to the diagnosis even where the diagnosis is correct.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The expansionism argument describes some militaries in some contexts and justifies reform, not the universal abolition the proposition demands.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal(2,'opp')">
+          <div class="arg-title"><span>Argument II — Obedience is structural necessity, not corruption</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Every high-stakes institution — hospitals, fire brigades, police — requires disciplined obedience under urgency; this is structural necessity, not moral failure.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Militaries have developed legal and institutional mechanisms — military law, the duty to refuse unlawful orders, Nuremberg — to manage the tension between obedience and moral responsibility.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Institutional failure is grounds for reform, not abolition; we do not abolish police forces because brutality exists.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The moral corruption argument establishes that military institutions need reform and oversight, not that they should be abolished.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal(3,'opp')">
+          <div class="arg-title"><span>Argument III — The availability argument proves too much</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Every institutional capacity biases toward its own use — diplomacy, sanctions, and intelligence all create the same distortion the proposition identifies in militaries.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The solution is appropriate civilian oversight of tool selection, not abolition of institutional capacity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A state without a military facing a state with one has fewer tools, not better ones; diplomatic notes do not stop tanks.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The availability heuristic argument justifies oversight, not abolition, and backfires when applied to the abolitionist scenario itself.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal(4,'opp')">
+          <div class="arg-title"><span>Argument IV — Alternative models don't generalise</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Switzerland, Costa Rica, and Iceland are cases of small states in benign strategic environments free-riding on allied military capacity — not demonstrations of viable non-military security.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Civilian-based defence has no demonstrated record of effectiveness against a determined modern military aggressor.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>International collective security arrangements require national military contributions to function — you cannot build them on the ruins of national capacity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The alternative security models cited do not demonstrate that military abolition is viable in contested strategic environments.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal(5,'opp')">
+          <div class="arg-title"><span>Argument V — The security dilemma reflects anarchy, not choice</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The security dilemma reflects the structural condition of anarchic international relations — the absence of any authority capable of enforcing disarmament agreements.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>States cannot credibly commit to non-armament when the cost of being wrong about a neighbour's intentions is existential.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>International institutions capable of replacing this system require member-state military contributions to enforce their authority — the proposition's solution assumes what it purports to replace.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The security dilemma is a structural condition of international anarchy, not a choice; the proposed remedy presupposes the very military capacity it would abolish.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal(6,'opp')">
+          <div class="arg-title"><span>Argument VI — Just war theory evaluates acts, not institutions</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Just war theory is a framework for evaluating individual acts of force, not for determining what permanent state institutions should exist.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The empirical claim that abolition produces better outcomes than reform requires showing that the world without standing militaries produces fewer unjust outcomes — a case not made.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Abolition could equally produce worse just war outcomes: more successful aggression, more genocide, more oppression of populations unable to defend themselves.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The just war argument does not support abolition; it supports demanding just war criteria be met — which requires having military capacity available to enforce them.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7" onclick="openModal(7,'opp')">
+          <div class="arg-title"><span>Argument VII — Ukraine: the real world test</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A theory of institutional abolition must account for actual cases where the abolished institution would have been needed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Ukraine's military resistance in 2022 prevented the conquest of a sovereign state and the subjugation of its population — a military-abolitionist Ukraine would have fallen within days.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Any argument for military abolition that cannot explain what Ukraine should have done instead is not a serious argument for a serious world.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The real-world test of military abolitionism — applied to Ukraine in February 2022 — demonstrates that the theory cannot account for the conditions under which it most needs to work.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh">
+          <div>No image linked yet</div>
+          <code>Set src in IMAGES object in script</code>
+        </div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+var IMAGES={
+  prop:{
+    1:{src:"",caption:"Proposition — Militaries generate expansionism"},
+    2:{src:"",caption:"Proposition — Moral corruption of military institutions"},
+    3:{src:"",caption:"Proposition — The availability heuristic"},
+    4:{src:"",caption:"Proposition — Alternative security arrangements"},
+    5:{src:"",caption:"Proposition — The security dilemma is constructed"},
+    6:{src:"",caption:"Proposition — Just war theory's self-defeat"}
+  },
+  opp:{
+    1:{src:"",caption:"Opposition — The expansionism claim is selective"},
+    2:{src:"",caption:"Opposition — Obedience is structural necessity"},
+    3:{src:"",caption:"Opposition — The availability argument proves too much"},
+    4:{src:"",caption:"Opposition — Alternative models don't generalise"},
+    5:{src:"",caption:"Opposition — The security dilemma reflects anarchy"},
+    6:{src:"",caption:"Opposition — Just war theory evaluates acts, not institutions"},
+    7:{src:"",caption:"Opposition — Ukraine: the real world test"}
+  }
+};
+var TITLES={
+  prop:{1:"Militaries generate expansionism",2:"Moral corruption of military institutions",3:"The availability heuristic",4:"Alternative security arrangements",5:"The security dilemma is constructed",6:"Just war theory's self-defeat"},
+  opp:{1:"The expansionism claim is selective",2:"Obedience is structural necessity",3:"The availability argument proves too much",4:"Alternative models don't generalise",5:"The security dilemma reflects anarchy",6:"Just war theory evaluates acts not institutions",7:"Ukraine: the real world test"}
+};
+
+function sw(side,view,el){
+  var s=document.getElementById(side+'-speech');
+  var l=document.getElementById(side+'-logic');
+  var body=s.closest('.col-body');
+  document.getElementById('col-'+side).querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  if(view==='speech'){
+    l.dataset.scroll=body.scrollTop;
+    s.classList.remove('hidden');l.classList.add('hidden');
+    body.scrollTop=s.dataset.scroll||0;
+  } else {
+    s.dataset.scroll=body.scrollTop;
+    s.classList.add('hidden');l.classList.remove('hidden');
+    body.scrollTop=l.dataset.scroll||0;
+  }
+}
+
+function openModal(n,side){
+  var d=IMAGES[side][n];
+  document.getElementById('mTitle').textContent=TITLES[side][n];
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.alt=TITLES[side][n];img.style.display='none';ph.style.display='none'}
+  else{img.style.display='none';ph.style.display='flex'}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none'}
+function imgFail(){document.getElementById('mImg').style.display='none';var p=document.getElementById('mPh');p.style.display='flex';p.querySelector('div').textContent='Image failed to load'}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal()}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');
+  if(!hl) return;
+  var tip=hl.querySelector('.tooltip');
+  if(!tip) return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2;
+  var vw=window.innerWidth;
+  var margin=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  var clampedX=Math.min(Math.max(cx,tw/2+margin),vw-tw/2-margin);
+  tip.style.left=clampedX+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');
+  if(!hl) return;
+  var tip=hl.querySelector('.tooltip');
+  if(tip) tip.style.display='none';
+});
+</script>
