@@ -1,0 +1,439 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,var(--font-serif,serif);background:var(--bg);color:var(--text)}
+
+.motion-header{padding:1.1rem 2rem .9rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:7px;font-weight:500}
+.motion-title{font-size:22px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 80px);min-height:500px}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.col-header{padding:.85rem 1.3rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;flex-wrap:wrap}
+.pill{font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;padding:4px 10px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:var(--font-sans,sans-serif);font-size:13px;font-style:italic;color:var(--text2)}
+
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:var(--font-sans,sans-serif);padding:6px 16px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:4px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.3rem 1.5rem;font-size:14.5px;line-height:2;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speech-text p{margin-bottom:.9rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:var(--font-sans,sans-serif);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+
+.tooltip{display:none;position:fixed;font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;font-style:normal;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.logic-view{display:flex;flex-direction:column;gap:1rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+
+.arg-title{padding:8px 12px;font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+
+.arg-premises{padding:10px 12px 6px;background:var(--bg2)}
+.premise{display:flex;gap:10px;margin-bottom:8px;font-family:var(--font-sans,sans-serif);font-size:12.5px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:11px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:10px;padding:8px 12px;font-family:var(--font-sans,sans-serif);font-size:12.5px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hidden{display:none}
+
+.modal-wrap{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:8px;border:1px solid var(--bdr2);width:380px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:var(--font-sans,sans-serif);font-size:12px;font-weight:500;color:var(--text)}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:15px;line-height:1;padding:3px 7px;border-radius:4px}
+.modal-close:hover{background:var(--bg4)}
+.modal-bd{padding:.9rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;background:var(--bg3);min-height:150px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:2rem;color:var(--text3);font-family:var(--font-sans,sans-serif);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.modal-ph code{font-size:10px;background:var(--bg4);padding:2px 6px;border-radius:3px}
+.modal-cap{margin-top:.6rem;font-family:var(--font-sans,sans-serif);font-size:11px;color:var(--text3)}
+.page{position:relative;overflow:hidden}
+</style>
+
+<div class="page" id="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Would Lower the Voting Age to Six"</div>
+</div>
+
+<div class="columns">
+
+  <!-- PROPOSITION -->
+  <div class="col prop" id="col-prop">
+    <div class="col-header">
+      <div class="col-header-top">
+        <span class="pill prop">Proposition</span>
+        <span class="col-subtitle">Speaking for the motion</span>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('prop','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('prop','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+    <div class="col-body">
+      <div id="prop-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to begin with a thought experiment. Imagine you are designing a democracy from scratch. You have a population. You must decide who gets a vote. You reach, almost instinctively, for the concept of competence. Voters, you think, should be capable of understanding what they are voting for. They should be rational. They should be informed.</p>
+        <p>And then I want to ask you: by that standard, why do we currently include so many people who demonstrably fail it — and exclude an entire class of people on the basis of an assumption we have never seriously tested?</p>
+        <p>The voting age of eighteen is not the product of careful democratic theory. It is an accident of history, a relic of the age of conscription, carried forward by inertia and defended by condescension. It is time to think again.</p>
+
+        <span class="section">On the child as citizen</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from citizenship and stake</span>Children are not pre-citizens. They are citizens. They live in the societies whose governments make decisions that affect them. They breathe the air whose quality is determined by environmental policy. They attend the schools whose funding is determined by education policy. They will inherit the debt, the climate, and the institutional arrangements that today's voters are now choosing. They have, in the most fundamental sense, a stake.</span></p>
+        <p>And yet they are excluded from the mechanism by which those decisions are made. We call this democracy. It is, for children, nothing of the kind. It is a form of benevolent — or not so benevolent — guardianship, in which adults make decisions on behalf of a population that had no say in selecting them.</p>
+
+        <span class="section">Why six?</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The argument for six as threshold</span>Six is roughly the age at which children enter formal education — the moment the state begins to make substantial, consequential, formalised decisions about their lives. It seems reasonable that when the state begins to treat you as a subject of its educational apparatus, you should have some voice in who runs it. More importantly, six is the age at which most children have developed a perspective. A six-year-old has preferences, values, attachments, fears. She knows what she cares about. She may not articulate a fully coherent political philosophy — but neither, if we are being honest, can most adult voters.</span></p>
+
+        <span class="section">On competence and its double standard</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">The argument from the competence double standard</span>We do not apply a competence test to adults. We do not disqualify voters who cannot name members of the cabinet, who have never read a party manifesto, who choose candidates on the basis of name recognition alone. The adult franchise is universal precisely because we believe competence is not the right test for enfranchisement — there is something demeaning and dangerous about having the state decide who is smart enough to participate in its own governance. The moment you accept that principle for adults, you have conceded that competence is not the relevant criterion. And if it is not relevant for adults, it cannot coherently be decisive for children.</span></p>
+
+        <span class="section">On the tyranny of the present</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The argument from intergenerational equity</span>Democracies have a structural bias toward the present. They aggregate the preferences of living voters and translate them into policy. Climate change is the paradigm case. The people making decisions about carbon emissions today are disproportionately old. The people who will live with the consequences are disproportionately young — or not yet alive. Enfranchising children would introduce into the electorate a cohort whose time horizons are necessarily longer — who will be alive in 2070 and 2080 when today's climate decisions come to fruition — and whose instincts are therefore more likely to favour policies whose costs are borne now and whose benefits arrive later.</span></p>
+
+        <span class="section">On parental influence</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The argument from parental influence</span>Adults also vote as their social environment tells them. The idea that adult voting is the product of pure rational deliberation, insulated from the influence of family, culture, class, and peer group, is not supported by any serious study of voting behaviour. Even if children do initially vote as their parents direct, this is not obviously bad — it means more votes for views held by someone in the household. And the franchise has never required that voters be free of external influence. It has required that voters have the formal right to choose. Enfranchising children gives them that right.</span></p>
+
+        <span class="section">On democratic health</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">The argument from civic socialisation</span>Voting is an education in itself. The act of choosing, of considering options, of placing a mark on a ballot, is a socialising experience that attaches people to democratic institutions and gives them a stake in their outcomes. We currently exclude children from this experience for eighteen years, then expect them to participate fully and enthusiastically the moment they turn eighteen. This is not a recipe for healthy civic culture. It is a recipe for the disengagement and alienation from politics we see in abundance among young adults. Enfranchising children from six would begin their civic education earlier and produce adults more invested in the system.</span></p>
+
+        <p>I propose not a revolution but a correction. A correction to a franchise that has, for too long, treated the future as an externality and children as subjects rather than citizens.</p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal(1,'prop')">
+          <div class="arg-title"><span>Argument I — Children are citizens with a stake</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Democracy is premised on the right of those governed to participate in choosing their governors.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Children are governed — their lives are substantially shaped by political decisions about education, environment, and public finance.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Excluding any governed population from the franchise requires a principled justification beyond mere convention.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Children's exclusion from the franchise requires positive justification; their stake as governed citizens is not in question.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal(2,'prop')">
+          <div class="arg-title"><span>Argument II — Six is a principled threshold</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The state formalises its relationship with children at six through compulsory education — a reasonable marker of civic subjecthood.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Six-year-olds have developed preferences, values, and attachments — the raw material of political identity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Adult voters are not demonstrably more informed or rational than six-year-olds in their political choices.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Six represents a defensible threshold at which a child has both a stake and the beginnings of political perspective.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal(3,'prop')">
+          <div class="arg-title"><span>Argument III — The competence double standard</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>We do not test adult competence before enfranchising them — to do so would be demeaning and dangerous.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The justification for universal adult suffrage is that stake, not competence, is the relevant criterion for enfranchisement.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>That same criterion — stake — applies to children, who are governed just as adults are.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Applying a competence test to children that we have explicitly rejected for adults is logically inconsistent.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal(4,'prop')">
+          <div class="arg-title"><span>Argument IV — Correcting democratic short-termism</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Democratic systems structurally bias policy toward the preferences of current voters, who are disproportionately older.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Long-term policy challenges — climate change above all — require electorates oriented toward future consequences.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Children, who will live longest with current decisions, have the longest natural time horizons of any cohort.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Enfranchising children would structurally correct democracy's bias toward the present and short-term thinking.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal(5,'prop')">
+          <div class="arg-title"><span>Argument V — Parental influence is not disqualifying</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>All voters are influenced by their social environment — family, class, culture, media — without this disqualifying them.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The franchise does not require freedom from influence; it requires the formal right to choose.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Children's susceptibility to parental influence is a difference of degree, not of kind, from adult social influence.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Parental influence on child voters does not justify exclusion, since influence does not disqualify adult voters either.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal(6,'prop')">
+          <div class="arg-title"><span>Argument VI — Civic socialisation argument</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Democratic participation is itself a civic education that attaches people to democratic institutions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Excluding children for eighteen years and then expecting immediate full engagement produces civic alienation, not engagement.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Earlier enfranchisement would produce adults with longer histories of democratic participation and greater investment in the system.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Enfranchising children from six would improve long-term democratic health by embedding civic identity earlier.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPPOSITION -->
+  <div class="col opp" id="col-opp">
+    <div class="col-header">
+      <div class="col-header-top">
+        <span class="pill opp">Opposition</span>
+        <span class="col-subtitle">Speaking against the motion</span>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="sw('opp','speech',this)">Speech</div>
+        <div class="tab" onclick="sw('opp','logic',this)">Logical Arguments</div>
+      </div>
+    </div>
+    <div class="col-body">
+      <div id="opp-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My opponent is a genuinely interesting thinker. He is also, on this question, genuinely wrong. And I want to be precise about where and why.</p>
+        <p>The case for enfranchising six-year-olds is not a monstrous proposition. It is a serious one that deserves serious refutation — which means engaging with the actual arguments and following them to the places where they go wrong.</p>
+
+        <span class="section">On children as citizens — a distinction that matters</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from citizenship and stake</span>We are told that children are citizens with a stake. All of this is true. But having a stake in an outcome is not, by itself, sufficient grounds for participating in the mechanism that produces it. Toddlers have a stake in road safety legislation. Dogs have a stake in animal welfare law. Future generations have a stake in climate policy. We do not, on the basis of stake alone, conclude that all these parties should vote. The relevant question is not whether you have interests affected by political decisions. It is whether you have the capacity to form, revise, and express political judgements in a way the democratic process can meaningfully incorporate. Stake is necessary but not sufficient.</span></p>
+
+        <span class="section">On six as a threshold — an arbitrary number</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The argument for six as threshold</span>The proposition correctly notes that eighteen is arbitrary. True. But the response to an arbitrary line is not to draw another arbitrary line at six and declare it principled. Why six? Because children start school? But the state makes decisions about children before they are born — through maternity policy, tax credits, healthcare. Should we enfranchise foetuses? The proposition's logic, pushed even slightly, becomes absurd. Six is not a principled threshold. It is a provocative number chosen to make the argument feel radical enough to be interesting. That is fine as intellectual strategy. It is not democratic theory.</span></p>
+
+        <span class="section">On competence — a deliberately misconstrued objection</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">The argument from the competence double standard</span>The proposition dismisses the competence objection by pointing out that we do not test adult competence. Clever — but it misreads what the objection actually is. The objection to child suffrage is not that children fail a test adults pass. It is that children are in a process of cognitive and moral development that makes political judgement not yet fully available to them. A six-year-old does not yet have a stable sense of personal identity — a settled understanding of who she is, what she values, how those values relate to the social world. Political judgement requires not just preferences but a self stable enough to form preferences that are genuinely one's own. Moreover: if the competence double standard argument proves anything, it proves too much. We should also enfranchise three-year-olds, two-year-olds, and infants. The proposition does not want that conclusion — but its argument gives it no principled place to stop.</span></p>
+
+        <span class="section">On short-termism — a real problem, a wrong solution</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The argument from intergenerational equity</span>The short-termism argument is the strongest in the proposition's arsenal. Democracies are structurally biased toward the present. This is a real democratic pathology. But enfranchising six-year-olds is not the remedy. First, it is not clear that children think longer-term than adults in politically relevant ways. A six-year-old is oriented to the immediate — to the concerns of her household, classroom, street. The capacity for extended temporal reasoning is itself a developmental achievement that arrives in adolescence. Second, the problem of intergenerational equity has well-developed institutional solutions that do not require abandoning developmental prerequisites of the franchise — parliamentary commissioners for future generations, constitutional long-term impact assessments, lowering the voting age to sixteen. The proposition has identified a real problem and reached for a solution that does not obviously address it.</span></p>
+
+        <span class="section">On parental influence — a problem gravely understated</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The argument from parental influence</span>The proposition concedes that children may vote as their parents direct, then dismisses this as no more troubling than social influences on adult voters. This is a significant understatement. The influence of a peer group or media on an adult is categorically different from the influence of a parent on a six-year-old. The adult has, at least in principle, the psychological and economic independence to form political judgements that diverge from her environment. The six-year-old does not. She is dependent on her parents for everything — shelter, food, emotional security, interpretation of the world. What child enfranchisement would produce in practice is the multiplication of parental votes. Parents with three children would have five votes; parents with five children, seven. This is not extending democracy to children. It is a gerrymander disguised as progressivism.</span></p>
+
+        <span class="section">On democratic health — an argument that cuts both ways</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">The argument from civic socialisation</span>The proposition argues that early enfranchisement would attach children to democratic institutions and produce more engaged adults. But the argument cuts both ways. If children vote as their parents direct — as the proposition concedes is likely — then their early civic experience is not one of independent democratic participation. It is one of performing their parents' political identity. The civic education argument assumes the vote is experienced as genuinely one's own. Under conditions of near-total parental influence, that assumption does not hold. There are better ways to attach young people to democratic institutions: civic education in schools, youth parliaments, lowering the voting age to sixteen, where evidence from Scotland suggests young voters engage seriously and thoughtfully.</span></div></p>
+
+        <span class="section">The real question</span>
+        <p>The question is not whether children deserve political voice — they do. The question is whether the specific mechanism of the individual franchise, cast by a six-year-old in a polling booth, is the right way to give them that voice.</p>
+        <p><span class="hl" data-arg="7"><span class="tooltip">The argument from democratic selfhood</span>The franchise is a particular kind of political act — one that requires a particular kind of selfhood, a particular degree of independence, and a particular capacity for political judgement that develops over time and is not yet present at six. Democracy is not simply the aggregation of all preferences. It is the aggregation of preferences by persons capable of the kind of autonomous, revisable, politically aware judgement that democratic theory requires. That capacity arrives. It just has not arrived at six.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal(1,'opp')">
+          <div class="arg-title"><span>Argument I — Stake is necessary but not sufficient</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Having interests affected by political decisions does not by itself confer the right to participate in making them.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Toddlers, animals, and future generations all have stakes in political decisions, yet we do not enfranchise them.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The franchise additionally requires the capacity to form, revise, and express political judgements the democratic process can incorporate.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Stake alone cannot justify enfranchisement; the proposition's central premise is necessary but not sufficient.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal(2,'opp')">
+          <div class="arg-title"><span>Argument II — Six is no less arbitrary than eighteen</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The proposition's own logic — that state engagement with a child's life triggers enfranchisement — applies before birth through maternity and healthcare policy.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The argument has no principled stopping point above zero unless developmental criteria are introduced.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Six is a rhetorically provocative rather than theoretically principled threshold.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proposition replaces one arbitrary line with another; the choice of six is performative, not principled.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal(3,'opp')">
+          <div class="arg-title"><span>Argument III — Competence means developmental readiness</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The objection to child suffrage is not about passing a test but about developmental readiness — having a stable self from which genuine political judgements can be made.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A six-year-old has not yet developed the stable personal identity that political judgement requires.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition's competence argument, if valid, would require enfranchising infants — a conclusion it does not accept but cannot avoid.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The competence objection is about developmental stage, not arbitrary gatekeeping; it is not answered by pointing to adult ignorance.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal(4,'opp')">
+          <div class="arg-title"><span>Argument IV — Short-termism has better remedies</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Six-year-olds are oriented to the immediate, not the distant future — their cognitive immaturity does not make them better long-term reasoners.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Intergenerational equity has institutional solutions — future generation commissioners, constitutional reform, votes at sixteen — that do not require abandoning developmental prerequisites.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A solution must actually address the problem; child enfranchisement does not obviously produce longer-term political thinking.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The intergenerational equity problem is real but child suffrage is the wrong instrument; better-targeted remedies exist.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal(5,'opp')">
+          <div class="arg-title"><span>Argument V — Child votes multiply parental power</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A six-year-old is wholly dependent on parents for shelter, security, and interpretation of the world — genuine political independence is not available to her.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Parental influence on a child is categorically different from social influence on an adult, who retains psychological and economic independence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In practice, child enfranchisement multiplies parental votes, creating a de facto plural voting system for parents.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Child suffrage would not extend democracy to children — it would gerrymander the franchise toward parents.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal(6,'opp')">
+          <div class="arg-title"><span>Argument VI — Civic socialisation requires genuine autonomy</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The civic education benefit of voting depends on the vote being experienced as a genuinely autonomous act.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Under conditions of near-total parental influence, a child's vote is an extension of parental identity, not an act of civic selfhood.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Better alternatives exist — civic education, youth parliaments, votes at sixteen — that develop democratic engagement without this distortion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The civic socialisation argument collapses when the vote is not genuinely the child's own; the premise of independent civic experience is absent at six.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7" onclick="openModal(7,'opp')">
+          <div class="arg-title"><span>Argument VII — Democracy requires democratic selfhood</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Democratic participation is not merely the expression of any preference — it is the expression of autonomous, revisable, politically aware judgement.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This capacity — what we might call democratic selfhood — is a developmental achievement that arrives over time, not a fixed property present from birth.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Enfranchising those who have not yet developed it does not extend democracy; it dilutes it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Democracy requires not just any preference but the kind of selfhood capable of forming genuinely political judgements — a capacity not yet present at six.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh">
+          <div>No image linked yet</div>
+          <code>Set src in IMAGES object in script</code>
+        </div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+var IMAGES={
+  prop:{
+    1:{src:"",caption:"Proposition — Children as citizens with a stake"},
+    2:{src:"",caption:"Proposition — Six as a principled threshold"},
+    3:{src:"",caption:"Proposition — The competence double standard"},
+    4:{src:"",caption:"Proposition — Correcting democratic short-termism"},
+    5:{src:"",caption:"Proposition — Parental influence is not disqualifying"},
+    6:{src:"",caption:"Proposition — Civic socialisation argument"}
+  },
+  opp:{
+    1:{src:"",caption:"Opposition — Stake is necessary but not sufficient"},
+    2:{src:"",caption:"Opposition — Six is no less arbitrary than eighteen"},
+    3:{src:"",caption:"Opposition — Competence means developmental readiness"},
+    4:{src:"",caption:"Opposition — Short-termism has better remedies"},
+    5:{src:"",caption:"Opposition — Child votes multiply parental power"},
+    6:{src:"",caption:"Opposition — Civic socialisation requires genuine autonomy"},
+    7:{src:"",caption:"Opposition — Democracy requires democratic selfhood"}
+  }
+};
+var TITLES={
+  prop:{1:"Children as citizens with a stake",2:"Six as a principled threshold",3:"The competence double standard",4:"Correcting democratic short-termism",5:"Parental influence is not disqualifying",6:"Civic socialisation argument"},
+  opp:{1:"Stake is necessary but not sufficient",2:"Six is no less arbitrary than eighteen",3:"Competence means developmental readiness",4:"Short-termism has better remedies",5:"Child votes multiply parental power",6:"Civic socialisation requires genuine autonomy",7:"Democracy requires democratic selfhood"}
+};
+
+function sw(side,view,el){
+  var s=document.getElementById(side+'-speech');
+  var l=document.getElementById(side+'-logic');
+  var body=s.closest('.col-body');
+  document.getElementById('col-'+side).querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  if(view==='speech'){
+    l.dataset.scroll=body.scrollTop;
+    s.classList.remove('hidden');l.classList.add('hidden');
+    body.scrollTop=s.dataset.scroll||0;
+  } else {
+    s.dataset.scroll=body.scrollTop;
+    s.classList.add('hidden');l.classList.remove('hidden');
+    body.scrollTop=l.dataset.scroll||0;
+  }
+}
+
+function openModal(n,side){
+  var d=IMAGES[side][n];
+  document.getElementById('mTitle').textContent=TITLES[side][n];
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.alt=TITLES[side][n];img.style.display='none';ph.style.display='none'}
+  else{img.style.display='none';ph.style.display='flex'}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none'}
+function imgFail(){document.getElementById('mImg').style.display='none';var p=document.getElementById('mPh');p.style.display='flex';p.querySelector('div').textContent='Image failed to load'}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal()}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');
+  if(!hl) return;
+  var tip=hl.querySelector('.tooltip');
+  if(!tip) return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2;
+  var vw=window.innerWidth;
+  var margin=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  var clampedX=Math.min(Math.max(cx,tw/2+margin),vw-tw/2-margin);
+  tip.style.left=clampedX+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');
+  if(!hl) return;
+  var tip=hl.querySelector('.tooltip');
+  if(tip) tip.style.display='none';
+});
+</script>
