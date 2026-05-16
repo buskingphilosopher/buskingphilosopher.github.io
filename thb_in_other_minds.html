@@ -1,0 +1,616 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,var(--font-serif,serif);background:var(--bg);color:var(--text)}
+
+.motion-header{padding:1rem 2rem .8rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:6px;font-weight:500}
+.motion-title{font-size:19px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 68px);min-height:500px}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;padding:8px 14px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp .speaker-btn.active{color:var(--opp-red)}
+
+.col-header{padding:.7rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.65rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:var(--font-sans,sans-serif);font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:var(--font-sans,sans-serif);font-size:10px;color:var(--text3);margin-top:1px;margin-bottom:6px;line-height:1.4}
+
+.tabs{display:flex;gap:0;margin-top:5px}
+.tab{font-family:var(--font-sans,sans-serif);padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.2rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:var(--font-sans,sans-serif);font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.3rem 0 .25rem;display:block}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+
+.tooltip{display:none;position:fixed;font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;font-style:normal;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+
+.arg-title{padding:7px 11px;font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:var(--font-sans,sans-serif);font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:var(--font-sans,sans-serif);font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hidden{display:none}
+
+.modal-wrap{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:8px;border:1px solid var(--bdr2);width:380px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.65rem 1rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:var(--font-sans,sans-serif);font-size:12px;font-weight:500;color:var(--text)}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:15px;line-height:1;padding:3px 7px;border-radius:4px}
+.modal-close:hover{background:var(--bg4)}
+.modal-bd{padding:.85rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;background:var(--bg3);min-height:140px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:1.5rem;color:var(--text3);font-family:var(--font-sans,sans-serif);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.modal-ph code{font-size:10px;background:var(--bg4);padding:2px 6px;border-radius:3px}
+.modal-cap{margin-top:.5rem;font-family:var(--font-sans,sans-serif);font-size:11px;color:var(--text3)}
+.page{position:relative;overflow:hidden}
+</style>
+
+<div class="page" id="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Believes We Can Have Knowledge of Other Minds"</div>
+</div>
+
+<div class="columns">
+
+<!-- ══════════════════ PROPOSITION ══════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','davidson',this)">Davidson</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','wittgenstein',this)">Wittgenstein</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','strawson',this)">Strawson</button>
+  </div>
+
+  <!-- DAVIDSON HEADER -->
+  <div class="col-header" id="prop-davidson-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Donald Davidson</span></div>
+    <div class="col-position">Triangulation — other minds are a precondition of thought itself, not a conclusion of inference</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','davidson','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','davidson','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- WITTGENSTEIN HEADER -->
+  <div class="col-header hidden" id="prop-wittgenstein-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Ludwig Wittgenstein</span></div>
+    <div class="col-position">Private language — the grammar of mental concepts presupposes social practice and other minds</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','wittgenstein','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','wittgenstein','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- STRAWSON HEADER -->
+  <div class="col-header hidden" id="prop-strawson-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">P.F. Strawson</span></div>
+    <div class="col-position">Persons — the concept of a person is primitive and presupposes the applicability of mental predicates to others</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','strawson','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','strawson','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ── DAVIDSON ── -->
+    <div class="speaker-panel active" id="prop-davidson-panel">
+      <div id="prop-davidson-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The sceptic about other minds imagines that knowledge is built from the inside out. We begin with the solitary Cartesian ego — certain only of its own sensations, its own thoughts, its own inner theatre — and then, by some inferential ladder, attempt to climb outward to knowledge of an external world and, finally, to the most tenuous knowledge of all: that there are other minds.</p>
+        <p>I want to argue that this picture is not merely philosophically difficult. It is incoherent. It gets the order of explanation exactly backwards. Once we see why, the sceptical problem about other minds does not become harder to solve. It dissolves.</p>
+
+        <span class="section">On the conditions for any thought at all</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from triangulation and content</span>Any creature capable of thought must possess the concept of objective truth. To think that something is the case is to think that it is the case independently of whether one believes it is the case. Thought is not mere sensation — sensation does not have a truth condition. Pain is not true or false. But the thought that there is a table in the room, or that it will rain tomorrow, has a truth condition. It purports to represent how things are, independently of how they seem. Now: the concept of objective truth — the concept of things being thus and so independently of one's own perspective — cannot be acquired in isolation. It cannot be conjured from within the solitary mind. For the concept of objectivity requires the contrast between what seems to be the case and what is the case. And that contrast only becomes available to a creature that has been in communication with others — creatures who can correct its mistakes, whose reactions reveal that things are not always as they seem.</span></p>
+
+        <span class="section">On triangulation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from triangulation and content</span>Consider learning the meaning of a word. A child learns to use "table" in the presence of tables. But how does she know what the word refers to? Tables are the most salient common feature of her environment — but so are the light reflections off the tables, the spatial regions occupied by them, the temporal moment of encounter. Without another mind to triangulate with — to confirm that it is the table and not the light reflection that the word picks out — the child cannot fix the reference of her terms. And without fixed reference, there is no determinate content to thought. A thought that could equally be about tables or about light reflections off tables is not a thought about either. Triangulation requires two minds and a shared world — two creatures responding to a common stimulus, each responding to the other's responses.</span></p>
+
+        <span class="section">On inverting the Cartesian order</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The argument from inverting the Cartesian order</span>The Cartesian picture says: first the individual mind with its private certainties; then, by inference, the external world; then, most tenuous of all, other minds. Knowledge of other minds is the last and least secure step. I say: knowledge of other minds is not the last step. It is a precondition of the first. There cannot be an individual mind with determinate thoughts unless there is already a social setting within which content is fixed, in which the concept of objective truth is acquired, in which the distinction between appearance and reality becomes available. The existence of other minds is not a conclusion to be argued to from a solitary starting point. It is a precondition of there being any starting point at all.</span></p>
+
+        <span class="section">On the interpersonal character of knowledge</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">The argument from holistic and interpersonal knowledge</span>The acquisition of knowledge is not a progression from the subjective to the objective. It does not begin inside the head and reach, with difficulty, an external world and other minds. It emerges holistically and is interpersonal from the start. What we know, we know together. The concept of objective truth is a shared achievement. The fixing of content is a social achievement. The very idea of a mind — of a creature with thoughts that purport to represent a world — is an achievement that requires other minds. The sceptic cannot get the problem started without already presupposing what she claims to doubt.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-davidson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('davidson',1,'prop')">
+          <div class="arg-title"><span>Argument I — Triangulation and the fixation of content</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Propositional thought requires the concept of objective truth — the idea that things are thus regardless of how they seem to the thinker.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The concept of objective truth requires the contrast between appearance and reality, which is only available to a creature in communication with others who can correct its errors.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The content of thought is fixed by triangulation: two minds responding to a shared stimulus and to each other's responses — without this, no determinate reference is possible.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Any creature with determinate propositional thoughts has already been in communication with other minds; other minds are constitutive of thought, not inferred from it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('davidson',2,'prop')">
+          <div class="arg-title"><span>Argument II — The Cartesian order is inverted</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Cartesian picture holds that knowledge proceeds from private certainties outward to external world and finally to other minds.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the private certainties presupposed at the Cartesian starting point — determinate propositional thoughts — require other minds for their constitution.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Therefore the Cartesian starting point is impossible without other minds already in place.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Knowledge of other minds is a precondition of the Cartesian first step, not its last and most speculative conclusion.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('davidson',3,'prop')">
+          <div class="arg-title"><span>Argument III — Knowledge is holistic and interpersonal from the start</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The acquisition of knowledge does not proceed from the subjective to the objective — it emerges in a social setting that is already shared.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The concept of objective truth, the fixing of conceptual content, and the possibility of thought are all joint achievements requiring other minds.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The sceptical challenge to other minds presupposes a mind already constituted with determinate thoughts — which presupposes what the sceptic claims to doubt.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The sceptical problem about other minds is self-undermining: it cannot be coherently stated without presupposing its own answer.</span></div>
+        </div>
+      </div>
+    </div><!-- davidson panel -->
+
+    <!-- ── WITTGENSTEIN ── -->
+    <div class="speaker-panel" id="prop-wittgenstein-panel">
+      <div id="prop-wittgenstein-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleague Davidson has shown that the Cartesian order is inverted — that knowledge of other minds is a precondition of thought itself. I want to approach the same conclusion from a different direction: through the impossibility of a private language, and through what this impossibility reveals about the grammar of mental concepts.</p>
+
+        <span class="section">On the private language argument</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The private language argument</span>Suppose, as the sceptic assumes, that mental states are essentially private and that the words we use to describe them get their meaning by being privately attached to private objects — that "pain" means what it does because I have ostensively defined it in my own mind by attending to the sensation and saying "this is what I will call pain." This supposition is incoherent. For a word to mean something, there must be a distinction between using it correctly and using it incorrectly. But in the case of a purely private ostensive definition — where the only check on correct application is my own memory of the original sensation — there is no genuine distinction between getting it right and getting it wrong. My memory of what I originally called pain is not an independent check. It is simply another mental state that itself requires checking. The private ostensive definition provides no genuine standard of correctness. Where there is no standard, there is no rule. Where there is no rule, there is no meaning. The private language is not a language at all.</span></p>
+
+        <span class="section">On the grammar of mental concepts</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The private language argument</span>Mental concepts do not function as names for private inner objects of which behaviour is merely a symptom. They are embedded in practices, in forms of life, in patterns of response that are essentially social. To learn to use the word "pain" is not to associate it with a private sensation and then cautiously infer that others have similar private sensations. It is to learn a form of life in which pain behaviour, pain avoidance, pain expression, and pain response are part of a seamlessly interconnected social practice. The sceptical problem about other minds rests on a grammatical confusion: it assumes the mental is essentially inner and behaviour merely evidence for it. But this is a misleading picture of how mental concepts work.</span></p>
+
+        <span class="section">On the asymmetry between first and third person</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The argument from first/third person asymmetry</span>I do not want to deny the asymmetry between the first-person and third-person cases. "I am in pain" does not function as a description of an inner state I have observed and identified. It is an expression — a linguistic act in a social practice — grammatically analogous to a natural expression of pain rather than to a report of an observation. But this asymmetry does not support scepticism. It supports a revised picture of what mental concepts are. The mistake is to think that first-person authority — the special status of "I am in pain" — shows that the mental is essentially private. It shows only that first-person and third-person uses of mental concepts play different grammatical roles. Both roles are embedded in social practices. Both require other people and shared forms of life. In our ordinary lives, we do not treat others as puzzles whose inner lives we must infer. We see their joy, their anger, their distress directly. This is not naïvety. It is the correct grammar of our mental concepts, visible once we stop distorting our language through the Cartesian picture.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-wittgenstein-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="4" onclick="openModal('wittgenstein',4,'prop')">
+          <div class="arg-title"><span>Argument I — The private language argument</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Meaningful language requires a standard of correct and incorrect application that is not supplied merely by private memory or private definition.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A purely private ostensive definition — attaching a word to a private sensation in one's own mind — provides no such standard: memory cannot check itself.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Mental concepts embedded in social practices do have standards of correct application, which are supplied by shared behaviour and communal criteria.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Mental concepts cannot be essentially private; they are constituted by socially shared practices that presuppose other minds.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('wittgenstein',5,'prop')">
+          <div class="arg-title"><span>Argument II — First/third person asymmetry does not support scepticism</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The first-person special authority of "I am in pain" reflects a difference in grammatical role — it is an expression, not a description — not evidence that the mental is essentially private.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Both first-person and third-person uses of mental concepts are embedded in the same social practices and require other people for their constitution.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In ordinary practice, we perceive others' mental states directly through their expressions and behaviour — we do not infer them from neutral behavioural evidence.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The first/third person asymmetry reveals a grammatical difference, not a metaphysical chasm; it does not support scepticism about other minds.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('wittgenstein',3,'prop')">
+          <div class="arg-title"><span>Argument III — Scepticism rests on a grammatical confusion</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The sceptic assumes mental concepts name private inner objects and that behaviour is merely indirect evidence for those objects.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This assumption rests on a misleading picture of mental language — one that the private language argument shows to be incoherent.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Once the grammatical confusion is dissolved, the sceptical problem about other minds disappears rather than remains unsolved.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Other minds scepticism is not a genuine epistemological problem but a symptom of misunderstanding the grammar of psychological language.</span></div>
+        </div>
+      </div>
+    </div><!-- wittgenstein panel -->
+
+    <!-- ── STRAWSON ── -->
+    <div class="speaker-panel" id="prop-strawson-panel">
+      <div id="prop-strawson-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleagues have attacked the Cartesian picture from the philosophy of language and from the theory of content. I want to attack it from the metaphysics of persons — from the question of what kind of entity a person is, and what this reveals about the grammar of other minds scepticism.</p>
+
+        <span class="section">On the concept of a person as primitive</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">The argument from the primitive concept of a person</span>The other minds sceptic operates with a picture in which there are two separate kinds of thing: physical bodies, which are publicly observable, and minds, which are private. The question then becomes: how do we know that certain bodies are accompanied by minds? But this picture makes an error at the level of basic ontology. It treats "person" as a composite concept — a body plus a mind — rather than as a fundamental category in its own right. I want to argue that "person" is a primitive concept. Persons are entities to which we ascribe both physical predicates and personal predicates — pain, belief, intention, anger — and these predicates are ascribed to the same entity. They are not ascribed to two different things — a body and a mind — that somehow go together. The composite picture is the mistake that generates the sceptical problem.</span></p>
+
+        <span class="section">On the logic of personal predicates</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">The argument from the primitive concept of a person</span>Personal predicates have a logical feature entirely missed by the Cartesian picture. They are predicates that we ascribe both to ourselves — on the basis of no observation — and to others — on the basis of their behaviour and circumstances. The self-ascription and the other-ascription are applications of the same predicate to the same kind of entity. The Cartesian is mesmerised by the asymmetry in the basis for ascription and concludes that one application is direct and the other indirect. But if personal predicates are primitively applicable to persons as a fundamental ontological category, then both applications are direct applications of the same concept. The asymmetry shows only that persons can be known from two perspectives with different evidential structures — not that one is a case of genuine knowledge and the other mere inference.</span></p>
+
+        <span class="section">On the incoherence of the sceptical position</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">The argument from the incoherence of denying other minds</span>Consider what the sceptic is committed to. She has thoughts, beliefs, intentions. She regards these as genuinely her own — as states of an entity she identifies as herself. But she cannot identify herself as a person — as a subject of experience — without employing the concept of a person. And the concept of a person is the concept of an entity to which both physical predicates and personal predicates are ascribed. It is already a concept that applies to a type — not to a single individual. Furthermore: concepts are general. A concept of pain that could only be applied to a single case — one's own — is not a concept of pain. For pain to be a concept I apply to myself, it must be in principle applicable to other cases. The logical grammar of personal predicates presupposes that they can be applied to entities other than oneself. The sceptic, in doubting other minds, is sawing off the branch she sits on.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-strawson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="6" onclick="openModal('strawson',6,'prop')">
+          <div class="arg-title"><span>Argument I — Person is a primitive concept</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The sceptic's picture treats "person" as a composite of body and mind — generating the problem of how we know that bodies are accompanied by minds.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>"Person" is in fact a primitive concept — an entity to which both physical and personal predicates are natively ascribed, not a composite of two separately identified things.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Personal predicates are ascribed to the same type of entity — persons — in both the self-ascriptive and other-ascriptive cases.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The sceptical problem arises from a mistaken ontology; once persons are recognised as primitive, both self-ascription and other-ascription are direct applications of the same concept to the same kind of entity.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7" onclick="openModal('strawson',7,'prop')">
+          <div class="arg-title"><span>Argument II — The sceptic's position is incoherent</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Concepts are general — a concept that could only ever be applied to one case is not a concept at all.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The sceptic uses the concept of pain, belief, and intention in describing her own mental life — concepts that by their logical grammar are applicable to a type of entity, not a single individual.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Using these concepts commits the sceptic to their in-principle applicability to other persons.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The sceptic cannot coherently describe her own mental life without employing concepts whose logical grammar commits her to the existence of other minded beings.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('strawson',2,'prop')">
+          <div class="arg-title"><span>Argument III — The Cartesian order mistakes the asymmetry</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The asymmetry between self-ascription (no observation needed) and other-ascription (behavioural basis) does not show that only self-ascription is direct.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Both are direct applications of personal predicates to persons — the asymmetry reflects only different epistemic perspectives on the same kind of entity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Inferring from this asymmetry that other-ascription is always merely indirect is to mistake a grammatical difference for a metaphysical chasm.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Cartesian asymmetry supports different evidential routes to the same facts about persons — not the conclusion that knowledge of other minds is merely inferential.</span></div>
+        </div>
+      </div>
+    </div><!-- strawson panel -->
+
+  </div><!-- prop body -->
+</div><!-- prop col -->
+
+<!-- ══════════════════ OPPOSITION ══════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','russell',this)">Russell</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','ayer',this)">Ayer</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','nagel',this)">Nagel</button>
+  </div>
+
+  <!-- RUSSELL HEADER -->
+  <div class="col-header" id="opp-russell-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Bertrand Russell</span></div>
+    <div class="col-position">Analogy argument — the best available basis for belief in other minds is structurally too weak for knowledge</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','russell','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','russell','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- AYER HEADER -->
+  <div class="col-header hidden" id="opp-ayer-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">A.J. Ayer</span></div>
+    <div class="col-position">Transcendental limits — conceptual arguments establish what we must presuppose, not what exists; the hard problem remains</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','ayer','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','ayer','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- NAGEL HEADER -->
+  <div class="col-header hidden" id="opp-nagel-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Thomas Nagel</span></div>
+    <div class="col-position">Subjective character — the irreducibly first-person character of consciousness makes knowledge of other minds impossible in principle</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','nagel','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','nagel','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ── RUSSELL ── -->
+    <div class="speaker-panel active" id="opp-russell-panel">
+      <div id="opp-russell-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to begin with an admission that will not be expected from someone on this side. The argument from analogy — which I have myself defended as the best available basis for belief in other minds — is much weaker than it appears. And I want to argue that this weakness is not a deficiency in my presentation, but a structural feature of the problem that cannot be overcome.</p>
+
+        <span class="section">On the argument from analogy and its structural weakness</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from triangulation and content</span>The argument from analogy runs: I know in my own case that certain bodily states and behaviours are accompanied by mental states. I observe that other humans have similar bodies and behave similarly in similar circumstances. By analogy, I infer they too have mental states. This is the best argument available. It has good inductive structure. But it has a decisive weakness. In standard inductive reasoning, we generalise from many observed cases to unobserved ones. Here, the observed basis for generalisation is a single instance — my own case. When I infer from one piece of copper that all copper conducts electricity, I have at least observed the one case. When I infer from my own case to others, I have confirmed the correlation between physical state, behaviour, and mental state in exactly one instance. And every other case to which I extend the inference is unobservable not merely in the sense that I have not yet checked it, but in the sense that it is unobservable in principle.</span></p>
+
+        <span class="section">On the possibility of philosophical zombies</span>
+        <p><span class="hl" data-arg="8"><span class="tooltip">The argument from philosophical zombies</span>The structural weakness in the argument from analogy opens the door to a possibility that cannot be closed without begging the question. The possibility is this: that there exist entities behaviourally and physically indistinguishable from minded creatures but lacking any inner experience whatsoever. I do not claim to know that other humans are philosophical zombies. I claim only that the argument from analogy does not give me sufficient reason to be confident they are not. The zombie hypothesis is consistent with every observation I can make. An hypothesis consistent with every possible observation is not one that inductive argument can rule out.</span></p>
+
+        <span class="section">On what we are left with</span>
+        <p><span class="hl" data-arg="9"><span class="tooltip">The argument from epistemic honesty about other minds</span>We are left with a belief in other minds that is practically indispensable and rationally undergrounded. I do not propose that we abandon it. I propose that we be honest about its epistemic status. It is a belief held on the basis of an argument from analogy so weak that it barely deserves the name of knowledge. My opponents will produce transcendental arguments, arguments from the conditions of language, arguments from the concept of a person. I will argue that each either smuggles in what it purports to establish, or establishes only that we cannot coherently doubt other minds — which is not the same as showing that they exist.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-russell-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('russell',1,'opp')">
+          <div class="arg-title"><span>Argument I — The analogy argument is structurally defective</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Good inductive reasoning requires multiple confirmed instances of the correlation being generalised.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The argument from analogy for other minds confirms the correlation between physical states and mental states in exactly one case — one's own — and that correlation is in principle unverifiable in any other case.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An inductive generalisation from a single instance to universally unverifiable cases does not meet the standards of inductive knowledge.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The argument from analogy cannot ground genuine knowledge of other minds; it generalises from one confirmed case to cases that are in principle inaccessible.</span></div>
+        </div>
+        <div class="arg-block" data-arg="8" onclick="openModal('russell',8,'opp')">
+          <div class="arg-title"><span>Argument II — The philosophical zombie possibility is not closed</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The zombie hypothesis — physically and behaviourally identical beings with no inner experience — is consistent with all observable evidence.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A hypothesis consistent with all possible observations cannot be ruled out by inductive argument.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The argument from analogy cannot distinguish between worlds with genuine other minds and worlds with behaviourally identical zombies.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The zombie hypothesis is an ineliminable sceptical possibility that the argument from analogy cannot close; belief in other minds is not thereby established as knowledge.</span></div>
+        </div>
+        <div class="arg-block" data-arg="9" onclick="openModal('russell',9,'opp')">
+          <div class="arg-title"><span>Argument III — Practical indispensability is not epistemic warrant</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A belief may be practically indispensable — we cannot function without it — while remaining epistemically unwarranted.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Belief in other minds is practically indispensable but rests on an argument from analogy too weak to constitute knowledge.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Establishing that we cannot coherently doubt X is not the same as establishing that X is true.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The practical necessity and conceptual indispensability of belief in other minds does not convert that belief into knowledge; intellectual honesty requires acknowledging this.</span></div>
+        </div>
+      </div>
+    </div><!-- russell panel -->
+
+    <!-- ── AYER ── -->
+    <div class="speaker-panel" id="opp-ayer-panel">
+      <div id="opp-ayer-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleague Russell has been admirably honest about the weakness of the argument from analogy. I want to press the problem further, and in particular to challenge the transcendental arguments that my opponents deploy. Davidson, Wittgenstein, Strawson — all argue that the very possibility of thought, language, and conceptual knowledge presupposes the existence of other minds, and that therefore scepticism is self-refuting. This is elegant. It is also, I will argue, a strategy that confuses conceptual necessity with existence.</p>
+
+        <span class="section">On transcendental arguments and their limits</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The argument from inverting the Cartesian order</span>Davidson argues: for propositional thought to be possible, communication with others must have occurred; I have propositional thought; therefore other minds exist. But this argument establishes, at most, that if I have propositional thought, then I have been in communication with other minded creatures. It is a conditional. It tells me what would have to be true if I have propositional thought. It does not tell me that I do have propositional thought, or that the creatures I have been in communication with have minds in the full sense. Transcendental arguments establish only what must be presupposed for experience to be possible — not what is actually the case in the external world. Kant himself recognised this limitation. Even if I must presuppose other minds to engage in propositional thought, this establishes only that I must presuppose them — not that they exist. A sceptical hypothesis — that my "communication" has been with sophisticated automata, or that I am a brain in a vat with simulated social interactions — may be consistent with the transcendental argument's conclusion while still leaving open the question of whether those presupposed minds exist.</span></p>
+
+        <span class="section">On the private language argument's limits</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The private language argument</span>Wittgenstein's private language argument succeeds against a particular form of Cartesianism — the view that mental words get their meaning by being privately attached to private objects. I accept this. But I do not accept that it establishes the existence of other minds. What the private language argument establishes is that our mental language is socially embedded — that criteria for correct application of mental terms are in shared practices. This is a claim about language. The question remains: do the creatures whose practices underwrite the correct use of mental language have genuine inner experiences? The social embeddedness of mental language tells us what the criteria for applying mental terms are. It does not tell us whether, behind the behaviour satisfying those criteria, there is anything it is like to be the creature in question. The sceptical question can be reformulated: I grant that my mental concepts are socially embedded. I ask: do the creatures whose behaviour satisfies those criteria have phenomenal consciousness?</span></p>
+
+        <span class="section">On the hard problem and what remains</span>
+        <p><span class="hl" data-arg="10"><span class="tooltip">The argument from the hard problem of consciousness</span>The deepest reason for scepticism about other minds is not the weakness of the argument from analogy. It is the hard problem of consciousness — the explanatory gap between physical processes and phenomenal experience. We do not have a satisfactory account of why any physical process is accompanied by experience. We do not know why there is something it is like to be me rather than nothing. Given this explanatory gap, the inference from the physical and behavioural similarity of others to the existence of their inner experience remains an inference that cannot be closed. My opponents argue that the sceptical question cannot coherently be asked. I argue that it can, that it has not been answered, and that the most honest position acknowledges that belief in other minds — however practically indispensable — rests on an epistemic foundation that has not been secured.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-ayer-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="2" onclick="openModal('ayer',2,'opp')">
+          <div class="arg-title"><span>Argument I — Transcendental arguments establish presuppositions, not existence</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Transcendental arguments establish what must be presupposed for experience or thought to be possible — not what is actually the case in the external world.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Davidson's triangulation argument establishes that I must presuppose other minds for my thought to have content — not that other minds actually exist.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A sceptical hypothesis — automata, brain in a vat — may be consistent with the presupposition of other minds while leaving their actual existence an open question.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Transcendental arguments about the presuppositions of thought do not establish the existence of other minds; they establish only what must be assumed, not what is.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('ayer',4,'opp')">
+          <div class="arg-title"><span>Argument II — Private language argument does not close the phenomenal gap</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The private language argument establishes that mental language is socially embedded — criteria for mental term application are in shared practices.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is a claim about linguistic criteria, not about whether creatures satisfying those criteria have phenomenal consciousness.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The sceptical question can be restated: do the creatures whose behaviour satisfies the social criteria for mental term application have any inner experience?</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The private language argument sidesteps rather than answers the question of phenomenal consciousness; the sceptical challenge survives its dissolution of the Cartesian picture.</span></div>
+        </div>
+        <div class="arg-block" data-arg="10" onclick="openModal('ayer',10,'opp')">
+          <div class="arg-title"><span>Argument III — The hard problem is the real obstacle</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>We have no satisfactory account of why any physical process is accompanied by phenomenal experience — why there is something it is like to be a conscious creature.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Without such an account, the inference from physical and behavioural similarity to inner experience in others remains a gap that cannot be closed.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Conceptual and linguistic arguments leave this explanatory gap entirely untouched.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The hard problem of consciousness is the deepest obstacle to knowledge of other minds, and the arguments of the proposition do not address it.</span></div>
+        </div>
+      </div>
+    </div><!-- ayer panel -->
+
+    <!-- ── NAGEL ── -->
+    <div class="speaker-panel" id="opp-nagel-panel">
+      <div id="opp-nagel-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to make a different kind of argument — one that goes deeper than the epistemological question about what we can know, and raises a more fundamental question about the nature of consciousness itself and the challenge of achieving genuine understanding of another mind.</p>
+
+        <span class="section">On the subjective character of experience</span>
+        <p><span class="hl" data-arg="11"><span class="tooltip">The argument from the subjective character of experience</span>The fundamental fact about consciousness is that it has a subjective character. There is something it is like to be a bat — something it is like to navigate by sonar, to hang upside down in darkness, to perceive the world through sound. This subjective character — the what-it-is-like-ness of experience — is not captured by any objective description of the bat's neurophysiology, its behaviour, or its ecological niche. Now the problem about other minds is not merely the epistemological question of how I can know that other beings have experiences. It is the deeper question of whether I can even form an adequate concept of what another's experience is like from the inside. When I try to imagine what it is like to be a bat, I do not achieve understanding of the bat's experience by imagining myself navigating by sonar. I merely imagine what it would be like for me — with my kind of consciousness — to navigate by sonar. I imagine a modification of my own experience, not a genuinely different form of experience.</span></p>
+
+        <span class="section">On why Davidson's triangulation does not close the gap</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The argument from triangulation and content</span>Davidson argues that content is fixed by triangulation — two minds responding to a shared world. I want to accept the triangulation account of content while denying that it closes the gap about other minds. Even if the content of my thoughts is fixed by social interaction — even if I could not have any thoughts without engaging with other apparent minds — this does not establish that those apparent minds have subjective experience. It establishes that I have been in causal interaction with entities whose behaviour triangulates with mine to fix the content of my representations. Whether those entities have anything it is like to be them is a further question. The triangulation account tells us about the causal conditions for the fixation of content. The hard problem of consciousness tells us that the subjective character of experience is not captured by any causal account. Therefore the triangulation account does not establish the existence of phenomenal consciousness in other beings.</span></p>
+
+        <span class="section">On the irreducibility of the first-person perspective</span>
+        <p><span class="hl" data-arg="11"><span class="tooltip">The argument from the subjective character of experience</span>The deepest point is this. The first-person perspective — the fact that experience is always experience from a point of view — is not merely a practical limitation on our knowledge of others. It is a metaphysical feature of consciousness itself. Consciousness is essentially perspectival. There is no view from nowhere with respect to consciousness. The attempt to arrive at knowledge of another's consciousness from the third-person perspective is the attempt to arrive at a non-perspectival view of something that is essentially perspectival. This attempt cannot succeed in principle. This does not mean that others definitely lack consciousness. It means that the gap between my perspective and theirs cannot be closed by argument, by triangulation, or by any interpersonal procedure. The existence of other minds is not something that can be established. It is something that must be taken on faith — or accepted as a brute assumption without epistemic justification.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-nagel-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="11" onclick="openModal('nagel',11,'opp')">
+          <div class="arg-title"><span>Argument I — The subjective character of experience is irreducible</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Consciousness has an essentially subjective character — there is something it is like to be a conscious creature — that is not captured by any objective description of physical or behavioural facts.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When I attempt to understand another's experience, I can only imagine modifications of my own experience — not achieve genuine understanding of a different form of subjectivity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is not merely a practical limitation but a principled one — the objective viewpoint necessarily leaves out the subjective character of experience.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Genuine knowledge of another's inner experience — what it is like to be them — is not achievable from any third-person perspective; the subjective-objective gap cannot be closed.</span></div>
+        </div>
+        <div class="arg-block" data-arg="1" onclick="openModal('nagel',1,'opp')">
+          <div class="arg-title"><span>Argument II — Triangulation fixes content but not phenomenology</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Davidson's triangulation account establishes causal conditions for the fixation of representational content — what one's thoughts are about.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The question of whether there is something it is like to be the creatures participating in triangulation is a further question — about phenomenal consciousness, not representational content.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Causal accounts of content fixation do not and cannot capture the subjective character of experience — the hard problem shows this gap is unbridgeable by causal explanation alone.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Davidson's triangulation, even if successful as an account of content, leaves the central question about other minds — whether there is anything it is like to be them — entirely unanswered.</span></div>
+        </div>
+        <div class="arg-block" data-arg="9" onclick="openModal('nagel',9,'opp')">
+          <div class="arg-title"><span>Argument III — The first-person perspective cannot be transcended</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Consciousness is essentially perspectival — experience is always experience from a point of view; there is no view from nowhere with respect to consciousness.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Knowledge of another's consciousness from the third-person perspective would require a non-perspectival view of something essentially perspectival — which is impossible in principle.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No argument, triangulation procedure, or interpersonal process can close the gap between one's own perspective and another's.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Knowledge of other minds — in the sense of knowing what it is like to be them — is impossible in principle; it must be accepted as a brute assumption rather than established by argument.</span></div>
+        </div>
+      </div>
+    </div><!-- nagel panel -->
+
+  </div><!-- opp body -->
+</div><!-- opp col -->
+
+</div><!-- columns -->
+
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh"><div>No image linked yet</div><code>Set src in IMAGES object in script</code></div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+var IMAGES={
+  davidson:{1:{src:"",caption:"Davidson — Triangulation and content"},2:{src:"",caption:"Davidson — Inverting the Cartesian order"},3:{src:"",caption:"Davidson — Holistic interpersonal knowledge"}},
+  wittgenstein:{3:{src:"",caption:"Wittgenstein — Grammatical confusion"},4:{src:"",caption:"Wittgenstein — Private language argument"},5:{src:"",caption:"Wittgenstein — First/third person asymmetry"}},
+  strawson:{2:{src:"",caption:"Strawson — Cartesian asymmetry"},6:{src:"",caption:"Strawson — Person as primitive concept"},7:{src:"",caption:"Strawson — Incoherence of sceptical position"}},
+  russell:{1:{src:"",caption:"Russell — Analogy argument is defective"},8:{src:"",caption:"Russell — Philosophical zombie possibility"},9:{src:"",caption:"Russell — Practical indispensability vs epistemic warrant"}},
+  ayer:{2:{src:"",caption:"Ayer — Transcendental arguments establish presuppositions"},4:{src:"",caption:"Ayer — Private language doesn't close phenomenal gap"},10:{src:"",caption:"Ayer — The hard problem"}},
+  nagel:{1:{src:"",caption:"Nagel — Triangulation fixes content not phenomenology"},9:{src:"",caption:"Nagel — First-person perspective cannot be transcended"},11:{src:"",caption:"Nagel — Subjective character of experience"}}
+};
+
+var state={
+  prop:{speaker:'davidson',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'russell',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
+  document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
+  body.scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+function sw(side,speaker,view,el){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(view==='speech'){
+    sp.classList.remove('hidden');lg.classList.add('hidden');
+    body.scrollTop=st.speechScroll||0;
+  } else {
+    sp.classList.add('hidden');lg.classList.remove('hidden');
+    body.scrollTop=st.logicScroll||0;
+  }
+}
+
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech') st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+
+function openModal(speaker,n,side){
+  var d=(IMAGES[speaker]||{})[n]||{src:"",caption:speaker+" — argument "+n};
+  document.getElementById('mTitle').textContent=d.caption;
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.style.display='none';ph.style.display='none'}
+  else{img.style.display='none';ph.style.display='flex'}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none'}
+function imgFail(){document.getElementById('mImg').style.display='none';var p=document.getElementById('mPh');p.style.display='flex';p.querySelector('div').textContent='Image failed to load'}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal()}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl) return;
+  var tip=hl.querySelector('.tooltip');if(!tip) return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2,vw=window.innerWidth,m=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  tip.style.left=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m)+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl) return;
+  var tip=hl.querySelector('.tooltip');if(tip) tip.style.display='none';
+});
+</script>
