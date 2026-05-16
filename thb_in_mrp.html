@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THB: MRP is the Superior Framework for Modern Political Polling and Election Forecasting</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1218;--bg2:#141820;--bg3:#1a1f28;--bg4:#222838;
+  --bdr:rgba(255,255,255,.07);--bdr2:rgba(255,255,255,.13);
+  --text:#cdd2dc;--text2:#808898;--text3:#454c5a;
+  --gold:#6080b0;
+  --prop-col:#5888c8;--prop-pill:#101828;--prop-pill-bdr:#204070;
+  --opp-col:#8868a8;--opp-pill:#1a1028;--opp-pill-bdr:#402860;
+  --a1bg:rgba(80,150,240,.10);--a1brd:rgba(80,150,240,.35);--a1tip:#60a8f0;
+  --a2bg:rgba(80,210,160,.09);--a2brd:rgba(80,210,160,.32);--a2tip:#50c8a0;
+  --a3bg:rgba(240,200,60,.09);--a3brd:rgba(240,200,60,.32);--a3tip:#d8b030;
+  --a4bg:rgba(230,90,90,.10);--a4brd:rgba(230,90,90,.35);--a4tip:#e06868;
+  --a5bg:rgba(180,120,240,.09);--a5brd:rgba(180,120,240,.32);--a5tip:#b888f0;
+  --a6bg:rgba(240,160,60,.09);--a6brd:rgba(240,160,60,.32);--a6tip:#e0a840;
+  --a7bg:rgba(100,220,220,.08);--a7brd:rgba(100,220,220,.30);--a7tip:#60d0d0;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+
+.motion-header{padding:.75rem 1.8rem .6rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.6}
+.motion-eyebrow{font-family:sans-serif;font-size:9.5px;text-transform:uppercase;letter-spacing:.2em;color:var(--gold);margin-bottom:3px;font-weight:500}
+.motion-title{font-size:13.5px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em;line-height:1.55}
+
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:10px;font-weight:500;padding:6px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp  .speaker-btn.active{color:var(--opp-col)}
+
+.col-header{padding:.5rem 1rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:11.5px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:9.5px;color:var(--text3);margin-top:1px;line-height:1.45}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:3px 11px;font-size:11px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+
+.col-body{flex:1;overflow-y:auto;padding:1rem 1.25rem;font-size:13.5px;line-height:1.97;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+
+.speech-text p{margin-bottom:.78rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{font-style:italic;color:var(--text)}
+.speech-text cite{font-style:italic;color:var(--text3)}
+.speech-text .mono{font-family:monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;color:var(--text)}
+.speech-text .section{font-family:sans-serif;font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.2rem 0 .25rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.4rem .8rem;margin:.65rem 0 .7rem;font-size:13px;line-height:1.75;background:rgba(96,128,176,.07)}
+.speech-text .formula{font-family:monospace;font-size:12px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:4px;padding:.35rem .75rem;margin:.5rem 0 .65rem;display:block;color:var(--a1tip);line-height:1.6}
+
+.logic-view{display:flex;flex-direction:column;gap:.75rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:5px 9px;font-family:sans-serif;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:7px 9px 4px}
+.premise{display:flex;gap:7px;margin-bottom:6px;font-family:sans-serif;font-size:11.5px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:14px;font-size:9.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:7px;padding:5px 9px;font-family:sans-serif;font-size:11.5px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:10.5px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:4px 9px;box-shadow:0 2px 14px rgba(0,0,0,.9);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Believes Multilevel Regression and Poststratification (MRP) is the Superior Framework<br>for Modern Political Polling and Election Forecasting"</div>
+</div>
+
+<div class="columns">
+
+<!-- ═══════════════ PROPOSITION ═══════════════ -->
+<div class="col prop" id="col-prop">
+
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','gelman',this)">Gelman &amp; Park</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','hanretty',this)">Hanretty &amp; YouGov</button>
+  </div>
+
+  <div class="col-header" id="prop-gelman-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Andrew Gelman &amp; David Park</span></div>
+    <div class="col-position">For MRP — the theoretical case; partial pooling, regularisation &amp; small-area estimation from non-representative data</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','gelman','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','gelman','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="prop-hanretty-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Chris Hanretty &amp; the YouGov model</span></div>
+    <div class="col-position">For MRP in practice — interpretability, structured priors, Bayesian uncertainty &amp; the 2017 vindication</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','hanretty','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','hanretty','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ── GELMAN & PARK ── -->
+    <div class="speaker-panel active" id="prop-gelman-panel">
+      <div id="prop-gelman-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The motion before this house asks whether MRP is the superior framework for modern political polling. I want to begin by being precise about what that question means — because MRP is not merely a forecasting technique. It is a principled statistical response to the fundamental problem that makes constituency-level polling hard: you cannot afford to survey enough people in each small area to get reliable direct estimates, and even if you could, your sample would likely be unrepresentative of the population in ways that crude weighting cannot fix.</p>
+        <div class="pull">"The core insight of MRP is that the problem of small-area estimation is a problem of information borrowing under uncertainty. You know something about how voters in one constituency behave from the national survey; you know something about the demographic composition of each constituency from the census; multilevel regression is the principled mechanism for combining these two sources of information to produce estimates that are better than either alone."</div>
+        <span class="section">i. the two problems MRP was designed to solve</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Small-area + non-representative — the dual problem MRP solves</span>MRP solves two distinct problems simultaneously, and it is important to understand both. The first is small-area estimation: even a large national survey of 50,000 respondents produces only around 75 respondents per constituency on average in a 650-seat parliament. Direct estimates from such tiny sub-samples are noisy to the point of uselessness. The second problem is non-representativeness: online panel surveys routinely over-recruit the highly educated, the politically engaged, and those with strong opinions, producing samples that cannot simply be reweighted on marginal distributions of age, gender, and education because the cells at the intersection of demographic categories are too sparse. MRP's partial pooling addresses both: the multilevel model borrows strength from the national relationship between demographics and vote choice to regularise constituency estimates, while the poststratification step reweights the estimates to the actual demographic composition of each constituency as measured by the census.</span></p>
+        <span class="section">ii. partial pooling — the statistical core</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Partial pooling — between complete pooling and no pooling; shrinkage toward the mean</span>The technical heart of MRP is partial pooling, and it is worth understanding why it beats its alternatives. The naive approach — analysing each constituency separately — is "no pooling": treating each area as if it told us nothing about any other. This is statistically inefficient and produces wildly noisy estimates in small areas. The opposite extreme — assuming all areas are identical — is "complete pooling": throwing away all geographic variation. Partial pooling, implemented through multilevel (hierarchical) models, finds the optimal point between these extremes: allowing constituencies to differ but using information from the national relationship to shrink implausible outlier estimates toward the group mean. The degree of shrinkage is determined by the data itself, through the estimated variance of the group-level random effects. This is not an arbitrary methodological choice; it is the Bayesian-optimal solution to the bias-variance tradeoff in small-area estimation.</span></p>
+        <span class="section">iii. the poststratification step — correcting for non-representativeness</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Poststratification — cell-level reweighting using census marginals</span>The poststratification step is what makes MRP able to recover accurate population estimates from deeply non-representative samples — a property demonstrated empirically by Wang, Rothschild, Goel, and Gelman's famous Xbox study, which correctly predicted the 2012 US presidential election from a massively non-representative sample of young male gamers. After estimating the multilevel model, the researcher predicts vote intent for every combination of demographic and geographic characteristics — every poststratification cell — and then weights these cell-level predictions by the actual frequency of each cell in the target population, as measured by the census. This step performs the representation correction that survey weighting attempts but often fails to achieve, because it operates at the level of cells rather than marginal distributions and is therefore immune to the ecological fallacy that plagues marginal weighting.</span></p>
+        <span class="section">iv. interpretability and the value of structured priors</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Structured priors — interpretable parameters; Ghitza-Gelman deep interactions</span>A critical advantage of MRP over ensemble machine learning approaches is the interpretability of its parameters. The coefficients of the multilevel regression are directly interpretable: the age effect, the education effect, the interaction between age and region. These parameters can be scrutinised, challenged, and understood by users without a machine learning background. The Ghitza-Gelman (2013) "deep MRP" extension — which introduces structured interactions between demographic and geographic variables through nested hierarchical priors — preserves this interpretability while capturing the heterogeneity that critics claim simple MRP misses. A model whose predictions can be explained, interrogated, and modified by a political analyst without a PhD in machine learning is not merely convenient; it is a genuine epistemological advantage in a field where accountability and contestability of estimates matter enormously.</span></p>
+        <span class="section">v. the Xbox vindication — MRP corrects for egregious non-representativeness</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Xbox study — MRP recovers accurate estimates from deeply biased convenience sample</span>The most striking demonstration of MRP's power remains the Xbox study. Wang et al. (2015) collected 750,000 responses from an Xbox video game platform — 93% male, median age 18–29, overwhelmingly politically unrepresentative. Raw estimates from this data predicted a Romney landslide. After MRP poststratification to the actual US voting population, the estimates correctly identified Obama's advantage, matching final polling aggregates from far more expensive and carefully conducted telephone surveys. This result is not merely a curiosity; it demonstrates the mechanism that makes MRP valuable in any context where convenience samples are unavoidable, where response rates to traditional surveys have collapsed, and where the demographic imbalances in online panel data would otherwise make results unreliable. The theoretical guarantee that MRP recovers accurate population estimates from biased samples — conditional on a correctly specified model — is the single most important property of the framework.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-gelman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — MRP solves the dual problem of small samples and non-representativeness simultaneously</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A 50,000-person national survey yields ~75 respondents per constituency — insufficient for reliable direct estimates; non-representative panel data further biases raw results.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>MRP's multilevel regression borrows national demographic-vote relationships to regularise constituency estimates, while poststratification reweights to census cell frequencies — addressing both problems in a single integrated procedure.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No alternative framework addresses both problems simultaneously from a principled statistical foundation: direct constituency polling fails on cost and sample size; uniform swing ignores geographic heterogeneity; simple weighting fails on sparse cells.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>MRP is the only currently available framework that addresses the small-area and non-representativeness problems simultaneously from a principled statistical foundation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Partial pooling is the Bayesian-optimal solution to the bias-variance tradeoff</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>No-pooling (separate constituency models) is statistically inefficient — high variance in small areas. Complete pooling (national average) throws away geographic variation — high bias.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Partial pooling through hierarchical random effects finds the bias-variance optimum: shrinking noisy estimates toward the group mean by an amount determined by the estimated variance of the group-level effects — an amount learned from the data, not assumed.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is not an arbitrary modelling choice but the provably optimal estimator under the hierarchical model's assumptions — it is what Bayesian regularisation looks like in this context.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Partial pooling via multilevel regression is the Bayesian-optimal procedure for constituency-level estimation; MRP implements this optimally as a principled statistical framework.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Poststratification corrects non-representativeness at the cell level, not the marginal</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Marginal weighting (reweighting on age, education, and region separately) fails when interactions matter — a young, highly educated man in London is not the average of "young," "highly educated," and "London" reweighted separately.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>MRP poststratification operates at the level of cells — every demographic-geographic combination — matching estimates to census cell frequencies and thereby correcting for joint distributional imbalances that marginal weighting misses.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Xbox study demonstrates this empirically: MRP recovered accurate presidential preference estimates from a sample so non-representative (93% male, median age 18–29) that marginal weighting could not have produced reliable estimates.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Poststratification at the cell level is a theoretically superior method of correcting for non-representativeness; MRP's implementation of this is its second major technical advantage over alternatives.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Interpretability is a genuine epistemological advantage, not a concession to convenience</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>MRP's multilevel regression coefficients are directly interpretable: the age effect, education effect, and geographic interactions can be read, scrutinised, and challenged by any statistically literate user.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In election forecasting, where models influence public opinion, media coverage, and potentially voter turnout, the accountability and contestability of model assumptions is a genuine public good that black-box ensemble methods foreclose.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Ghitza-Gelman structured priors extend MRP to capture complex interactions while preserving interpretability — refuting the claim that only non-parametric methods can capture non-linear relationships.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Interpretability in election forecasting is not a mere convenience but a genuine epistemological and democratic virtue; MRP provides this while ensemble machine learning methods do not.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — MRP provides calibrated uncertainty, not just point estimates</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Bayesian posterior distribution produced by MRP provides calibrated uncertainty intervals for every constituency estimate, reflecting both sampling uncertainty and model uncertainty.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Stacked ensemble methods produce point estimates through a cross-validation procedure that does not naturally propagate uncertainty from the component models to the final output.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Calibrated uncertainty is essential for election forecasting: a model that correctly identifies marginal constituencies but misrepresents the uncertainty of those estimates is worse than one that correctly quantifies how much it does not know.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>MRP's Bayesian framework provides calibrated uncertainty quantification that ensemble alternatives lack; in election forecasting, knowing what you do not know is as important as knowing what you do.</span></div>
+        </div>
+      </div>
+    </div><!-- end gelman -->
+
+    <!-- ── HANRETTY & YOUGOV ── -->
+    <div class="speaker-panel" id="prop-hanretty-panel">
+      <div id="prop-hanretty-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to complement Professor Gelman's theoretical account with the practical case — a case built not from Monte Carlo simulations but from the actual track record of MRP in the most demanding test any forecasting method faces: real elections with known outcomes. The record is more mixed than the opposition implies, but the 2017 UK general election result is the most important single validation of MRP that we have, and it vindicates the framework in a way that demands to be taken seriously.</p>
+        <div class="pull">"YouGov's 2017 MRP model correctly predicted the hung parliament when every other polling method, every uniform swing model, and virtually every experienced political analyst predicted a comfortable Conservative majority. The model was right because it captured what aggregate polling missed: the geographic and demographic heterogeneity of the swing, particularly among young voters in university towns. That is not a lucky result. That is MRP doing what it is theoretically designed to do."</div>
+        <span class="section">i. 2017 — MRP's most important validation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">2017 UK election — hung parliament; MRP correct; uniform swing wrong</span>The 2017 UK general election is the canonical case study for MRP. Every aggregate poll showed the Conservatives 20 points ahead of Labour in early campaign; uniform swing models projected a majority of 100+ seats. YouGov's MRP model, released on the eve of the election, projected a hung parliament — an extraordinary outlier prediction that was widely ridiculed at the time of publication. The final result was a hung parliament. The MRP model was correct, and correct in 93% of individual constituencies. The reason it was right while the others were wrong is precisely the mechanism the proposition has described: the model captured the concentration of exceptional Labour swing among young graduates in university towns — Canterbury, Kensington, Sheffield Hallam — at a level of geographic granularity that aggregate polling and uniform swing modelling are constitutionally incapable of resolving.</span></p>
+        <span class="section">ii. how MRP captures what aggregate polling misses</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Geographic heterogeneity — subgroup swing captured by MRP, missed by aggregates</span>The 2017 result illustrates a pattern that recurs in modern elections: the swing is not uniform across the country, and the departures from uniformity are systematically related to demographic variables that MRP can model. In 2017, the swing to Labour was far larger in seats with high concentrations of young graduates than in seats with high concentrations of older working-class voters. The aggregate polls captured the national average of this swing but not its geographic distribution. MRP captured the distribution because it explicitly models the interaction between voter demographics and vote choice, and then applies that model to the demographic composition of each constituency. This is not an ad hoc adjustment — it is the designed purpose of the framework, performing precisely as intended.</span></p>
+        <span class="section">iii. the model specification argument — flexibility within the framework</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">MRP extensibility — non-parametric first stages, structured interactions; not a fixed specification</span>The opposition charges MRP with excessive parametric rigidity — with forcing linearity and additive separability onto a complex non-linear reality. This criticism conflates the MRP framework with a specific implementation of it. MRP is an architecture — multilevel regression followed by poststratification — not a fixed specification. The first-stage regression can itself use non-parametric or machine learning methods; Ornstein's SRP does exactly this, but the poststratification step is identical. Ghitza and Gelman's structured priors introduce non-linear interactions within the Bayesian hierarchical framework. The question of whether to use a linear or non-linear first stage is an empirical question about which specification fits the data best — it is not a question that MRP as a framework forecloses. Replacing the multilevel regression with a random forest while retaining the poststratification step is a modification of MRP, not an abandonment of it.</span></p>
+        <span class="section">iv. the census frame constraint — poststratification requires known joint distributions</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Census frame — poststratification requires known cell frequencies; limits cell complexity</span>One genuine limitation of MRP that I want to be honest about: the poststratification step requires knowledge of the joint distribution of all poststratification variables in the target population — typically from the census. This constrains the model to demographic variables measured by the census with sufficient granularity. Variables that are not in the census — political attitudes, news consumption, trust in institutions — cannot be used as poststratification variables, only as predictors in the first stage regression. This means MRP poststratification cells cannot be defined over the most politically informative variables (like 2019 vote choice), whereas the opposition's SRP framework with synthetic poststratification frames can incorporate non-census variables. This is a genuine advantage of SRP's synthetic frame approach — but it is an advantage within the MRP architecture, not a replacement of it, and it operates at the cost of introducing additional uncertainty in the estimated cell frequencies.</span></p>
+        <span class="section">v. the track record comparison — 2024</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">2024 UK — multiple MRP models correct; SRP also correct; both beat uniform swing</span>In the 2024 UK general election, multiple MRP models — from YouGov, Survation, Ipsos, and others — correctly predicted a Labour landslide and captured the broad shape of constituency outcomes. JL Partners' SRP model also made correct predictions. Both frameworks outperformed uniform swing models. This result — MRP and SRP both performing well — is not a decisive victory for the opposition's position. SRP's advantage in Ornstein's (2020) Monte Carlo simulations is most pronounced when there are deep interactions in the data generating process and when the training sample is large. In the 2024 election, with a largely linear national swing from Conservative to Labour, the conditions that most strongly favour SRP over MRP were not present — which is why both produced similar results. The opposition's claim that SRP is categorically superior to MRP conflates performance in the conditions that most advantage SRP with general superiority.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-hanretty-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — 2017: MRP's hung-parliament prediction is the framework's strongest empirical validation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Every aggregate poll, uniform swing model, and most experienced analysts predicted a Conservative majority in 2017; YouGov's MRP predicted a hung parliament.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The MRP model was correct, correctly calling 93% of constituencies — demonstrating its ability to capture geographic heterogeneity in the swing that aggregate methods could not resolve.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This was not a lucky result: it was MRP performing exactly as designed — modelling the demographic-geographic interaction driving exceptional Labour swing in university towns and applying it to constituency composition.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The 2017 UK election is the strongest single empirical validation of MRP's distinctive capability — capturing geographic heterogeneity that aggregate methods and uniform swing are constitutionally unable to resolve.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — MRP captures non-uniform demographic swing that aggregate polling systematically misses</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Modern elections increasingly feature geographically heterogeneous swings driven by demographic sorting — graduate concentration, age polarisation, urban-rural divergence — that aggregate polls average away.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>MRP explicitly models the interaction between voter demographics and vote choice and applies that model to constituency composition — capturing the distribution of swing, not merely its national average.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is MRP's designed purpose — performing it correctly is not luck but the framework operating as intended.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>MRP captures demographic-geographic heterogeneity in the swing systematically; in demographically polarised elections, this is the decisive capability that distinguishes it from all simpler methods.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — MRP is an architecture, not a fixed specification; non-parametric first stages are compatible with it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>SRP replaces the multilevel regression first stage with an ensemble of non-parametric models while retaining the poststratification step — it is a modification of MRP, not an alternative to it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The MRP framework is compatible with non-parametric first stages; Ornstein's SRP is a specific implementation of this within the MRP architectural template.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition does not preclude non-parametric first-stage models; it insists that the multilevel-regression-plus-poststratification architecture is the superior framework — a claim SRP's own design confirms by retaining the poststratification step.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>SRP is a refinement within the MRP architectural framework; endorsing SRP is endorsing MRP's poststratification architecture — the opposition's own preferred method confirms the framework's superiority.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — SRP's advantage over MRP is condition-specific, not general</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Ornstein (2020) shows SRP outperforms MRP when there are deep, non-linear interactions in the data generating process — these conditions are not always present in elections with broadly linear national swings.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In 2024, a largely linear national swing from Conservative to Labour meant SRP's advantage over MRP was minimal — both produced similar results — demonstrating that SRP's superiority is context-dependent.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The claim that SRP is categorically superior to MRP conflates good performance in the conditions most favourable to SRP with general superiority across all electoral contexts.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>SRP outperforms MRP in specific conditions; MRP performs comparably in linear-swing elections and retains advantages in interpretability, uncertainty quantification, and transparency that SRP does not replicate.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — Buttice-Highton critique: MRP's performance varies but so does every alternative's</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Buttice and Highton (2013) show MRP's performance varies substantially across opinions and contexts — a genuine critique that the proposition accepts.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>SRP outperforms MRP in simulation but shares the same fundamental dependence on the quality and representativeness of the training data and the joint census frame — the conditions for failure are similar.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The relevant comparison is not MRP against a perfect method but MRP against realistic alternatives — uniform swing, direct constituency polling, aggregate averaging — against which MRP's track record is demonstrably superior.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>MRP's performance limitations are shared by all alternatives; against realistic competitors — not ideal alternatives — its track record remains the strongest available in constituency-level forecasting.</span></div>
+        </div>
+      </div>
+    </div><!-- end hanretty -->
+
+  </div>
+</div><!-- end prop -->
+
+<!-- ═══════════════ OPPOSITION ═══════════════ -->
+<div class="col opp" id="col-opp">
+
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','physicist',this)">The Physicist (JL Partners)</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','buttice',this)">Buttice &amp; Highton</button>
+  </div>
+
+  <div class="col-header" id="opp-physicist-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">The Physicist — JL Partners SRP</span></div>
+    <div class="col-position">For SRP over MRP — a physicist's critique: linearity assumption, parametric straitjacket, ensemble superiority &amp; why physics modelling pointed the way</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','physicist','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','physicist','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="opp-buttice-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Buttice, Highton &amp; the empirical critique</span></div>
+    <div class="col-position">Against the motion — MRP's performance is highly variable and condition-dependent; the superior-framework claim is overstated</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','buttice','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','buttice','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ── PHYSICIST / JL PARTNERS ── -->
+    <div class="speaker-panel active" id="opp-physicist-panel">
+      <div id="opp-physicist-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I come to this debate not from political science but from physics — and from the conviction that exposure to how physicists build models is useful corrective to the way social scientists have approached the problem of election forecasting. I am not dismissing the MRP framework; it was a genuine advance on uniform swing and aggregate polling. But the argument that it is the <em>superior</em> framework — that the search is essentially over — strikes me as precisely the kind of premature closure that physics teaches you to resist. The model that was state-of-the-art five years ago is not necessarily the best model available today.</p>
+        <div class="pull">"In physics, we are deeply suspicious of models that assume linearity unless there is a physical reason to expect it. Linearity is the first approximation, not the default truth. When I looked at what MRP was doing — assuming that the relationship between demographics and vote choice is additive and linear unless the researcher manually specifies otherwise — I thought: this is the kind of assumption that works well in textbooks and fails in complex systems. And electoral politics is a very complex system."</div>
+        <span class="section">i. what MRP actually assumes — and why physicists distrust it</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">MRP linearity — additive separability as default; manual interaction specification</span>The standard MRP model specifies vote intention as a linear predictor: age effects added to education effects added to region effects, with interactions only included if the researcher explicitly specifies them. This is the assumption of additive separability — that knowing someone is 25 years old and knowing they are highly educated tells you their expected vote as the sum of the age effect and the education effect, with no additional interaction between the two. In physics, we call this the harmonic approximation: it is the leading-order Taylor expansion of a genuinely non-linear relationship, valid near the expansion point, potentially very wrong further from it. Political behaviour is not a system close to its equilibrium point. In a realigning election — 2016 US, 2019 UK, 2024 UK — the electorate is moving through parameter space at speed, and the linear approximation breaks down precisely where the forecasting is hardest.</span></p>
+        <span class="section">ii. the fundamental problem — the researcher's curse</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Parametric straitjacket — modeller must pre-specify interactions; mis-specification is structural</span>The MRP framework requires the researcher to specify the model before seeing the data — to decide which interactions between demographic variables to include. This is what statisticians call the parametric straitjacket: there are theoretically trillions of possible model specifications, each capturing a different combination of interaction effects, and the researcher must choose one before the fitting begins. This choice is partly scientific — if there is prior theoretical reason to expect a particular interaction — but largely arbitrary and potentially consequential. In the 2024 UK election, the interaction between age, education, and 2019 vote choice was the crucial non-linear driver of the result. A researcher who did not pre-specify this triple interaction in their MRP would have missed it. A random forest algorithm finds it automatically, without any prior specification, because it exhaustively searches the feature space for the interactions that best explain the data. This is not a minor technical refinement. It is a fundamentally different epistemological approach to model building.</span></p>
+        <span class="section">iii. stacking — the physics of ensemble methods</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Ensemble stacking — bias-variance decomposition; diverse learners; cross-validated weights</span>The SRP approach — stacking regression and poststratification — is the application to polling of the ensemble methods that have become dominant in physics-adjacent data science: the same principle that underlies Random Forests, gradient boosting, and neural network ensembles. The theoretical justification for stacking is the bias-variance decomposition. A single model — even a well-specified multilevel regression — has both irreducible bias from its parametric assumptions and variance from the data. An ensemble of diverse models, each with different bias profiles, reduces total error by averaging out the idiosyncratic biases of individual models. The stacking procedure uses cross-validation to find the optimal weights for combining model predictions — weights that minimise out-of-sample prediction error, the metric that actually matters for forecasting. Ornstein's (2020) Monte Carlo simulation shows SRP outperforms MRP in 78% of cases on MAE and improves correlation in 79% of cases — results that hold most strongly when there are deep non-linear interactions in the data, which is precisely when elections are most interesting and hardest to predict.</span></p>
+        <span class="section">iv. non-parametric methods and the curse of dimensionality — resolved</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Non-parametric models — automatic interaction detection; LASSO regularisation; cross-validated selection</span>The opposition to ensemble methods in election forecasting has historically rested on two objections: that non-parametric models overfit and that they require large samples. Both objections are answered by the SRP architecture. Overfitting is controlled by the cross-validation procedure that selects stacking weights — the ensemble is evaluated on held-out data, not training data, so models that overfit are penalised by poor out-of-sample performance. The large-sample requirement is addressed by the fact that SRP's advantage over MRP increases with sample size — as the JL Partners surveys with tens of thousands of respondents demonstrate, larger samples give non-parametric learners more signal to find the non-linear interactions that linear regression misses. The JL Partners architecture uses LASSO for regularised sparse regression, k-nearest neighbours for local similarity, random forest for high-order interaction detection, and gradient boosting for sequential residual correction — a genuinely diverse ensemble in which each learner contributes different information. This is the SRP toolkit as originally specified by Ornstein (2020) and extended in practice.</span></p>
+        <span class="section">v. the 2024 US and UK results — empirical vindication</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">2024 results — JL Partners most accurate US pollster; correct on UK landslide; non-linear dynamics captured</span>The empirical case for SRP rests on JL Partners' track record in the two highest-profile elections of 2024. In the UK general election, JL Partners' SRP model correctly projected the broad shape of the Labour landslide — 442 seats — and was among the most accurate seat-level models in the field. In the 2024 US presidential election, JL Partners was described by NewsNation as "the most accurate pollster of 2024" and was one of the only polling firms to show Trump leading the popular vote — a result that other firms using more conventional weighting methodologies, including MRP-based approaches, systematically missed. The structural reason for this miss is precisely the non-linearity problem: the differential non-response of Trump supporters, interacting with education, geography, and economic attitudes in non-additive ways, was the data-generating process that non-parametric methods are designed to find and that linear MRP models structurally underfit. The 2024 US election is the same lesson as 2016 and 2020, at greater scale: the electorate's structure is non-linear, and the model that assumes linearity will be wrong where it matters most.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-physicist-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — MRP's linearity assumption is the harmonic approximation: valid near equilibrium, wrong in realignment</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Standard MRP assumes additive separability of demographic effects — the equivalent of the harmonic approximation in physics: the leading-order Taylor expansion of a non-linear relationship around an equilibrium point.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In realigning elections — 2016 US, 2019 UK, 2024 — the electorate moves rapidly through parameter space; the linear approximation breaks down precisely where forecasting is hardest and most consequential.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A framework that is a good approximation near equilibrium but structurally wrong in realignment is not the superior framework for an era defined by electoral realignment.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>MRP's linearity assumption fails in the electoral conditions most characteristic of modern politics; SRP's non-parametric first stage is designed precisely for the conditions MRP mishandles.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — The parametric straitjacket: researcher mis-specification is structural, not incidental</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>MRP requires pre-specification of the model — which interactions to include — from trillions of possible specifications, before the data has been used to identify which interactions matter.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A researcher who does not pre-specify the age × education × prior-vote triple interaction misses the crucial non-linear driver of the 2024 UK result; a random forest finds it automatically from the feature space without prior specification.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is not a solvable problem within the MRP framework — it is structural to parametric modelling: you must specify the model before you know what matters.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The parametric straitjacket introduces a systematic risk of researcher mis-specification that is absent in non-parametric SRP; in complex electoral environments, this risk is decisive.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Stacking reduces total prediction error through bias-variance decomposition</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The bias-variance decomposition shows that total prediction error = bias² + variance + irreducible noise; a single model has fixed bias from its parametric assumptions that cannot be reduced by adding more data.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>An ensemble of diverse models — LASSO, k-nearest neighbours, random forest, gradient boosting — has different bias profiles; stacking averages out idiosyncratic biases, reducing total error below that achievable by any single model.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Ornstein (2020): SRP outperforms MRP in 78% of Monte Carlo simulation cases on MAE and 79% on correlation — most strongly when deep non-linear interactions are present.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Stacking's bias-variance advantage over single-model MRP is theoretically grounded and empirically demonstrated; SRP's superiority in non-linear electoral conditions is the expected result of its ensemble architecture.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Non-parametric overfitting is controlled by cross-validated stacking weights</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The historical objection to non-parametric methods — overfitting — is answered by the cross-validation procedure that selects stacking weights: models are evaluated on held-out data, penalising overfit.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>SRP's advantage over MRP increases with sample size — as survey samples grow larger, non-parametric learners extract more signal from interactions that linear models miss.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The SRP ensemble is genuinely diverse: LASSO for sparsity, KNN for local similarity, random forest for high-order interactions, gradient boosting for sequential residual correction — each learner contributing different information not captured by the others.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The standard objections to non-parametric methods are resolved by SRP's cross-validated ensemble architecture; SRP is not MRP with additional complexity — it is a fundamentally better-specified prediction procedure.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — 2024 US election: SRP captures non-linear non-response; MRP-based approaches miss it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>JL Partners was named the most accurate 2024 US pollster (NewsNation) and was one of the only firms to project Trump leading the popular vote — a result most conventional and MRP-based approaches missed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The structural reason for the systematic miss: differential Trump non-response interacts with education, geography, and economic attitudes in non-additive ways — a non-linear signal that non-parametric learners are designed to detect and that linear MRP structurally underrepresents.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is the same pattern as 2016 and 2020 — repeated electoral forecasting failures in the most complex polling environment on earth, with the same structural cause and the same type of solution.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The 2024 US election is a definitive empirical test: SRP captures the non-linear electorate dynamics that MRP systematically underestimates; the framework that got it right is superior to the framework that got it wrong.</span></div>
+        </div>
+      </div>
+    </div><!-- end physicist -->
+
+    <!-- ── BUTTICE & HIGHTON ── -->
+    <div class="speaker-panel" id="opp-buttice-panel">
+      <div id="opp-buttice-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleagues on the proposition have made a powerful theoretical case for MRP and an impressive empirical case from 2017. I do not deny the power of the framework or its achievement in that election. My argument is different and more fundamental: the proposition is asking whether MRP is the <em>superior</em> framework — and I want to challenge whether that framing is even coherent, because MRP's performance is so highly variable across contexts that calling it superior is like calling a thermometer superior to a barometer without specifying what you are trying to measure.</p>
+        <div class="pull">"The most careful empirical evaluation of MRP's performance — our 2013 study covering a far larger set of opinions and contexts than previous validations — found substantial variation in performance. For some opinions in some contexts, MRP is very accurate. For others, it is quite inaccurate. The conditions that determine which situation you are in are not always predictable in advance. Calling MRP the superior framework when its performance is this context-dependent is a stronger claim than the evidence supports."</div>
+        <span class="section">i. the Buttice-Highton findings — performance variation is large and poorly predicted</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Buttice-Highton 2013 — performance varies by opinion type; conditions not always predictable</span>Our 2013 study in <cite>Political Analysis</cite> examined MRP's performance across a much larger set of opinions and contexts than the optimistic earlier validations by Lax and Phillips and Park, Gelman, and Bafumi. Our findings were significantly less optimistic. We found substantial variation in MRP performance — for some opinions in some states, MRP produces highly accurate estimates; for others, it performs poorly. We developed an explanation for this variation: MRP performs best when the opinion of interest is strongly correlated with the demographic and geographic variables included in the model. When the opinion is driven primarily by variables that MRP does not model — political identity, media consumption, social networks, local economic conditions — MRP estimates can be substantially wrong. Crucially, the researcher often cannot know in advance which situation they are in.</span></p>
+        <span class="section">ii. the model specification problem — different specifications produce different answers</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Specification dependence — MRP estimates highly sensitive to model choices</span>A further concern that receives insufficient attention in discussions of MRP: the estimates produced by an MRP model are highly sensitive to the specification of the first-stage regression — which demographic variables are included, which interactions are modelled, how geographic random effects are specified, which priors are used in the Bayesian implementation. Different researchers making different but equally defensible model choices will produce substantially different constituency-level estimates from the same data. This sensitivity is not a defect that more sophisticated practice eliminates — it is structural to the parametric approach. The proposition's claim that Ghitza-Gelman structured priors resolve the problem underestimates how sensitive MRP is to the structure of those priors. The specification question does not have a unique right answer, and the uncertainty in the specification is not fully reflected in the posterior credible intervals.</span></p>
+        <span class="section">iii. the poststratification frame problem — what the census does and does not tell us</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Poststratification frame — census-constrained cells miss politically crucial variables; stale data</span>The poststratification step is MRP's most powerful feature but also its most serious limitation. The frame constrains the model to variables measured by the census — age, education, ethnicity, geography. But the most powerful predictor of 2024 UK voting was 2019 vote choice, and the most powerful predictor of 2024 US voting was a latent combination of educational attainment, economic anxiety, and cultural resentment that no census variable cleanly captures. MRP poststratification cannot incorporate these variables directly — they must enter only through their correlation with census-measured demographics, which is imperfect. The SRP synthetic frame approach — which uses auxiliary surveys to estimate cell frequencies for non-census variables — addresses this limitation directly. Additionally, censuses are conducted decennially; in years distant from the census, the demographic composition of constituencies may differ substantially from the census estimate, introducing systematic error that MRP's framework cannot detect or correct.</span></p>
+        <span class="section">iv. the interpretability argument cuts both ways</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Interpretability — transparent assumptions but also transparent mis-specifications; black-box SRP has known unknowns</span>The proposition argues that MRP's interpretability is a genuine advantage: the coefficients can be read, scrutinised, and challenged. I want to complicate this. Interpretability in a mis-specified model means interpretable mis-specification: you can read the coefficient on the age variable and see exactly how wrong the model is about the age effect. SRP's black-box ensemble methods are less interpretable, but they have a different epistemic virtue: they are honest about what they are doing — minimising prediction error through cross-validated ensemble averaging — rather than presenting a theoretically motivated parametric model that may be confidently wrong. There is a difference between knowing you do not understand the mechanism (SRP) and believing you understand the mechanism when you do not (misspecified MRP). In election forecasting, where the objective is prediction not causal inference, the former epistemological situation is preferable.</span></p>
+        <span class="section">v. the future of the field — neither framework alone is adequate</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Future direction — hybrid approaches; uncertainty quantification for SRP; MRP as baseline not ceiling</span>The most productive framing of the motion before us is not "MRP versus SRP" but "what is the current state of the art, and what should it be?" My answer: neither framework alone is adequate. MRP provides interpretable structured estimates with genuine Bayesian uncertainty quantification, but its parametric constraints and census-frame limitations are real. SRP provides better predictive accuracy in complex non-linear electoral environments, but its uncertainty quantification is underdeveloped and its synthetic frame assumptions are themselves models. The most recent academic work — Goplerud et al.'s deep hierarchical models, Leemann and Wasserfallen's extended MRP — is moving toward frameworks that retain the Bayesian structural advantages of MRP while incorporating machine learning approaches to handle non-linearity. The motion presents a false binary. The superior framework is whichever combination of techniques best fits the specific electoral context, the available data, and the question being asked.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-buttice-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — MRP's performance is highly variable and not consistently superior across contexts</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Buttice and Highton (2013), covering a larger set of opinions than previous validations, found substantial variation in MRP performance across opinions and contexts.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>MRP performs best when opinions are strongly correlated with modelled demographic-geographic variables; it can be substantially wrong when driven by unmodelled variables like political identity, media consumption, or social networks.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The researcher often cannot know in advance which situation they are in — the conditions for MRP success are not reliably predictable before the election result is known.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>MRP's performance is highly context-dependent; calling it the superior framework is a stronger claim than the evidence supports — it is superior in some contexts and substantially wrong in others.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — MRP estimates are highly sensitive to specification choices that have no unique right answer</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Different researchers making different but equally defensible specification choices — which variables, which interactions, which priors — will produce substantially different constituency estimates from the same data.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This specification sensitivity is structural to parametric modelling, not eliminable by better practice; Ghitza-Gelman priors resolve some issues but introduce sensitivity to prior specification in their place.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The uncertainty from specification sensitivity is not fully reflected in posterior credible intervals — MRP's uncertainty quantification is calibrated for sampling uncertainty, not model uncertainty from the mis-specification of which interactions to include.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>MRP estimates carry substantial model uncertainty from specification sensitivity that is not reflected in reported credible intervals; the framework presents more confidence than the structural situation warrants.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Census-frame constraint excludes the most predictive variables in modern elections</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>MRP poststratification is constrained to census variables; the most powerful predictors in 2024 (2019 vote choice, cultural-economic attitude profiles) cannot enter the frame directly.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Censuses are decennial; in years distant from the census, constituency demographics may differ substantially, introducing systematic errors that the framework cannot detect.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>SRP with synthetic frames — using auxiliary surveys to estimate non-census variable frequencies — directly addresses this limitation; the proposition's framework imposes an architectural constraint that its competitor has removed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The census-frame constraint is MRP's most serious structural limitation; in electorates defined by political and cultural sorting not captured by census demographics, this constraint produces systematic mis-estimation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Interpretability in a mis-specified model is a liability, not an asset</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Interpretability in a mis-specified model means interpretable mis-specification — you can see exactly how the model is wrong, but this does not make the predictions more accurate.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>SRP's black-box ensemble is honest about being an optimised prediction machine — it makes no claim to causal interpretation that might mislead analysts into trusting a wrong causal story.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In election forecasting — where the objective is prediction not causal inference — the epistemic virtue of knowing you do not understand the mechanism (SRP) is preferable to believing you understand a mechanism that is wrong (misspecified MRP).</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The interpretability advantage of MRP over SRP is a genuine advantage only for causal inference; for pure prediction, it is neutral at best and misleading at worst when the model is mis-specified.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — The superior framework is a hybrid, not MRP alone</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>MRP provides interpretable structured estimates with genuine Bayesian uncertainty; SRP provides better predictive accuracy in complex non-linear environments but with weaker uncertainty quantification.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The most recent academic work — deep hierarchical models, sparse MRP, extended poststratification frames — is converging on hybrids that retain MRP's structural advantages while incorporating machine learning's flexibility.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A motion declaring MRP the superior framework forecloses methodological development by declaring the problem solved; the correct conclusion is that MRP is the current best-understood baseline, not the ceiling of what is achievable.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The motion presents a false binary; the superior framework is a hybrid of MRP's structural transparency and SRP's non-parametric flexibility — a combination that ongoing academic work is actively developing.</span></div>
+        </div>
+      </div>
+    </div><!-- end buttice -->
+
+  </div>
+</div><!-- end opp -->
+
+</div>
+</div>
+
+<script>
+var state={
+  prop:{speaker:'gelman',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'physicist',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var x=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=x+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
