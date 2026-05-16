@@ -1,0 +1,585 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,var(--font-serif,serif);background:var(--bg);color:var(--text)}
+
+.motion-header{padding:.9rem 2rem .75rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:5px;font-weight:500}
+.motion-title{font-size:17px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 64px);min-height:500px}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-bar::-webkit-scrollbar{height:2px}
+.speaker-bar::-webkit-scrollbar-thumb{background:var(--bdr2)}
+.speaker-btn{font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;padding:7px 12px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp .speaker-btn.active{color:var(--opp-red)}
+
+.col-header{padding:.6rem 1.1rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem;flex-wrap:wrap}
+.pill{font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:var(--font-sans,sans-serif);font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:var(--font-sans,sans-serif);font-size:10px;color:var(--text3);margin-top:1px;margin-bottom:5px;line-height:1.4}
+
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:var(--font-sans,sans-serif);padding:4px 13px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.3rem;font-size:13px;line-height:1.9;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.8rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.2rem 0 .2rem;display:block}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+
+.tooltip{display:none;position:fixed;font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;font-style:normal;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.logic-view{display:flex;flex-direction:column;gap:.8rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+
+.arg-title{padding:6px 10px;font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+
+.arg-premises{padding:8px 10px 4px}
+.premise{display:flex;gap:8px;margin-bottom:6px;font-family:var(--font-sans,sans-serif);font-size:11.5px;line-height:1.55;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:8px;padding:6px 10px;font-family:var(--font-sans,sans-serif);font-size:11.5px;line-height:1.55;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hidden{display:none}
+
+.modal-wrap{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:8px;border:1px solid var(--bdr2);width:380px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:var(--font-sans,sans-serif);font-size:12px;font-weight:500;color:var(--text)}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:14px;line-height:1;padding:3px 6px;border-radius:4px}
+.modal-close:hover{background:var(--bg4)}
+.modal-bd{padding:.8rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;background:var(--bg3);min-height:130px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:1.5rem;color:var(--text3);font-family:var(--font-sans,sans-serif);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.modal-ph code{font-size:10px;background:var(--bg4);padding:2px 6px;border-radius:3px}
+.modal-cap{margin-top:.5rem;font-family:var(--font-sans,sans-serif);font-size:11px;color:var(--text3)}
+.page{position:relative;overflow:hidden}
+</style>
+
+<div class="page" id="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Believes the ERM Was Right in Principle and Wrong in Practice"</div>
+</div>
+
+<div class="columns">
+
+<!-- ══════════════════ PROPOSITION ══════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','major',this)">Major / Clarke</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','eichengreen',this)">Eichengreen</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','goodhart',this)">Goodhart</button>
+  </div>
+
+  <div class="col-header" id="prop-major-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Major / Clarke tradition</span></div>
+    <div class="col-position">Exchange rate discipline as inflation anchor — credibility-borrowing from the Bundesbank was rational; failure was entry parity, German reunification shock, and capital liberalisation</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','major','speech',this)">Speech</div><div class="tab" onclick="sw('prop','major','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="prop-eichengreen-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Barry Eichengreen</span></div>
+    <div class="col-position">The impossible trinity — the ERM was designed for a world of capital controls; capital liberalisation made it unworkable without full monetary union; failure was a halfway house problem</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','eichengreen','speech',this)">Speech</div><div class="tab" onclick="sw('prop','eichengreen','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="prop-goodhart-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Charles Goodhart</span></div>
+    <div class="col-position">Credibility and time-consistency — the ERM was the right solution to Britain's monetary credibility problem; the Lawson boom made entry conditions wrong; the principle was sound</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','goodhart','speech',this)">Speech</div><div class="tab" onclick="sw('prop','goodhart','logic',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ── MAJOR/CLARKE ── -->
+    <div class="speaker-panel active" id="prop-major-panel">
+      <div id="prop-major-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>Black Wednesday — the 16th of September 1992 — has become shorthand for humiliation in British political history. The pound crashed out of the ERM. The Treasury spent billions in a single afternoon. Interest rates were raised to 15% in a single day. And yet the lesson usually drawn from Black Wednesday is the wrong lesson. The lesson usually drawn is: fixed exchange rates are a delusion, currency pegs cannot be defended against the market. This lesson is wrong — or at least, it is the right answer to the wrong question.</p>
+
+        <span class="section">On what the ERM was actually trying to do</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">ERM as credibility-borrowing inflation anchor</span>The ERM was primarily a mechanism for importing credibility — for allowing high-inflation countries like Britain and Italy to borrow the anti-inflationary reputation of the Bundesbank by anchoring their currencies to the Deutschmark. Britain's inflation problem in the 1980s was genuine and serious. The mechanism by which the Thatcher government had reduced it — monetarism, broadly defined — had been effective but extraordinarily costly. The search for an alternative inflation anchor — one that could provide monetary discipline without requiring the political cost of explicitly targeting monetary aggregates — was entirely reasonable. By pegging to a currency managed by an institution whose anti-inflationary credentials were impeccable and whose independence was constitutionally entrenched, a government could delegate its monetary credibility to Frankfurt. The theory was not wrong.</span></p>
+
+        <span class="section">On what went wrong</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Failure from wrong parity, reunification shock, capital liberalisation</span>Three things combined to make the ERM unworkable in 1992. First, Britain entered at the wrong parity — 2.95 Deutschmarks, almost certainly too high by 1992, a political decision driven partly by Lawson's informal Deutschmark shadowing before formal entry. Second, German reunification created an asymmetric shock for which the ERM had no mechanism. Absorbing East Germany required massive fiscal expansion; the Bundesbank, confronting inflationary pressure, responded with high interest rates; those interest rates propagated across the ERM including to Britain, which was in recession and needed lower rates. The ERM assumed broadly symmetric conditions; reunification produced the most dramatically asymmetric shock imaginable. Third, capital liberalisation in 1990 transformed the speculative landscape. Before it, currency pegs could be defended because speculative capital was limited. After it, the volume of speculative capital dwarfed the reserves of any central bank.</span></p>
+
+        <span class="section">On why the principle survives</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Failure of execution not principle — coordination was lacking</span>None of these failures is a failure of the ERM's underlying principle. They are failures of execution, of political judgement, and of institutional design. An ERM entered at the right parity, supported by a mechanism for policy coordination between members facing asymmetric shocks, and designed with some form of capital flow management, might have worked. The earlier period of ERM participation — before German reunification, before full capital liberalisation — had delivered genuine convergence and genuine inflation reduction across member states. The principle that exchange rate discipline can serve as an inflation anchor is not refuted by the events of 1992. It is illustrated by them. What those events show is not that the principle was wrong but that achieving its objectives requires a degree of political and institutional coordination that Europe in 1992 did not have.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-major-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('major',1,'prop')">
+          <div class="arg-title"><span>Arg I — ERM as rational credibility-borrowing strategy</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>High-inflation countries with low-credibility central banks face a time-consistency problem that makes domestic monetary reform costly.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Pegging to a high-credibility anchor currency imports that credibility, anchoring expectations without requiring costly domestic institutional reform.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Bundesbank's anti-inflationary credibility was exceptional and constitutionally entrenched — an ideal anchor for credibility-borrowing.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ERM's inflation-anchor principle was theoretically sound and strategically rational for high-inflation ERM members.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('major',2,'prop')">
+          <div class="arg-title"><span>Arg II — Three specific and identifiable failures of execution</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Britain entered at an overvalued parity (2.95 DM) — a political decision that removed the mechanism's room for manoeuvre.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>German reunification created an asymmetric shock (German fiscal expansion + Bundesbank tightening) that the ERM had no mechanism to absorb.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Capital liberalisation in 1990 exponentially increased the volume of speculative capital available to attack pegs, without any redesign of the mechanism's defences.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The 1992 crisis resulted from three specific, contingent, identifiable failures of execution — not from a structural flaw in the ERM's underlying principle.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('major',3,'prop')">
+          <div class="arg-title"><span>Arg III — The pre-1990 record vindicates the principle</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>During 1983–1990, ERM membership was associated with lower inflation, lower inflation variance, and greater exchange rate stability across participating economies.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This was the institutional context for which the ERM was designed — before full capital liberalisation and before German reunification.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The mechanism worked in the conditions for which it was designed; the failure came when those conditions changed without corresponding institutional adaptation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The pre-1990 ERM record provides empirical evidence that the principle worked — the failure was a contextual one, not a refutation of the mechanism's validity.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EICHENGREEN ── -->
+    <div class="speaker-panel" id="prop-eichengreen-panel">
+      <div id="prop-eichengreen-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to make a more precise version of the case that the ERM's principle was sound and its failure contingent. My argument draws on the "impossible trinity" — the observation that a country cannot simultaneously maintain a fixed exchange rate, free capital flows, and independent monetary policy. You can have any two, but not all three.</p>
+
+        <span class="section">On the impossible trinity and the ERM's design</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The impossible trinity — ERM designed for capital controls world</span>The ERM was designed in the 1970s and early 1980s, when capital flows were substantially controlled. In that era, the impossible trinity was not a binding constraint, because one of its corners — free capital movement — had been deliberately limited. Countries could maintain fixed exchange rates and independent monetary policy simultaneously, because speculative capital was not fully mobile. This was the world for which the ERM was designed. And in that world, it worked. The 1983–1990 evidence is clear: ERM membership was associated with lower inflation and greater exchange rate stability. The mechanism delivered what it was designed to deliver.</span></p>
+
+        <span class="section">On how the world changed</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Capital liberalisation made the halfway house unworkable</span>The world changed in 1990, when the European Community implemented free movement of capital required by the Single Market programme. This change — appropriate on economic grounds, since capital controls impose serious efficiency costs — fundamentally altered the ERM's dynamics. Once capital was fully mobile, the impossible trinity became a binding constraint. Countries in the ERM faced a stark choice: subordinate monetary policy entirely to the requirements of the peg, or face speculative attack. For Britain in 1992, with unemployment above 10% and the economy in recession, the interest rates required to defend the pound were politically and economically unsustainable. The peg broke not because the principle of exchange rate discipline was wrong but because the conditions required to make it work — either capital controls or full monetary union — had not been created.</span></p>
+
+        <span class="section">On what would have been required</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Failure of execution not principle — coordination was lacking</span>The ERM, to work under full capital mobility, required either a genuine European lender of last resort capable of providing unlimited support to currencies under speculative attack, or full monetary union. The 1992 crisis was, in a real sense, Europe being pushed by the logic of the impossible trinity toward the answer the Delors Committee had already identified: that a single market with free capital flows required a single currency. The ERM's failure was not a failure of the principle of exchange rate coordination but a failure of the halfway house — caught between the old world of capital controls for which it had been designed, and the new world of free capital flows for which it had not been redesigned. The principle was right. The institution was stranded between two worlds.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-eichengreen-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="4" onclick="openModal('eichengreen',4,'prop')">
+          <div class="arg-title"><span>Arg I — ERM was designed for capital-controls world and worked in it</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The impossible trinity holds that fixed exchange rates, free capital flows, and independent monetary policy cannot coexist simultaneously.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The ERM was designed when capital flows were controlled — the impossible trinity was not binding because one corner was deliberately limited.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In that institutional context, the ERM worked — delivering the inflation reduction and exchange rate stability it was designed to provide.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ERM principle was sound for the institutional world in which it was designed; the failure came when that world changed without corresponding institutional adaptation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('eichengreen',5,'prop')">
+          <div class="arg-title"><span>Arg II — Capital liberalisation made the halfway house unworkable</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The 1990 capital liberalisation made the impossible trinity binding — countries in the ERM now faced a stark choice between monetary sovereignty and the peg.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>For Britain in 1992, the interest rates required to defend the peg were incompatible with domestic economic conditions — unemployment above 10%, deep recession.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This incompatibility was not a failure of the ERM's principle but a structural consequence of combining fixed exchange rates with full capital mobility without a lender of last resort.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The 1992 crisis resulted from the impossible trinity becoming binding after capital liberalisation — a contextual failure, not a principled one.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('eichengreen',3,'prop')">
+          <div class="arg-title"><span>Arg III — The crisis pushed Europe toward the logical conclusion: monetary union</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Full capital mobility plus exchange rate coordination requires either a lender of last resort or monetary union — the ERM had neither.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Delors Committee had already identified that a single market with free capital flows required a single currency — the 1992 crisis confirmed this logic.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The failure of the halfway house does not discredit the principle of monetary coordination — it shows that the principle requires full institutional realisation to work.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ERM's failure confirmed rather than refuted the principle of monetary coordination — it demonstrated that half-measures are insufficient, not that the goal is wrong.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GOODHART ── -->
+    <div class="speaker-panel" id="prop-goodhart-panel">
+      <div id="prop-goodhart-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to make the monetary policy case — the argument that exchange rate anchoring as an inflation targeting mechanism was sound in principle, and that its failure in Britain was the product of a specific and identifiable policy error, not a structural flaw.</p>
+
+        <span class="section">On credibility and the time-consistency problem</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">ERM as credibility-borrowing inflation anchor</span>Modern monetary economics has established the time-consistency problem of monetary policy. A central bank free to choose any monetary policy at any time faces an incentive to inflate — to trade off higher inflation for lower unemployment in the short run. Even if it genuinely intends to maintain price stability, private agents who know it faces this incentive will not fully believe its commitment. They will build inflation expectations into wage and price setting, making the bank's job harder and potentially generating inflation as a self-fulfilling prophecy. The solution is credible commitment — institutional arrangements that make deviation from price stability costly. Independent central banks with explicit inflation targets are one solution. Exchange rate pegs to credible low-inflation currencies are another. The ERM offered Britain the second solution. This was, in principle, exactly the right solution to Britain's problem — a Bank of England that was not independent, had no explicit inflation target, and whose credibility had been damaged by a decade of stop-go policy.</span></p>
+
+        <span class="section">On what the Lawson boom revealed</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Failure from wrong parity, reunification shock, capital liberalisation</span>The specific failure in Britain was the Lawson boom of 1987–1988. Chancellor Lawson, convinced that the medium-term financial strategy had eliminated inflation as a serious concern, loosened fiscal and monetary policy simultaneously. The result was an asset price boom, a current account deficit, and an inflation rate that reached nearly 10% by 1990 — precisely when Britain was entering the ERM. Britain entered with inflation significantly above the German rate. This meant that even at constant nominal interest rates, British real interest rates were lower than German ones — which meant the exchange rate was under persistent real appreciation pressure, eroding competitiveness, and the burden of adjustment fell entirely on domestic deflation. This was a recipe for the recession of 1991–92 and for the parity becoming unsustainable.</span></p>
+
+        <span class="section">On what the lesson actually is</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">ERM failure as German political interest — the hegemony argument</span>The lesson is not that exchange rate anchoring was wrong. The lesson is that exchange rate anchoring requires entering with appropriate fundamentals — with inflation already aligned with the anchor country's, with fiscal policy consistent with the peg, and with a realistic assessment of the sustainable exchange rate. Britain entered with none of these conditions met. The failure was a failure of preparation. A government that had maintained its fiscal discipline during the Lawson boom, that had pursued monetary tightening rather than loosening in 1987–88, and that had entered the ERM at a lower and more sustainable parity would have had a very different experience in 1992. The principle is vindicated by the counter-factual.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-goodhart-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('goodhart',1,'prop')">
+          <div class="arg-title"><span>Arg I — ERM solves the time-consistency problem of monetary policy</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The time-consistency problem means a central bank without credible commitment will face inflation expectations that make price stability harder to achieve.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Pegging to a credible anchor currency imports that credibility as an external commitment device — costly to abandon and therefore believable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Britain in 1990 had a non-independent central bank with damaged credibility — the ERM offered the right institutional solution to the right problem.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ERM was the theoretically correct solution to Britain's monetary credibility deficit; the principle was sound even if the execution was not.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('goodhart',2,'prop')">
+          <div class="arg-title"><span>Arg II — The Lawson boom made entry conditions unsustainable</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Exchange rate anchoring requires entry with inflation already aligned with the anchor country's rate.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Lawson boom of 1987–88 raised British inflation to ~10% by 1990, creating a substantial inflation differential with Germany at the time of ERM entry.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This differential meant persistent real appreciation pressure, eroding competitiveness and placing all adjustment burden on domestic deflation — making the parity unsustainable.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Britain entered the ERM with fundamentals that made the parity unsustainable — this was a failure of preparation, not of principle.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('goodhart',3,'prop')">
+          <div class="arg-title"><span>Arg III — The counterfactual vindicates the principle</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Exchange rate anchoring requires appropriate entry parity, aligned inflation, and fiscal consistency with the peg.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Britain satisfied none of these conditions — but all of them were achievable through different policy choices in 1987–90.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A Britain that had maintained fiscal discipline, tightened monetary policy in the boom, and entered at a sustainable parity would have had a very different ERM experience.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The counterfactual — sound entry conditions — would have produced a viable ERM experience; the principle is vindicated by what the policy errors made impossible.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- prop body -->
+</div><!-- prop col -->
+
+<!-- ══════════════════ OPPOSITION ══════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','friedman',this)">Friedman</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','connolly',this)">Connolly</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','krugman',this)">Krugman / Obstfeld</button>
+  </div>
+
+  <div class="col-header" id="opp-friedman-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Milton Friedman</span></div>
+    <div class="col-position">Fixed rates are price controls — the ERM's failure was structural and inevitable; the pre-1990 "success" was deflationary pressure masquerading as coordination; German hegemony, not cooperation</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','friedman','speech',this)">Speech</div><div class="tab" onclick="sw('opp','friedman','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="opp-connolly-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Bernard Connolly</span></div>
+    <div class="col-position">Political project masquerading as economics — the ERM served French and German interests; Britain was not fully informed of the price; the mechanism worked exactly as designed — against Britain</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','connolly','speech',this)">Speech</div><div class="tab" onclick="sw('opp','connolly','logic',this)">Logical Arguments</div></div>
+  </div>
+  <div class="col-header hidden" id="opp-krugman-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Krugman / Obstfeld</span></div>
+    <div class="col-position">Second-generation crisis theory — ERM was inherently vulnerable to self-fulfilling speculative attack regardless of fundamentals; this is a structural property, not a contingent failure</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','krugman','speech',this)">Speech</div><div class="tab" onclick="sw('opp','krugman','logic',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ── FRIEDMAN ── -->
+    <div class="speaker-panel active" id="opp-friedman-panel">
+      <div id="opp-friedman-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I published an essay in 1953 called "The Case for Flexible Exchange Rates." It was controversial at the time. It is no longer controversial. Everything that has happened since — including the events of 1992 — has confirmed what that essay argued. Fixed exchange rates are a form of price control. And price controls, in the long run, always fail.</p>
+
+        <span class="section">On what exchange rates are</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Fixed rates as price controls — structural impossibility</span>An exchange rate is a price — the price of one currency in terms of another. Like all prices, it performs an informational and allocative function. It tells producers and consumers in different countries about the relative costs of goods and services across national boundaries. It adjusts to reflect differences in inflation rates, productivity growth, capital flows, and preferences. When underlying fundamentals change, the exchange rate adjusts to reflect the new equilibrium. When a government pegs the exchange rate, it prevents this adjustment. It substitutes an administered price for a market price. The consequences are predictable: the administered price will diverge from the equilibrium price whenever underlying fundamentals change, and the longer the divergence is maintained, the larger the eventual correction will be. This is not a comment about the ERM specifically. It is a general truth about price controls.</span></p>
+
+        <span class="section">On why the failure was not contingent</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Failure from wrong parity, reunification shock, capital liberalisation</span>My proposition colleagues argue the ERM's failure was contingent — the product of bad luck, bad timing, and bad execution. If only Britain had entered at a better parity, if only German reunification had not occurred, if only capital liberalisation had been managed — the mechanism would have worked. I want to argue this is a comforting fiction. Countries in the ERM were at different stages of their business cycles, had different inflation rates, different productivity trajectories, different labour market structures, and different fiscal positions. These differences required different monetary policies. The ERM required a single monetary policy anchored to German conditions. This is the contradiction at the heart of the mechanism. No amount of coordination, no choice of parity, and no redesign of the institutional architecture could have resolved it. The mechanism was trying to solve a problem that has only one real solution: either a single economy with a single central bank, or separate economies with separate monetary policies.</span></p>
+
+        <span class="section">On the pre-1990 record — reinterpreted</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">ERM failure as German political interest — the hegemony argument</span>My opponents will cite the evidence that the ERM worked between 1983 and 1990. I do not dispute the evidence. I dispute the interpretation. What the ERM delivered in that period was not the benefit of exchange rate coordination. It was deflationary pressure imposed on high-inflation countries by the requirement to match German interest rates. The mechanism worked, in the short run, by forcing painful domestic adjustment on countries that had allowed inflation to develop. Germany got the benefits of exchange rate stability — its export sector was protected from competitive devaluations. The high-inflation countries got a deflationary straitjacket. This was not a cooperative arrangement. It was a hegemonic one, dressed in the language of coordination.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-friedman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="7" onclick="openModal('friedman',7,'opp')">
+          <div class="arg-title"><span>Arg I — Fixed exchange rates are price controls; price controls always fail</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>An exchange rate is a price — it performs the informational and allocative functions of any price, adjusting to reflect changes in underlying fundamentals.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Fixing the exchange rate substitutes an administered price for a market price, preventing the adjustment that reflects genuine economic differences.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Price controls generate distortions that compound over time and produce increasingly large corrections — this is a general principle, not specific to the ERM.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ERM's failure was not contingent — it was the predictable consequence of administering prices in a domain where market adjustment is needed.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('friedman',2,'opp')">
+          <div class="arg-title"><span>Arg II — Divergent economic conditions require divergent monetary policies</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Countries at different stages of their business cycles, with different inflation rates and different economic structures, require different monetary policies.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The ERM required a single monetary policy anchored to German conditions regardless of other members' circumstances.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No choice of parity, coordination mechanism, or institutional redesign can resolve the contradiction between required divergence and imposed convergence.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ERM failure was structural and inevitable — divergent economies cannot share a single monetary policy without imposing unsustainable costs on some members.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal('friedman',6,'opp')">
+          <div class="arg-title"><span>Arg III — The pre-1990 record was deflationary pressure, not coordination benefit</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The ERM's apparent success in 1983–1990 consisted of forcing high-inflation countries to match German interest rates regardless of domestic conditions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Germany benefited from exchange rate stability protecting its export sector; other members bore the deflationary costs of German monetary discipline.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An asymmetric arrangement that benefits one party at the expense of others is a hegemonic arrangement, not a cooperative one — and not an advertisement for the principle.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The pre-1990 ERM record shows successful German monetary hegemony, not successful coordination — the proposition's cited evidence supports the opposition's case.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONNOLLY ── -->
+    <div class="speaker-panel" id="opp-connolly-panel">
+      <div id="opp-connolly-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to make an argument that is less fashionable than my colleague Friedman's and, I think, more important. The argument is not primarily economic. It is political. The ERM was not a badly executed attempt at a good idea. It was a well-executed attempt at a bad idea — a political project that served specific national interests, above all French and German interests, while imposing costs on other participants who were not fully informed of what they were signing up for.</p>
+
+        <span class="section">On the political origins of the ERM</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">ERM failure as German political interest — the hegemony argument</span>The ERM was not created because European economists had concluded that fixed exchange rates were optimal for the Community. It was created because France, under President Giscard d'Estaing, wanted to constrain German monetary power. Germany had the most credible central bank in Europe, the hardest currency, and the most successful export sector. The Deutschmark's strength was, from a French perspective, a problem — not because France wanted to inflate, but because German monetary supremacy translated directly into German economic dominance. The ERM was the French answer: by tying all European currencies to the Deutschmark through a fixed rate mechanism, France could make German monetary power a collective resource rather than a unilateral German advantage. Germany would be constrained — by political obligations to its partners — from raising interest rates as sharply as it might otherwise choose.</span></p>
+
+        <span class="section">On what Britain was not told</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">ERM as credibility-borrowing inflation anchor</span>Britain joined the ERM in October 1990, more than a decade after the mechanism had been established. By 1990, the ERM had evolved significantly. It had become, de facto, a zone of German monetary hegemony. The other members did not have monetary policy — they had a choice between matching German interest rates or leaving the mechanism. This was not the system presented to the British public or, arguably, to the British cabinet. The argument for British membership had been made in terms of inflation control — the credibility-borrowing argument my proposition colleagues have made. What was not made explicit was that credibility-borrowing is not free. Its price is the subordination of monetary policy to the requirements of the anchor currency. For Britain, with a different economic structure from Germany, different sectoral exposures, and different business cycle timing, this price was very high.</span></p>
+
+        <span class="section">On the mechanism working as designed</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Failure of execution not principle — coordination was lacking</span>The events of 1992 were not a failure of the ERM. They were the mechanism working exactly as it was designed to work — imposing discipline on countries whose fundamentals did not fit the requirements of the peg. The discipline was economically and politically intolerable for Britain. The appropriate conclusion is not that the mechanism failed but that it was inappropriate for Britain, and that Britain should not have joined. The proposition distinguishes right in principle from wrong in practice. But for Britain, it was wrong in principle — the principle of credibility-borrowing through exchange rate subordination was the wrong principle for the wrong country at the wrong time. And those responsible for the decision did not fully disclose the terms of the bargain to those who would pay its costs.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-connolly-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="6" onclick="openModal('connolly',6,'opp')">
+          <div class="arg-title"><span>Arg I — The ERM was a French political project to constrain German power</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The ERM was created not from economic theory but from France's desire to constrain German monetary supremacy and make German monetary power a collective resource.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>It worked in the 1980s because French and German interests were broadly aligned — both wanted exchange rate stability and both had low inflation aspirations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>When German reunification created a dramatic divergence of interests, the political foundation of the arrangement collapsed — revealing its nature as a political bargain rather than an economic principle.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ERM was a political project serving specific national interests — its "principle" was a political arrangement, not an economic truth, and it was wrong in principle for countries whose interests did not align.</span></div>
+        </div>
+        <div class="arg-block" data-arg="1" onclick="openModal('connolly',1,'opp')">
+          <div class="arg-title"><span>Arg II — Britain was not fully informed of the price of membership</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Credibility-borrowing through exchange rate subordination requires accepting whatever interest rate is required to maintain the peg, regardless of domestic conditions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This price — subordination of monetary policy to German conditions — was not made explicit in the public and political case for British ERM membership.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A political decision made without full disclosure of its costs to those who would bear them is deficient regardless of the technical merits of the underlying mechanism.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>British ERM membership was wrong not only in practice but in the manner of its adoption — the true costs were not disclosed to those who would bear them.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('connolly',3,'opp')">
+          <div class="arg-title"><span>Arg III — The ERM worked as designed; Britain was wrong to join</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The ERM imposed discipline on countries whose fundamentals did not fit the peg — this was its designed function, not a malfunction.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Britain's economic structure — different business cycle, different sectoral composition, different labour market — made ERM discipline particularly costly.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A mechanism that was wrong for Britain in principle cannot be defended as "right in principle" merely because it was right in principle for France and Germany.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ERM was right in principle for its founding members; it was wrong in principle for Britain — and Britain should not have joined.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── KRUGMAN/OBSTFELD ── -->
+    <div class="speaker-panel" id="opp-krugman-panel">
+      <div id="opp-krugman-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to close with an argument that is more technical than my colleagues' but ultimately the most powerful case against the ERM as a matter of principle — the argument from second-generation currency crisis theory. The ERM was inherently vulnerable to self-fulfilling speculative attack regardless of fundamentals, and this vulnerability was a structural feature of the mechanism, not a contingent failure of execution.</p>
+
+        <span class="section">On first-generation and second-generation crisis models</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Capital liberalisation made the halfway house unworkable</span>The traditional first-generation theory of currency crises holds that speculative attacks succeed only when a country's fundamentals are inconsistent with its exchange rate target. On this view, a country with sound fundamentals need not fear speculative attack. The first-generation model seems to support the proposition's position: if Britain's fundamentals had been sound, the attack would not have succeeded. But the events of 1992 do not fit the first-generation model well. The French franc — which had lower inflation than Germany, a current account surplus, and broadly sound fiscal policy — was attacked and came within a hair's breadth of breaking. What was happening?</span></p>
+
+        <span class="section">On the second-generation model</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The impossible trinity — ERM designed for capital controls world</span>The second-generation model, developed in the aftermath of 1992, shows that fixed exchange rates can be subject to self-fulfilling crises — crises that occur not because fundamentals are inconsistent with the peg, but because the government's willingness to defend the peg is conditional on the cost of defence, and that cost depends on whether a crisis occurs. The logic: the government finds it optimal to maintain the peg if defence costs are low. Those costs — high interest rates' impact on output, employment, banking stability — depend on the scale of the speculative attack. The scale of attack depends on whether speculators believe the peg will be maintained. If they believe it will be maintained, no attack occurs. If they believe it will be abandoned, an attack occurs, defence costs rise, the government abandons the peg, and their belief is confirmed. Both outcomes can be equilibria simultaneously. Which one occurs depends not on fundamentals but on coordination among speculators and beliefs about others' actions.</span></p>
+
+        <span class="section">On what this implies for the ERM as principle</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Fixed rates as price controls — structural impossibility</span>The second-generation model implies that the ERM, under full capital mobility, was inherently unstable regardless of fundamentals. Even with perfect fundamentals, a currency peg is vulnerable to self-fulfilling attack whenever speculators have reason to doubt the government's political will to pay the cost of defence. And in a democracy, political will to pay the cost — high interest rates, recession, unemployment — is always contestable. The proposition argues that with better fundamentals, the ERM would have survived. The second-generation model shows this is wrong. Even with perfect fundamentals, a country whose government lacks unlimited resources and unlimited political will — which is all governments, always — is vulnerable. The ERM's vulnerability in 1992 was not the result of specific errors of execution. It was the result of a fundamental structural property of fixed exchange rates under capital mobility. The ERM was wrong in principle.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-krugman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="5" onclick="openModal('krugman',5,'opp')">
+          <div class="arg-title"><span>Arg I — First-generation model cannot explain 1992; sound-fundamentals currencies were attacked</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>First-generation crisis theory predicts that only currencies with unsound fundamentals face successful speculative attack.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The French franc in 1992 had lower inflation than Germany, a current account surplus, and broadly sound fiscal policy — yet was attacked and nearly broke.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A theory that cannot explain the near-collapse of the franc in 1992 cannot be the correct framework for understanding the ERM's vulnerability.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The 1992 crises refute the first-generation model's implication that sound fundamentals protect against speculative attack; a different theoretical framework is needed.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('krugman',4,'opp')">
+          <div class="arg-title"><span>Arg II — Second-generation model: self-fulfilling attacks are possible regardless of fundamentals</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When a government's willingness to defend a peg is conditional on defence costs, and those costs depend on whether an attack occurs, multiple equilibria exist — attack and no-attack can both be self-fulfilling.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Which equilibrium obtains depends on speculator coordination and beliefs — not on fundamentals.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This means that even a country with perfect fundamentals is vulnerable to speculative attack if speculators coordinate on the belief that the government will abandon the peg.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Fixed exchange rates under capital mobility are inherently vulnerable to self-fulfilling speculative attack regardless of fundamentals — the proposition's counterfactual (better fundamentals = no crisis) is not guaranteed.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7" onclick="openModal('krugman',7,'opp')">
+          <div class="arg-title"><span>Arg III — The structural vulnerability is a property of the ERM under capital mobility</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Defending a fixed rate under capital mobility requires either unlimited reserves or unlimited political will — neither available to any democratic government.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The second-generation model shows that whenever political will is contestable — which it always is in a democracy — a self-fulfilling attack is possible.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This structural vulnerability is not corrected by better entry parity, better fundamentals, or better coordination — it is a property of the institutional arrangement.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ERM's vulnerability to self-fulfilling attack under capital mobility is a structural property of the mechanism, not a contingent failure — the ERM was wrong in principle, not merely in practice.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- opp body -->
+</div><!-- opp col -->
+
+</div><!-- columns -->
+
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh"><div>No image linked yet</div><code>Set src in IMAGES object in script</code></div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+var IMAGES={
+  major:{1:{src:"",caption:"Major/Clarke — ERM as credibility-borrowing"},2:{src:"",caption:"Major/Clarke — Three failures of execution"},3:{src:"",caption:"Major/Clarke — Pre-1990 record vindicates principle"}},
+  eichengreen:{3:{src:"",caption:"Eichengreen — Crisis confirmed monetary union logic"},4:{src:"",caption:"Eichengreen — Impossible trinity and ERM design"},5:{src:"",caption:"Eichengreen — Capital liberalisation made halfway house unworkable"}},
+  goodhart:{1:{src:"",caption:"Goodhart — ERM solves time-consistency problem"},2:{src:"",caption:"Goodhart — Lawson boom made entry conditions unsustainable"},3:{src:"",caption:"Goodhart — Counterfactual vindicates principle"}},
+  friedman:{2:{src:"",caption:"Friedman — Divergent economies require divergent policies"},6:{src:"",caption:"Friedman — Pre-1990 record was deflationary pressure"},7:{src:"",caption:"Friedman — Fixed rates are price controls"}},
+  connolly:{1:{src:"",caption:"Connolly — Britain not fully informed of membership price"},3:{src:"",caption:"Connolly — ERM worked as designed; Britain wrong to join"},6:{src:"",caption:"Connolly — ERM as French political project"}},
+  krugman:{4:{src:"",caption:"Krugman/Obstfeld — Second-generation model: self-fulfilling attacks"},5:{src:"",caption:"Krugman/Obstfeld — Sound fundamentals don't protect"},7:{src:"",caption:"Krugman/Obstfeld — Structural vulnerability under capital mobility"}}
+};
+
+var state={
+  prop:{speaker:'major',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'friedman',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
+  document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
+  body.scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+function sw(side,speaker,view,el){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(view==='speech'){
+    sp.classList.remove('hidden');lg.classList.add('hidden');
+    body.scrollTop=st.speechScroll||0;
+  } else {
+    sp.classList.add('hidden');lg.classList.remove('hidden');
+    body.scrollTop=st.logicScroll||0;
+  }
+}
+
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech') st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+
+function openModal(speaker,n,side){
+  var d=(IMAGES[speaker]||{})[n]||{src:"",caption:speaker+" — argument "+n};
+  document.getElementById('mTitle').textContent=d.caption;
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.style.display='none';ph.style.display='none'}
+  else{img.style.display='none';ph.style.display='flex'}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none'}
+function imgFail(){document.getElementById('mImg').style.display='none';var p=document.getElementById('mPh');p.style.display='flex';p.querySelector('div').textContent='Image failed to load'}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal()}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl) return;
+  var tip=hl.querySelector('.tooltip');if(!tip) return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2,vw=window.innerWidth,m=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  tip.style.left=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m)+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl) return;
+  var tip=hl.querySelector('.tooltip');if(tip) tip.style.display='none';
+});
+</script>
