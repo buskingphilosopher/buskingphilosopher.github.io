@@ -1,0 +1,592 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,var(--font-serif,serif);background:var(--bg);color:var(--text)}
+
+.motion-header{padding:.9rem 2rem .75rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:5px;font-weight:500}
+.motion-title{font-size:18px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 64px);min-height:500px}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-bar::-webkit-scrollbar{height:2px}
+.speaker-bar::-webkit-scrollbar-thumb{background:var(--bdr2)}
+.speaker-btn{font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;padding:7px 12px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp .speaker-btn.active{color:var(--opp-red)}
+
+.col-header{padding:.6rem 1.1rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem;flex-wrap:wrap}
+.pill{font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:var(--font-sans,sans-serif);font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:var(--font-sans,sans-serif);font-size:10px;color:var(--text3);margin-top:1px;margin-bottom:5px;line-height:1.4}
+
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:var(--font-sans,sans-serif);padding:4px 13px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.3rem;font-size:13px;line-height:1.9;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.8rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.2rem 0 .2rem;display:block}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+
+.tooltip{display:none;position:fixed;font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;font-style:normal;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.logic-view{display:flex;flex-direction:column;gap:.8rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+
+.arg-title{padding:6px 10px;font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+
+.arg-premises{padding:8px 10px 4px}
+.premise{display:flex;gap:8px;margin-bottom:6px;font-family:var(--font-sans,sans-serif);font-size:11.5px;line-height:1.55;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:8px;padding:6px 10px;font-family:var(--font-sans,sans-serif);font-size:11.5px;line-height:1.55;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hidden{display:none}
+
+.modal-wrap{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:8px;border:1px solid var(--bdr2);width:380px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:var(--font-sans,sans-serif);font-size:12px;font-weight:500;color:var(--text)}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:14px;line-height:1;padding:3px 6px;border-radius:4px}
+.modal-close:hover{background:var(--bg4)}
+.modal-bd{padding:.8rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;background:var(--bg3);min-height:130px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:1.5rem;color:var(--text3);font-family:var(--font-sans,sans-serif);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.modal-ph code{font-size:10px;background:var(--bg4);padding:2px 6px;border-radius:3px}
+.modal-cap{margin-top:.5rem;font-family:var(--font-sans,sans-serif);font-size:11px;color:var(--text3)}
+.page{position:relative;overflow:hidden}
+</style>
+
+<div class="page" id="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Believes Man and Woman Are Artificial Categories"</div>
+</div>
+
+<div class="columns">
+
+<!-- ══════════════════ PROPOSITION ══════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','fausto',this)">Fausto-Sterling</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','hacking',this)">Hacking</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','haslanger',this)">Haslanger</button>
+  </div>
+
+  <!-- FAUSTO-STERLING HEADER -->
+  <div class="col-header" id="prop-fausto-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Anne Fausto-Sterling</span></div>
+    <div class="col-position">Biology does not generate the binary — nature provides variation, society imposes dichotomy; the binary is maintained by social practice, not discovered in nature</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','fausto','speech',this)">Speech</div><div class="tab" onclick="sw('prop','fausto','logic',this)">Logical Arguments</div></div>
+  </div>
+  <!-- HACKING HEADER -->
+  <div class="col-header hidden" id="prop-hacking-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Ian Hacking</span></div>
+    <div class="col-position">The looping effect and historical contingency — human kinds change in response to classification in ways natural kinds do not; man and woman have a contingent history</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','hacking','speech',this)">Speech</div><div class="tab" onclick="sw('prop','hacking','logic',this)">Logical Arguments</div></div>
+  </div>
+  <!-- HASLANGER HEADER -->
+  <div class="col-header hidden" id="prop-haslanger-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Sally Haslanger</span></div>
+    <div class="col-position">What is gender for? — these categories organise social hierarchies; their content is malleable where natural kinds are fixed; they are ideological rather than descriptive</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','haslanger','speech',this)">Speech</div><div class="tab" onclick="sw('prop','haslanger','logic',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ── FAUSTO-STERLING ── -->
+    <div class="speaker-panel active" id="prop-fausto-panel">
+      <div id="prop-fausto-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to begin with a fact that most people in this room do not know, and that changes the terms of the debate before it has started. Somewhere between 1.7% and 2% of all humans born are intersex — born with chromosomal, gonadal, or anatomical characteristics that do not fit neatly into the categories of male or female as standardly defined. This is roughly the same frequency as red hair. We do not consider the existence of red hair an anomaly requiring medical correction. And yet, for most of the twentieth century, intersex infants were subjected to surgical interventions designed not to treat any medical condition but to make their bodies conform to a binary that nature itself had declined to observe.</p>
+        <p>My argument is that nature does not generate the binary of man and woman. We generate it, impose it on nature, and then — in a move that should embarrass us — cite nature to justify the imposition.</p>
+
+        <span class="section">On what sex actually is</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Biology does not generate a strict binary</span>Chromosomes: approximately 1 in 650 people have arrangements other than XX or XY — XXX, XXY, XYY, X0, and cellular mosaics. If the binary is defined by chromosomes, what category do these individuals belong to? Hormones: testosterone and oestrogen are both present in all human bodies; the difference is in concentration, not kind. The International Olympic Committee spent decades trying to find a hormonal threshold for athletic competition and failed — repeatedly, expensively, revealingly — because the threshold is not a natural fact waiting to be measured but a normative decision waiting to be made. Anatomy: the genitalia of intersex individuals form a continuous spectrum. The attempt to define what counts as a clitoris versus a small penis has required practitioners to make decisions — not measurements. These decisions are culturally informed and normatively structured. They are not readings of a natural fact.</span></p>
+
+        <span class="section">On the origin of the binary in social practice</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The binary is maintained by social practice</span>When a child is born, the first social act is assignment to a sex category — made on the basis of a brief visual inspection of genitalia, recorded on a legal document, triggering a cascade of social expectations: names, clothing, toys, emotional registers, professional expectations. The child does not encounter "sex" as a natural fact and then receive social treatment appropriate to it. The child receives a social assignment and is then shaped by that assignment in ways subsequently taken to confirm the natural fact. Nature provides variation. Society imposes dichotomy.</span></p>
+
+        <span class="section">On "woman" as not a natural kind</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Woman is not a natural kind</span>The category "woman" does not pick out a natural kind the way "gold" or "water" does. Gold is gold in virtue of its atomic structure — a shared underlying property. If "woman" were a natural kind, there would be some underlying property all and only women have that makes them women. No such property exists. XX chromosomes fail — post-menopausal women cannot gestate; women with complete androgen insensitivity syndrome are XY. Ovaries fail — women with oophorectomies. Capacity to gestate fails — excluded members. The category is held together not by a shared underlying property but by a cluster of overlapping, criss-crossing, family-resemblance features — and by social coordination around the use of the term. Family-resemblance categories are useful. But they are artificial in the relevant sense: they reflect a human way of carving up the world, not a binary nature itself has carved.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-fausto-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('fausto',1,'prop')">
+          <div class="arg-title"><span>Arg I — Biological sex characteristics form a spectrum, not a binary</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Chromosomal variation (XXY, XYY, X0, mosaics), hormonal variation (continuous spectra), and anatomical variation (intersex morphologies) all exceed a strict binary.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Attempts to operationalise the binary — e.g. IOC hormonal thresholds — repeatedly fail because they require normative decisions, not empirical measurements.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A category that requires normative decisions to apply is not a natural kind being measured but a social practice being enforced.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Biological sex does not generate a strict binary; the binary is imposed on biological variation by social practice.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('fausto',2,'prop')">
+          <div class="arg-title"><span>Arg II — Sex assignment is a social practice that precedes biological discovery</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Sex assignment at birth is made by visual inspection, recorded legally, and triggers a cascade of social expectations before any biological investigation occurs.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The child is then shaped by the assignment in ways subsequently taken to confirm the underlying biological "fact."</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A category that precedes and shapes the facts it purports to describe is constituted by social practice, not discovered in nature.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The sex/gender binary is maintained by social practice that precedes and constitutes the biological "facts" used to justify it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('fausto',3,'prop')">
+          <div class="arg-title"><span>Arg III — "Woman" fails as a natural kind</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Natural kinds require a shared underlying property necessary and sufficient for membership.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Every candidate property for "woman" — XX chromosomes, ovaries, capacity to gestate, hormonal profile — either excludes clear members or includes non-members.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The category is held together by family-resemblance features and social coordination, not a shared underlying property.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>"Woman" is a family-resemblance category sustained by social coordination — it is artificial in the relevant sense.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HACKING ── -->
+    <div class="speaker-panel" id="prop-hacking-panel">
+      <div id="prop-hacking-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My argument is less about the biology of sex than about the history and philosophy of classification. I want to argue that the categories of man and woman are artificial not merely because biology fails to sustain them, but because they have a contingent, revisable, interest-laden history — precisely what we would expect from a human invention rather than a natural discovery.</p>
+
+        <span class="section">On the looping effect of human kinds</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The looping effect — human kinds respond to classification</span>Natural kinds do not change their behaviour in response to being classified. Gold does not alter its atomic structure because we call it gold. Electrons do not adjust their charge because physicists classify them as leptons. Human kinds are different: when human beings are classified, they respond. They take up the classification, resist it, modify it, redefine it, escape it, or inhabit it in unexpected ways. Hacking calls this the "looping effect." The categories of man and woman exhibit precisely this looping structure. The Victorian "woman" of medical discourse — nervous, delicate, confined to the domestic sphere, physiologically unsuited to intellectual exertion — is not the same category as the twenty-first century woman. Not merely because women's social circumstances have changed. But because the category itself has been modified by the people classified within it, by their resistance, their advocacy, their redefinition. Natural kinds do not do this. Gold is not modified by chemists' classifications. This is strong evidence that the category is a human construction.</span></p>
+
+        <span class="section">On historical and cross-cultural contingency</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Cross-cultural variation reveals the binary's contingency</span>The binary of man and woman is not a universal human category in the anthropological sense. Many cultures have recognised categories that do not map onto it — the hijra in South Asian cultures, the two-spirit in many Native American traditions, the fa'afafine in Samoa, the bakla in the Philippines, the sekrata in Madagascar, the sworn virgins of the Balkans. The existence of these categories does not establish that binary sex is false — but it does establish that the binary is not an inevitable human response to a natural fact. Different human societies, confronting the same biological variation, have carved that variation differently. This is precisely what we would expect of an artificial category shaped by social purposes rather than natural necessity.</span></p>
+
+        <span class="section">On Kuhn and theory-dependent natural kinds</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Natural kinds are theory-dependent — and so are man and woman</span>Kuhn showed that even in natural science, what counts as a natural kind is theory-dependent. The category "planet" did not include Pluto until 1930 and excluded it again from 2006 — not because Pluto changed, but because the theoretical purposes served by "planet" changed. The category "fish" has been abandoned by professional biologists because it does not correspond to a monophyletic group. The category "jade" turned out to pick out two distinct minerals sharing surface properties. Scientific categories are revised, abandoned, and replaced when they fail to do the theoretical work required. The category "woman" has never been given a rigorous theoretical definition that picks out a natural kind. Every attempt has either excluded clear members or included clear non-members. This is what we would expect of an artificial category trying to pass as a natural one.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-hacking-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="4" onclick="openModal('hacking',4,'prop')">
+          <div class="arg-title"><span>Arg I — The looping effect distinguishes human from natural kinds</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Natural kinds do not change in response to classification; human kinds do — people take up, resist, modify, and redefine classifications that apply to them.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The content of "woman" has changed substantially across historical periods in response to classification — the Victorian medical woman, the suffragette's woman, the contemporary woman are distinct categories.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A category whose content is modified by the responses of those classified within it is a human construction, not a natural discovery.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The looping effect exhibited by "man" and "woman" is strong evidence that these are human kinds — artificial constructions — rather than natural kinds.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('hacking',5,'prop')">
+          <div class="arg-title"><span>Arg II — Cross-cultural variation shows the binary is not inevitable</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Different cultures confronting the same biological variation have carved it into different categorical schemes — hijra, two-spirit, fa'afafine, sekrata, sworn virgins.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If the man/woman binary were a natural kind — an inevitable response to a natural fact — we would expect its universality across cultures.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Its non-universality demonstrates that the binary is one possible carving among others, shaped by social purposes.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Cross-cultural variation demonstrates the contingency of the man/woman binary — it is not nature's carving but one of many possible social arrangements of biological variation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal('hacking',6,'prop')">
+          <div class="arg-title"><span>Arg III — Natural kind status is theory-dependent; "woman" fails</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Scientific categories are natural kinds only when they do the theoretical work required of them — "planet," "fish," and "jade" have been revised or abandoned when they failed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>"Woman" has never been given a rigorous definition that picks out a natural kind — every attempt either excludes clear members or includes non-members.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A category that consistently fails to pick out a natural kind when subjected to rigorous analysis is not a natural kind being imperfectly described — it is an artificial category passing as one.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>By the same standards that have led biologists to revise or abandon failed natural kind categories, "woman" should be recognised as artificial.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HASLANGER ── -->
+    <div class="speaker-panel" id="prop-haslanger-panel">
+      <div id="prop-haslanger-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleagues have argued that the categories are artificial because biology does not sustain a binary and because their history reveals their constructed character. I want to ask a question we rarely ask about fundamental social categories: what are these categories for?</p>
+
+        <span class="section">On the social role of gender categories</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Gender categories organise social hierarchies</span>The categories of man and woman do not merely describe a pre-existing division in human reality. They organise and maintain a particular social structure. They assign roles, distribute resources, allocate burdens, and legitimate hierarchies. The category "woman" has been used — historically and continues to be used — to identify a class of persons excluded from certain forms of power, assigned certain forms of labour, and subjected to certain forms of control. This is not a conspiracy theory. It is a sociological observation. The category is not a neutral description of a natural fact. It is a normatively loaded classification that does work in the social world — work that serves particular interests and disadvantages others.</span></p>
+
+        <span class="section">On the woman who is not treated as a woman</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Woman is not a natural kind</span>Consider a thought experiment. A person is born with XX chromosomes, female reproductive anatomy, and all the biological features my opponents would cite as constituting "woman." But this person is raised as a man, presents as a man, is treated as a man throughout their life — never subjected to the distinctive treatment women experience, never expected to perform the labour associated with femininity, never subject to the sexual violence disproportionately directed at women. In what sense is this person a woman? If the category "woman" is merely biological, they are a woman regardless of social experience. But if "woman" is a social position — a location in a system of social practices, expectations, and distributions of power — then this person is not a woman in the sense that matters morally and politically. I argue that the morally and politically relevant sense is the social sense. "Woman" as social position is not a natural kind — it is a social position systematically naturalised to make it seem inevitable and beyond political contestation.</span></p>
+
+        <span class="section">On the argument from malleability</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Cross-cultural variation reveals the binary's contingency</span>If "man" and "woman" were natural kinds, their content would be relatively fixed across cultures and historical periods — as the properties of gold are fixed. But what it means to be a man — the virtues, behaviours, emotional repertoires, professional roles assigned to men — differs dramatically. The Athenian aristocratic man, the Victorian English gentleman, the contemporary American working-class man, the Confucian scholar-official, and the Zulu warrior share the grammatical category "man" while having almost nothing else in common. If "man" were a natural kind, this variation would be inexplicable. If "man" is an artificial category whose content is shaped by social purposes and historical contingency, the variation is exactly what we would expect.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-haslanger-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="7" onclick="openModal('haslanger',7,'prop')">
+          <div class="arg-title"><span>Arg I — Gender categories organise social hierarchies, not natural facts</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The categories of man and woman assign roles, distribute resources, allocate burdens, and legitimate hierarchies — they do normative work in the social world.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A category that primarily does normative and hierarchical work is a social institution, not a description of a natural fact.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The naturalisation of these categories — attributing them to biology — functions ideologically to make social arrangements appear inevitable.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Man and woman are social institutions masquerading as natural facts; their apparent naturalness is an ideological achievement, not a discovery.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('haslanger',3,'prop')">
+          <div class="arg-title"><span>Arg II — The social position is what matters; biology is neither necessary nor sufficient</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A person with all the biological features of a woman, raised and treated as a man, is not a woman in the morally and politically relevant sense.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The morally relevant sense of "woman" is a social position — location in a system of practices, expectations, and distributions of power.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A social position is not a natural kind — it is defined by social relations, not underlying biological properties.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>In the sense that matters morally and politically, "woman" denotes a social position — and social positions are artificial, not natural.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('haslanger',5,'prop')">
+          <div class="arg-title"><span>Arg III — The content of "man" varies where natural kind content does not</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Natural kinds have fixed content across cultures and historical periods — the properties of gold do not vary between Athenian and Victorian chemistry.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The content of "man" — virtues, behaviours, roles, emotional repertoires — varies enormously: Athenian aristocrats, Victorian gentlemen, Confucian scholars, Zulu warriors share the category name but almost nothing else.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A category whose content varies so dramatically across cultures and periods cannot be tracking a fixed natural property.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The dramatic cross-cultural and historical variation in the content of "man" demonstrates that it is an artificial category shaped by social purposes, not a natural kind with fixed content.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- prop body -->
+</div><!-- prop col -->
+
+<!-- ══════════════════ OPPOSITION ══════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','saul',this)">Saul / Dembroff</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','griffiths',this)">Griffiths</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','jenkins',this)">Jenkins / Mikkola</button>
+  </div>
+
+  <!-- SAUL HEADER -->
+  <div class="col-header" id="opp-saul-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Saul / Dembroff</span></div>
+    <div class="col-position">What natural kinds actually require — the proposition conflates "artificial" with "socially influenced"; rivers and mountains are real despite being fuzzy; the bimodal distribution is a real fact</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','saul','speech',this)">Speech</div><div class="tab" onclick="sw('opp','saul','logic',this)">Logical Arguments</div></div>
+  </div>
+  <!-- GRIFFITHS HEADER -->
+  <div class="col-header hidden" id="opp-griffiths-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Paul Griffiths</span></div>
+    <div class="col-position">Natural kinds are less natural than you think — and that's fine; the proposition's standard for naturalness disqualifies genes, species, and organisms; imprecision is not artificiality</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','griffiths','speech',this)">Speech</div><div class="tab" onclick="sw('opp','griffiths','logic',this)">Logical Arguments</div></div>
+  </div>
+  <!-- JENKINS HEADER -->
+  <div class="col-header hidden" id="opp-jenkins-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Jenkins / Mikkola</span></div>
+    <div class="col-position">Kind pluralism — "man" and "woman" pick out multiple overlapping kinds (biological, social, phenomenological), each real; the proposition has been in the grip of a single inadequate model</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','jenkins','speech',this)">Speech</div><div class="tab" onclick="sw('opp','jenkins','logic',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ── SAUL / DEMBROFF ── -->
+    <div class="speaker-panel active" id="opp-saul-panel">
+      <div id="opp-saul-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The proposition has made a sophisticated case. I want to make an equally sophisticated response — one that takes the philosophical challenge seriously without conceding a conclusion that does not follow from any of the arguments made.</p>
+
+        <span class="section">On the confusion of "artificial" with "socially influenced"</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Biology does not generate a strict binary</span>The proposition has established that biological sex is variable rather than strictly binary, that the categories have a history and exhibit Hacking's looping effect, and that they do work in the social world. I accept all three claims. I deny that any of them establishes that the categories are artificial in the sense the proposition requires. Consider the category "river." A river is not a natural kind in the strict sense — geographers disagree about when a stream becomes a river, when a river becomes a delta, when a distributary is a separate river or a branch of the same one. The category has a history, is culturally variable, and reflects human interests in naming and navigating landscapes. But rivers are real. The difference between a river and a field is not artificial. "River" carves nature at a real — though fuzzy, interest-laden, historically variable — joint. The categories of man and woman may be like rivers. They may not carve nature at a perfectly sharp binary joint. But it does not follow that they carve nothing real.</span></p>
+
+        <span class="section">On what sex differences actually are</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The binary is maintained by social practice</span>The proposition correctly notes that sex characteristics form a spectrum rather than a strict binary. But it has understated the degree to which, within that spectrum, the distribution is strongly bimodal. The distribution of most sexually differentiated characteristics — gonadal type, chromosomal arrangement, hormonal profile, secondary sexual characteristics — is not uniform across the human population. It forms two large clusters, with a relatively small number of people between them. The existence of people between the clusters does not establish that the clusters do not exist. The existence of twilight does not establish that there is no distinction between day and night. The bimodal distribution is itself a biological fact — and it is a fact that the categories of man and woman, however inexactly, track. The proposition's argument from intersex individuals establishes that the binary is not exhaustive. It does not establish that the binary is artificial.</span></div></p>
+
+        <span class="section">On Hacking's looping effect and what it actually proves</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The looping effect — human kinds respond to classification</span>The looping effect argument is philosophically interesting, but I want to challenge what it establishes. The looping effect shows something about the causal consequences of classification — not about the ontological status of what is classified. Consider the category "patient zero" in epidemiology. The people classified as "patient zero" respond to the classification — seeking media attention, legal protection, or anonymity. The classification has social effects. But the underlying biological fact — that one person was the source of a particular chain of transmission — is real. The looping effect shows that social use of a classification has consequences. It does not show that the classification fails to pick out something real.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-saul-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('saul',1,'opp')">
+          <div class="arg-title"><span>Arg I — Fuzzy and interest-laden does not mean artificial</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>"River" is fuzzy, culturally variable, and interest-laden — yet rivers are real and the category is not artificial.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The proposition's argument from biological variation and social influence establishes that man/woman is fuzzy and interest-laden — not that it is artificial.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Establishing fuzziness and social influence does not establish artificiality; the proposition has not argued for the stronger claim.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proposition conflates "fuzzy and socially influenced" with "artificial"; the former does not entail the latter.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('saul',2,'opp')">
+          <div class="arg-title"><span>Arg II — The bimodal distribution is a real biological fact</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Sex characteristics across the human population are not uniformly distributed — they cluster strongly bimodally around two groups.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The existence of individuals between the clusters (intersex) does not establish that the clusters do not exist — twilight does not abolish the day/night distinction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A bimodal distribution is a real biological fact; categories that track it are tracking something real.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The bimodal distribution of sex characteristics is a real biological fact that man and woman, however imprecisely, track; the categories are not thereby artificial.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('saul',4,'opp')">
+          <div class="arg-title"><span>Arg III — The looping effect shows causal consequences, not ontological status</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The looping effect demonstrates that classifying people has causal consequences — people respond to their classifications.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>"Patient zero" classifications also exhibit looping effects — but the underlying epidemiological fact (source of transmission) remains real.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Causal consequences of classification do not determine whether the classification picks out something real.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The looping effect shows that gender classifications have powerful social consequences — not that they fail to track something real.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GRIFFITHS ── -->
+    <div class="speaker-panel" id="opp-griffiths-panel">
+      <div id="opp-griffiths-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleague has challenged the proposition's argument from natural kinds. I want to make a different argument — one that takes the proposition's philosophical moves seriously and meets them on their own ground.</p>
+
+        <span class="section">On the proposition's implicit standard for naturalness</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Woman is not a natural kind</span>The proposition implicitly assumes that a category is natural only if it picks out a natural kind in the strict essentialist sense — defined by a shared underlying property necessary and sufficient for membership. By this standard, "woman" is not a natural kind. But by this same standard, almost nothing is a natural kind. The category "gene" is not a natural kind — after a century of molecular biology, there is no single agreed definition. The category "species" is not a natural kind — biologists have proposed over twenty definitions, none capturing all cases. The category "organism" is not a natural kind — colonial organisms and endosymbiotic relationships create genuine boundary cases. If the proposition's standard disqualifies "woman," it also disqualifies most of the categories of biology. If the proposition wants to say that biology's categories are also artificial, it is committed to a thoroughgoing anti-realism about biological classification that it has not defended and that most biologists would reject.</span></p>
+
+        <span class="section">On the difference between artificial and imprecise</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Biology does not generate a strict binary</span>There is a distinction the proposition has elided: between a category being artificial and a category being imprecise or graded. The proposition has shown that the man/woman binary is imprecise. This is true. But imprecision is not artificiality. The category "mountain" is imprecise — geographers disagree about the minimum elevation for a mountain, there is no precise boundary between a mountain and a hill. But mountains are real. The Himalayas are not a social construction. Sex — the division of organisms into reproductive types based on gamete size — is a real biological phenomenon, conserved across hundreds of millions of years of evolution, grounded in a deep functional asymmetry: large gametes and small gametes. The categories of male and female track this asymmetry. The tracking is imperfect — some humans do not fit the binary — but imperfect tracking of a real phenomenon is not the same as tracking nothing real.</span></p>
+
+        <span class="section">On the costs of the proposition's position</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Gender categories organise social hierarchies</span>If the categories of man and woman are entirely artificial — if they do not pick out anything real — then the claim that women, as a group, have been systematically disadvantaged becomes very difficult to state. The proposition's third speaker argued that "woman" picks out a social position in a hierarchy. But if "woman" is a pure social construction, then it picks out nothing independently of the social practices that constitute it. And if it picks out nothing independently of those practices, then the claim that women have been oppressed — that there is a group, identified independently of the oppressive practices, who has been subjected to those practices — becomes incoherent. You cannot simultaneously claim that "woman" is a pure social construction and that women have been materially disadvantaged. The material disadvantage requires a prior identification of the group that has been disadvantaged.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-griffiths-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="3" onclick="openModal('griffiths',3,'opp')">
+          <div class="arg-title"><span>Arg I — The proposition's standard disqualifies all of biology</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Strict essentialist natural kind status requires a shared underlying property necessary and sufficient for membership.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>By this standard, "gene," "species," and "organism" also fail — yet we do not conclude these biological categories are artificial.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A standard that disqualifies "gene" and "species" as natural kinds is too demanding to be used as the criterion for dismissing "man" and "woman."</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proposition's naturalness standard proves too much — it commits us to anti-realism about all biological classification, not just gender.</span></div>
+        </div>
+        <div class="arg-block" data-arg="1" onclick="openModal('griffiths',1,'opp')">
+          <div class="arg-title"><span>Arg II — Imprecision is not artificiality; gametic sex is real</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>"Mountain" is imprecise and culturally variable — but the Himalayas are real; imprecision does not entail artificiality.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Gametic sex — division into large-gamete and small-gamete reproductive types — is a real biological phenomenon conserved across hundreds of millions of years of evolution.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Man and woman, in their biological aspect, imprecisely but genuinely track this real functional asymmetry.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Man and woman are imprecise categories tracking a real biological phenomenon — imprecision does not make them artificial.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7" onclick="openModal('griffiths',7,'opp')">
+          <div class="arg-title"><span>Arg III — Pure constructionism undermines feminist politics</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Claims that women have been systematically disadvantaged presuppose a group — women — identified independently of the oppressive practices applied to them.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If "woman" is a pure social construction — picking out nothing independently of constituting social practices — there is no group to have been disadvantaged prior to those practices.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition cannot coherently claim both that "woman" is purely artificial and that women have been materially disadvantaged.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Pure constructionism about "woman" undermines the feminist political claims it is typically used to support; the category must pick out something real to do this work.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── JENKINS / MIKKOLA ── -->
+    <div class="speaker-panel" id="opp-jenkins-panel">
+      <div id="opp-jenkins-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleagues have challenged the proposition's argument from natural kinds and from the costs of constructionism. I want to close with what I consider the most important philosophical move available to the opposition — one that concedes much of what the proposition says while denying its conclusion.</p>
+
+        <span class="section">On kind pluralism</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Natural kinds are theory-dependent — and so are man and woman</span>The proposition has argued as if there is one question — "are man and woman artificial categories?" — with one answer. This is the wrong framing. The terms "man" and "woman" do not pick out a single kind. They are used in multiple overlapping ways serving different purposes. There is a biological sense of "woman" — tracking sexually differentiated characteristics of female humans, imprecisely but genuinely. There is a social sense — tracking membership in a group subject to distinctive norms, expectations, and forms of treatment. There is a phenomenological sense — tracking a self-understanding, an identity, a way of experiencing one's body and place in the social world. These are distinct — and none of them is purely artificial. The biological sense is not purely artificial because it tracks real biological features. The social sense is not purely artificial because it tracks real social facts — which humans are assigned to which social positions. The phenomenological sense is not purely artificial because it tracks real psychological facts about self-understanding. The proposition has conflated these senses and argued that because none picks out a perfectly sharp natural kind, all are artificial. The conflation does not hold.</span></p>
+
+        <span class="section">On what kind pluralism implies</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Cross-cultural variation reveals the binary's contingency</span>If "man" and "woman" pick out multiple overlapping kinds, the proposition's claim that they are artificial is neither straightforwardly true nor false. It is true that no single natural kind is picked out the way gold picks out a natural kind. It is false that the terms pick out nothing real. They pick out a cluster of real — biological, social, phenomenological — facts about human beings, through multiple overlapping descriptions serving different purposes. Most categories — biological, chemical, social — are better understood as cluster concepts, family-resemblance categories, or homeostatic property clusters. Man and woman are artificial by the strict essentialist standard. By any more realistic standard of what categories are and how they work, they are not.</span></p>
+
+        <span class="section">On reconstructing rather than abandoning</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Gender categories organise social hierarchies</span>The genuine insight in the proposition's case is this: the categories of man and woman, as historically deployed, have been used to sustain and legitimate a social order in which the attributes of "woman" were defined in ways that excluded women from power, naturalised their subordination, and made their disadvantage appear as a consequence of nature rather than politics. This critique is correct, important, and needs to be heard. But the appropriate response to the ideological misuse of a category is not to declare it artificial and abandon it. It is to reconstruct the category — to separate what is genuinely tracked from what is ideologically imposed, to use it in ways that serve the interests of those classified within it. The categories of man and woman are real, imprecise, multiply constituted, historically contested, and in need of constant critical reconstruction. They are not artificial. They are permanently under revision.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-jenkins-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="6" onclick="openModal('jenkins',6,'opp')">
+          <div class="arg-title"><span>Arg I — Kind pluralism: man and woman pick out multiple real kinds</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>"Woman" is used in multiple overlapping senses — biological (tracking sexual differentiation), social (tracking a hierarchical position), and phenomenological (tracking self-understanding and identity).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Each sense picks out something real — real biological facts, real social facts, real psychological facts — though none picks out a single perfectly sharp natural kind.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition has conflated these senses and argued that because none picks out a sharp natural kind, all are artificial — a conflation that does not hold.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Kind pluralism shows that man and woman track multiple real kinds simultaneously; they are not artificial but multiply and imprecisely real.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('jenkins',3,'opp')">
+          <div class="arg-title"><span>Arg II — Cluster concepts are real; the essentialist standard is too demanding</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Most categories — biological, chemical, social — are best understood as cluster concepts, family-resemblance categories, or homeostatic property clusters, not strict essentialist natural kinds.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Cluster concepts are perfectly real; their failure to meet the essentialist standard does not make them artificial.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Man and woman, understood as cluster concepts, are real by any appropriate standard of what categories are and how they work.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proposition has been in the grip of an overly demanding essentialist model; by realistic standards for categories, man and woman are not artificial.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7" onclick="openModal('jenkins',7,'opp')">
+          <div class="arg-title"><span>Arg III — The response to ideological misuse is reconstruction, not abandonment</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The proposition correctly identifies that the categories of man and woman have been deployed ideologically to naturalise social hierarchies and legitimate the subordination of women.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The appropriate response to the ideological misuse of a category is reconstruction — separating what is genuinely tracked from what is ideologically imposed — not declaring the category artificial and abandoning it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Abandoning the category undermines the ability to identify and redress the harms done to those classified within it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The real insight in the proposition — that gender categories have been ideologically misused — calls for critical reconstruction of those categories, not their dissolution as artificial.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- opp body -->
+</div><!-- opp col -->
+
+</div><!-- columns -->
+
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh"><div>No image linked yet</div><code>Set src in IMAGES object in script</code></div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+var IMAGES={
+  fausto:{1:{src:"",caption:"Fausto-Sterling — Biology does not generate a strict binary"},2:{src:"",caption:"Fausto-Sterling — Sex assignment is a social practice"},3:{src:"",caption:"Fausto-Sterling — Woman fails as a natural kind"}},
+  hacking:{4:{src:"",caption:"Hacking — The looping effect"},5:{src:"",caption:"Hacking — Cross-cultural contingency"},6:{src:"",caption:"Hacking — Natural kinds are theory-dependent"}},
+  haslanger:{3:{src:"",caption:"Haslanger — Social position not natural kind"},5:{src:"",caption:"Haslanger — Content varies where natural kinds do not"},7:{src:"",caption:"Haslanger — Gender categories organise hierarchies"}},
+  saul:{1:{src:"",caption:"Saul/Dembroff — Fuzzy ≠ artificial"},2:{src:"",caption:"Saul/Dembroff — Bimodal distribution is real"},4:{src:"",caption:"Saul/Dembroff — Looping shows consequences not ontology"}},
+  griffiths:{1:{src:"",caption:"Griffiths — Imprecision ≠ artificiality"},3:{src:"",caption:"Griffiths — Standard disqualifies all of biology"},7:{src:"",caption:"Griffiths — Constructionism undermines feminist politics"}},
+  jenkins:{3:{src:"",caption:"Jenkins/Mikkola — Cluster concepts are real"},6:{src:"",caption:"Jenkins/Mikkola — Kind pluralism"},7:{src:"",caption:"Jenkins/Mikkola — Reconstruction not abandonment"}}
+};
+
+var state={
+  prop:{speaker:'fausto',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'saul',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
+  document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
+  body.scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+function sw(side,speaker,view,el){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(view==='speech'){
+    sp.classList.remove('hidden');lg.classList.add('hidden');
+    body.scrollTop=st.speechScroll||0;
+  } else {
+    sp.classList.add('hidden');lg.classList.remove('hidden');
+    body.scrollTop=st.logicScroll||0;
+  }
+}
+
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech') st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+
+function openModal(speaker,n,side){
+  var d=(IMAGES[speaker]||{})[n]||{src:"",caption:speaker+" — argument "+n};
+  document.getElementById('mTitle').textContent=d.caption;
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.style.display='none';ph.style.display='none'}
+  else{img.style.display='none';ph.style.display='flex'}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none'}
+function imgFail(){document.getElementById('mImg').style.display='none';var p=document.getElementById('mPh');p.style.display='flex';p.querySelector('div').textContent='Image failed to load'}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal()}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl) return;
+  var tip=hl.querySelector('.tooltip');if(!tip) return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2,vw=window.innerWidth,m=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  tip.style.left=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m)+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl) return;
+  var tip=hl.querySelector('.tooltip');if(tip) tip.style.display='none';
+});
+</script>
