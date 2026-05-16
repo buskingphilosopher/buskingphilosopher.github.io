@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THB: A Poem is Defined by its Formal Properties — Language, Metre, and Structure — Rather than by Subject, Intention, or Moral Vision</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#13120f;--bg2:#19180e;--bg3:#201f14;--bg4:#2a2918;
+  --bdr:rgba(255,255,255,.07);--bdr2:rgba(255,255,255,.13);
+  --text:#d6d2c4;--text2:#8e8a7c;--text3:#4a4840;
+  --gold:#9a7a38;
+  --prop-col:#7a9060;--prop-pill:#182010;--prop-pill-bdr:#2e4818;
+  --opp-col:#8a6848;--opp-pill:#221808;--opp-pill-bdr:#503820;
+  --a1bg:rgba(180,210,120,.09);--a1brd:rgba(180,210,120,.32);--a1tip:#a8c860;
+  --a2bg:rgba(255,200,80,.09);--a2brd:rgba(255,200,80,.32);--a2tip:#d8a828;
+  --a3bg:rgba(100,190,210,.09);--a3brd:rgba(100,190,210,.32);--a3tip:#60b8cc;
+  --a4bg:rgba(210,110,80,.10);--a4brd:rgba(210,110,80,.34);--a4tip:#d87858;
+  --a5bg:rgba(180,140,230,.09);--a5brd:rgba(180,140,230,.32);--a5tip:#b090d8;
+  --a6bg:rgba(230,180,100,.09);--a6brd:rgba(230,180,100,.32);--a6tip:#c89840;
+  --a7bg:rgba(140,210,190,.08);--a7brd:rgba(140,210,190,.30);--a7tip:#78c8a8;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+
+.motion-header{padding:.78rem 1.8rem .62rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.55}
+.motion-eyebrow{font-family:sans-serif;font-size:9.5px;text-transform:uppercase;letter-spacing:.2em;color:var(--gold);margin-bottom:3px;font-weight:500}
+.motion-title{font-size:14px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em;line-height:1.55}
+
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:10px;font-weight:500;padding:6px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp  .speaker-btn.active{color:var(--opp-col)}
+
+.col-header{padding:.5rem 1rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:11.5px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:9.5px;color:var(--text3);margin-top:1px;line-height:1.45}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:3px 11px;font-size:11px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+
+.col-body{flex:1;overflow-y:auto;padding:1rem 1.25rem;font-size:13.5px;line-height:1.97;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+
+.speech-text p{margin-bottom:.78rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{font-style:italic;color:var(--text)}
+.speech-text cite{font-style:italic;color:var(--text3)}
+.speech-text .pquote{font-style:italic;color:var(--text);background:rgba(154,122,56,.08);border-left:2px solid var(--bdr2);padding:.3rem .75rem;margin:.4rem 0 .65rem;font-size:13px;line-height:1.7;display:block}
+.speech-text .section{font-family:sans-serif;font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.2rem 0 .25rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.4rem .8rem;margin:.65rem 0 .7rem;font-size:13px;line-height:1.75;background:rgba(154,122,56,.06)}
+
+.logic-view{display:flex;flex-direction:column;gap:.75rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:5px 9px;font-family:sans-serif;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:7px 9px 4px}
+.premise{display:flex;gap:7px;margin-bottom:6px;font-family:sans-serif;font-size:11.5px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:14px;font-size:9.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:7px;padding:5px 9px;font-family:sans-serif;font-size:11.5px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:10.5px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:4px 9px;box-shadow:0 2px 14px rgba(0,0,0,.85);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Believes a Poem is Defined by its Formal Properties — Language, Rhythm, and Structure —<br>Rather than by Subject, Intention, or Moral Vision"</div>
+</div>
+
+<div class="columns">
+
+<!-- ═══════════════ PROPOSITION ═══════════════ -->
+<div class="col prop" id="col-prop">
+
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','shklovsky',this)">Shklovsky</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','lotman',this)">Lotman</button>
+  </div>
+
+  <!-- SHKLOVSKY HEADER -->
+  <div class="col-header" id="prop-shklovsky-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Viktor Shklovsky</span></div>
+    <div class="col-position">For the formal definition — defamiliarisation &amp; literariness; poetry as language made strange</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','shklovsky','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','shklovsky','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- LOTMAN HEADER -->
+  <div class="col-header hidden" id="prop-lotman-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Yury Lotman</span></div>
+    <div class="col-position">For the semiotic definition — poetry as a system of systems; form generates meaning from within</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','lotman','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','lotman','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ── SHKLOVSKY ── -->
+    <div class="speaker-panel active" id="prop-shklovsky-panel">
+      <div id="prop-shklovsky-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The opposition will tell us that a poem is an expression of feeling, a moral vision rendered into words, a communication between souls across time. I am not moved by this account. Not because it is false to experience — many readers have had such experiences — but because it describes nothing that distinguishes a poem from a sermon, a letter, a philosophical dialogue, or a well-turned sentence of literary prose. If we are to speak seriously about what makes a poem a poem, we must identify what it does that nothing else does. And that identifying mark is neither subject nor intention nor moral depth. It is the way it uses language. Specifically: it uses language against itself. It makes language strange.</p>
+        <div class="pull">"The purpose of art is to impart the sensation of things as they are perceived, not as they are known. The technique of art is to make objects 'unfamiliar,' to make forms difficult, to increase the difficulty and length of perception, because the process of perception is an aesthetic end in itself and must be prolonged. Art is a way of experiencing the artfulness of an object; the object is not important."</div>
+        <span class="section">i. automatisation and the death of perception</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Automatisation — habitual perception vs. renewed sensation</span>Ordinary language is automatic. We use it to get things done — to convey information, to make requests, to coordinate action — and in doing so we hear through words rather than hearing them. The word "stone" does not make us feel stone. It activates a concept, smooth and frictionless, and we pass on. What language gains in efficiency through this automatisation, perception loses in aliveness. We cease to experience the world; we merely recognise it. Habit is the anaesthetic of existence. Poetry is the reversal of this process. Its device — and I mean device technically, as a craft procedure — is to disrupt automatisation: to force the reader to slow down, to attend, to feel the resistance of language, to perceive anew. This disruption is not incidental to poetry. It is what poetry is. Eagleton, following us, puts it precisely: poetry is "writing which flaunts its material being rather than modestly effacing it before the Holy-of-Holies of meaning."</span></p>
+        <span class="section">ii. literariness — the formal criterion</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Literariness — self-conscious language use, not content</span>What distinguishes literary language — and poetic language above all — from practical language is not what it says but how it is said, and specifically the degree to which it foregrounds its own saying. Roman Jakobson identified the poetic function of language as orientation toward the message itself — the sign's own texture, sound, weight, and rhythm — as opposed to its referent, its addressee, or its speaker's emotional state. A poem about grief is not a poem because grief is its subject; countless medical case notes, newspaper reports, and personal letters have grief as their subject. It is a poem because its language enacts, complicates, and thickens meaning rather than transparently conveying it. Literariness is the formal criterion that separates poetry from all other uses of language. It cannot be reduced to subject matter, tone, or sincerity of feeling.</span></p>
+        <span class="section">iii. the prose-poetry distinction — not content but orientation</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Poetry vs. prose — formal orientation, not subject</span>The opposition will invoke prose poetry, free verse, and the blurred boundaries between literary modes as evidence that formal properties cannot define poetry. I accept that the boundary is not always a bright line. But this concession does not help the opposition, because what distinguishes the most formally liberated free verse from even the most emotionally intense prose is still a matter of form: line breaks that create semantic double readings; rhythmic patterns that exceed the demands of ordinary utterance; the density of sonic patterning — alliteration, assonance, internal rhyme — that no prose writer employs with equivalent deliberateness. Even where metre and rhyme are absent, what remains to mark the poem is the formal pressure applied to language — the sense that every word is exactly there and could not be otherwise, and that its being there creates relationships with every other word that prose does not seek. That is a formal description, not a moral one.</span></p>
+        <span class="section">iv. the moral vision objection — feeling without technique is sentiment</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Anti-moralism — sincerity without craft is not poetry</span>The opposition's position, if taken seriously, makes the quality of a poet's feelings the criterion of poetic value. But this is exactly backwards. We do not say that Keats is a great poet because he felt deeply about beauty and mortality; we say he felt deeply about beauty and mortality because he was a great poet — because his technique was equal to his feeling, and his technique is how we know the feeling was genuine rather than performed. T. S. Eliot understood this in his theory of the objective correlative: the feeling must find its exact formal equivalent in language or it remains private, inarticulate, and poetically null. A poem in which the writer's moral vision is vivid but the language is slack, the rhythm inert, and the imagery derivative is not a lesser poem. It is not a poem at all. It is an aspiration toward poetry frustrated by insufficient craft. Craft — formal competence — is not the vehicle of poetry. It is the thing itself.</span></p>
+        <span class="section">v. estrangement restores the world</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Estrangement — formal technique restores felt experience</span>I want to answer a charge before it is made: that the Formalist account makes poetry cold, abstract, a matter of technical procedure divorced from human meaning. This misunderstands defamiliarisation. The point of making language strange is precisely to restore the felt density of experience — to make us encounter the world rather than merely categorise it. When Gerard Manley Hopkins writes of the world being "charged with the grandeur of God" and the phrase crackles with alliteration, assonance, and the strained electricity of sprung rhythm, the formal devices are not decorating a pre-existing thought. They are how the thought becomes thinkable — how the sense of a world under electric charge is made present rather than stated. Form and content are not separable here. But that is because form does the work. The moral vision, such as it is, is an effect of the formal achievement, not its cause.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-shklovsky-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Automatisation: ordinary language kills perception; poetry reverses this</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Ordinary language operates through automatisation: words activate concepts without producing sensation, making the world merely recognisable rather than felt.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Poetry's distinctive function is to reverse automatisation: to disrupt habitual perception and compel renewed, slowed attention to language and through it to the world.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This reversal is achieved through formal devices — rhythm, metre, sound patterning, syntactic disruption — not through subject matter or the sincerity of the writer's feeling.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>What makes a poem a poem is the formal deployment of defamiliarising devices; subject, intention, and moral vision are neither necessary nor sufficient conditions.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Literariness: the poetic function is orientation toward the sign itself</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Jakobson identifies the poetic function as language oriented toward the message itself — its texture, sound, weight — rather than toward its referent, addressee, or speaker's emotional state.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This orientation — literariness — is a formal, not a content-based criterion: it describes how language is deployed, not what it says or why.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Any use of language, on any subject, can be poetic if it deploys literariness; and any use of language, however serious its moral vision, fails to be poetic if it lacks it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Literariness is the necessary and sufficient formal criterion for poetry; the moral or thematic content of a text is irrelevant to whether it satisfies this criterion.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Even free verse is defined by formal pressure, not by subject or feeling</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Even the most formally liberated free verse differs from prose through line breaks creating semantic doubling, rhythmic excess over ordinary utterance, and density of sonic patterning.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The sense that every word is exactly there and could not be otherwise — and creates relationships with every other word — is a formal, not a moral description.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Blurred boundaries between prose and poetry confirm that the distinction is one of degree of formal pressure, not a categorical difference in subject matter or ethical seriousness.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Free verse does not refute the formal account; it instantiates it — as formal pressure applied to language, released from metre but retaining all other devices that defamiliarise ordinary speech.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Moral sincerity without craft produces sentiment, not poetry</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The quality of a poet's feelings is evidenced by the formal adequacy of their language to those feelings — not by the feelings' intensity, subject, or sincerity independent of form.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A text with a vivid moral vision but slack language, inert rhythm, and derivative imagery is not a lesser poem — it is not a poem at all; formal failure is definitive, not incidental.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Craft — formal competence — is not the vehicle of poetry; it is the constitutive thing itself, because there is no poem before the formal achievement that makes it present.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Moral vision without formal achievement produces sentiment; formal achievement without moral depth may still produce a poem; the asymmetry establishes which criterion is definitive.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — Estrangement restores felt experience; form and content are inseparable but form leads</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Defamiliarisation does not make poetry cold or mechanical — its purpose is to restore the felt density of experience by making language and through it the world newly perceptible.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In the best poetry, formal devices do not decorate a pre-existing moral vision; they are how the vision becomes thinkable — form generates the content rather than conveying it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the moral vision is an effect of the formal achievement, not its cause, then form is the more fundamental determinant and the proposition's claim is vindicated.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>In the best poetry form and content are inseparable — but this inseparability confirms that form leads; the moral vision is realised through formal achievement and cannot precede it.</span></div>
+        </div>
+      </div>
+    </div><!-- end shklovsky -->
+
+    <!-- ── LOTMAN ── -->
+    <div class="speaker-panel" id="prop-lotman-panel">
+      <div id="prop-lotman-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to take the Formalist insight that my colleague Shklovsky has articulated and press it toward greater precision. The claim that poetry makes language strange is correct but incomplete. It does not explain the specific mechanism by which poetic strangeness operates — why a poem's formal structures do not merely impede understanding but actively generate meaning that could not exist without them. My semiotics of poetry is an attempt to answer this question rigorously, and its answer confirms and extends the proposition: a poem is not a container for moral vision; it is a semiotic machine whose meaning is produced by the interaction of its multiple formal systems.</p>
+        <div class="pull">"The text of a poem is not a linear sequence of units of meaning. It is a structured space in which multiple systems — phonological, metrical, syntactic, semantic — interact simultaneously, and in which meaning emerges from the tension and resolution between those systems. To extract the 'content' of a poem from its form is not to preserve it — it is to destroy it, because the content does not pre-exist the form. It is the form."</div>
+        <span class="section">i. the poem as a system of systems</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">System of systems — phonology, metre, syntax, semantics in tension</span>A poem is not, as the opposition implies, a moral vision dressed in pleasant sound. It is a structured space in which multiple semi-autonomous formal systems — phonological (sound), metrical (stress and rhythm), syntactic (grammatical structure), semantic (meaning) — operate simultaneously and in tension with one another. The aesthetic effect of a poem — what makes it work as a poem rather than as a piece of morally serious prose — arises from the conflict and resolution between these systems. When a metrical pattern is violated at a semantically charged moment, the violation does not merely ornament the meaning: it creates a meaning that the words alone, rearranged in prose order, could not produce. The form is not carrying the content; the form is generating it.</span></p>
+        <span class="section">ii. secondary modelling systems</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Secondary modelling — poem creates its own world-model</span>Natural language is what I call a primary modelling system: the basic medium through which human beings model reality. Poetry — and literature more generally — is a secondary modelling system: it takes natural language as its material and constructs within it a structured world with its own internal logic, its own spatial, temporal, and causal rules. A sonnet does not merely describe a lover; it constructs a world in which the lover exists — a world whose rules of existence are determined by the poem's formal structure. The compression of the octave and the resolution of the sestet are not decorative choices; they are the architecture of the world the poem creates. This is why paraphrase destroys poetry: because the world disappears when the structure that generates it is removed. The moral vision the opposition values is a product of this world-construction, not its input.</span></p>
+        <span class="section">iii. repetition and equivalence</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Repetition — metre creates semantic equivalence across lines</span>Jakobson's famous principle — that the poetic function projects the principle of equivalence from the axis of selection to the axis of combination — points to the most fundamental structural feature of poetic language. In ordinary language, we select words and combine them sequentially; the sequence determines meaning. In poetry, the metrical pattern creates equivalences across positions in the line and across lines: words in equivalent metrical positions enter into semantic relationships with one another that their sequential relationship alone does not generate. This is how rhyme makes meaning rather than merely pleasure: the phonological equivalence it creates between two words at line endings forces a semantic comparison, contrast, or reconciliation between them that the prose sense does not require and cannot replicate. Meaning is made by structure.</span></p>
+        <span class="section">iv. answering the opposition — what a poem "means" cannot be separated from what it is</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against paraphrase — meaning inseparable from structure</span>The opposition will tell us that Keats's odes mean something — about beauty, mortality, the relation between art and life — and that this meaning, however formally achieved, is what matters, and what poetry ultimately is. I do not deny that the odes mean something. I deny that what they mean can be stated separately from how they mean it. Cleanth Brooks identified the heresy of paraphrase: the assumption that the poem's prose content can be extracted and evaluated independently of its form. The assumption is wrong. The "meaning" of the odes is not translatable into paraphrase because it does not pre-exist the formal structures that produce it. To ask what the ode "says about mortality" is to ask a question the ode cannot answer in those terms — because what it says about mortality is inseparable from how it says it, which is itself what it says. The opposition mistakes the effect of the poem for its cause.</span></p>
+        <span class="section">v. the incarnational fallacy — not the position I defend</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Incarnational fallacy — against treating words as sacred objects</span>I want to distinguish my position from a version of formalism that even Eagleton rightly criticises: the incarnational fallacy — the view that the words of a poem are so uniquely and irrevocably themselves that they resist interpretation altogether, that meaning is wholly absorbed into the material density of the sign. This view, taken to its extreme, makes poetry uninterpretable: a sacred object to be contemplated rather than read. My position is different. The formal systems of a poem are not ends in themselves but generators of meaning — meaning that is richer, more complex, and more resistant to reduction than prose meaning, but meaning nonetheless. Form and meaning are not identical; they are inseparable. This distinction preserves what is right in the Formalist account while avoiding its tendency toward a mysticism of the verbal object.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-lotman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Poetry is a system of systems: meaning emerges from inter-system tension</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A poem consists of multiple semi-autonomous formal systems — phonological, metrical, syntactic, semantic — operating simultaneously in tension with one another.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The aesthetic and semantic effect of the poem emerges from the conflict and resolution between these systems — specifically from moments where one system's demands violate or complicate another's.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This inter-system meaning generation cannot occur without the formal systems themselves; strip away form and you do not have the same meaning in a different package — you have no meaning of this kind at all.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Poetic meaning is produced by formal structure, not expressed through it; the formal properties are constitutive, not vehicular — which vindicates the proposition's claim.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Secondary modelling: a poem constructs a world, not describes one</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Poetry is a secondary modelling system: it uses natural language as material to construct a structured world with its own internal spatial, temporal, and causal logic.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The formal structure of the poem — its rhyme scheme, stanza architecture, metrical pattern — is the architecture of the world it constructs; paraphrase destroys this world because the structure that generates it is removed.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The moral vision the opposition values is a product of this world-construction; it cannot precede it, because without the formal structure there is no world for the moral vision to inhabit.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>A poem constructs rather than describes a world; its formal architecture is not secondary to its content — it is what makes the content possible.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Equivalence and repetition: metre makes meaning, not music</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The poetic function projects equivalence from the paradigmatic to the syntagmatic axis: words in metrically equivalent positions enter into semantic relationships their sequential relationship alone does not generate.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Rhyme makes meaning — not merely pleasure — by creating phonological equivalence between line-terminal words that forces semantic comparison, contrast, or reconciliation between them.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This meaning-making mechanism is entirely formal; it operates on any words placed in phonological equivalence, regardless of the moral vision of the poet who placed them there.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Metre and rhyme are not decorative additions to pre-existing meaning; they are structural mechanisms that generate meaning — proving that formal properties are definitionally constitutive of poetry.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — The heresy of paraphrase: poetic meaning cannot survive translation into prose</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The assumption that a poem's prose content can be extracted and evaluated independently of its form — the heresy of paraphrase (Cleanth Brooks) — is empirically wrong.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>What a great poem "says" about its subject is inseparable from how it says it; to ask what Keats's odes say about mortality independently of their form is to ask a question they cannot answer because the separation destroys the thing being asked about.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If poetic meaning cannot survive the removal of formal structure, the formal structure is not the vehicle of meaning but its condition of possibility — which vindicates the proposition.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The heresy of paraphrase proves that form is not separable from content in poetry; the inseparability confirms that formal properties are constitutive — not merely instrumental — of poetic meaning.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — Against the incarnational fallacy: form generates meaning, it does not replace it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The incarnational fallacy treats words as sacred objects whose material density absorbs meaning entirely, making poetry uninterpretable — this is a misuse of formalism that Eagleton rightly criticises.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The correct semiotic position is that formal systems are generators of meaning — richer, more complex, and more resistant to reduction than prose meaning, but meaning nonetheless, not a mystical verbal substance beyond interpretation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Form and meaning are inseparable but not identical: the poem can be interpreted, but only through its formal structure, not despite it — confirming that formal properties are definitionally constitutive.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The semiotic position avoids both the opposition's moralism and formalism's own mystical extreme — form generates interpretable meaning, and the formal properties that do this generating are what poetry fundamentally is.</span></div>
+        </div>
+      </div>
+    </div><!-- end lotman -->
+
+  </div>
+</div><!-- end prop -->
+
+<!-- ═══════════════ OPPOSITION ═══════════════ -->
+<div class="col opp" id="col-opp">
+
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','eagleton',this)">Eagleton</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','pragmatist',this)">Wittgenstein / Rorty</button>
+  </div>
+
+  <!-- EAGLETON HEADER -->
+  <div class="col-header" id="opp-eagleton-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Terry Eagleton</span></div>
+    <div class="col-position">Against pure formalism — form and moral vision are dialectically inseparable; rhetoric, history, and human seriousness define poetry</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','eagleton','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','eagleton','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- WITTGENSTEIN HEADER -->
+  <div class="col-header hidden" id="opp-pragmatist-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Wittgenstein &amp; Rorty</span></div>
+    <div class="col-position">Against essentialism entirely — "poem" is a family resemblance concept; the question "what makes a poem a poem?" has no correct answer</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','pragmatist','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','pragmatist','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ── EAGLETON ── -->
+    <div class="speaker-panel active" id="opp-eagleton-panel">
+      <div id="opp-eagleton-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I find myself in the unusual position of opposing a case that I have substantially made myself. The Russian Formalists' account of poetry is, as I have written, one of the most sophisticated and illuminating theories of literary language that the twentieth century produced. I take defamiliarisation seriously; I take the semiotics of Lotman seriously; I take the Jakobsonian analysis of the poetic function seriously. And then I find all of it insufficient — not wrong exactly, but systematically incomplete in a way that matters enormously, because what it leaves out is the question of what formal devices are for, which cannot be answered formally.</p>
+        <div class="pull">"The Formalists were right that poetry has a specific use of language. They were wrong to think that this use could be described without reference to what language is for in the first place — which is to say, without reference to the human beings who use it, the communities they form, and the moral and political questions they are trying, in every act of serious speech, to address."</div>
+        <span class="section">i. the incarnational fallacy — formalism's internal danger</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Incarnational fallacy — form worshipped, meaning dissolved</span>There is a temptation within formalist poetics — one that Lotman himself does not entirely avoid, despite his sophistication — to move from the true observation that form generates meaning to the false conclusion that form is all there is, and that the poem's relationship to reality, to history, to human experience outside the text, can be bracketed or dissolved. This is what I call the incarnational fallacy: the treatment of the verbal object as a self-sufficient sacred entity, densely and uniquely itself, opaque to any reading that asks what it is about, what it does in the world, what human concerns it engages. The poem becomes an icon rather than an utterance. But poems are utterances. They are made by specific human beings in specific historical circumstances, and their form is not a system hovering free of the human life it grows from. Form is always already historical.</span></p>
+        <span class="section">ii. rhetoric — the forgotten tradition</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Rhetoric — form and persuasion historically inseparable</span>Literary criticism is in danger of breaking faith with its origins in classical rhetoric — and the Formalists represent the decisive moment of that rupture. Rhetoric was the art of effective speaking and writing, and it understood from the outset that formal devices — tropes, figures, rhythmic patterns — are not aesthetically self-sufficient but are means of persuasion: ways of making arguments, moving audiences, and engaging the moral and political questions of a community. Metre, in ancient poetry, was not primarily an aesthetic device. It was a mnemonic, a communal form, a mode of public address. When we strip form of its rhetorical function and treat it as purely aesthetic — as the Formalists do — we impoverish both the form and our understanding of it. The sonnet's compression is not merely a formal system; it is a way of making a particular kind of urgent argument in the teeth of limited space.</span></p>
+        <span class="section">iii. form and content are dialectically related — neither leads</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Dialectic — form and content mutually determine each other</span>I want to reject the proposition's implied hierarchy — that form generates content, that the moral vision is an effect of formal achievement — while also rejecting the opposite hierarchy the proposition attributes to me: that the poet's moral vision exists prior to form and merely finds its vehicle there. Both images are wrong. Form and content are dialectically related: each generates and modifies the other in the act of composition. The poet begins with an inchoate pressure of feeling and meaning that has no form yet; the formal choices made in the course of writing alter and discover what that pressure contains; the emerging content in turn demands formal adjustments. Neither precedes the other in any theoretically interesting sense. To say that form "leads" is to freeze a dialectical process into a hierarchy that the process itself continually undermines.</span></p>
+        <span class="section">iv. moral vision is not the enemy of form — it is its measure</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Moral vision — the ground of formal evaluation</span>When I invoke moral vision in poetry, I do not mean the poet's private ethical opinions or personal beliefs. I mean something more like what F. R. Leavis meant by "felt sense of life" — the quality of attention, the depth of engagement with experience, the seriousness with which human realities are held in mind. And this quality is not separable from formal achievement; it is precisely what formal achievement is in the service of, and what we use to evaluate whether formal achievement has been genuine rather than merely decorative. A poet with a slack moral sense — a shallow or dishonest engagement with experience — will eventually produce formal slack: the rhythm will go dead, the imagery will become clichéd, the syntax will stop working. The moral and the formal are not two things but one thing seen from different angles. Neither defines the poem alone.</span></p>
+        <span class="section">v. poetry is a human practice, not a language function</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Human practice — poetry as social, historical, moral address</span>The Formalist account defines poetry as a specific function of language: the orientation toward the message itself. But this definition is too thin. It would make a technically accomplished piece of advertising copy — which foregrounds its own language, disrupts automatisation, and deploys sonic and rhythmic devices with great precision — a poem on formal grounds. Something has gone wrong. What has gone wrong is the abstraction of the formal criterion from the human practice of poetry — the centuries-long tradition of making imaginative verbal objects that engage, with the resources of language, the most serious questions of human experience. Poetry is not a language function. It is a human practice with a history, a set of purposes, a community of readers and makers. What makes a poem a poem is not exhausted by a formal description of what its language does. It includes what that language is doing in the service of, and for whom.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-eagleton-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The incarnational fallacy: pure formalism makes poems uninterpretable icons</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The move from "form generates meaning" to "form is all there is" — the incarnational fallacy — treats the poem as a self-sufficient verbal object opaque to any question about what it is about or what it does in the world.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But poems are utterances made by human beings in specific historical circumstances; their form is not a free-floating system but is grown from and shaped by the human life and historical situation that produced it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A theory of poetry that cannot accommodate the question "what is this poem about and why does it matter?" has defined away the most important question we bring to poems.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Pure formalism's internal danger — the incarnational fallacy — makes it an inadequate definition of poetry by dissolving the human and historical dimensions that make poems matter.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Rhetoric: formal devices have always been in the service of human address</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Classical rhetoric understood formal devices — tropes, figures, rhythm — as means of persuasion: ways of making arguments, moving audiences, and engaging communities' moral and political questions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Formalist account severs form from its rhetorical function, treating it as aesthetically self-sufficient — impoverishing both formal analysis and our understanding of what the form is doing.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A sonnet's compression is not merely a formal system; it is a way of making an urgent argument in limited space — the argument is not separable from the form, nor the form from the argument.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Form has always been in the service of human address and argument; defining poetry by form alone severs it from the rhetorical tradition that made formal devices meaningful in the first place.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Form and content are dialectically related: neither generates the other</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The proposition's claim that form generates content implies that moral vision is an effect of formal achievement — that form precedes and produces meaning.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This hierarchy is as wrong as its opposite: in composition, form and content are dialectically related — each generates and modifies the other, so that neither theoretically precedes the other.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Freezing a dialectical process into a hierarchy — form leads — misrepresents the actual relation between formal and semantic forces in the creation and reading of poems.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proposition's claim that form leads is a misrepresentation of the dialectical form-content relation; neither formal properties nor moral vision takes theoretical priority — each is constituted through the other.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Moral vision is the measure of formal achievement, not its product</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Moral vision in poetry means quality of attention and depth of engagement with experience — what Leavis called "felt sense of life" — not the poet's personal ethical opinions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This quality is what formal achievement is in the service of, and what we use to evaluate whether formal achievement has been genuine rather than merely decorative or technically accomplished but empty.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A poet with a shallow engagement with experience will eventually produce formal slack — the rhythm goes dead, imagery becomes clichéd — demonstrating that moral seriousness and formal rigour are the same thing seen from different angles.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Moral vision is not an alternative to formal achievement — it is the ground against which we evaluate whether formal achievement is genuine; neither defines the poem alone, but neither can be reduced to the other.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — Poetry is a human practice, not a language function; the formal criterion is too thin</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If poeticness is defined purely by the formal criterion of literariness (language oriented toward itself), then accomplished advertising copy — which foregrounds its language, disrupts automatisation, and deploys rhythm — becomes a poem.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Something has gone wrong — and what has gone wrong is abstracting the formal criterion from the human practice of poetry, with its centuries-long tradition, purposes, and community of serious engagement.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>What makes a poem a poem includes what its language is in the service of and for whom — a description that necessarily invokes human purposes that exceed what any purely formal account can supply.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The purely formal definition is too thin: it cannot exclude technically accomplished non-poems without invoking human purposes and social contexts that go beyond formal description — proving that formal properties alone are insufficient to define poetry.</span></div>
+        </div>
+      </div>
+    </div><!-- end eagleton -->
+
+    <!-- ── WITTGENSTEIN / RORTY ── -->
+    <div class="speaker-panel" id="opp-pragmatist-panel">
+      <div id="opp-pragmatist-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>Both sides of this debate share an assumption I want to challenge at the root: that the question "what makes a poem a poem?" has a correct answer — that there is some property or set of properties, whether formal or moral, that all poems and only poems possess, and that a successful theory of poetry will identify this property. I want to argue that this assumption is false, that the search for a definition of poetry in this strong sense is a philosophical error, and that the error has consequences for how we read, teach, and value poems.</p>
+        <div class="pull">"When Wittgenstein asked what all games have in common, and discovered the answer was nothing — merely overlapping and criss-crossing resemblances — he was not being deflationary about games. He was liberating us from a certain kind of philosophical confusion. The same liberation is available in the philosophy of poetry, if we are willing to stop asking what all poems have in common and start asking what we use poems for."</div>
+        <span class="section">i. family resemblance — no essence unites all poems</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Family resemblance — no single property shared by all poems</span>Wittgenstein's concept of family resemblance in <cite>Philosophical Investigations</cite> dissolves essentialist questions about categories. He shows that "game" does not name a property that all games share; it names a web of overlapping similarities — this game shares features with that one, that one shares features with a third, but there is no feature that runs through all of them. The same analysis applies to "poem." Some poems have metre; many do not. Some rhyme; many do not. Some deploy dense imagery; many do not. Some make language strange; many do not. Some have a clear moral vision; many deliberately resist it. Some are short; some are extremely long. There is no property — formal, moral, or otherwise — that is present in all poems and absent from all non-poems. The proposition's formal criterion and the opposition's moral vision are each simply the feature a particular reader or tradition happens to regard as most salient. Neither is definitive.</span></p>
+        <span class="section">ii. the pragmatist question — what do we use poems for?</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Pragmatism — poetry defined by use, not essence</span>Rorty argued that the interesting question about any cultural practice is not what it essentially is but what it is for — what work it does in a human life and a human community. Applied to poetry, the pragmatist question is: what do people use poems for? The answers are multiple and not reducible to a single essence. People use poems to mark occasions — births, deaths, marriages — where ritual language is required. They use poems to express feelings that exceed prose utterance. They use poems to preserve and transmit cultural memory. They use poems to defamiliarise experience. They use poems to construct formal beauty for its own sake. They use poems to make political arguments. None of these uses is uniquely poetic; each can be served by other forms. And different poems serve different uses, without any single use being definitive. The definition of poetry should track its uses, not precede them.</span></p>
+        <span class="section">iii. the institution of poetry</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Institution — poems are what literary communities call poems</span>There is a more direct answer to the question "what makes a poem a poem?": poems are what communities of readers, writers, critics, and publishers, operating within the historical institution of poetry, call poems. This is not a circular definition — it is a description of how all cultural categories work. The institution of poetry has fuzzy, historically variable, and contested boundaries. It includes verse, but also prose poems. It includes experimental language poetry, but also greeting card verse. It includes found poetry — texts not written as poems but placed in poetic contexts and read as poems. The formal and moral criteria the debaters on both sides propose are not definitions of poetry but descriptions of features that various traditions within the institution have at various times prized or required. Neither is an essence; both are historically local preferences dressed as universal criteria.</span></p>
+        <span class="section">iv. the costs of essentialism</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Essentialism costs — excludes, polices, misreads</span>The search for an essence of poetry is not merely a philosophical error; it has practical costs. When critics insist that poetry must have metric form, or that it must defamiliarise language, or that it must embody moral vision, they are not describing what poems are — they are prescribing what poems should be, and thereby excluding from the category those texts that do not conform to their preferred feature. This exclusion has historical victims: oral poetry systematically undervalued because written-text formalism was the criterion; women's domestic poetry dismissed as sentiment because male moral seriousness was the standard; poetry outside the European tradition marginalised because Western formal conventions were applied universally. Essentialism about poetry is not neutral; it is always the essentialism of a dominant tradition claiming to describe what is in fact its own preference.</span></p>
+        <span class="section">v. what follows — redescription, not definition</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Redescription — criticism as illuminating use, not discovering essence</span>If there is no essence of poetry, what is left for criticism to do? Rorty's answer: redescription. The critic's job is not to apply a definition of poetry to texts and classify them correctly, but to describe particular poems in ways that illuminate what they do — that make them more available to the reader's experience and more useful for the purposes they serve. This is closer to what the best critics actually do than the essentialist model suggests. When Eagleton close-reads Hopkins, he is not applying a criterion of poeticness — he is showing what the poem does, how it works, what it rewards. That showing is the criticism. The definition is not the ground of the criticism; it is irrelevant to it. What matters is not what makes a poem a poem, but what this poem does — and doing that for individual poems is the whole of the critical enterprise.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-pragmatist-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Family resemblance: no property is present in all poems and absent from all non-poems</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Wittgenstein's family resemblance analysis shows that categories like "game" are unified not by a shared essence but by overlapping and criss-crossing resemblances — no single feature runs through all instances.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The same analysis applies to "poem": some poems have metre, rhyme, dense imagery, defamiliarising language, or moral vision; many do not — and no feature is present in all poems and absent from all non-poems.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition's formal criterion and the counter-position's moral vision are each simply the feature a particular tradition happens to prize — neither is a universal defining property of poetry.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Family resemblance analysis dissolves the search for poetic essence; both sides of the debate are pursuing a philosophical illusion — there is no property that makes a poem a poem.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — The pragmatist question: what do we use poems for?</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The interesting question about poetry is not what it essentially is but what it is for — what work it does in human lives and communities.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>People use poems for: ritual marking of occasions, emotional expression exceeding prose, cultural memory transmission, defamiliarisation, formal beauty, political argument — multiple uses, no single one definitive.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A definition of poetry should track its uses rather than precede them; no essence will be discovered because the uses are plural and irreducible to a single feature.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Poetry is defined by its multiple, historically variable uses; no single use is definitive, and the search for an essential property misunderstands what kind of cultural category poetry is.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — The institution: poems are what literary communities call poems</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>All cultural categories are instituted by communities of practice — poems are what readers, writers, critics, and publishers, within the historical institution of poetry, call poems.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The institution's boundaries are fuzzy, historically variable, and contested — including verse, prose poems, experimental language poetry, found poetry, and greeting card verse.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The formal and moral criteria proposed by both sides are descriptions of features that particular traditions within the institution have prized at particular times — not universal essences but historically local preferences.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Poems are constituted by institutional practice, not by essential properties; both the formal and moral criteria are historically contingent preferences claiming a universality they cannot sustain.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Essentialism has historical victims: it excludes by prescribing</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Essentialist definitions of poetry are not neutral descriptions — they are prescriptions that exclude texts not conforming to the dominant tradition's preferred feature.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Formal essentialism has excluded oral poetry; moral seriousness essentialism has dismissed domestic women's poetry; European formal conventions have marginalised non-Western poetic traditions.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The essentialism of any tradition claiming to describe what poetry is is always the essentialism of a dominant tradition claiming to describe what is in fact its own historically contingent preference.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Essentialism about poetry has practical costs — it excludes and marginalises by prescribing; the anti-essentialist position is not merely philosophically correct but ethically preferable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — Redescription: criticism illuminates use, it does not apply definitions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If there is no essence of poetry, criticism's job is not to apply a definition and classify texts correctly but to describe particular poems in ways that illuminate what they do and make them more available to experience.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is what the best critics actually do: Eagleton close-reading Hopkins is not applying a criterion of poeticness — he is showing what the poem does and rewards; the definition is irrelevant to this activity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The question "what makes a poem a poem?" is not the ground of criticism — it is a distraction from it; the whole of the critical enterprise is illuminating what this poem does, not discovering what all poems are.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Redescription — not definition — is the proper mode of criticism; the motion's question ("what makes a poem a poem?") is a philosophical distraction from the only question criticism can usefully answer: what does this poem do?</span></div>
+        </div>
+      </div>
+    </div><!-- end pragmatist -->
+
+  </div>
+</div><!-- end opp -->
+
+</div>
+</div>
+
+<script>
+var state={
+  prop:{speaker:'shklovsky',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'eagleton',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var x=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=x+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
