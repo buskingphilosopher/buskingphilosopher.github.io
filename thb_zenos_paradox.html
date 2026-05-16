@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zeno's Paradox</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 12px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Philosophical Symposium &mdash; Zeno of Elea, c. 450 BCE</div>
+  <div class="motion-title">&ldquo;How Should We Resolve Zeno&rsquo;s Paradoxes of Motion?&rdquo;</div>
+  <div class="motion-sub">Six Responses &bull; Aristotle &middot; Russell &middot; Bergson &middot; Ryle &middot; Wittgenstein &middot; Priest &mdash; each offering a fundamentally distinct diagnosis and cure</div>
+</div>
+
+<div class="columns">
+
+<!-- ═══════════════════════════════════════════
+     LEFT COLUMN — Aristotle · Russell · Bergson
+═══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','aristotle',this)">Aristotle</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','russell',this)">Russell</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','bergson',this)">Bergson</button>
+  </div>
+
+  <!-- ARISTOTLE HEADER -->
+  <div class="col-header" id="prop-aristotle-header">
+    <div class="col-header-top"><span class="pill prop">Solution I</span><span class="col-subtitle">Aristotle</span></div>
+    <div class="col-position">The potential/actual infinity distinction &mdash; Zeno illicitly assumes that potential infinities must be actually traversed. Motion divides space <em>potentially</em>, not actually.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','aristotle','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','aristotle','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- RUSSELL HEADER -->
+  <div class="col-header hidden" id="prop-russell-header">
+    <div class="col-header-top"><span class="pill prop">Solution II</span><span class="col-subtitle">Bertrand Russell</span></div>
+    <div class="col-position">The Standard Mathematical Solution &mdash; infinite convergent series sum to finite values; motion is a function over a dense continuum. Zeno&rsquo;s error is mathematical, not metaphysical.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','russell','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','russell','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BERGSON HEADER -->
+  <div class="col-header hidden" id="prop-bergson-header">
+    <div class="col-header-top"><span class="pill prop">Solution III</span><span class="col-subtitle">Henri Bergson</span></div>
+    <div class="col-position">Duration and the cinematographic illusion &mdash; Zeno spatialises time and mistakes a mental reconstruction of motion for motion itself. Real movement is indivisible <em>durée</em>.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','bergson','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','bergson','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ ARISTOTLE ══ -->
+    <div class="speaker-panel active" id="prop-aristotle-panel">
+      <div id="prop-aristotle-speech" class="speech-text">
+        <p class="salut">Fellow inquirers,</p>
+        <p>Zeno of Elea was a student of Parmenides, and his paradoxes were constructed in service of a Parmenidean conclusion: that plurality and motion are appearances, that only the One is real. I want to show that this conclusion rests on a confusion about the nature of infinity itself &mdash; a confusion that, once exposed, dissolves all four of the paradoxes.</p>
+        <div class="case-box">
+          <strong>The Dichotomy.</strong> To reach the finish line, a runner must first reach the halfway point. Before that, a quarter of the way. Before that, an eighth. And so on without end. Since the series of prior tasks is infinite, the runner cannot even begin &mdash; and if he could begin, he could not finish.
+          <br><br>
+          <strong>Achilles and the Tortoise.</strong> Achilles gives the tortoise a head start. Before he can overtake it, he must reach where the tortoise was. But by then the tortoise has moved on. This continues without end. Achilles can never catch the tortoise.
+          <br><br>
+          <strong>The Arrow.</strong> At any given instant, the arrow occupies a space exactly equal to itself &mdash; it is therefore at rest at that instant. Since it is at rest at every instant, and time is made of instants, the arrow never moves.
+        </div>
+        <span class="section">i. the potential/actual infinity distinction</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Potential vs. actual infinity</span>The key to all three paradoxes is a single illicit assumption: that because space and time are <em>potentially</em> infinitely divisible, they must therefore consist of an <em>actual</em> infinity of parts. I deny this. A potential infinity is a process that can always continue further &mdash; the counting numbers, the division of a line &mdash; but which is never completed, never "given all at once." An actual infinity would be a completed, simultaneous totality of infinitely many distinct entities. The line from A to B is potentially infinite in that it can be divided as many times as one wishes. But no one &mdash; certainly not the runner &mdash; is required to actualise all those divisions. The runner does not complete infinitely many distinct sub-tasks. He traverses a single continuous stretch of space. The sub-divisions exist potentially, as a function of our capacity to divide &mdash; they do not pre-exist in the path, waiting to be traversed one by one.</span></p>
+        <span class="section">ii. the dichotomy resolved</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Dichotomy — potential subdivision, not actual traversal</span>In the Dichotomy, Zeno assumes that because the runner&rsquo;s path is infinitely divisible into halves, the runner must successively complete each half, each quarter, each eighth, as a series of distinct acts. But this confuses logical divisibility with physical traversal. The runner performs one continuous motion from start to finish. The mathematician may, retrospectively and in thought, subdivide that motion into arbitrarily many intervals &mdash; but the runner does not thereby perform arbitrarily many distinct actions. His motion is continuous and indivisible as an act; the infinite divisibility belongs to our conceptual analysis of space, not to the structure of his running. Zeno has generated a spurious regress by treating a potential infinity of descriptions as if it were an actual infinity of tasks.</span></p>
+        <span class="section">iii. the arrow resolved</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Arrow paradox — instants are limits, not containers</span>The Arrow paradox assumes that time is composed of durationless instants, and that motion at any instant would require the arrow to be in two places simultaneously &mdash; which is impossible. Therefore, the arrow is at rest at every instant. But I reject the premise. Time is not composed of extensionless instants any more than a line is composed of extensionless points. An instant is a limit, a boundary of an interval, not itself a part of time with duration. Motion is essentially a process extended over time; asking whether an arrow is "in motion at an instant" is like asking for the area of a line. The question misapplies the concept of motion, and a misapplication of a concept generates no genuine paradox &mdash; only confusion.</span></p>
+        <span class="section">iv. what my solution uniquely provides</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Aristotle vs. later solutions — metaphysical diagnosis, not mathematical bypass</span>Where Russell will later argue that modern mathematics simply shows infinite series can converge, and where Bergson will argue that Zeno spatialises time, my solution operates at a prior level: it diagnoses a confusion in Zeno&rsquo;s <em>metaphysics of infinity</em>. I do not need to invoke convergent series or a theory of duration. I need only insist that the distinction between potential and actual infinity is real, and that Zeno&rsquo;s argument illicitly requires the potential to be actual. This is the primary philosophical error; the rest follows. The paradoxes are not deep mysteries about the structure of space and time &mdash; they are consequences of a single conceptual mistake about what kind of infinity divisibility implies.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-aristotle-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The potential/actual distinction eliminates the regress</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A potential infinity is a process that can always be extended but is never completed as a totality; an actual infinity is a completed simultaneous totality of infinitely many distinct entities.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Space and time are potentially infinite (infinitely divisible as a logical possibility) but not actually infinite (no completed totality of distinct sub-intervals exists in the path prior to traversal).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Zeno&rsquo;s paradoxes require that the runner must actually complete an actual infinity of tasks &mdash; but divisibility implies only potential, not actual, infinity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Zeno&rsquo;s paradoxes presuppose a conflation of potential and actual infinity; once distinguished, the regress dissolves &mdash; no actually infinite series of tasks is required for motion.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Dichotomy: continuous motion is not a series of discrete acts</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The runner performs one continuous motion from start to finish &mdash; a single, indivisible act at the level of physical performance.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The mathematician may retrospectively subdivide this motion into arbitrarily many intervals, but this conceptual division does not generate distinct physical acts that the runner must perform.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Zeno treats a potential infinity of conceptual descriptions as if it were an actual infinity of physical tasks &mdash; the same equivocation identified in Argument I.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Dichotomy generates an infinite regress of descriptions, not an infinite regress of tasks; the runner completes his journey by performing one continuous act, not infinitely many.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The Arrow: motion is an extended process, not an aggregate of instants</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Time is not composed of durationless instants; an instant is a limit or boundary of an interval, not a part of time with its own duration.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Motion is essentially a process extended over intervals; the question &ldquo;is the arrow in motion at an instant?&rdquo; misapplies the concept of motion to what is not its proper domain.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A conceptual misapplication generates verbal puzzles, not genuine paradoxes about the world.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Arrow paradox rests on a category confusion: motion cannot meaningfully be predicated of an instant, so the paradox dissolves as a pseudo-question.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Aristotle&rsquo;s solution is prior to and independent of mathematics</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Russell&rsquo;s mathematical solution shows that infinite convergent series can sum to finite values &mdash; but this does not explain why no infinite series of tasks need be performed in the first place.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Aristotle&rsquo;s solution operates at the level of metaphysics: it identifies the illicit move from potential to actual infinity before mathematics is invoked.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A diagnosis that prevents the paradox from arising is more fundamental than a treatment that cures it after it has been generated.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Aristotle&rsquo;s potential/actual distinction provides the deepest resolution: it dissolves the paradoxes at their conceptual source rather than answering them on their own (confused) terms.</span></div>
+        </div>
+      </div>
+    </div><!-- end aristotle -->
+
+    <!-- ══ RUSSELL ══ -->
+    <div class="speaker-panel" id="prop-russell-panel">
+      <div id="prop-russell-speech" class="speech-text">
+        <p class="salut">Ladies and gentlemen,</p>
+        <p>Zeno&rsquo;s paradoxes have been treated by many philosophers as deep mysteries about the fabric of reality. I want to argue that they are, in fact, mathematical errors &mdash; specifically, errors about the behaviour of infinite series that had not been corrected in Zeno&rsquo;s time because the relevant mathematics had not yet been developed. The solution was provided in the nineteenth century by Weierstrass, Cantor, and Dedekind, and I have urged it since my 1914 lectures. What I am about to say is not philosophically glamorous. But it is correct.</p>
+        <div class="pull">&ldquo;The apparent impossibility of infinite series summing to finite values was the mathematical gap that kept Zeno&rsquo;s puzzle alive for two millennia. Once we have a rigorous theory of limits, the puzzle simply disappears &mdash; not dissolved by clever philosophy, but answered by mathematics.&rdquo;</div>
+        <span class="section">i. the standard solution: convergent series</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Convergent series — infinite sums can be finite</span>The Dichotomy and the Achilles paradoxes both assume that if a task involves an infinite number of steps, it must take infinite time. This assumption is false. Consider the series 1/2 + 1/4 + 1/8 + 1/16 + &hellip; This is an infinite series &mdash; it has infinitely many terms &mdash; yet its sum converges to exactly 1. This is not a linguistic trick or a metaphysical sleight of hand. It is a rigorous mathematical result, proved by the theory of limits developed by Weierstrass and Cauchy. The distance Achilles must cover &mdash; 100 metres + 10 metres + 1 metre + &hellip; &mdash; is an infinite series of diminishing terms. The time taken at constant speed is also an infinite series of diminishing terms. Both converge to finite values. Zeno&rsquo;s error was to assume that &ldquo;infinitely many steps&rdquo; entails &ldquo;infinite time.&rdquo; It does not.</span></p>
+        <span class="section">ii. motion as a function over a continuum</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Motion redefined — position as a continuous function of time</span>Modern analysis defines motion precisely: a moving body&rsquo;s position is a continuous function of time. For any time t within the interval of motion, there is a well-defined position p(t). This definition makes no reference to the body &ldquo;performing a task&rdquo; at each point or &ldquo;completing an interval&rdquo; before proceeding. It simply specifies a mapping from times to positions. Given this definition, there is no question of traversing infinitely many sub-intervals as if they were sequential tickets in a queue. The function is defined over the entire continuous domain at once. Zeno&rsquo;s paradox exploited the absence of this precise definition; once we have it, the paradox cannot even be formulated without immediate rebuttal.</span></p>
+        <span class="section">iii. the arrow resolved by instantaneous velocity</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Arrow — instantaneous velocity via calculus</span>The Arrow paradox presents a deeper problem: at any instant, the arrow occupies a fixed position, so it is &ldquo;at rest&rdquo; at that instant. But calculus resolves this precisely. Instantaneous velocity is defined as the limit of the average velocity over ever-smaller intervals of time &mdash; it is the derivative of position with respect to time: v(t) = dp/dt. A body with non-zero instantaneous velocity is not &ldquo;at rest&rdquo; at that instant in any meaningful sense; its rate of change of position is non-zero. The body never fails to have a velocity; the velocity is defined at every instant. As I wrote, following Weierstrass: the arrow, at every moment of its flight, has a definite velocity. That velocity is not zero. Zeno&rsquo;s claim that the arrow is &ldquo;at rest&rdquo; at each instant uses &ldquo;at rest&rdquo; to mean &ldquo;not simultaneously in two places,&rdquo; which is a tautology, not a description of rest in the mechanical sense.</span></p>
+        <span class="section">iv. what the mathematical solution does and does not claim</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Scope of solution — mathematical, not metaphysical, resolution</span>Bergson will object that I have merely re-described motion mathematically rather than explaining it philosophically. I accept the description but deny the criticism. Philosophy&rsquo;s role here is to clarify what the question is; mathematics&rsquo; role is to answer it. Zeno&rsquo;s question was: how can a finite journey be composed of infinitely many parts? The mathematical answer is precise and complete: because the series of those parts converges. The question &ldquo;but what does motion <em>really</em> consist in, beyond the mathematics?&rdquo; is not a deeper question &mdash; it is a confused one. As Wittgenstein will later observe, when language idles, when our wheels turn in the air, we have stopped asking genuine questions. That is the condition of anyone who, having seen the convergent series proof, still asks &ldquo;but can Achilles <em>really</em> cross infinitely many intervals?&rdquo;</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-russell-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Infinite convergent series: the mathematical core</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Zeno&rsquo;s paradoxes assume that if a journey requires infinitely many sub-intervals, it must take infinite time.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The theory of limits (Weierstrass, Cauchy) proves that the infinite series 1/2 + 1/4 + 1/8 + &hellip; = 1; both the distance and the time of Achilles&rsquo; run form convergent series summing to finite values.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Zeno&rsquo;s assumption is therefore false; there is no reason why completing infinitely many diminishing sub-intervals should take infinite time.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Dichotomy and Achilles paradoxes are dissolved once we recognise that infinite series can converge to finite limits &mdash; a mathematical fact unavailable to Zeno.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Motion as a continuous function eliminates the &ldquo;task&rdquo; framing</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Modern analysis defines motion as a continuous function p(t): for every time t in the interval of motion, there is a uniquely defined position.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This definition makes no reference to performing sequential tasks at sub-intervals; the function is defined over the entire domain at once.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Zeno&rsquo;s paradoxes rely on the &ldquo;task&rdquo; framing &mdash; the idea that the runner must successively complete each interval. This framing is not required by the correct mathematical definition of motion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Properly defining motion as a continuous function dissolves the paradox at its source: no sequential task-structure is implied by continuous motion through space and time.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The Arrow: instantaneous velocity via the derivative</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Arrow paradox concludes from &ldquo;at each instant the arrow occupies a fixed position&rdquo; that the arrow is at rest at each instant.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Instantaneous velocity is the derivative dp/dt &mdash; the limit of average velocity over shrinking intervals. This is well-defined and non-zero for a moving arrow at every instant.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>&ldquo;At rest at an instant&rdquo; in Zeno&rsquo;s sense merely means &ldquo;not simultaneously in two positions,&rdquo; which is trivially true but does not imply zero velocity in the mechanical sense.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Arrow paradox exploits an ambiguity in &ldquo;rest&rdquo;; calculus eliminates the ambiguity by giving a precise definition of velocity at an instant that is non-zero for the moving arrow.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Mathematics resolves; residual &ldquo;how really?&rdquo; questions are confused</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The mathematical solution gives a complete, rigorous answer to the question &ldquo;how can a finite journey have infinitely many parts?&rdquo;: because the series of those parts converges.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Any residual question &mdash; &ldquo;but can Achilles <em>really</em> complete infinitely many intervals?&rdquo; &mdash; either repeats the original confusion or asks a pseudo-question with no further content.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Philosophy&rsquo;s proper role is to identify pseudo-questions, not to invent metaphysical answers to them.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Standard Mathematical Solution is complete; residual philosophical anxiety about Zeno is a symptom of confusion about what kind of question is being asked, not evidence of a remaining problem.</span></div>
+        </div>
+      </div>
+    </div><!-- end russell -->
+
+    <!-- ══ BERGSON ══ -->
+    <div class="speaker-panel" id="prop-bergson-panel">
+      <div id="prop-bergson-speech" class="speech-text">
+        <p class="salut">Ladies and gentlemen,</p>
+        <p>Russell has given us an elegant mathematical answer to Zeno. I want to argue that the mathematical answer, for all its technical precision, misses the philosophically fundamental point. It accepts Zeno&rsquo;s terms &mdash; his spatial, static, punctual representation of motion &mdash; and then argues within those terms that the resulting infinite series converges. But the real error is in the terms themselves. Zeno did not merely make a mathematical mistake. He committed a deeper confusion about the nature of time and motion &mdash; a confusion I call the cinematographic illusion &mdash; and Russell&rsquo;s calculus perpetuates it.</p>
+        <div class="pull">&ldquo;The arrow never is in any point of its course. The most we can say is that it might be there &mdash; that it passes there and might stop there. Movement AB is as simple, as indecomposable, in so far as it is movement, as the tension of a spring or the decision of a will.&rdquo; &mdash; <em>Creative Evolution</em>, 1907</div>
+        <span class="section">i. the cinematographic illusion</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Cinematographic illusion — motion reduced to static snapshots</span>Consider how a film projector creates the illusion of movement: it presents a rapid sequence of static frames &mdash; still images of a body at successive positions &mdash; and our eye synthesises them into apparent motion. The film is not motion; it is a reconstruction of motion from immobilities. Zeno does precisely this to real movement. He freezes the moving arrow at each &ldquo;instant,&rdquo; examines its static position, finds no motion there, and concludes it never moves. But what he is examining is not motion at all &mdash; it is a series of frozen positions, an intellectual reconstruction that has already eliminated the very thing to be explained. You cannot reassemble real movement from a collection of immobilities, any more than you can produce genuine music by pasting together a sequence of notated silences. The paradox arises entirely from this substitution.</span></p>
+        <span class="section">ii. duration — the nature of real time</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Durée — real time is qualitative flow, not spatial sequence</span>The deeper error is Zeno&rsquo;s treatment of time. He spatialises it: he imagines time as a line, divisible into points, along which instants are arranged like beads. But this is not time &mdash; it is time represented in space, homogenised, quantified, projected onto the spatial metaphors with which our intellect works. Real time is <em>durée</em> &mdash; duration &mdash; a qualitative, indivisible, continuous flowing. It is not a series of nows; it is an undivided process of becoming. When I hear a melody, the individual notes are not experienced as isolated atoms and then synthesised into sequence &mdash; the sequence itself is the experience, irreducibly temporal. Zeno&rsquo;s &ldquo;instants&rdquo; are not slices of real time; they are what remains when real time has been evacuated and replaced by a spatial image of it.</span></p>
+        <span class="section">iii. russell&rsquo;s solution concedes zeno&rsquo;s error</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Critique of Russell — mathematics perpetuates the spatial fallacy</span>Russell&rsquo;s mathematical solution accepts Zeno&rsquo;s representation of motion as a sequence of positions at instants, and then argues that the resulting series converges. But this means Russell has accepted the cinematographic reconstruction as the correct picture of motion, and merely shown that it generates a convergent rather than a divergent series. He has not restored real motion &mdash; he has mathematically managed its elimination. Russell himself wrote, following Weierstrass, that the arrow &ldquo;at every moment of its flight, is truly at rest.&rdquo; He meant this to dissolve the paradox: given the right mathematical framework, there is nothing paradoxical about a body that &ldquo;is at rest&rdquo; at each instant yet moves overall. But I submit that a body that is at rest at every instant of its flight is not moving &mdash; and that an account of motion requiring us to say such a thing has not solved the paradox but surrendered to it.</span></p>
+        <span class="section">iv. what a genuine resolution requires</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Genuine solution — restore indivisible movement as primitive</span>A genuine resolution of Zeno requires us to take movement as metaphysically primitive &mdash; not as derivative from positions at instants, but as the fundamental given from which positions are abstracted. Positions are limits of motion, not constituents of it. When we say an arrow &ldquo;is at position x at time t,&rdquo; we are making a retrospective abstraction from a process that was never composed of such position-at-time facts. The Achilles and Dichotomy paradoxes arise only if we grant that Achilles&rsquo; run is composed of position-at-time facts that must be individually traversed. If we take his run as a single indivisible movement from which position-facts can be abstracted, the regress does not arise. This requires a metaphysics of becoming, not a mathematics of being.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-bergson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The cinematographic illusion: motion cannot be assembled from immobilities</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Zeno&rsquo;s argument freezes the moving arrow at successive instants and finds it at rest at each; from this he concludes it never moves.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is the cinematographic illusion: reconstructing motion from a series of static snapshots. A genuine motion cannot be reassembled from a collection of immobilities &mdash; what is assembled is an image of motion, not motion itself.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Zeno&rsquo;s paradox is self-defeating: the &ldquo;instants&rdquo; at which he examines the arrow have already eliminated the motion; finding no motion in them is finding nothing in nothing.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Zeno&rsquo;s paradox is not about motion at all &mdash; it is about a static, spatial reconstruction of motion, from which the conclusion that &ldquo;there is no motion&rdquo; follows trivially; the paradox is circular.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Duration: real time is qualitative flow, not a spatial sequence of instants</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Real time (&ldquo;durée&rdquo;) is a qualitative, continuous, indivisible flowing &mdash; not a series of discrete, homogeneous instants arranged spatially.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Zeno&rsquo;s &ldquo;instants&rdquo; are what results when real time is spatialised &mdash; projected onto the metaphors of spatial extension used by the intellect. They are representations of time, not time itself.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>All four of Zeno&rsquo;s paradoxes presuppose the spatialised, static picture of time. Remove that picture and substitute real duration, and the paradoxes cannot be formulated.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The root error of Zeno&rsquo;s paradoxes is the spatialisation of time; restoring real duration dissolves the paradoxes more fundamentally than any mathematical solution, which operates within the spatialised picture.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Against Russell: the mathematical solution concedes the decisive error</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Russell&rsquo;s solution accepts Zeno&rsquo;s representation of motion as sequences of position-at-instant facts and argues the resulting series converges.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This means Russell has accepted the cinematographic picture as the correct account of motion; he manages its mathematical consequences rather than rejecting the picture.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Russell himself says (following Weierstrass) that the arrow &ldquo;at every moment of its flight, is truly at rest&rdquo; &mdash; an account of motion in which the moving body is always at rest is not a resolution of the paradox but a formalization of it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Standard Mathematical Solution perpetuates Zeno&rsquo;s fundamental error by operating within the spatialised picture; it solves the mathematical problem while conceding the metaphysical one.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Movement as primitive: positions are abstractions from motion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Taking movement as metaphysically primitive means: positions are retrospective abstractions from motion, not constituents of it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If positions are abstractions, Achilles&rsquo; run is a single indivisible movement from which position-facts can be extracted; it is not composed of position-facts that must be traversed sequentially.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Dichotomy and Achilles paradoxes arise only if motion is compositionally built from position-facts; if motion is primitive and positions derived, the regress never starts.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>A metaphysics of becoming &mdash; in which movement is primitive and positions are abstractions &mdash; dissolves Zeno&rsquo;s paradoxes at their source; this is the only solution that does not fight Zeno on his own ground.</span></div>
+        </div>
+      </div>
+    </div><!-- end bergson -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════════════════════════════
+     RIGHT COLUMN — Ryle · Wittgenstein · Priest
+═══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','ryle',this)">Ryle</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','wittgenstein',this)">Wittgenstein</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','priest',this)">Priest</button>
+  </div>
+
+  <!-- RYLE HEADER -->
+  <div class="col-header" id="opp-ryle-header">
+    <div class="col-header-top"><span class="pill opp">Solution IV</span><span class="col-subtitle">Gilbert Ryle</span></div>
+    <div class="col-position">Category mistake &mdash; &ldquo;completing infinite tasks&rdquo; is a type-error. The paradox does not describe an impossible feat; it misdeploys the concept of &ldquo;task&rdquo; by placing it in the wrong logical category.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','ryle','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','ryle','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- WITTGENSTEIN HEADER -->
+  <div class="col-header hidden" id="opp-wittgenstein-header">
+    <div class="col-header-top"><span class="pill opp">Solution V</span><span class="col-subtitle">Wittgenstein</span></div>
+    <div class="col-position">Therapeutic dissolution &mdash; the paradox is a bewitchment of the intellect by language. We must look at how &ldquo;motion,&rdquo; &ldquo;instant,&rdquo; and &ldquo;infinite&rdquo; actually function in our practices, not theorise about them.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','wittgenstein','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','wittgenstein','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- PRIEST HEADER -->
+  <div class="col-header hidden" id="opp-priest-header">
+    <div class="col-header-top"><span class="pill opp">Solution VI</span><span class="col-subtitle">Graham Priest</span></div>
+    <div class="col-position">Dialethism &mdash; accept that motion is genuinely contradictory. At any instant, a moving body both is and is not at a given location. The paradox is sound; the law of non-contradiction is the error.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','priest','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','priest','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ RYLE ══ -->
+    <div class="speaker-panel active" id="opp-ryle-panel">
+      <div id="opp-ryle-speech" class="speech-text">
+        <p class="salut">Ladies and gentlemen,</p>
+        <p>My colleagues have variously proposed that Zeno made an error about infinity (Aristotle), an error about convergent series (Russell), or an error about the nature of time (Bergson). I want to propose a different and, I believe, more fundamental diagnosis. Zeno has committed a <em>category mistake</em> &mdash; the kind of logical error I have described elsewhere as placing a concept in the wrong logical type or category. Once the category mistake is identified, the paradox does not require refutation. It requires dissolution.</p>
+        <div class="pull">&ldquo;A category mistake consists in representing facts which belong to one category as if they belonged to another. The philosopher&rsquo;s task is not to answer questions generated by such mistakes, but to show that they are mistakes &mdash; that the questions cannot properly arise.&rdquo; &mdash; <em>The Concept of Mind</em>, 1949</div>
+        <span class="section">i. the university analogy</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Category mistake — university analogy</span>Consider my well-known example: a visitor is shown the colleges, libraries, playing fields, and administrative offices of Oxford. At the end of the tour he asks, &ldquo;Yes, but where is the University?&rdquo; He has committed a category mistake: he has supposed that &ldquo;the University&rdquo; is a further entity of the same type as the colleges and buildings, to be found somewhere alongside them, when in fact the University <em>is</em> the colleges and buildings under a certain institutional description. There is no further fact he is missing &mdash; only a logical geography error about what kind of thing &ldquo;the University&rdquo; is. Zeno makes a precisely analogous mistake about motion and tasks.</span></p>
+        <span class="section">ii. &ldquo;completing infinite tasks&rdquo; is a type error</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Type error — &ldquo;task&rdquo; does not apply to spatial sub-divisions</span>The concept of a &ldquo;task&rdquo; belongs to the category of purposive human actions: deliberate, discrete, individually completable performances. Crossing the halfway point of a room is a task in this sense. But the infinite series of sub-intervals into which Zeno divides Achilles&rsquo; run are not tasks in this sense at all. They are mathematical abstractions &mdash; the results of an intellectual operation of division applied to a continuous stretch of space and time. When Zeno asks &ldquo;how can Achilles complete infinitely many tasks?&rdquo; he has applied the word &ldquo;task&rdquo; to objects that do not belong to the category of things tasks can be &mdash; like asking how much the average temperature weighs. The question is not difficult to answer; it is malformed.</span></p>
+        <span class="section">iii. the arrow — &ldquo;at rest at an instant&rdquo; misfires</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Arrow — &ldquo;rest&rdquo; applied to instants is a category error</span>The Arrow paradox says: the arrow is at rest at each instant. But &ldquo;at rest&rdquo; is a concept that applies to objects over intervals of time &mdash; it means the absence of change of position over a duration. Applied to a durationless instant, &ldquo;at rest&rdquo; is not false: it is a category misapplication. We would not say a melody is &ldquo;loud&rdquo; at a mathematical point in a score &mdash; not because the melody is quiet there, but because loudness is the wrong kind of concept for points. Similarly, motion and rest are the wrong kinds of concepts for extensionless instants. Zeno&rsquo;s paradox smuggles a category error into its first premise and then reasons validly from that error to a paradoxical conclusion. Remove the error, and the paradox does not arise.</span></p>
+        <span class="section">iv. what distinguishes ryle from aristotle and wittgenstein</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Ryle vs. Aristotle/Wittgenstein — logical grammar vs. potential infinity</span>Aristotle distinguishes potential from actual infinity but still operates within a broadly realist metaphysics of motion and time. His solution requires substantive commitments about the nature of continuity and the composition of magnitudes. My solution requires only an analysis of the logical grammar of the concepts involved. I need make no claims about what infinity &ldquo;really is&rdquo; or whether time is &ldquo;composed of instants.&rdquo; I only need to show that Zeno&rsquo;s key moves deploy concepts outside their proper categories. Wittgenstein&rsquo;s therapeutic approach is close to mine &mdash; he too will say the paradox arises from language idling &mdash; but my category-mistake diagnosis is more specific: it identifies precisely which logical type-crossing is responsible, in a way that Wittgenstein&rsquo;s more impressionistic method does not always achieve.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-ryle-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Category mistake: the university analogy</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A category mistake occurs when a concept is applied to entities of the wrong logical type, generating pseudo-questions rather than genuine ones.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The university visitor asks &ldquo;where is the University?&rdquo; expecting a further entity alongside the colleges; this question cannot be answered because it is malformed &mdash; &ldquo;the University&rdquo; is not in that category.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Zeno&rsquo;s paradox generates a similar structure: it asks a question that appears legitimate but is malformed due to a type-crossing.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Zeno&rsquo;s paradoxes are category mistakes; identifying the type-crossing dissolves the apparent question rather than answering it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; &ldquo;Task&rdquo; does not apply to mathematical sub-divisions of motion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The concept of a &ldquo;task&rdquo; belongs to the logical category of discrete, purposive, individually completable human performances.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The infinite sub-intervals of Achilles&rsquo; run are mathematical abstractions &mdash; results of an intellectual division operation applied to continuous motion &mdash; not members of the category of tasks.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>&ldquo;How can Achilles complete infinitely many tasks?&rdquo; applies &ldquo;task&rdquo; to objects outside its category; the question is malformed, not difficult.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The paradox of the Dichotomy and Achilles is dissolved once we recognise that &ldquo;task&rdquo; cannot apply to mathematical sub-intervals; the question of &ldquo;completing infinitely many&rdquo; is a category mistake.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The Arrow: &ldquo;at rest&rdquo; cannot be applied to durationless instants</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>&ldquo;At rest&rdquo; applies to objects over intervals of time &mdash; it means the absence of change of position over a duration; it is a concept requiring temporal extension for its application.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A durationless instant has no temporal extension; applying &ldquo;at rest&rdquo; to it is a category misapplication analogous to asking whether a mathematical point is loud.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Arrow paradox&rsquo;s first premise &mdash; &ldquo;the arrow is at rest at each instant&rdquo; &mdash; is not false but malformed; the conclusion drawn from it inherits the malformation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Arrow paradox rests on a category error in its first premise; once identified, the paradox dissolves &mdash; there is no genuine conclusion to refute.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Ryle&rsquo;s solution: precise, minimal, not requiring metaphysical commitments</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Aristotle&rsquo;s solution requires substantive metaphysical claims about potential/actual infinity and the composition of magnitudes; it answers Zeno on realist terms.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Ryle&rsquo;s category-mistake diagnosis requires only analysis of logical grammar &mdash; no claims about the metaphysics of infinity, time, or continuity are needed.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A solution requiring fewer metaphysical commitments is, all else equal, philosophically preferable: it dissolves the paradox without creating new ontological puzzles in its place.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Ryle&rsquo;s category-mistake analysis is the most parsimonious solution: it identifies the logical error precisely and dissolves the paradox without requiring controversial claims about the structure of space, time, or infinity.</span></div>
+        </div>
+      </div>
+    </div><!-- end ryle -->
+
+    <!-- ══ WITTGENSTEIN ══ -->
+    <div class="speaker-panel" id="opp-wittgenstein-panel">
+      <div id="opp-wittgenstein-speech" class="speech-text">
+        <p class="salut">Let me begin differently.</p>
+        <p>Diogenes the Cynic, when presented with Zeno&rsquo;s argument that motion is impossible, stood up and walked across the room. He said nothing. His colleagues felt he had refuted Zeno. But had he? Zeno was not denying that things appear to move. He knew perfectly well that runners run and arrows fly. His argument was about the <em>logical</em> possibility of motion, given certain assumptions about infinity and division. Walking across the room does not engage those assumptions at all. And yet &mdash; I want to argue that Diogenes was doing something philosophically important, even if he could not say what it was. He was showing that the grammar of our talk about motion is not threatened by Zeno&rsquo;s argument, because that grammar is not an empirical theory about infinity. It is a practice.</p>
+        <div class="pull">&ldquo;When philosophers use a word &mdash; &lsquo;knowledge&rsquo;, &lsquo;being&rsquo;, &lsquo;object&rsquo;, &lsquo;I&rsquo;, &lsquo;proposition&rsquo;, &lsquo;name&rsquo; &mdash; and try to grasp the essence of the thing, one must always ask oneself: is the word ever actually used this way in the language-game which is its original home?&rdquo; &mdash; <em>Philosophical Investigations</em>, &sect;116</div>
+        <span class="section">i. the fly-bottle: what therapy does</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Therapeutic philosophy — escape the fly-bottle</span>My aim, I have said, is to show the fly the way out of the fly-bottle. The philosophical puzzle traps the philosopher inside a bottle she entered by following ordinary words out of their ordinary context. Zeno takes perfectly ordinary words &mdash; &ldquo;distance,&rdquo; &ldquo;task,&rdquo; &ldquo;instant,&rdquo; &ldquo;infinite&rdquo; &mdash; extracts them from the language-games in which they have their life and meaning, and begins operating with them in the abstract. The result is a puzzle that seems insoluble because it is genuinely meaningless &mdash; no ordinary criterion of correctness applies to it. My task is not to answer the puzzle but to show how we entered the bottle &mdash; to trace the path by which ordinary words became captives of philosophy &mdash; so that we may retrace our steps and emerge.</span></p>
+        <span class="section">ii. &ldquo;motion&rdquo; and its language-game</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Language-game of motion — ordinary criteria, not theoretical analysis</span>What is the language-game of motion? We say a body is moving when certain conditions obtain: there are differences in its location across intervals of time, it leaves marks of passage, it produces the sounds and effects characteristic of things in transit. These are the ordinary criteria. Nowhere in this language-game do we require a theory of infinite divisibility. Nowhere do we ask whether the runner has &ldquo;completed infinitely many tasks.&rdquo; The concept of motion is not in tension with infinity because, in the ordinary language-game of motion, infinity plays no role at all. Zeno generates the paradox by importing a mathematical vocabulary &mdash; infinite divisibility, the sum of infinite series &mdash; into the language-game of motion, where it has no natural home. The fly enters the bottle.</span></p>
+        <span class="section">iii. diogenes was right, but for the wrong reason</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Diogenes&rsquo; walk — practice shows grammar, not empirical refutation</span>Diogenes&rsquo; walk did not refute Zeno. But it did something important: it displayed the grammar of motion in use. By walking, Diogenes was not providing evidence that motion occurs &mdash; Zeno knew that. He was displaying, without articulating, the form of life within which &ldquo;motion&rdquo; has its meaning. In that form of life, the question &ldquo;can you complete infinitely many tasks?&rdquo; does not arise, because in the practice of walking, running, and throwing, no one is counting or completing sub-intervals. They are simply moving. The walk shows that the language-game of motion is in order as it is &mdash; that it has no built-in dependence on the mathematical questions Zeno raises.</span></p>
+        <span class="section">iv. against russell: answering is not dissolving</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Wittgenstein vs. Russell — answer vs. dissolution</span>Russell provides a precise mathematical answer. I do not dispute the mathematics. But I dispute the diagnosis. Russell treats Zeno as having asked a genuine question that had, for two millennia, lacked the mathematical tools to answer it. I suggest instead that Zeno was not asking a question that mathematics can answer because mathematics is not the relevant domain. The question &ldquo;how can Achilles complete infinitely many tasks?&rdquo; is malformed; answering it with convergent series is like answering the question &ldquo;who is the present King of France?&rdquo; with a confident &ldquo;there is no one &mdash; France is a republic.&rdquo; The answer is correct, but it does not dissolve the presupposition that there is a King of France. Only showing that the question is malformed does that. And only philosophy &mdash; not mathematics &mdash; can show that.</span></p>
+        <p><em>That is all I want to say.</em></p>
+      </div>
+      <div id="opp-wittgenstein-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Therapeutic philosophy: dissolve, not answer</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Philosophical puzzles arise when ordinary words are extracted from the language-games in which they have their life and operated on abstractly; the result is genuine meaninglessness masquerading as deep difficulty.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The philosopher&rsquo;s task is to trace how the words left their home language-game &mdash; to show the fly the way out of the fly-bottle &mdash; not to answer the puzzle on its own terms.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Answering a malformed question on its own terms &mdash; as Russell&rsquo;s mathematics does &mdash; leaves the malformation in place; only tracing its genesis dissolves it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The correct response to Zeno&rsquo;s paradoxes is therapeutic dissolution &mdash; showing how the words entered the paradox-generating context &mdash; not providing mathematical answers within that context.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The language-game of motion: infinity plays no role</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The ordinary language-game of motion involves criteria of location-change over time, observable effects of passage, and the practical contexts of moving, running, and throwing; it makes no reference to infinite divisibility.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Zeno&rsquo;s paradox imports mathematical vocabulary &mdash; infinite divisibility, the sum of infinite series, &ldquo;tasks&rdquo; &mdash; into the language-game of motion, where these concepts have no established application.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>When a concept is deployed outside its home language-game, questions about it lack determinate sense &mdash; they are neither true nor false, but grammatically adrift.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Zeno&rsquo;s paradoxes arise from importing mathematical concepts into the language-game of motion where they have no established meaning; dissolving the paradox requires noticing this importation, not answering the resulting questions.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Diogenes&rsquo; walk: displaying grammar, not refuting an argument</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Diogenes walked across the room in response to Zeno, without speaking. This did not refute Zeno&rsquo;s argument (Zeno knew things appear to move).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The walk displayed the form of life &mdash; the practice &mdash; within which &ldquo;motion&rdquo; has its meaning: a context in which no one asks about completing infinite sub-intervals.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Showing the grammar in action &mdash; demonstrating that the language-game of motion proceeds perfectly well without engaging Zeno&rsquo;s questions &mdash; is more philosophically illuminating than refutation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Diogenes&rsquo; walk is a gesture of philosophical therapy: it shows, without saying, that the grammar of motion is not in tension with infinity, because infinity plays no role in the practice of moving.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Against Russell: mathematics answers without dissolving</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Russell&rsquo;s convergent series answer correctly shows that infinite series can sum to finite values, but it treats Zeno&rsquo;s question as a genuine mathematical question that had lacked technical tools for two millennia.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If the question is malformed &mdash; if &ldquo;completing infinite tasks&rdquo; imports a concept outside its language-game &mdash; then the mathematical answer leaves the malformation in place; it solves a different problem from the one that generates philosophical anxiety.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Only showing why the question is malformed dissolves the philosophical puzzle; mathematics, however precise, cannot do this work.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Russell&rsquo;s mathematical solution is technically correct but philosophically incomplete; it answers the question without dissolving it, leaving in place the temptation to regenerate the puzzle by asking &ldquo;but how can he <em>really</em> complete infinitely many?&rdquo;</span></div>
+        </div>
+      </div>
+    </div><!-- end wittgenstein -->
+
+    <!-- ══ PRIEST ══ -->
+    <div class="speaker-panel" id="opp-priest-panel">
+      <div id="opp-priest-speech" class="speech-text">
+        <p class="salut">Ladies and gentlemen,</p>
+        <p>Every speaker before me &mdash; Aristotle, Russell, Bergson, Ryle, Wittgenstein &mdash; has proposed to dissolve Zeno&rsquo;s paradoxes: to show that they do not genuinely arise, that they rest on errors, that they can be made to disappear through the right conceptual housekeeping. I want to propose something more radical, and I believe more honest: Zeno&rsquo;s paradoxes are genuinely sound. The arguments are valid and the premises true. The correct response is not to dissolve them but to accept their conclusion &mdash; or rather, to accept that contradiction is an ineliminable feature of motion and change, and that the traditional assumption that contradictions must be false is the error to be corrected.</p>
+        <div class="pull">&ldquo;The moving arrow is at a certain place at a given instant, and it is not at that place &mdash; since it is moving through it. Both statements are true. There is a contradiction here. Zeno was right. What was wrong was the assumption that contradictions cannot be true.&rdquo; &mdash; <em>In Contradiction</em>, 1987</div>
+        <span class="section">i. the dialethist position</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Dialethism — true contradictions; dialetheism defined</span>Dialetheism is the view that some contradictions are true: that there are statements that are simultaneously both true and false. This is not the view that contradictions are trivially true everywhere &mdash; that would be explosion, the classical logical principle that from a contradiction everything follows. Paraconsistent logic, which I have worked to develop, allows contradictions to be true in some domains without trivialising all reasoning. The claim I want to make about Zeno is specific: at the boundary of a moving body&rsquo;s location at any given instant, there is a genuine true contradiction &mdash; the body both is and is not at that location simultaneously &mdash; and this is what motion, as a feature of the world, actually consists in. Motion is intrinsically contradictory, not because of any failure of our concepts, but because of what motion is.</span></p>
+        <span class="section">ii. the arrow really is at rest and in motion</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Arrow — genuinely both at rest and in motion at an instant</span>Consider the Arrow. At the instant t, the arrow occupies position p. Zeno concludes it is therefore at rest at t, since it is not simultaneously occupying two positions. Aristotle, Russell, and Ryle all want to deny a premise: either that the arrow is at p (Bergson), or that &ldquo;at rest at an instant&rdquo; is meaningful (Aristotle, Ryle), or that this poses a problem for motion as a continuous function (Russell). But consider what motion requires. For the arrow to be in motion at t, it must be at p at t &mdash; that is where it is &mdash; but it must also, simultaneously, be in the process of leaving p. Its being at p and its departure from p are not sequential: both are true of the same instant. The arrow is <em>both</em> at p and not at p at t. This is the genuine content of what motion at an instant consists in. Denying one conjunct is not dissolving the paradox &mdash; it is eliminating what makes motion motion.</span></p>
+        <span class="section">iii. the changing thing argument</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Change paradox — Hegel&rsquo;s similar insight; boundaries of change</span>Hegel saw this. In his <em>Science of Logic</em>, he argued that becoming &mdash; the transition from being to nothing, from one state to another &mdash; is the most fundamental category, and that it is inherently contradictory: being and nothing are both present in becoming. I am extending this to motion. Consider a body that is changing from being red to being not-red. At the boundary of the change &mdash; at the precise instant of transition &mdash; is it red or not-red? If we say it is red (up to that point) and not-red (from that point), we have placed the contradiction in time &mdash; we have not eliminated it, only moved it to a boundary. At the boundary, the body is both red and not-red. This is not a failure of our description; it is a genuine feature of change and motion as they occur in time.</span></p>
+        <span class="section">iv. what distinguishes me from all others</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Priest vs. all others — accept contradiction, revise logic</span>Every other speaker has tried to show that Zeno&rsquo;s argument has a false premise or a conceptual error. I argue that it has neither. It is valid and sound. The problem is with the meta-logical assumption that if an argument concludes with a contradiction, it must have gone wrong somewhere. Classical logic says: if you reach P and not-P, you have made an error. But this principle &mdash; the law of non-contradiction &mdash; is a logical assumption, not a metaphysical necessity. Paraconsistent logic abandons the principle of explosion (that from a contradiction everything follows) and thereby permits reasoning in the presence of true contradictions without logical catastrophe. If we accept paraconsistent logic, we can accept Zeno&rsquo;s conclusion &mdash; that a moving body both is and is not in a given place at any instant &mdash; without being committed to every proposition being true. The paradox is resolved by revising logic, not by detecting an error in Zeno.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-priest-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Dialetheism: true contradictions are possible and necessary for motion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Dialetheism: some statements are simultaneously true and false; paraconsistent logic permits reasoning with true contradictions without explosion (without trivialising all reasoning).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Motion, as a feature of the world, involves genuine contradictions at the boundaries of spatial location: a moving body is at a position and in the process of leaving it simultaneously.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These contradictions are not failures of description or concept but genuine features of what motion is; accepting them is accepting what motion consists in.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The correct response to Zeno&rsquo;s paradoxes is to accept the contradiction they reveal as genuinely true, using paraconsistent logic to reason in its presence without logical catastrophe.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Arrow: the moving body is genuinely both at and not at a location</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>For the arrow to be in motion at instant t, it must be at position p at t (that is where it is) and simultaneously in the process of leaving p (that is what being in motion consists in).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Being at p and being in the process of leaving p are contradictory predicates; both are true of the arrow at t.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Any solution that denies one conjunct does not explain motion &mdash; it eliminates the contradiction by eliminating one of the conditions that constitutes motion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Arrow paradox correctly identifies a genuine contradiction in the nature of motion at an instant; denying either conjunct explains away rather than explaining motion.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Change: boundaries of transition are genuinely contradictory</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A changing object transitions from state S to state not-S; at the boundary of the transition, it must be both S and not-S simultaneously (Hegel: becoming contains being and nothing).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Denying that the boundary moment has a determinate truth value or placing the contradiction entirely in one half of the interval does not eliminate the contradiction &mdash; it relocates it to the boundary of the relocation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The contradictory boundary is ineliminable: it is a structural feature of any transition between opposite states in continuous time.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Contradictions at boundaries of change are ineliminable structural features of motion and transition in continuous time; they are not defects to be dissolved but features to be accepted.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; Revise logic, not Zeno: paraconsistency permits accepting the conclusion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Classical logic holds that if an argument generates a contradiction, it must have a false premise or invalid step; but this is a logical assumption, not a metaphysical necessity.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Paraconsistent logic rejects the principle of explosion (that from P and not-P, everything follows); it permits reasoning in the presence of true contradictions without trivialising all inference.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Given paraconsistency, we can accept Zeno&rsquo;s conclusion &mdash; that a moving body is both at and not at a location at any instant &mdash; without being committed to every proposition being true.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The correct response to Zeno is to accept his argument as sound and revise the logical framework that prohibits true contradictions; this is not capitulation but philosophical honesty about what motion in continuous time requires.</span></div>
+        </div>
+      </div>
+    </div><!-- end priest -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'aristotle',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'ryle',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
