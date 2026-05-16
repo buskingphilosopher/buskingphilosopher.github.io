@@ -1,0 +1,867 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,var(--font-serif,serif);background:var(--bg);color:var(--text)}
+
+.motion-header{padding:.9rem 2rem .75rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:5px;font-weight:500}
+.motion-title{font-size:18px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 64px);min-height:500px}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-bar::-webkit-scrollbar{height:2px}
+.speaker-bar::-webkit-scrollbar-thumb{background:var(--bdr2)}
+.speaker-btn{font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;padding:7px 12px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp .speaker-btn.active{color:var(--opp-red)}
+
+.col-header{padding:.6rem 1.1rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem;flex-wrap:wrap}
+.pill{font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:var(--font-sans,sans-serif);font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:var(--font-sans,sans-serif);font-size:10px;color:var(--text3);margin-top:1px;margin-bottom:5px;line-height:1.4}
+
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:var(--font-sans,sans-serif);padding:4px 13px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.3rem;font-size:13px;line-height:1.9;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+
+.speech-text p{margin-bottom:.8rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:var(--font-sans,sans-serif);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.2rem 0 .2rem;display:block}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+
+.tooltip{display:none;position:fixed;font-family:var(--font-sans,sans-serif);font-size:11px;font-weight:500;font-style:normal;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.logic-view{display:flex;flex-direction:column;gap:.8rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+
+.arg-title{padding:6px 10px;font-family:var(--font-sans,sans-serif);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+
+.arg-premises{padding:8px 10px 4px}
+.premise{display:flex;gap:8px;margin-bottom:6px;font-family:var(--font-sans,sans-serif);font-size:11.5px;line-height:1.55;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:8px;padding:6px 10px;font-family:var(--font-sans,sans-serif);font-size:11.5px;line-height:1.55;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hidden{display:none}
+
+.modal-wrap{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:8px;border:1px solid var(--bdr2);width:380px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:var(--font-sans,sans-serif);font-size:12px;font-weight:500;color:var(--text)}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:14px;line-height:1;padding:3px 6px;border-radius:4px}
+.modal-close:hover{background:var(--bg4)}
+.modal-bd{padding:.8rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:6px;overflow:hidden;background:var(--bg3);min-height:130px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:1.5rem;color:var(--text3);font-family:var(--font-sans,sans-serif);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.modal-ph code{font-size:10px;background:var(--bg4);padding:2px 6px;border-radius:3px}
+.modal-cap{margin-top:.5rem;font-family:var(--font-sans,sans-serif);font-size:11px;color:var(--text3)}
+.page{position:relative;overflow:hidden}
+</style>
+
+<div class="page" id="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House</div>
+  <div class="motion-title">"This House Accepts the Repugnant Conclusion"</div>
+</div>
+
+<div class="columns">
+
+<!-- ══════════════════ PROPOSITION ══════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','parfit',this)">Parfit</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','tannsjo',this)">Tännsjö</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','huemer',this)">Huemer</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','ord',this)">Ord</button>
+  </div>
+
+  <!-- PARFIT HEADER -->
+  <div class="col-header" id="prop-parfit-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Derek Parfit</span></div>
+    <div class="col-position">Reluctant acceptance — no escape route is satisfactory; the intuition may need revision; accepting RC is the least bad option</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','parfit','speech',this)">Speech</div><div class="tab" onclick="sw('prop','parfit','logic',this)">Logical Arguments</div></div>
+  </div>
+  <!-- TÄNNSJÖ HEADER -->
+  <div class="col-header hidden" id="prop-tannsjo-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Torbjörn Tännsjö</span></div>
+    <div class="col-position">Robust hedonistic totalism — the RC follows from equal moral value of welfare; the intuition against it is welfare elitism</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','tannsjo','speech',this)">Speech</div><div class="tab" onclick="sw('prop','tannsjo','logic',this)">Logical Arguments</div></div>
+  </div>
+  <!-- HUEMER HEADER -->
+  <div class="col-header hidden" id="prop-huemer-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Michael Huemer</span></div>
+    <div class="col-position">In defence of repugnance — our intuitions against the RC are systematically biased; reflection reveals the conclusion is actually correct</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','huemer','speech',this)">Speech</div><div class="tab" onclick="sw('prop','huemer','logic',this)">Logical Arguments</div></div>
+  </div>
+  <!-- ORD HEADER -->
+  <div class="col-header hidden" id="prop-ord-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Toby Ord</span></div>
+    <div class="col-position">Longtermist acceptance — given what is at stake in the long run, accepting totalism and the RC is practically and theoretically necessary</div>
+    <div class="tabs"><div class="tab active" onclick="sw('prop','ord','speech',this)">Speech</div><div class="tab" onclick="sw('prop','ord','logic',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ── PARFIT ── -->
+    <div class="speaker-panel active" id="prop-parfit-panel">
+      <div id="prop-parfit-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to begin with an act of intellectual honesty that I have found, over many decades, both necessary and painful. The Repugnant Conclusion states that for any possible population of at least ten billion people, all with very high quality of life, there must be some much larger imaginable population whose existence would be better, even though its members have lives that are barely worth living. I find this conclusion repugnant. The name I gave it was not ironic. And yet, after more than thirty years of searching for a satisfying escape route, I have come to believe — reluctantly — that we cannot escape it without generating conclusions that are at least as troubling.</p>
+
+        <span class="section">On the argument's compelling structure</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The Mere Addition Principle</span>The argument begins with a premise that seems very difficult to deny: that adding a person to the world who will have a life worth living makes the world better, other things being equal — the Mere Addition Principle. From this, together with the transitivity of "better than," the repugnant conclusion follows by a sequence of small steps. Each step seems acceptable. The conclusion seems monstrous. This is the structure of the problem. And the structure is not easily escaped.</span></p>
+
+        <span class="section">On why the alternatives fail</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Failure of alternatives</span>Average Utilitarianism avoids the RC but implies that a world with one supremely happy person can be better than one with a billion very happy people — manifestly absurd. Critical Level Utilitarianism generates the Very Repugnant Conclusion: adding millions of genuinely good but below-threshold lives makes the world worse. Person-affecting views cannot condemn creating lives of suffering. Variable value approaches introduce their own ad hoc thresholds. Every alternative pays a price. The question is which price is most acceptable — and I believe the RC's price is lowest, because the alternatives violate intuitions that are more robustly calibrated and more central to our moral thinking.</span></p>
+
+        <span class="section">On revising the intuition</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Unreliable population intuitions</span>Our moral intuitions were calibrated in the context of fixed populations — never designed to handle questions about adding large numbers of potential people to the world. When we feel that a trillion barely-happy people is worse than ten billion very happy people, we may be feeling the pull of a cognitive artefact rather than a genuine moral perception. When an argument has compelling premises and a repugnant conclusion, we face a choice: reject a premise, or revise the intuition. The premises here — the Mere Addition Principle, transitivity, welfare aggregation — are load-bearing premises for almost everything we believe about distributive justice. We are not well positioned to simply abandon them.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-parfit-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('parfit',1,'prop')">
+          <div class="arg-title"><span>Arg I — Mere Addition Principle is compelling</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Adding a person with a life worth living, without harming anyone, makes the world better (Mere Addition Principle).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>MAP + transitivity of "better than" entails the RC via individually acceptable intermediate steps.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>MAP is very difficult to deny without generating equally troubling consequences.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The RC follows from premises that are highly defensible; rejecting it requires rejecting something at least as plausible.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('parfit',2,'prop')">
+          <div class="arg-title"><span>Arg II — All alternatives generate their own repugnant conclusions</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Average utilitarianism implies one supremely happy person can outweigh billions of very happy people.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Critical level views generate the Very Repugnant Conclusion — good lives below threshold make things worse.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Person-affecting views fail Non-Identity cases; variable value views are theoretically ad hoc.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Every alternative generates a conclusion at least as counterintuitive; the RC carries the least theoretical cost.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('parfit',3,'prop')">
+          <div class="arg-title"><span>Arg III — Population intuitions are unreliable</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Moral intuitions are reliable where calibrated — in fixed-population social contexts, not vast potential-population questions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The intuition against the RC operates in a domain for which it was never calibrated.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An uncalibrated intuition conflicting with a sound argument should be revised, not deferred to.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The intuition that the RC is repugnant may be a cognitive artefact; we should revise it rather than reject the argument.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TÄNNSJÖ ── -->
+    <div class="speaker-panel" id="prop-tannsjo-panel">
+      <div id="prop-tannsjo-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleague Parfit accepts the repugnant conclusion reluctantly. I accept it confidently — as the straightforward consequence of hedonistic utilitarianism, a moral view I hold robustly and that survives scrutiny. The RC, far from being repugnant, is simply what taking the equal value of all welfare seriously implies.</p>
+
+        <span class="section">On why the conclusion is not actually repugnant</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Unreliable population intuitions</span>The conclusion is repugnant to our intuitions. But those intuitions are the product of evolutionary pressures that selected for concern with existing people — family, tribe, those already in our social world. They were not calibrated to handle large populations of potential people. Consider the people in the z-world — their lives are worth living, they are glad to exist, they experience genuine wellbeing. Who are we to say their existence does not matter? The intuition that it does not is a form of elitism about welfare — treating some conscious experiences as less morally significant because of who has them. This is incompatible with the equal moral worth of persons.</span></p>
+
+        <span class="section">On the alternatives as failures of nerve</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Failure of alternatives</span>Average utilitarianism is indifferent to additional happy people provided they fall below the current average — implying one supremely happy person can outweigh a billion moderately happy ones. This is far more repugnant than anything Parfit identified. Lexical threshold views arbitrarily privilege lives above a threshold — a form of welfare elitism deeply uncomfortable for anyone committed to equal moral worth. The correct response to the RC is not to find a clever escape route within population ethics. It is to accept what the equal value of welfare clearly implies.</span></p>
+
+        <span class="section">On equal value of welfare</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The Mere Addition Principle</span>Every unit of welfare has equal moral significance regardless of who experiences it or how good the rest of their life is. The Mere Addition Principle follows directly: adding genuine welfare without harming anyone makes the world better. The RC follows from this via transitivity. To deny this is to say certain conscious experiences matter less — that the quiet satisfaction of the z-world's inhabitants counts for nothing against the richer experiences of the smaller population. I cannot accept this. The equal value of welfare is not a technical premise. It is a deep moral commitment to the equal standing of all conscious experience.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-tannsjo-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="3" onclick="openModal('tannsjo',3,'prop')">
+          <div class="arg-title"><span>Arg I — Intuition against RC is welfare elitism</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Intuitions about population size were calibrated by evolutionary pressures toward existing people, not vast potential populations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Preferring the smaller high-welfare world over the large barely-positive world treats some conscious experiences as categorically less significant — welfare elitism.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Welfare elitism is incompatible with the equal moral worth of persons.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The intuition that the RC is repugnant is a cognitive bias and form of welfare elitism; it should be revised.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('tannsjo',2,'prop')">
+          <div class="arg-title"><span>Arg II — Alternatives are more repugnant, not less</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Average utilitarianism: one supremely happy person can outweigh a billion very happy people — manifestly worse than the RC.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Lexical threshold views privilege welfare above a threshold, entrenching rather than eliminating elitism.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Person-affecting views cannot account for the badness of creating suffering in Non-Identity cases.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The alternatives generate conclusions more morally objectionable than the RC; totalism is the least bad and most consistent position.</span></div>
+        </div>
+        <div class="arg-block" data-arg="1" onclick="openModal('tannsjo',1,'prop')">
+          <div class="arg-title"><span>Arg III — Equal value of welfare entails totalism</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Every unit of welfare has equal moral significance regardless of who experiences it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The MAP follows: adding genuine welfare without harming anyone makes the world better.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The RC follows from MAP via transitivity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The RC is entailed by equal moral value of welfare — a commitment that should not be abandoned to spare our intuitions.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HUEMER ── -->
+    <div class="speaker-panel" id="prop-huemer-panel">
+      <div id="prop-huemer-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I published a paper called "In Defence of Repugnance." I want to defend it here with the same directness. The title is not provocative. It is descriptive. The repugnant conclusion deserves a defence — not a reluctant acceptance, not an apologetic acknowledgement, but a positive argument that the conclusion is correct and that our intuitions against it are systematically mistaken.</p>
+
+        <span class="section">On the source of the intuition against the RC</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Unreliable population intuitions</span>Why does the RC strike us as repugnant? I want to give a precise answer. Our intuition against it is driven primarily by what I call the "mere addition" bias — a systematic tendency to undervalue large increases in the number of happy people relative to increases in the welfare of existing people. This bias has several sources. We find it psychologically easier to represent the welfare of a small group vividly than to represent the aggregate welfare of a vast population. We are drawn to concrete, specific people over statistical lives. We are biased toward quality because we can imagine quality differences easily and quantity differences only abstractly. None of these are moral insights. They are psychological tendencies that produce systematic errors in our population-level moral reasoning.</span></p>
+
+        <span class="section">On what reflection actually shows</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The Mere Addition Principle</span>When we reason carefully, consider the z-world's inhabitants one by one, and ask whether each additional life worth living adds value — the answer is obviously yes. Each person in the z-world has a life containing genuine goods. Their lives contain friendship, curiosity, pleasure, meaning — diluted, perhaps, compared to lives at higher welfare levels, but genuine. The intuition that a world containing trillions of such lives is worse than a world containing billions of much better lives fails to survive reflection on what those lives actually contain. The RC is the result of taking seriously, one by one, the value of each life worth living. The alternative is to say that at some point, adding more genuinely good lives stops mattering. That is the truly repugnant conclusion.</span></p>
+
+        <span class="section">On the "elitism of the imagination"</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Intellectual honesty about theoretical costs</span>There is a deeper error underlying resistance to the RC — what I call the elitism of the imagination. When we contemplate the z-world, we imagine lives that seem barely worth living from our perspective — drab, thin, joyless. But lives barely worth living are lives that their owners regard as worth living. The z-world's inhabitants do not experience their lives as barely worth living. They experience them as their lives — as valuable, as worth caring about. Our resistance to the RC is partly a failure of imagination: we project our standards onto lives that, by the lights of those who live them, are genuinely good. The RC asks us to take those lives seriously. We should.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-huemer-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="3" onclick="openModal('huemer',3,'prop')">
+          <div class="arg-title"><span>Arg I — The intuition against RC is a systematic bias</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>We find it easier to represent welfare of small groups vividly than aggregate welfare of vast populations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>We are biased toward quality over quantity because quality differences are more imaginatively tractable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These tendencies are psychological, not moral insights — they produce systematic errors in population-level moral reasoning.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The intuition against the RC is driven by identifiable cognitive biases rather than genuine moral perception; it should be discounted.</span></div>
+        </div>
+        <div class="arg-block" data-arg="1" onclick="openModal('huemer',1,'prop')">
+          <div class="arg-title"><span>Arg II — Reflection vindicates the RC</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Each person in the z-world has a life containing genuine goods — friendship, curiosity, pleasure — diluted but real.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Considering each such life individually, it clearly adds value; the RC is just the accumulation of these individual additions.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The alternative — that at some point adding lives worth living stops mattering — is itself the truly repugnant conclusion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Careful reflection vindicates the RC; it is the alternative — treating lives worth living as worthless beyond some threshold — that is genuinely repugnant.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('huemer',4,'prop')">
+          <div class="arg-title"><span>Arg III — Resistance reflects elitism of the imagination</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When we contemplate the z-world, we project our standards onto lives whose owners regard those lives as genuinely valuable.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Lives barely worth living by external standards are lives whose owners experience as worth caring about and living.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Our resistance is partly a failure of imagination — we disvalue lives from an external perspective that their owners do not share.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Resistance to the RC reflects an elitist failure of imagination; taking all lives seriously, from their owners' perspective, supports accepting it.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ORD ── -->
+    <div class="speaker-panel" id="prop-ord-panel">
+      <div id="prop-ord-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to make a case for accepting the repugnant conclusion that differs from my colleagues' — one grounded not merely in abstract theoretical considerations but in the concrete practical stakes of what we decide. I work on existential risk and the long-run future of humanity. And I want to argue that what is at stake in population ethics — and in this specific debate — is not a philosophical puzzle but one of the most practically consequential questions we face.</p>
+
+        <span class="section">On the practical stakes of population ethics</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Intellectual honesty about theoretical costs</span>If humanity survives the next few centuries and spreads across even a small fraction of the galaxy, the number of future people could be astronomically large — perhaps 10 to the power of 23 or more over the lifespan of the universe. The question of how to count those future people — whether to sum welfare, average it, apply critical levels, or weight by priority — is not merely academic. It determines what we should sacrifice today for the future, how we should weigh existential risks against ordinary harms, how we should think about the value of human civilisation continuing at all. In that context, a population axiology that dismisses the RC because of an intuition calibrated for small-scale social life is not merely theoretically inadequate. It is dangerous.</span></p>
+
+        <span class="section">On totalism and the value of the future</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The Mere Addition Principle</span>The totalist view — that the goodness of a world is the sum of its welfare — gives us a coherent, consistent, and action-guiding framework for thinking about the long-run future. It says that preventing existential catastrophe is among the most important things we can do, because the catastrophe would eliminate a vast quantity of potential welfare. It says that creating conditions for flourishing matters — not just for the present generation but for all those who will follow. This framework is not infinitely demanding, and it is not committed to any particular policy. But it is committed to taking seriously the welfare of all future people, including the vast numbers whose lives might be brief or modest by our current standards. That commitment is expressed precisely in accepting the RC.</span></p>
+
+        <span class="section">On the alternatives from a longtermist perspective</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Impossibility and the need for practical guidance</span>The alternatives to totalism — average views, critical level views, person-affecting views — all generate deeply problematic verdicts when applied to the long-run future. Average views imply that civilisational survival matters only if future people will be happier than the current average — a conclusion that would sometimes recommend civilisational extinction. Critical level views, if the critical level is set high enough to avoid the RC, imply that creating billions of people with good lives is bad — making them useless as guides to policy. Person-affecting views struggle to explain why preventing extinction is important at all, since there is no existing person who will be harmed by the failure of the species to continue. From a longtermist perspective, totalism is not merely one option among equals. It is the only framework that takes the future seriously.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-ord-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="4" onclick="openModal('ord',4,'prop')">
+          <div class="arg-title"><span>Arg I — The practical stakes demand an adequate population axiology</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If humanity persists and spreads, future population could be astronomically large — making population axiology one of the most practically consequential questions we face.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>An axiology calibrated for small-scale social life but dismissing vast future populations is not merely theoretically inadequate — it is practically dangerous.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The RC is precisely the consequence of taking seriously the welfare of all those vast future populations.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The practical stakes of longtermism require accepting an axiology that takes future populations seriously; accepting the RC is the direct expression of that requirement.</span></div>
+        </div>
+        <div class="arg-block" data-arg="1" onclick="openModal('ord',1,'prop')">
+          <div class="arg-title"><span>Arg II — Totalism gives coherent guidance for existential risk</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The totalist view generates a clear reason why existential catastrophe is among the worst possible outcomes — it eliminates vast quantities of potential welfare.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This provides a principled, consistent, action-guiding framework for weighing existential risks against current harms.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This guidance is available precisely because totalism accepts the RC — treating all future people's welfare as counting regardless of welfare level.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Accepting the RC is the theoretical basis for the practical importance of existential risk reduction; rejecting it undermines the case for taking the long-run future seriously.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('ord',5,'prop')">
+          <div class="arg-title"><span>Arg III — Alternatives fail catastrophically for longtermism</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Average views imply civilisational survival only matters if future people are happier than the current average — sometimes recommending extinction.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Critical level views with high thresholds imply creating billions of good lives is bad — useless as policy guidance.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Person-affecting views struggle to explain why preventing human extinction matters when no existing person would be harmed by species failure.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>From a longtermist perspective, totalism is the only framework that consistently takes the future seriously; the alternatives generate conclusions that are practically and morally untenable.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- prop body -->
+</div><!-- prop col -->
+
+<!-- ══════════════════ OPPOSITION ══════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','arrhenius',this)">Arrhenius</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','temkin',this)">Temkin</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','broome',this)">Broome</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','ng',this)">Ng</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','narveson',this)">Narveson</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','boonin',this)">Boonin</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','greaves',this)">Greaves</button>
+  </div>
+
+  <!-- ARRHENIUS HEADER -->
+  <div class="col-header" id="opp-arrhenius-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Gustaf Arrhenius</span></div>
+    <div class="col-position">Impossibility theorems — no population axiology satisfies all plausible conditions; accepting RC is choosing one disaster, not solving the problem</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','arrhenius','speech',this)">Speech</div><div class="tab" onclick="sw('opp','arrhenius','logic',this)">Logical Arguments</div></div>
+  </div>
+  <!-- TEMKIN HEADER -->
+  <div class="col-header hidden" id="opp-temkin-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Larry Temkin</span></div>
+    <div class="col-position">Rejecting transitivity — the argument depends on transitivity of "better than" which should not be accepted for complex population comparisons</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','temkin','speech',this)">Speech</div><div class="tab" onclick="sw('opp','temkin','logic',this)">Logical Arguments</div></div>
+  </div>
+  <!-- BROOME HEADER -->
+  <div class="col-header hidden" id="opp-broome-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">John Broome</span></div>
+    <div class="col-position">Critical level approach — a principled welfare threshold avoids the RC, though this generates its own challenges that must be honestly confronted</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','broome','speech',this)">Speech</div><div class="tab" onclick="sw('opp','broome','logic',this)">Logical Arguments</div></div>
+  </div>
+  <!-- NG HEADER -->
+  <div class="col-header hidden" id="opp-ng-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Yew-Kwang Ng</span></div>
+    <div class="col-position">Variable value — the marginal value of adding welfare diminishes as population grows; this avoids the RC without abandoning the total view</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','ng','speech',this)">Speech</div><div class="tab" onclick="sw('opp','ng','logic',this)">Logical Arguments</div></div>
+  </div>
+  <!-- NARVESON HEADER -->
+  <div class="col-header hidden" id="opp-narveson-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Jan Narveson</span></div>
+    <div class="col-position">Person-affecting view — we are obligated to make people happy, not to make happy people; the RC collapses once we adopt the right view of our obligations</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','narveson','speech',this)">Speech</div><div class="tab" onclick="sw('opp','narveson','logic',this)">Logical Arguments</div></div>
+  </div>
+  <!-- BOONIN HEADER -->
+  <div class="col-header hidden" id="opp-boonin-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">David Boonin</span></div>
+    <div class="col-position">Defence of the intuition — the intuition against the RC is more reliable than we have been told; the case for accepting it is weaker than it appears</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','boonin','speech',this)">Speech</div><div class="tab" onclick="sw('opp','boonin','logic',this)">Logical Arguments</div></div>
+  </div>
+  <!-- GREAVES HEADER -->
+  <div class="col-header hidden" id="opp-greaves-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Hilary Greaves</span></div>
+    <div class="col-position">Population axiology under moral uncertainty — given our deep uncertainty, we should not accept any single population axiology; the RC should be rejected under uncertainty</div>
+    <div class="tabs"><div class="tab active" onclick="sw('opp','greaves','speech',this)">Speech</div><div class="tab" onclick="sw('opp','greaves','logic',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ── ARRHENIUS ── -->
+    <div class="speaker-panel active" id="opp-arrhenius-panel">
+      <div id="opp-arrhenius-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to approach this debate from an unusual direction. I am not going to defend one of the standard alternatives to totalism. I am going to argue something more fundamental: that the repugnant conclusion is one symptom of a deeper impossibility — and that accepting it represents a choice of theoretical cost, not a solution.</p>
+
+        <span class="section">On the impossibility theorems</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Impossibility theorems</span>I have proven a series of impossibility theorems showing that no population axiology can simultaneously satisfy a small number of independently plausible conditions. These include: the Egalitarian Dominance Condition (a perfectly equal population is better than one where all are worse off than the worst-off person in the first); the General Non-Extreme Priority Condition (it is better to give a larger benefit to a worse-off person than a smaller benefit to a better-off person under specified conditions); the Dominance Addition Condition (adding people much better off than the worst-off improves the population); and the Weak Non-Sadism Condition (adding people with positive welfare is not worse than adding people with negative welfare). Each condition is highly plausible. Each is supported by strong intuitions. And yet — by formal proof — no population axiology satisfies all four simultaneously.</span></p>
+
+        <span class="section">On what the impossibility implies</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Intellectual honesty about theoretical costs</span>Accepting the RC does not solve the problem. It merely represents one particular allocation of theoretical costs — one particular way of violating one of the conditions. Every possible approach violates at least one. The proposition presents the RC as the least bad option. But it has not established that the Egalitarian Dominance Condition — which totalism violates by implying trillions of barely-positive lives outweigh billions of very good lives — is less important than the conditions violated by alternatives. That comparison has not been made. It is being assumed.</span></p>
+
+        <span class="section">On intellectual humility</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Intellectual humility in population ethics</span>Population ethics is genuinely hard — not in the sense that we have not yet found the right answer, but in the sense that there may be no fully satisfactory answer. The impossibility theorems suggest the domain is inconsistent with our moral commitments, not merely that we lack an insight. This does not mean we should give up. It means we should be modest. The repugnant conclusion should not be naïvely rejected as if rejection were free — but it should not be confidently accepted as if acceptance were free either. Every position pays a price. The question of which price to pay has not been answered by this debate.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-arrhenius-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="5" onclick="openModal('arrhenius',5,'opp')">
+          <div class="arg-title"><span>Arg I — No population axiology satisfies all plausible conditions</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Four independently plausible conditions — Egalitarian Dominance, Non-Extreme Priority, Dominance Addition, Weak Non-Sadism — can be formally specified.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>By formal proof, no population axiology satisfies all four simultaneously.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The RC is one symptom of this general impossibility, not an isolated puzzle.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Accepting the RC represents one cost allocation among several, not a solution to the underlying impossibility.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('arrhenius',4,'opp')">
+          <div class="arg-title"><span>Arg II — Accepting RC is choosing a cost, not escaping one</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Every population axiology violates at least one plausible condition.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Totalism violates Egalitarian Dominance — trillions of barely-positive lives outweighing billions of very good lives.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition has not established that this violated condition is less important than those violated by alternatives.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The claim that the RC is the "least bad" option is unestablished; it is an assertion that has not been argued for.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal('arrhenius',6,'opp')">
+          <div class="arg-title"><span>Arg III — Intellectual humility is required</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If no satisfactory population axiology exists, no position in this debate can declare itself correct and alternatives refuted.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The impossibility theorems show the domain is genuinely inconsistent with our moral commitments.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In a domain of genuine impossibility, intellectual humility is appropriate; premature theoretical closure is not.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The RC should be rejected not by adopting a superior alternative but by resisting premature acceptance of any single position in a genuinely impossible domain.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TEMKIN ── -->
+    <div class="speaker-panel" id="opp-temkin-panel">
+      <div id="opp-temkin-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>Both sides have accepted, almost without question, the logical structure of the argument leading to the repugnant conclusion. The argument uses transitivity: if A is better than B, and B is better than C, then A is better than C. I want to challenge the logic itself — specifically, the transitivity of "better than" as applied to populations.</p>
+
+        <span class="section">On the argument's dependence on transitivity</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Rejecting transitivity</span>The argument constructs a sequence A, A+, B, B+...Z. At each step, the next population is argued to be better. The RC is then derived by transitivity. But why should we accept transitivity for complex population comparisons? Consider: is Beethoven's Fifth Symphony better than Miles Davis's Kind of Blue? Is Kind of Blue better than Abbey Road? Does it follow that Beethoven's Fifth is better than Abbey Road? These are comparisons between things good in very different ways. Transitivity may break down when applied to comparisons between incommensurable goods — and population comparisons are precisely such comparisons.</span></p>
+
+        <span class="section">On why transitivity fails here</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Rejecting transitivity</span>Consider the sequence from A to Z carefully. Each intermediate comparison is made along a particular dimension — total welfare or number of happy lives. But comparing A directly to Z tracks different features: quality of life, richness of experience, depth of wellbeing. The seemingly paradoxical result dissolves once we recognise that the intermediate comparisons and the direct comparison are tracking different morally relevant features. "Better than" is not a single transitive relation — it is a family of context-sensitive relations. Forcing them into a single ordering produces the RC. The RC is an artefact of that forced reduction, not a genuine moral truth.</span></p>
+
+        <span class="section">On why this is not mere paradox-avoidance</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Intellectual humility in population ethics</span>I anticipate the charge that rejecting transitivity is desperate — saving us from one paradox at the cost of logical incoherence. I do not accept this. Transitivity is a formal requirement for consistent preferences in individual decision theory. It is not obviously required for ethical comparisons between complex social states along multiple incommensurable dimensions. The multi-criteria decision-making literature has extensively documented conditions under which transitivity breaks down. Population comparisons are precisely such conditions. I am recommending a more nuanced picture of what rational comparison requires — one that takes seriously the genuine incommensurability of the values at stake.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-temkin-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="7" onclick="openModal('temkin',7,'opp')">
+          <div class="arg-title"><span>Arg I — Transitivity should be rejected for population comparisons</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The RC is derived by transitivity across intermediate comparisons each tracking a different dimension.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The direct comparison between A and Z tracks different dimensions — quality, richness, depth — not those tracked intermediately.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>"Better than" for complex multidimensional populations is a family of context-sensitive relations, not a single transitive relation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Transitivity should not be accepted for population comparisons; rejecting it dissolves the RC without generating equally counterintuitive alternatives.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('temkin',5,'opp')">
+          <div class="arg-title"><span>Arg II — Incommensurability is the real source of the problem</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Population comparisons involve incommensurable values — quantity, quality, depth — that cannot be reduced to a single metric.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Any axiology forcing these values into a single ordering will generate repugnant conclusions of some kind.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Recognising incommensurability and rejecting transitivity allows us to maintain that A is better than Z without inconsistency.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The RC arises from forced reduction of incommensurable values; rejecting this reduction by rejecting transitivity is the appropriate response.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal('temkin',6,'opp')">
+          <div class="arg-title"><span>Arg III — Rejecting transitivity is not irrational</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Transitivity is a formal requirement for individual preferences under certainty — not obviously required for ethical comparisons between complex social states.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Multi-criteria decision theory documents conditions where transitivity breaks down — precisely those obtaining in population comparisons.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Accepting non-transitivity here is a nuanced position about rational comparison, not a logical error.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Rejecting transitivity for population comparisons is defensible and grounded in genuine incommensurability — not ad hoc paradox avoidance.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BROOME ── -->
+    <div class="speaker-panel" id="opp-broome-panel">
+      <div id="opp-broome-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to offer an escape from the repugnant conclusion that is principled, grounded in welfare theory, and honest about its own costs — the critical level approach. I do not pretend it is problem-free. I do argue that it is preferable to accepting the conclusion my opponents defend.</p>
+
+        <span class="section">On what the critical level approach says</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Failure of alternatives</span>The critical level utilitarian view holds that an addition to a population increases the value of the world if and only if that person's welfare exceeds a critical level — a positive threshold above mere positive welfare. Below this threshold, adding a person with a good life does not improve the world. The repugnant conclusion is avoided because the z-world's inhabitants, though their lives are worth living, may not meet the critical level. Their addition does not therefore improve the world sufficiently to outweigh the lower welfare of the vastly larger population compared to the original ten billion.</span></p>
+
+        <span class="section">On the theoretical grounding of a critical level</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The Mere Addition Principle</span>The critical level approach is not arbitrary. It reflects the observation that the Mere Addition Principle, while intuitively appealing for lives well above neutral, is not intuitively compelling for lives only barely above neutral. Adding a person whose life contains marginally more pleasure than pain — but only marginally — does not obviously make the world better. The critical level captures the intuition that there is a morally relevant distinction between lives that genuinely flourish and lives that merely scrape above the threshold of bare worth. This is not elitism. It is a recognition that the value of a life for the purpose of population aggregation is not simply whether it is positive, but whether it rises to a level that meaningfully contributes to the good.</span></p>
+
+        <span class="section">On the Very Repugnant Conclusion and what it actually shows</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Intellectual honesty about theoretical costs</span>My opponents will invoke the Very Repugnant Conclusion — the objection that the critical level view implies adding billions of good-but-below-threshold lives makes the world worse. I acknowledge this cost. But I want to be precise about what it shows. It shows that if the critical level is set too high, we generate implausible verdicts about large numbers of good lives. This does not show that the critical level approach is wrong — it shows that the critical level must be set carefully, and that its precise calibration is a genuine theoretical challenge. It does not show that accepting the RC is preferable. The Very Repugnant Conclusion is a problem for a badly calibrated critical level. A well-calibrated critical level avoids both.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-broome-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="2" onclick="openModal('broome',2,'opp')">
+          <div class="arg-title"><span>Arg I — Critical level avoids RC by principled threshold</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A critical level approach adds value to the world only when a new person's welfare exceeds a positive threshold above bare positive welfare.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The z-world's inhabitants have lives barely above neutral — they may not meet the critical level.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Without the z-world's inhabitants adding value, the sequence leading to the RC does not complete.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The critical level approach provides a principled escape from the RC grounded in welfare theory rather than ad hoc revision of the logical structure.</span></div>
+        </div>
+        <div class="arg-block" data-arg="1" onclick="openModal('broome',1,'opp')">
+          <div class="arg-title"><span>Arg II — MAP is not compelling for near-neutral lives</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Mere Addition Principle is intuitively compelling for lives well above neutral — genuinely flourishing lives.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>For lives only marginally above neutral, the MAP loses its intuitive force — adding a life barely worth living does not obviously improve the world.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The critical level captures this distinction: a welfare level must rise to a morally significant threshold to count positively in population aggregation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The critical level approach is grounded in a principled asymmetry between flourishing lives and barely-worth-living lives that the MAP's blanket application ignores.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('broome',4,'opp')">
+          <div class="arg-title"><span>Arg III — Very Repugnant Conclusion shows calibration matters, not that CL fails</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Very Repugnant Conclusion — adding billions of good-but-below-threshold lives makes things worse — is a problem for a poorly calibrated critical level.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A carefully calibrated critical level set at an appropriate level can avoid both the RC and the Very RC.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The challenge of calibration is a genuine theoretical task, not a refutation of the critical level approach.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Very RC is a calibration challenge, not a decisive objection; a well-calibrated critical level provides a superior escape from the RC than accepting totalism.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── NG ── -->
+    <div class="speaker-panel" id="opp-ng-panel">
+      <div id="opp-ng-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to offer a different escape from the repugnant conclusion — one that does not require abandoning the total view, does not invoke arbitrary critical levels, and does not reject the transitivity of rational preference. I call it the variable value approach: the marginal value of adding an extra person to an already large population diminishes as the population grows.</p>
+
+        <span class="section">On the variable value approach</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The Mere Addition Principle</span>The key insight is this: the value of adding a person to a world is not constant across different population sizes. When a population is small, adding an additional person with a good life adds substantial value — there is room for more happiness, more diversity, more of what makes human existence rich. But as population grows very large, the marginal value of an additional person declines. Not because their welfare counts for less — every unit of welfare still counts — but because the contribution of an additional person to the overall value of the world diminishes as the world already contains a very large population of people with lives worth living. The Mere Addition Principle remains roughly true for moderate populations but loses its force at extreme scales.</span></p>
+
+        <span class="section">On how this avoids the RC</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Failure of alternatives</span>The RC arises because the MAP is applied without diminution across the entire sequence from A to Z. At each step, adding more people improves things — and so the process continues until we reach a world of trillions at barely positive welfare. The variable value approach interrupts this process. At some point in the sequence, the marginal value of additional people at low welfare levels becomes sufficiently small that the gain from adding them does not outweigh the reduction in average welfare. We get a population that is optimal — large enough to take advantage of the benefits of many lives, but not so large that the declining marginal value of additions drives us to the z-world.</span></p>
+
+        <span class="section">On the theoretical grounding of diminishing marginal value</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Unreliable population intuitions</span>The diminishing marginal value of additional people is not merely a convenient escape route. It has independent theoretical support. Consider that the goods available from human existence — friendship, love, discovery, culture — are goods that can be shared and are enhanced by the existence of others, but up to a point. An additional person in a world of ten billion contributes to and benefits from a rich network of human relationships and achievements. An additional person in a world of a trillion, where resources are stretched and welfare is barely positive, contributes and receives far less. The diminishing returns are grounded in the structure of the human goods that make life worth living — they are not arbitrary.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-ng-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('ng',1,'opp')">
+          <div class="arg-title"><span>Arg I — Marginal value of adding people diminishes with population size</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Every unit of welfare still counts equally regardless of population size.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the contribution of an additional person to the overall value of the world diminishes as the population grows very large.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The MAP therefore has diminishing force as population increases — it remains roughly true for moderate populations but loses force at extreme scales.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The variable value approach modifies the MAP without abandoning the total view — the RC does not follow because the MAP does not apply uniformly across all population sizes.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('ng',2,'opp')">
+          <div class="arg-title"><span>Arg II — Variable value interrupts the sequence to the RC</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The RC is generated by uniformly applying MAP across the sequence from A to Z.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Under variable value, at some point in the sequence the marginal value of additional low-welfare people becomes insufficient to outweigh the reduction in average welfare.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This interrupts the sequence at an optimal population size — large but not repugnantly vast.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Variable value avoids the RC by identifying an optimal population where diminishing marginal returns prevent the sequence from reaching the z-world.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('ng',3,'opp')">
+          <div class="arg-title"><span>Arg III — Diminishing marginal value has independent theoretical grounding</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Human goods — friendship, love, culture, discovery — are goods that benefit from and are enhanced by others, but with diminishing returns as population grows.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>An additional person in a world of ten billion contributes to and receives a richer network of human goods than in a world of a trillion at bare subsistence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The diminishing returns are grounded in the structure of human goods, not in an arbitrary preference for smaller populations.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Diminishing marginal value of additional people is independently motivated by the nature of human goods — it is not an ad hoc escape but a theoretically grounded modification of totalism.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── NARVESON ── -->
+    <div class="speaker-panel" id="opp-narveson-panel">
+      <div id="opp-narveson-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to offer what I believe is the most philosophically fundamental escape from the repugnant conclusion — one that does not require technical modifications to the total view, does not invoke impossibility theorems, and does not rely on rejecting transitivity. It requires only that we get clear about the structure of our obligations.</p>
+
+        <span class="section">On the person-affecting view</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The Mere Addition Principle</span>The Mere Addition Principle says that adding a person with a life worth living makes the world better. I deny this. More precisely: the addition of a person who will have a good life makes the world better only if it is better for someone — only if there is a person for whom the addition represents an improvement over their alternative. But the person who is added has no alternative. Before they exist, there is no subject with respect to whom existence could be better or worse. The MAP is therefore not a principle about making things better for people. It is a principle about bringing people into existence — which is a very different thing. And our obligations, I argue, are about the former, not the latter.</span></p>
+
+        <span class="section">On Narveson's slogan</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Intellectual humility in population ethics</span>"We are in favour of making people happy, but neutral about making happy people." This is my central claim. We have strong reasons to improve the welfare of people who exist — their welfare can be better or worse for them, and they have interests in its improvement. We do not have comparable reasons to create new people, even people who will be happy — because until they exist, there is no person whose interests would be served by their creation. The RC arises from treating these two kinds of value as commensurable — treating the welfare of the billions in the z-world as counting positively in a way that can outweigh the higher welfare of the smaller population. On the person-affecting view, this comparison is misconceived from the outset.</span></p>
+
+        <span class="section">On the Non-Identity objection and what it really shows</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Failure of alternatives</span>The standard objection to person-affecting views is the Non-Identity Problem: if we create a different person than we would have otherwise, that person cannot claim to have been harmed — they would not have existed otherwise. I accept that the person-affecting view has difficulty with some Non-Identity cases. But this difficulty does not defeat the view in the domain that matters for the RC. The RC is about choosing between possible worlds with different populations — worlds in which we could choose to bring different numbers of people into existence. The Non-Identity Problem is most pressing for cases where we harm specific people relative to their alternatives. For the RC, where the relevant populations are largely disjoint, the person-affecting view gives clear verdicts: we have no obligation to bring the z-world into existence, and its existence does not make things better in any morally relevant sense.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-narveson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('narveson',1,'opp')">
+          <div class="arg-title"><span>Arg I — MAP confuses improving welfare with creating people</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Making things better means making them better for someone — a person for whom the change represents an improvement over their alternative.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The person added by MAP has no alternative — before existence there is no subject for whom existence could be better.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Therefore MAP is not a principle about improving welfare for people but about bringing people into existence — a categorically different moral act.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The MAP trades on a confusion between improving existing welfare and creating new welfare; once distinguished, its role in generating the RC is undermined.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal('narveson',6,'opp')">
+          <div class="arg-title"><span>Arg II — We should make people happy, not make happy people</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>We have strong reasons to improve the welfare of people who exist — their interests in welfare improvement are genuine and press on us morally.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>We do not have comparable reasons to create new people — before they exist there is no subject whose interests would be served by their creation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The RC treats welfare of potential people as commensurable with welfare of existing people — but on the person-affecting view this comparison is misconceived.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Person-affecting view dissolves the RC by rejecting the commensurability it presupposes — the welfare of possible people does not weigh against the welfare of actual people in the relevant way.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('narveson',2,'opp')">
+          <div class="arg-title"><span>Arg III — Non-Identity problem does not defeat person-affecting view for RC</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Non-Identity Problem is most pressing for cases where a specific person is harmed relative to a better alternative they would have had.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The RC concerns choosing between possible worlds with largely disjoint populations — not harming specific people relative to their alternatives.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>For the RC specifically, the person-affecting view gives clear verdicts: we have no obligation to bring the z-world into existence.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Non-Identity objection, while genuine for some cases, does not defeat the person-affecting view in the domain most relevant to the RC.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BOONIN ── -->
+    <div class="speaker-panel" id="opp-boonin-panel">
+      <div id="opp-boonin-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to make a different kind of argument from my colleagues. While they have offered escape routes — critical levels, variable values, person-affecting views — I want to defend the intuition against the repugnant conclusion more directly. The case for accepting the RC, I argue, is considerably weaker than Parfit, Tännsjö and Huemer have suggested. And the intuition against it is considerably more reliable.</p>
+
+        <span class="section">On what the intuition against the RC actually tracks</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Unreliable population intuitions</span>My opponents have argued that the intuition against the RC is unreliable — a cognitive bias, an artefact of our evolutionary history, a form of welfare elitism. I want to challenge this dismissal. The intuition against the RC is not merely the intuition that a smaller population of very happy people feels better than a larger population of barely happy people. It tracks something more specific and more defensible: the intuition that the quality of individual lives matters in a way that cannot be fully captured by their aggregate quantity. This is not a bias. It is a substantive moral insight about the relationship between individual wellbeing and social value. The question is whether our population axiology can do justice to it.</span></p>
+
+        <span class="section">On the reliability of the intuition</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Intellectual honesty about theoretical costs</span>The charge that the intuition against the RC is unreliable rests on an analogy with other domains where strong intuitions have turned out to be mistaken — racial prejudice, parochialism, status quo bias. But the intuition against the RC does not have the structure of these biases. It does not privilege one group over another. It does not reflect an irrational attachment to existing arrangements. It reflects a considered judgement, on reflection, that a world in which individual lives are impoverished — even if they are numerous — is worse than a world in which individual lives flourish, even if they are fewer. This judgement survives careful scrutiny. It is not a bias.</span></p>
+
+        <span class="section">On what the proposition needs to establish</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Impossibility theorems</span>The proposition asks us to accept the RC on the grounds that the alternatives are worse. But this argument is only as strong as the claim that accepting the RC carries less theoretical cost than any alternative. That claim has not been established. Arrhenius has shown that every position pays a price. The proposition has not shown that the RC's price — violating the intuition that ten billion flourishing lives are better than trillions of barely living ones — is lower than the price of any alternative. In the absence of that showing, the intuition against the RC stands. It is the proposition that needs to make its case. It has not done so.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-boonin-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="3" onclick="openModal('boonin',3,'opp')">
+          <div class="arg-title"><span>Arg I — The intuition against RC tracks a substantive moral insight</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The intuition against the RC is not merely a preference for a smaller population — it tracks the substantive insight that quality of individual lives cannot be fully captured by aggregate quantity.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This insight is not a cognitive bias but a considered judgement that survives reflection.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An axiology that cannot accommodate this insight is inadequate, not one that should be accepted because the alternatives also fail.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The intuition against the RC is more reliable than the proposition claims; it tracks a genuine moral insight about the irreducibility of individual welfare quality.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('boonin',4,'opp')">
+          <div class="arg-title"><span>Arg II — The intuition does not have the structure of known biases</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Known biases — racial prejudice, parochialism, status quo bias — have identifiable structures: privilege of one group, irrational attachment to existing arrangements.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The intuition against the RC does not have these structures — it does not privilege one group, does not reflect attachment to existing arrangements, and survives careful scrutiny.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An intuition that does not have the structure of known biases and survives scrutiny should not be dismissed as a bias.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The charge that the intuition against the RC is a bias is not established; the intuition should be taken seriously as evidence against accepting the conclusion.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('boonin',5,'opp')">
+          <div class="arg-title"><span>Arg III — The proposition has not established that RC carries least cost</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The proposition's argument is conditional: if every alternative is worse, accept the RC.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the claim that the RC carries less theoretical cost than every alternative has not been established — Arrhenius's impossibility theorems show every position pays a price.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In the absence of an argument that the RC's particular cost is the lowest, the intuition against it provides a sufficient reason to reject it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The burden of proof lies with the proposition; it has not established that accepting the RC carries less cost than alternatives; the intuition against it therefore stands.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── GREAVES ── -->
+    <div class="speaker-panel" id="opp-greaves-panel">
+      <div id="opp-greaves-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to approach this debate from the perspective of moral uncertainty — specifically, from the question of what we should believe about population ethics given that we are deeply uncertain about which population axiology is correct. I argue that under appropriate treatment of moral uncertainty, we should not accept the repugnant conclusion.</p>
+
+        <span class="section">On moral uncertainty in population ethics</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Impossibility theorems</span>Population ethics is a domain of extreme moral uncertainty. The impossibility theorems proved by Arrhenius show that no available population axiology is fully satisfactory. Every position has compelling objections. In this situation, the rational response is not to pick one theory and follow it to its conclusions — it is to reason under moral uncertainty, weighing the verdicts of different theories by our credences in them. The question is not "what does our preferred population axiology say?" but "given our uncertainty about which population axiology is correct, what should we believe about the RC?"</span></p>
+
+        <span class="section">On what reasoning under moral uncertainty implies</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Intellectual humility in population ethics</span>When we reason under moral uncertainty, we should not simply follow the verdicts of the theory we find most plausible — particularly when those verdicts are extreme and the theory is contested. The RC is the verdict of totalism — a theory that has compelling arguments in its favour but also faces devastating objections. Under moral uncertainty, we should weight the verdict of totalism by our credence in totalism. Since our credence in totalism is significantly less than one — given the genuine force of the alternatives and the impossibility theorems — the verdict that we should accept the RC is correspondingly diluted. The RC should be accepted only if totalism is correct. Since we are uncertain whether totalism is correct, the rational attitude under uncertainty is not to accept the RC but to remain uncertain about it.</span></p>
+
+        <span class="section">On why the proposition's argument does not overcome uncertainty</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Unreliable population intuitions</span>The proposition argues that the alternatives to totalism are all worse, and that therefore we should accept the RC as the least bad option. But this argument assumes that we can confidently identify totalism as superior to all alternatives. The impossibility theorems show that we cannot. Every available population axiology has compelling objections. The appropriate response under uncertainty is not to accept the RC because totalism seems marginally less bad than its rivals. It is to acknowledge that our credence in any particular population axiology is low, and that the extreme verdicts of those axiologies — including the RC — should be held with corresponding tentativeness. The RC is not merely counterintuitive. It is the extreme verdict of an uncertain theory. Accepting it as if it were established is not intellectual honesty. It is overconfidence.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-greaves-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="5" onclick="openModal('greaves',5,'opp')">
+          <div class="arg-title"><span>Arg I — Population ethics is a domain of extreme moral uncertainty</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Every available population axiology faces compelling objections — the impossibility theorems show no fully satisfactory axiology exists.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In a domain where every theory has strong objections, our credence in any single theory should be significantly less than one.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Rational reasoning under moral uncertainty requires weighting theoretical verdicts by credences in the theories that generate them.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The RC is the verdict of totalism, weighted by our credence in totalism — which, given its genuine objections, is significantly less than one; the rational attitude is uncertainty, not acceptance.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6" onclick="openModal('greaves',6,'opp')">
+          <div class="arg-title"><span>Arg II — Under uncertainty, extreme verdicts of contested theories should not be accepted</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Moral uncertainty norms counsel against simply following the extreme verdicts of one's most-credible theory when that theory is itself significantly uncertain.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The RC is an extreme verdict — it implies trillions of barely-living people outweigh billions of flourishing ones — of a significantly uncertain theory (totalism).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Accepting such an extreme verdict from a contested theory is overconfidence, not intellectual honesty.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Under appropriate moral uncertainty norms, the RC should not be accepted — the rational attitude is to remain uncertain about it in proportion to uncertainty about the totalist theory that generates it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('greaves',3,'opp')">
+          <div class="arg-title"><span>Arg III — The proposition's "least bad" argument does not overcome uncertainty</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The proposition claims totalism is least bad and therefore we should accept the RC — but this requires confident identification of totalism as superior, which the impossibility theorems prevent.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Under moral uncertainty, "marginally least bad among deeply uncertain options" does not translate into "accept the extreme verdict."</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The RC is not merely counterintuitive but is the extreme verdict of an uncertain theory — it should be held tentatively, not accepted confidently.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proposition's argument does not overcome the appropriate uncertainty about population axiology; the RC should be rejected under uncertainty rather than accepted as a theoretical default.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- opp body -->
+</div><!-- opp col -->
+
+</div><!-- columns -->
+
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh"><div>No image linked yet</div><code>Set src in IMAGES object in script</code></div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+var IMAGES={
+  parfit:{1:{src:"",caption:"Parfit — Mere Addition Principle"},2:{src:"",caption:"Parfit — Alternatives all fail"},3:{src:"",caption:"Parfit — Intuitions unreliable"}},
+  tannsjo:{1:{src:"",caption:"Tännsjö — Equal value of welfare"},2:{src:"",caption:"Tännsjö — Alternatives more repugnant"},3:{src:"",caption:"Tännsjö — Intuition is welfare elitism"}},
+  huemer:{1:{src:"",caption:"Huemer — Reflection vindicates RC"},3:{src:"",caption:"Huemer — Intuition is systematic bias"},4:{src:"",caption:"Huemer — Elitism of imagination"}},
+  ord:{1:{src:"",caption:"Ord — Totalism and existential risk"},4:{src:"",caption:"Ord — Practical stakes of population ethics"},5:{src:"",caption:"Ord — Alternatives fail for longtermism"}},
+  arrhenius:{4:{src:"",caption:"Arrhenius — Accepting RC is choosing a cost"},5:{src:"",caption:"Arrhenius — Impossibility theorems"},6:{src:"",caption:"Arrhenius — Intellectual humility required"}},
+  temkin:{5:{src:"",caption:"Temkin — Incommensurability"},6:{src:"",caption:"Temkin — Rejecting transitivity is not irrational"},7:{src:"",caption:"Temkin — Transitivity should be rejected"}},
+  broome:{1:{src:"",caption:"Broome — MAP not compelling for near-neutral lives"},2:{src:"",caption:"Broome — Critical level avoids RC"},4:{src:"",caption:"Broome — Very RC shows calibration matters"}},
+  ng:{1:{src:"",caption:"Ng — Marginal value diminishes with population"},2:{src:"",caption:"Ng — Variable value interrupts sequence to RC"},3:{src:"",caption:"Ng — Diminishing value is theoretically grounded"}},
+  narveson:{1:{src:"",caption:"Narveson — MAP confuses improving welfare with creating people"},2:{src:"",caption:"Narveson — Non-Identity does not defeat person-affecting view"},6:{src:"",caption:"Narveson — Make people happy not happy people"}},
+  boonin:{3:{src:"",caption:"Boonin — Intuition tracks substantive insight"},4:{src:"",caption:"Boonin — Intuition not structured as bias"},5:{src:"",caption:"Boonin — Proposition has not established least cost"}},
+  greaves:{3:{src:"",caption:"Greaves — Proposition argument does not overcome uncertainty"},5:{src:"",caption:"Greaves — Population ethics: extreme moral uncertainty"},6:{src:"",caption:"Greaves — Extreme verdicts of uncertain theories should not be accepted"}}
+};
+
+var state={
+  prop:{speaker:'parfit',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'arrhenius',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
+  document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
+  body.scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+function sw(side,speaker,view,el){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(view==='speech'){
+    sp.classList.remove('hidden');lg.classList.add('hidden');
+    body.scrollTop=st.speechScroll||0;
+  } else {
+    sp.classList.add('hidden');lg.classList.remove('hidden');
+    body.scrollTop=st.logicScroll||0;
+  }
+}
+
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech') st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+
+function openModal(speaker,n,side){
+  var d=(IMAGES[speaker]||{})[n]||{src:"",caption:speaker+" — argument "+n};
+  document.getElementById('mTitle').textContent=d.caption;
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.style.display='none';ph.style.display='none'}
+  else{img.style.display='none';ph.style.display='flex'}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none'}
+function imgFail(){document.getElementById('mImg').style.display='none';var p=document.getElementById('mPh');p.style.display='flex';p.querySelector('div').textContent='Image failed to load'}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open')}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal()}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl) return;
+  var tip=hl.querySelector('.tooltip');if(!tip) return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2,vw=window.innerWidth,m=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  tip.style.left=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m)+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl) return;
+  var tip=hl.querySelector('.tooltip');if(tip) tip.style.display='none';
+});
+</script>
