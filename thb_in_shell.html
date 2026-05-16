@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shell Oil — The Prosecution and the Defence</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .fact-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .fact-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.25rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Corporate Ethics Symposium &mdash; Royal Dutch Shell</div>
+  <div class="motion-title">&ldquo;This House Believes Shell Has Been, on Balance, a Force for Harm in Nigeria and the World&rdquo;</div>
+  <div class="motion-sub">Defence: Yergin &middot; Prosecution: Okonta &amp; Douglas (<em>Where Vultures Feast</em>) &middot; Economic Analysis: Sachs/Ross resource curse strand &middot; Counter-evidence: Brent Spar, OPL 245, Ogoniland</div>
+</div>
+<div class="columns">
+
+<!-- ═══════════════════════════════════════
+     LEFT: THE DEFENCE
+     Yergin · Shell's Own Case · Economic Defender
+═══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','yergin',this)">Yergin</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','anderson',this)">Shell's Defence</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','econ',this)">Economic Case</button>
+  </div>
+
+  <!-- YERGIN HEADER -->
+  <div class="col-header" id="prop-yergin-header">
+    <div class="col-header-top"><span class="pill prop">Defence</span><span class="col-subtitle">Daniel Yergin</span></div>
+    <div class="col-position">Pulitzer Prize &mdash; <em>The Prize</em> (1991) &amp; <em>The Quest</em> (2011) &middot; Vice-Chairman S&amp;P Global &middot; CERA founder &middot; Energy security and geopolitical case for oil majors</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','yergin','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','yergin','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- SHELL DEFENCE HEADER -->
+  <div class="col-header hidden" id="prop-anderson-header">
+    <div class="col-header-top"><span class="pill prop">Defence</span><span class="col-subtitle">Shell&rsquo;s Legal &amp; Factual Case</span></div>
+    <div class="col-position">The company&rsquo;s documented responses to specific allegations &mdash; OPL 245 acquittal, sabotage vs. operational spills, the Ogoni Nine, and the Brent Spar controversy</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','anderson','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','anderson','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- ECONOMIC CASE HEADER -->
+  <div class="col-header hidden" id="prop-econ-header">
+    <div class="col-header-top"><span class="pill prop">Defence</span><span class="col-subtitle">The Economic Counterfactual</span></div>
+    <div class="col-position">Revenue, employment, technology transfer &mdash; what Nigeria would have lost without Shell; the resource curse as state failure, not corporate failure</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','econ','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','econ','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ YERGIN ══ -->
+    <div class="speaker-panel active" id="prop-yergin-panel">
+      <div id="prop-yergin-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I have spent the better part of forty years studying the relationship between oil companies, governments, and the societies they operate in. And I want to register at the outset a methodological objection to the framing of this motion. To evaluate Shell &mdash; or any major integrated oil company &mdash; as a &ldquo;force for harm,&rdquo; one must specify the relevant counterfactual. The question is not whether Shell&rsquo;s Nigerian operations produced bad outcomes alongside good ones &mdash; they did, and the company itself has acknowledged this. The question is whether the alternative to Shell in the Niger Delta &mdash; a state-run monopoly, a rival commercial consortium, or no extraction at all &mdash; would have produced better outcomes. That counterfactual is never engaged by the prosecution. It should be.</p>
+        <div class="pull">&ldquo;Hydrocarbons have been the fuel, the engine really, of economic development. What you really realize is that without them, people would still be in sailboats. The issue is not whether oil companies create dislocations &mdash; they do. The question is whether the societies they enter are better or worse placed to navigate the modern world because of their presence.&rdquo;</div>
+        <span class="section">i. the historical record of energy development</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Energy development — historical economic record</span>Shell&rsquo;s operations in Nigeria began in 1938. Over the subsequent eight decades the company invested capital, transferred technology, trained a Nigerian petroleum workforce, and generated the revenue flows that funded Nigerian state capacity &mdash; whatever use that state made of those revenues. By 2019, Nigeria&rsquo;s oil sector contributed approximately 9% of GDP and over 90% of foreign exchange earnings. The infrastructure &mdash; pipelines, wellheads, processing facilities &mdash; that Shell developed represents capital stock worth tens of billions of dollars that would not otherwise exist. The prosecution attributes to Shell the consequences of what the Nigerian state did with oil revenues: the corruption, the misallocation, the underdevelopment. But these are indictments of the Nigerian federal government, not of Royal Dutch Shell. The company cannot control what a sovereign government does with its own tax revenues.</span></p>
+        <span class="section">ii. the governance vacuum argument</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Governance vacuum — oil companies as proxies for absent states</span>In the Niger Delta in the 1990s, Shell operated in a governance vacuum. The Abacha military government was not a partner Shell chose freely; it was the sovereign authority with whom any company extracting Nigerian oil was legally compelled to deal. The joint venture structure &mdash; 55% NNPC, 30% Shell, 15% other partners &mdash; meant that Shell was never the controlling party in its own Nigerian operations. The majority owner, and the party responsible for security decisions, was the Nigerian National Petroleum Corporation, a state entity. When Amnesty International says Shell &ldquo;encouraged&rdquo; military intervention, it is describing a business relationship between a minority shareholder and a majority shareholder that happened to be a military dictatorship. Shell could not unilaterally order, prevent, or rescind military deployments in a country where the Nigerian state held the majority operational stake.</span></p>
+        <span class="section">iii. the comparative standard</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Comparative standard — Shell vs. alternatives in Nigeria</span>Those who condemn Shell should ask themselves: was the Nigerian state oil company, NNPC, a more ethical and effective operator? The answer is demonstrably no. NNPC has been the locus of Nigeria&rsquo;s most spectacular oil-sector corruption &mdash; the $20 billion in oil revenues that Governor of the Central Bank Lamido Sanusi claimed had gone unremitted between 2012 and 2014; the systemic fuel subsidy frauds; the routine diversion of production. Shell, whatever its failings, maintained production standards, reporting obligations to its international shareholders, and a degree of operational accountability that no Nigerian state institution matched. The prosecution imagines a world in which Shell was never there; the actual alternative was not Dutch social democracy but Nigerian kleptocracy operating without an international company to observe and partially constrain it.</span></p>
+        <span class="section">iv. energy security and global development</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Energy security — global development imperative</span>The broader Yergin argument is about the relationship between energy access and human development. In <em>The New Map</em> I document how reliable access to affordable energy &mdash; including the oil and gas that companies like Shell produce &mdash; is the single most important material precondition for escaping poverty at a population scale. The countries that have made the largest reductions in extreme poverty in the last thirty years &mdash; China, India, Bangladesh &mdash; all did so on the back of hydrocarbon energy. To condemn Shell is implicitly to condemn the energy system that made modern economic development possible. That is a serious moral position. It requires one to argue not merely that Shell behaved badly in particular instances, but that the entire project of hydrocarbon-based development was wrong &mdash; and that argument must reckon with the lives that development has actually saved.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-yergin-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The counterfactual: what would Nigeria look like without Shell?</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Shell&rsquo;s operations generated 90%+ of Nigeria&rsquo;s foreign exchange earnings, funded state budgets, and created tens of billions in capital stock over eight decades.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The prosecution attributes Nigerian underdevelopment to Shell; but underdevelopment at the state level requires a state-level explanation &mdash; the Nigerian federal government controlled oil revenues and made the allocative decisions.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The relevant counterfactual &mdash; extraction without Shell, or no extraction at all &mdash; would likely have produced worse outcomes, not better ones.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The prosecution conflates Shell&rsquo;s operational record with the Nigerian state&rsquo;s governance failures; the counterfactual is never engaged and the indictment cannot stand without it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Minority shareholder in a state-controlled joint venture</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Shell Nigeria operated in a joint venture in which NNPC (the Nigerian state company) held a 55% majority stake; Shell held 30%.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Security decisions, production decisions, and revenue allocations were formally under NNPC and federal government control, not Shell&rsquo;s unilateral direction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Holding a 30% minority shareholder responsible for the security policy of a military state&rsquo;s 55%-owned joint venture requires a theory of corporate liability that goes well beyond any established legal standard.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Shell was a minority partner operating under the direction of a sovereign military government; attributing full moral and legal responsibility for state security actions to a minority JV partner is not supported by the structure of the relationship.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Comparative performance: Shell vs. NNPC</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>NNPC, the Nigerian state oil company, has been the locus of Nigeria&rsquo;s largest oil-sector corruption: $20bn in unremitted revenues (Sanusi, 2014), systematic fuel subsidy fraud, and chronic underinvestment in infrastructure.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Shell maintained international reporting standards, shareholder accountability, and production efficiency that no Nigerian state institution matched.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition&rsquo;s implicit alternative &mdash; state-run oil extraction without international companies &mdash; is empirically available and demonstrably worse on governance metrics.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>On a comparative standard, Shell&rsquo;s operational record is superior to the available alternatives; condemning Shell requires defending the NNPC status quo as preferable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Energy, development, and the moral stakes of the transition</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The largest poverty reductions in human history &mdash; China, India, Bangladesh &mdash; occurred on the back of affordable hydrocarbon energy.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Condemning oil companies as forces for harm requires arguing that the energy system enabling this development was itself harmful &mdash; a position with enormous human costs.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Shell has been among the most significant suppliers of this development-enabling energy; the prosecution must reckon with this record alongside its indictment.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The global development record of hydrocarbon energy is a moral fact the prosecution must engage; condemning Shell without engaging it is not a complete ethical argument.</span></div>
+        </div>
+      </div>
+    </div><!-- end yergin -->
+
+    <!-- ══ SHELL'S DEFENCE ══ -->
+    <div class="speaker-panel" id="prop-anderson-panel">
+      <div id="prop-anderson-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to address three specific allegations that constitute the prosecution&rsquo;s most compelling evidence: the Ogoni Nine and Ken Saro-Wiwa; the OPL 245 / Malabu oil block; and the environmental record in Ogoniland. In each case, I will present the documented defence and identify precisely where the prosecution has overstated, conflated, or selectively deployed the evidence.</p>
+        <span class="section">i. ken saro-wiwa and the ogoni nine</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Ogoni Nine — Shell&rsquo;s specific documented defence</span>The prosecution&rsquo;s strongest claim is that Shell was complicit in the execution of Ken Saro-Wiwa and the Ogoni Nine in 1995. The documentary record is more contested than the prosecution acknowledges. Shell&rsquo;s position is that it publicly and repeatedly opposed the death sentences: in September 1995, before the executions, Shell urged clemency through diplomatic channels. Shell&rsquo;s then-Nigeria Chairman Brian Anderson has testified that his meetings with Abacha were to advocate for production access and to raise humanitarian concerns &mdash; not to endorse or encourage prosecution of MOSOP leaders. The prosecution witnesses who claimed to have been bribed with Shell job offers were paid witnesses in a political trial conducted by a military government. The critical forensic question &mdash; whether Shell directly facilitated the bribery of prosecution witnesses &mdash; was never conclusively established at trial. Shell paid $15.5 million in 2009 to the Wiwa family to settle the Wiwa v. Shell case out of court. The settlement explicitly stated it was not an admission of liability. This is not evidence of guilt; corporations regularly settle reputationally damaging litigation regardless of legal merits.</span></p>
+        <span class="section">ii. OPL 245: malabu oil block</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">OPL 245 — acquittal and the limits of the evidence</span>In 2011, Shell and Eni paid $1.3 billion to the Nigerian government to acquire OPL 245, a deepwater block estimated to hold nine billion barrels. Italian prosecutors alleged that $1.1 billion of this was diverted as bribes to Dan Etete (former petroleum minister) and associated politicians. In March 2021, after seven years of proceedings, 74 court hearings, and review of enormous documentary evidence, an Italian court acquitted Shell, Eni, and all 13 defendants. The court found there was no case to answer. Shell&rsquo;s position throughout was consistent: the company paid the Nigerian government, not Malabu. What the Nigerian government did with those funds &mdash; whether it channelled them to Etete or to the treasury &mdash; was beyond Shell&rsquo;s control or knowledge. Transparency International disputed the Italian verdict; but a criminal verdict of not proven requires evidence that reaches a higher standard than NGO advocacy. The Italian court applied that standard. The prosecution cannot treat an acquittal as equivalent to a conviction.</span></p>
+        <span class="section">iii. oil spills: sabotage and the split of responsibility</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Oil spills — sabotage data and the cleaned-up vs. uncleaned-up distinction</span>The UNEP 2011 Ogoniland report is frequently cited by the prosecution as a comprehensive indictment of Shell. The report&rsquo;s own data complicate that narrative. UNEP found that a significant proportion of spills in the area were attributable to third-party sabotage, bunkering, and illegal refining &mdash; not operational failure. NOSDRA data show that since the main clean-up effort began in 2016, virtually all confirmed spills in Ogoniland were attributed to sabotage. Nigeria is the world&rsquo;s second largest oil theft market, with an estimated 100,000 to 400,000 barrels per day siphoned from infrastructure. Shell left Ogoniland operationally in 1993. Continuing pollution since then has been driven overwhelmingly by third-party interference with abandoned infrastructure &mdash; infrastructure that Shell has been required under Nigerian law to remediate, but whose ongoing degradation was not caused by Shell&rsquo;s operational decisions. The prosecution holds Shell responsible for the consequences of oil theft it did not commit.</span></p>
+        <span class="section">iv. brent spar — when shell was right</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Brent Spar — Shell vindicated by the science</span>The Brent Spar controversy of 1995 is instructive precisely because it is the case where Shell was scientifically correct and its critics were wrong. Shell proposed to sink the decommissioned Brent Spar oil storage buoy in the deep Atlantic &mdash; a plan backed by independent scientific assessments showing it to be the environmentally superior option compared to shore-based dismantling. Greenpeace occupied the platform, mounted an international consumer boycott, and forced Shell to back down. Subsequent independent review confirmed that Shell&rsquo;s original plan was environmentally sound: deep-sea disposal of the buoy would have had minimal environmental impact. Greenpeace eventually acknowledged that their initial estimates of toxic contamination were wrong. The Brent Spar case shows that Shell is not reflexively wrong on environmental questions, and that NGO campaign pressure is not a substitute for scientific evidence. When the evidence is followed, Shell&rsquo;s position has sometimes been vindicated.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-anderson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Ogoni Nine: settlement ≠ admission; complicity unproven</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Shell publicly advocated clemency before the 1995 executions; Brian Anderson testified his Abacha meetings raised humanitarian concerns, not endorsement of prosecution.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The $15.5 million 2009 Wiwa settlement explicitly stated it was not an admission of liability; corporations routinely settle reputationally damaging litigation on commercial grounds regardless of guilt.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The critical allegation &mdash; that Shell directly facilitated bribery of prosecution witnesses &mdash; was never conclusively established; witnesses in a military tribunal&rsquo;s political trial are not reliable independent evidence.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Ogoni Nine case establishes Shell&rsquo;s proximity to a military government&rsquo;s atrocity but does not prove active facilitation; the prosecution treats proximity as equivalence, which is a logical and evidential error.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; OPL 245: Italian court acquittal after seven years of evidence</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>After 74 hearings over seven years, an Italian court acquitted Shell, Eni, and all 13 defendants of corruption charges in March 2021, finding no case to answer.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Shell&rsquo;s consistent position &mdash; that it paid the Nigerian government, not Malabu &mdash; was accepted by the court; what the government did with those funds was not within Shell&rsquo;s control or documented knowledge.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Treating a criminal acquittal as equivalent to a conviction because NGOs dispute it substitutes advocacy for evidence at the evidential standard the charges required.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The OPL 245 acquittal was the outcome of a rigorous multi-year international criminal proceeding; the prosecution cannot use the allegations as if the acquittal had not occurred.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Oil spills: the sabotage/operational split and Shell&rsquo;s post-1993 exit</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Shell ceased operations in Ogoniland in 1993; subsequent spills from abandoned infrastructure were caused overwhelmingly by third-party sabotage and bunkering, not Shell operational decisions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Nigeria experiences an estimated 100,000–400,000 barrels of oil theft per day; NOSDRA confirms virtually all confirmed spills in Ogoniland since 2016 are attributed to sabotage.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Under Nigerian law Shell must remediate even sabotage-caused spills; but being legally responsible for clean-up of third-party damage is distinct from being causally responsible for the underlying pollution.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The prosecution conflates legal remediation responsibility with causal responsibility for pollution; the majority of ongoing Niger Delta contamination results from theft and sabotage, not Shell operations.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Brent Spar: Shell vindicated by independent science</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Independent scientific assessments backed Shell&rsquo;s 1995 plan to deep-sea dispose Brent Spar; subsequent review confirmed deep-sea disposal was environmentally superior to shore-based dismantling.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Greenpeace subsequently acknowledged its initial contamination estimates were wrong; its campaign was based on incorrect data.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Shell was forced to abandon the scientifically correct option by NGO-driven consumer boycotts, demonstrating that campaign pressure is not a reliable proxy for environmental truth.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Brent Spar demonstrates that Shell is capable of holding scientifically correct environmental positions that are overridden by activist pressure; the prosecution&rsquo;s assumption that Shell is reflexively wrong on environmental questions is not supported by this case.</span></div>
+        </div>
+      </div>
+    </div><!-- end anderson -->
+
+    <!-- ══ ECONOMIC CASE ══ -->
+    <div class="speaker-panel" id="prop-econ-panel">
+      <div id="prop-econ-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The prosecution invokes the resource curse &mdash; the empirical finding that resource-rich developing countries often perform worse economically than resource-poor ones &mdash; as evidence against Shell. I want to show that this invocation is precisely backwards. The resource curse, properly understood, is an argument about state institutions, not about oil companies. It is an indictment of governance, not of extraction.</p>
+        <div class="fact-box">
+          <strong>Resource Curse &mdash; the empirical baseline</strong>
+          Sachs &amp; Warner (1997): found an inverse association between natural resource intensity and economic growth 1970&ndash;90 across 97 countries. Nigeria fits the pattern: export-oriented agriculture fell from 42% of exports in 1970 to under 3% by 1985 as oil revenues crowded out non-oil sectors (Dutch Disease). But multiple studies find the curse is attributable to <em>internal policy failure and corruption</em> rather than to oil markets or oil company behaviour.
+        </div>
+        <span class="section">i. the resource curse is a governance problem</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Resource curse — governance, not extraction, is causal</span>The most rigorous econometric analyses of the resource curse &mdash; including Ross (2001), Mehlum, Moene &amp; Torvik (2006), and the Nigerian VAR studies reviewed in the academic literature &mdash; consistently find that the curse is mediated by institutional quality. Countries with strong institutions and low corruption (Botswana, Norway, Chile) have successfully converted natural resource wealth into development. Countries with weak institutions and high corruption (Nigeria, Angola, Venezuela) have not. The causal chain runs from poor governance to misallocation, not from oil company presence to poor governance. Shell did not design Nigeria&rsquo;s federal revenue-sharing arrangements, did not structure the NNPC&rsquo;s opacity, and did not create the political incentives for elite capture of oil revenues that characterise Nigerian petro-politics. The prosecution needs a causal theory that implicates Shell specifically; the resource curse literature does not provide one.</span></p>
+        <span class="section">ii. the local employment and technology record</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Local employment and technology transfer — Shell&rsquo;s positive legacy</span>Shell Nigeria directly employed approximately 5,000 workers at its peak and supported a supply chain of Nigerian contractors many times that size. More importantly, Shell trained a generation of Nigerian petroleum engineers, geologists, and technicians who went on to staff NNPC, international oil companies, and independent Nigerian producers. The Nigerian petroleum workforce that exists today &mdash; and that would underpin any transition toward greater Nigerian state participation in its own oil sector &mdash; was substantially trained by Shell and its international oil company peers. This human capital is an enduring, positive legacy that the prosecution never mentions. The UNEP 2011 report estimated 25&ndash;30 years to remediate Ogoniland contamination; the training of the technical workforce that could potentially execute that remediation is also, in part, Shell&rsquo;s legacy.</span></p>
+        <span class="section">iii. the gas flaring problem and the investment constraint</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Gas flaring — investment constraint and Nigerian government failure</span>The prosecution correctly identifies gas flaring in the Niger Delta as an environmental and economic scandal: Nigeria has long been among the world&rsquo;s worst gas flaring nations, with emissions comparable to Russia. Shell promised to end flaring by 2008 and failed. But the analysis of why it failed is instructive. Gas-to-power and LNG projects that would convert flare gas into electricity or export commodity require pipeline infrastructure, regulatory frameworks for pricing, and offtake agreements &mdash; all of which are the Nigerian government&rsquo;s responsibility to provide. The government repeatedly failed to create the conditions for flaring reduction. NNPC repeatedly diverted LNG revenues. The prosecution holds Shell responsible for Nigeria&rsquo;s failure to build the infrastructure and regulatory framework that would have made flaring reduction economically viable. This reverses the actual causal structure.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-econ-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Resource curse is mediated by institutional quality, not extraction per se</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Mehlum, Moene &amp; Torvik (2006) and Ross (2001) show the resource curse is mediated by institutional quality: resource-rich countries with strong institutions develop well; those with weak institutions do not.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Nigeria&rsquo;s VAR studies attribute Dutch Disease and resource curse effects to &ldquo;internal factors such as policy failure and corruption rather than the happenings in the international oil markets.&rdquo;</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Shell did not design Nigeria&rsquo;s federal revenue arrangements, NNPC&rsquo;s opacity, or the political incentives for elite capture; the causal chain runs from governance to outcomes, not from Shell to governance.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The resource curse indicts Nigerian state institutions, not Shell; invoking it as evidence against an oil company requires a causal theory the prosecution has not provided.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument II &mdash; Human capital: the trained Nigerian petroleum workforce</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Shell Nigeria trained generations of Nigerian petroleum engineers, geologists, and technicians; the technical workforce for any future Nigerian oil sector independence was built substantially by Shell.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This human capital legacy is an enduring positive externality that the prosecution&rsquo;s balance sheet systematically omits.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Any evaluation that counts costs but not benefits &mdash; that lists spills but not trained engineers, lists payments but not supply chain employment &mdash; is not a balanced assessment.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Shell&rsquo;s human capital legacy in Nigeria is a documented positive benefit; excluding it from the prosecution&rsquo;s ledger produces a systematically one-sided picture.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument III &mdash; Gas flaring: a Nigerian infrastructure and governance failure, not solely a Shell failure</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Reducing gas flaring requires pipeline infrastructure, regulated gas pricing, and LNG offtake agreements &mdash; all requiring Nigerian government action that was repeatedly not taken.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>NNPC repeatedly diverted LNG revenues; the regulatory framework for commercialising associated gas was chronically absent.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Shell bears responsibility for its flaring volumes; but holding it solely responsible for a failure caused jointly by Shell&rsquo;s operational decisions and Nigeria&rsquo;s infrastructure and governance failures is a misdistribution of causal responsibility.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Gas flaring responsibility is shared between Shell and the Nigerian state; the prosecution assigns it entirely to Shell, which misrepresents the causal and institutional structure of the failure.</span></div>
+        </div>
+      </div>
+    </div><!-- end econ -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════════════════════════
+     RIGHT: THE PROSECUTION
+     Okonta & Douglas · Amnesty / Legal · Political Economy
+═══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','okonta',this)">Okonta &amp; Douglas</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','amnesty',this)">Legal Evidence</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','polecon',this)">Political Economy</button>
+  </div>
+
+  <!-- OKONTA HEADER -->
+  <div class="col-header" id="opp-okonta-header">
+    <div class="col-header-top"><span class="pill opp">Prosecution</span><span class="col-subtitle">Ike Okonta &amp; Oronto Douglas</span></div>
+    <div class="col-position"><em>Where Vultures Feast: Shell, Human Rights and Oil</em> (2001) &middot; First systematic account of Shell&rsquo;s Niger Delta record &middot; Douglas was also Saro-Wiwa&rsquo;s lawyer</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','okonta','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','okonta','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- AMNESTY HEADER -->
+  <div class="col-header hidden" id="opp-amnesty-header">
+    <div class="col-header-top"><span class="pill opp">Prosecution</span><span class="col-subtitle">The Legal &amp; Documentary Record</span></div>
+    <div class="col-position">Amnesty International&rsquo;s &ldquo;Criminal Enterprise?&rdquo; (2017) &middot; Internal Shell documents &middot; Brian Anderson testimony &middot; The witness-bribery allegations &middot; UNEP 2011 findings</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','amnesty','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','amnesty','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- POLITICAL ECONOMY HEADER -->
+  <div class="col-header hidden" id="opp-polecon-header">
+    <div class="col-header-top"><span class="pill opp">Prosecution</span><span class="col-subtitle">Political Economy &amp; Structural Critique</span></div>
+    <div class="col-position">The resource curse as Shell-enabled; regulatory capture; the OPL 245 deal and its $5bn fiscal cost to Nigeria; Dutch Disease and the de-agriculturalisation of the Delta</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','polecon','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','polecon','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ OKONTA & DOUGLAS ══ -->
+    <div class="speaker-panel active" id="opp-okonta-panel">
+      <div id="opp-okonta-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>In 2001, we published <em>Where Vultures Feast</em>. The title was not metaphor. It described a precise and documented relationship: the relationship between Shell, the Nigerian military state, and the Ogoni people &mdash; a relationship in which Shell&rsquo;s profits required the suppression of the community whose land was being extracted, and in which the Nigerian state provided that suppression using resources, logistics, and moral authority that Shell helped supply. The defence will say we overstate. Let me be precise about what I am and am not claiming.</p>
+        <div class="pull">&ldquo;Shell is not merely a company that extracted oil from Nigeria. It is a company that, across five decades, provided the Nigerian state with the economic rationale and the operational infrastructure for maintaining a political arrangement hostile to the communities living above the oil. That is not incidental. It is the story.&rdquo;</div>
+        <span class="section">i. the founding deal and the political bargain</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Political bargain — Shell-state relationship structure</span>Shell&rsquo;s entry into Nigeria in 1938 occurred under British colonial administration; the company was the instrument of colonial resource extraction before Nigeria existed as an independent state. After independence in 1960, Shell continued under a joint-venture arrangement in which successive Nigerian governments &mdash; civilian and military &mdash; received the revenue flows that made them viable as governing entities. This is the foundational political economy of Shell in Nigeria: the company&rsquo;s presence provided Nigerian governments with the fiscal resources to exist, and Nigerian governments in return provided Shell with the security conditions needed to extract. This is not a conspiracy theory. It is a documented structural relationship that Yergin&rsquo;s account of oil history describes for every major petro-state. The problem in Nigeria was that the security conditions required became progressively more violent as communities organised to resist the environmental destruction of their lands.</span></p>
+        <span class="section">ii. the umuechem massacre and the pattern of escalation</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Umuechem 1990 — internal Shell document requesting paramilitary deployment</span>In October 1990, Shell wrote a letter to the Rivers State government requesting the deployment of the Mobile Police Force &mdash; a paramilitary unit nicknamed &ldquo;Kill and Go&rdquo; by Nigerians &mdash; to deal with protesters at the Umuechem community who were blocking Shell facilities. The Mobile Police descended on the village the next day. An official inquiry subsequently found they acted &ldquo;like an invading army that had vowed to take the last drop of the enemy&rsquo;s blood.&rdquo; Eighty people were killed. This is not an allegation. It is documented in Shell&rsquo;s own internal correspondence and in a Nigerian government inquiry. Shell requested the deployment. The massacre followed within 24 hours. The defence says Shell could not control military behaviour in Nigeria; at Umuechem, Shell initiated the process. That is not proximity. That is direct causation.</span></p>
+        <span class="section">iii. the deliberate deception about spill causes</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Spill cause deception — internal documents vs. public attribution</span>The defence argues that the majority of Niger Delta spills are caused by sabotage, not operational failure, and that Shell is unfairly held responsible for third-party damage. But internal Shell documents reviewed by researchers and journalists show that the company routinely attributed spills to sabotage even when its own investigations suggested infrastructure failure or operational negligence was the cause. The motive for systematic sabotage-attribution is transparent: under Nigerian law, Shell is not required to compensate communities for sabotage-caused spills, only for operational spills. By systematically overclaiming sabotage, Shell both reduced its legal compensation liability and deflected regulatory scrutiny from its own infrastructure failures. This is not an accusation requiring proof of criminal intent. It is the rational commercial behaviour of a company that has a financial incentive to misclassify its own failures.</span></p>
+        <span class="section">iv. environmental destruction as a policy, not an accident</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Environmental harm — systematic, not incidental</span>UNEP&rsquo;s 2011 Ogoniland report found benzene levels in groundwater 4,500 times above WHO safety limits. Life expectancy in the Niger Delta is 10 years below the Nigerian national average. These are not the consequences of occasional accidents. They are the consequences of fifty years of industrial extraction in an environment whose carrying capacity was never considered in operational planning. Shell installed pipelines through mangroves, failed to maintain ageing infrastructure, flared gas at quantities exceeding Russia, and consistently prioritised throughput over environmental protection. When Shell left Ogoniland in 1993, it did not properly decommission its facilities &mdash; a violation of international industry standards documented by Amnesty International. The result was abandoned infrastructure that continues to leak into the groundwater of communities that had no say in its installation and have had no redress for its consequences.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-okonta-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The founding political bargain: Shell funded the state that suppressed its critics</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Shell&rsquo;s oil revenues provided Nigerian governments with the fiscal resources to govern; Nigerian governments in return provided the security conditions Shell needed to extract.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>As community resistance grew, the &ldquo;security conditions&rdquo; required became progressively more violent; Shell&rsquo;s economic necessity created the financial rationale for that violence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This structural relationship is not incidental but foundational: Shell&rsquo;s business model in Nigeria required a state capable of suppressing community opposition to extraction.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Shell&rsquo;s presence did not merely correlate with state violence against communities; it provided the economic foundation that made that state viable and created the commercial incentive for its suppressions.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Umuechem 1990: direct initiation of paramilitary deployment</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In October 1990, Shell wrote to Rivers State government requesting Mobile Police Force deployment against protesters at Umuechem; the deployment occurred within 24 hours.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A Nigerian government inquiry found the Mobile Police &ldquo;acted like an invading army that had vowed to take the last drop of the enemy&rsquo;s blood,&rdquo; killing approximately 80 people.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Shell&rsquo;s internal letter is the documented proximate cause of the deployment; the massacre was the documented proximate consequence; the defence&rsquo;s claim that Shell could not control military behaviour is refuted by this case, where Shell initiated it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Umuechem is not a case of proximity to state violence &mdash; it is a documented case of Shell directly requesting a paramilitary deployment that produced a massacre; the defence&rsquo;s structural immunity argument fails here.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Systematic sabotage misclassification to evade compensation liability</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Under Nigerian law, Shell pays compensation for operational spills but not for sabotage-caused spills; this creates a strong financial incentive to classify operational failures as sabotage.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Internal Shell documents and investigations by Amnesty International, CEHRD, and journalists show cases where Shell attributed spills to sabotage when evidence pointed to infrastructure failure.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Systematic overclaiming of sabotage both reduced Shell&rsquo;s compensation liability and deflected regulatory scrutiny from its own infrastructure; this is rational corporate behaviour given the incentive structure, but it is not honesty.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Shell&rsquo;s sabotage attribution data are systematically unreliable because the company has a documented financial incentive to misclassify; the defence cannot rely on Shell&rsquo;s own classifications as independent evidence.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Environmental harm: systematic failure of duty of care, not accidental</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>UNEP 2011: benzene levels in Ogoniland groundwater up to 9,280 μg/litre &mdash; approximately 1,800 times US EPA safe limits; life expectancy in the Delta is 10 years below the national average.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Shell abandoned Ogoniland in 1993 without properly decommissioning its facilities &mdash; a violation of international industry standards that Amnesty International documented &mdash; leaving communities exposed to ongoing contamination from infrastructure Shell no longer monitored.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These outcomes are the consequence of fifty years of operational planning that systematically failed to account for community health and environmental carrying capacity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The environmental record is not a series of accidents: it reflects a systematic failure of Shell&rsquo;s duty of care over fifty years, made visible by UNEP&rsquo;s forensic assessment and compounded by improper decommissioning.</span></div>
+        </div>
+      </div>
+    </div><!-- end okonta -->
+
+    <!-- ══ AMNESTY / LEGAL ══ -->
+    <div class="speaker-panel" id="opp-amnesty-panel">
+      <div id="opp-amnesty-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The defence has repeatedly invoked the absence of criminal conviction as exculpatory. I want to argue that this standard misunderstands what the documentary evidence actually shows, and what the legal standard for corporate complicity actually requires. The question is not whether Shell was convicted &mdash; no court in any jurisdiction has concluded a full criminal proceeding against Shell on Nigeria. The question is what the internal documents, disclosed in the Wiwa v. Shell litigation and reviewed by Amnesty International, actually show. And on that question, the evidence is disturbing and specific.</p>
+        <div class="fact-box">
+          <strong>Key document: Brian Anderson / Abacha meeting, April 30, 1994</strong>
+          Amnesty International&rsquo;s review of Shell&rsquo;s internal documents shows that Shell&rsquo;s Nigeria Chairman Brian Anderson met with General Sani Abacha on April 30, 1994 and raised &ldquo;the problem of the Ogonis and Ken Saro-Wiwa,&rdquo; describing the economic consequences of MOSOP&rsquo;s opposition. Anderson reported leaving the meeting with the sense that Abacha &ldquo;will intervene with either the military or the police.&rdquo; Within a month, Saro-Wiwa and other MOSOP leaders were arrested.
+        </div>
+        <span class="section">i. the anderson-abacha meeting: the documentary core</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Anderson-Abacha — documented complicity evidence</span>The chronological proximity between Anderson&rsquo;s April 1994 meeting with Abacha &mdash; in which Saro-Wiwa was named as an economic problem &mdash; and the arrests of Saro-Wiwa and MOSOP leaders within weeks of that meeting is not coincidence that can be dismissed. This is not an allegation by hostile witnesses. It is Shell&rsquo;s own internal documentation, reviewed by Amnesty International. Anderson&rsquo;s own memorandum records his expectation that Abacha would intervene militarily or with police. He named Saro-Wiwa. The intervention followed. The defence says Anderson was advocating for humanitarian concerns &mdash; but Shell&rsquo;s own document describes &ldquo;the problem of the Ogonis and Ken Saro-Wiwa&rdquo; as an <em>economic</em> problem, not a humanitarian one. The framing is Shell&rsquo;s own.</span></p>
+        <span class="section">ii. the witness bribery evidence</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Witness bribery — two recanted witnesses, Shell lawyer present</span>At least two prosecution witnesses at the Ogoni Nine trial subsequently came forward to state that they had been bribed by the Nigerian government to give false testimony against Saro-Wiwa. One bribery inducement offered was a job at Shell. These witnesses further stated that Shell&rsquo;s lawyer was present when the bribery took place. The defence says these are unreliable witnesses in a political trial. But the relevant standard is not criminal beyond-reasonable-doubt &mdash; it is whether these facts, taken together with the Anderson-Abacha meeting record and the settlement, constitute evidence of complicity that any responsible company should have to answer for publicly. Shell settled before those witnesses could testify in open court. The question of what Shell&rsquo;s lawyer was doing present at a meeting where witnesses were bribed was never answered because Shell&rsquo;s $15.5 million payment ensured it never had to be.</span></p>
+        <span class="section">iii. the OPL 245 deal: what the acquittal does and does not establish</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">OPL 245 — acquittal in Italy&rsquo;s weak anti-corruption enforcement context</span>The defence presents the Italian court&rsquo;s 2021 acquittal as settling the OPL 245 matter. But Transparency International&rsquo;s own corruption reporting index classifies Italy as having &ldquo;limited enforcement&rdquo; of foreign bribery laws &mdash; a pattern the OECD Working Group on Bribery has specifically noted. The structural facts of the OPL 245 deal are not in dispute: Shell and Eni paid $1.3 billion; $1.1 billion was routed through accounts connected to Malabu and Dan Etete within weeks; Etete was a convicted money launderer in France before the deal. Shell&rsquo;s position &mdash; that it paid the Nigerian government and was not responsible for what the government did with the money &mdash; is a defence of legal form over economic substance. The economic substance was that Shell paid money that ended up with a convicted money launderer and Nigerian politicians. The Italian acquittal establishes that Shell was not criminally liable; it does not establish that the transaction was ethically sound or that Shell exercised adequate due diligence.</span></p>
+        <span class="section">iv. the duty to know</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Corporate due diligence — duty to know where money goes</span>Modern anti-bribery frameworks &mdash; the UK Bribery Act (2010), FCPA &mdash; impose an affirmative duty of due diligence on companies making payments in high-corruption environments. Shell knew in 2011 that OPL 245 was the subject of a decade-long corruption dispute, that Malabu&rsquo;s beneficial owner was a convicted money launderer, and that the deal&rsquo;s structure involved routing $1.1 billion through government accounts with no transparency about onward disbursement. Global Witness estimates Nigeria lost $4.5&ndash;6 billion in future revenues from the poorly-negotiated fiscal terms. Whether or not Shell committed a criminal offence, the question of whether Shell exercised reasonable corporate due diligence in these circumstances &mdash; in a deal this size, in this environment, involving these parties &mdash; is one the acquittal does not answer. The absence of criminal liability is not the same as the presence of ethical conduct.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-amnesty-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Anderson-Abacha meeting: Shell&rsquo;s own documents frame Saro-Wiwa as an economic threat</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Shell&rsquo;s internal memorandum records Anderson raising &ldquo;the problem of the Ogonis and Ken Saro-Wiwa&rdquo; with Abacha on April 30, 1994, describing economic consequences; Anderson noted expectation of military or police intervention.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Within weeks, Saro-Wiwa was arrested and MOSOP leadership detained; the causal sequence is documented in Shell&rsquo;s own records.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The defence says Anderson was raising humanitarian concerns; Shell&rsquo;s own document frames the issue as an economic problem, not a humanitarian one &mdash; the framing is Shell&rsquo;s own language.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Shell&rsquo;s own internal documents place it at the centre of the political process that led to Saro-Wiwa&rsquo;s arrest; the defence&rsquo;s humanitarian framing contradicts Shell&rsquo;s own recorded language.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Witness bribery: Shell&rsquo;s lawyer present; $15.5m settlement prevented public testimony</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>At least two Ogoni Nine trial witnesses subsequently stated they had been bribed to give false testimony; one offer was a Shell job; Shell&rsquo;s lawyer was present during the alleged bribery.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Shell settled the Wiwa case for $15.5 million before these witnesses could testify in open court, preventing public examination of what its lawyer was doing present at those meetings.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A settlement that closes a case before its most damaging witnesses testify is not evidence of innocence; it is evidence of a calculated decision that public testimony carried greater risk than settlement cost.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The pattern of witness bribery allegations and Shell&rsquo;s pre-testimony settlement creates a documented record that the company chose to bury rather than answer; the defence&rsquo;s &ldquo;no conviction&rdquo; argument cannot satisfy this record.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; OPL 245: Italy&rsquo;s weak enforcement record and the substance of the transaction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Transparency International classifies Italy as having &ldquo;limited enforcement&rdquo; on foreign bribery; the OECD has specifically noted Italy&rsquo;s enforcement gap. The acquittal was delivered in this context.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The structural facts are undisputed: $1.1 billion reached accounts linked to Etete (a convicted money launderer) and Nigerian politicians within weeks of the deal; Etete&rsquo;s criminal record was publicly known before the transaction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Legal acquittal establishes absence of criminal liability; it does not establish that Shell exercised adequate due diligence or that the transaction was ethically sound under modern anti-bribery standards.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The OPL 245 acquittal was delivered in a jurisdiction with documented enforcement weaknesses; the substance of the transaction &mdash; money routing to a convicted money launderer &mdash; raises unresolved due diligence questions the acquittal does not answer.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Corporate due diligence: the duty to know where $1.1 billion goes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The UK Bribery Act (2010) and FCPA impose affirmative due diligence obligations on companies making large payments in high-corruption environments.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Shell knew OPL 245 was disputed for a decade, that Malabu&rsquo;s beneficial owner was a convicted money launderer, and that $1.1 billion would be routed with no transparency about onward disbursement.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Whether or not a criminal offence was committed, the absence of adequate due diligence in these specific circumstances constitutes a documented failure of ethical corporate conduct independent of criminal liability.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Criminal acquittal and ethical conduct are not coextensive; Shell had a duty to know where its money was going in the OPL 245 deal; the structure of the transaction made adequate due diligence implausible.</span></div>
+        </div>
+      </div>
+    </div><!-- end amnesty -->
+
+    <!-- ══ POLITICAL ECONOMY ══ -->
+    <div class="speaker-panel" id="opp-polecon-panel">
+      <div id="opp-polecon-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The defence argues that Nigeria&rsquo;s resource curse is a governance problem, not a Shell problem, and that Shell was merely an investor doing what investors do in environments with weak institutions. I want to challenge this framing with a more structurally precise argument: Shell actively participated in creating and maintaining the institutional conditions that produced the resource curse. The company is not merely a passive beneficiary of a pre-existing governance failure; it is one of the actors whose behaviour shaped that failure.</p>
+        <span class="section">i. shell-enabled regulatory capture</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Regulatory capture — Shell&rsquo;s role in shaping its own oversight</span>For most of its Nigerian history, Shell was the dominant actor in a sector that provided 90%+ of government revenue. A government that derives 90% of its revenue from one industry and one company does not regulate that company at arm&rsquo;s length. The joint venture structure &mdash; in which NNPC was a 55% partner &mdash; meant that the regulating entity (the Nigerian government) and the majority operator (NNPC) were the same institution. Shell, as the technically dominant minority partner, effectively wrote the operational standards for an industry that the majority operator was too technically dependent on Shell to challenge. This is regulatory capture by structural design, not by lobbying. Shell&rsquo;s technical dominance in a revenue-critical industry created a power asymmetry in which meaningful regulation was structurally precluded.</span></p>
+        <span class="section">ii. the fiscal cost of OPL 245: $4.5–6 billion lost to Nigeria</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">OPL 245 fiscal cost — $4.5-6bn lost to Nigeria</span>Global Witness and independent analysts estimated that the fiscal terms of the OPL 245 deal represented a loss to the Nigerian treasury of between $4.5 billion and $6 billion compared to conventional production-sharing agreements. This is not the bribery allegation &mdash; it is a separate, non-criminal indictment. Shell negotiated a royalty and fiscal structure for OPL 245 that was significantly more favourable to the company than standard Nigerian deepwater terms. Nigeria, in a high-corruption environment where the negotiating parties included officials subsequently accused of taking kickbacks, agreed to these terms. The result was a deal whose economic substance &mdash; independent of its legal validity &mdash; transferred enormous fiscal value from the Nigerian public to Shell and Eni shareholders. The defence&rsquo;s response is that the terms were &ldquo;legally consistent with the negotiated settlement.&rdquo; That is true. It is also irrelevant to whether the deal served Nigerian development interests.</span></p>
+        <span class="section">iii. de-agriculturalisation and Dutch disease in the delta</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Dutch Disease — agriculture destroyed, fishing destroyed, food security undermined</span>The Nigeria-specific Dutch Disease effect is not abstract macroeconomics. In the Niger Delta, it had specific and devastating local consequences. Shell&rsquo;s operations physically destroyed agricultural land through pipeline installation, tank farm construction, and oil contamination. The fishing economy of the Delta &mdash; which had sustained communities for generations &mdash; was devastated by both direct contamination and the de-prioritisation of delta communities&rsquo; needs by a government whose revenues came from below, not above, the ground. Export-oriented agriculture fell from 42% of Nigeria&rsquo;s exports in 1970 to under 3% by 1985. The Delta communities that bore the environmental costs of oil extraction did not benefit from oil revenues, which were collected federally and distributed through a system that systematically disadvantaged the minority ethnic communities of the production region. Shell knew this. Its own documents record community grievances about the destruction of farms and fisheries dating from the 1970s. It continued operations without addressing those grievances.</span></p>
+        <span class="section">iv. gas flaring: 50 years of energy theft from Nigerian communities</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Gas flaring — energy stolen from Nigeria, monetised by Shell elsewhere</span>Nigeria has been among the world&rsquo;s worst gas flaring nations for five decades, with emissions at their peak comparable to Russia. Gas flaring is, economically, the destruction of a resource that could be converted to electricity, LNG export, or domestic industrial energy. The communities of the Niger Delta lived without reliable electricity while Shell flared gas above their heads. Shell promised to end flaring by 2008 and failed. The defence attributes this to Nigerian government infrastructure failure. But Shell invested in LNG export infrastructure &mdash; Nigeria LNG, the Bonny Island facility &mdash; that monetised Nigerian gas for international markets while communities lacked grid electricity. The choice to invest in export LNG rather than domestic gas-to-power was Shell&rsquo;s commercial decision, not the Nigerian government&rsquo;s infrastructure failure. Shell found a way to monetise associated gas when the market was international; it found flaring more convenient when the market was domestic.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-polecon-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Regulatory capture: Shell&rsquo;s technical dominance made meaningful oversight structurally impossible</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A government deriving 90%+ of revenues from one industry cannot regulate that industry at arm&rsquo;s length; the NNPC&rsquo;s 55% JV stake meant the regulator and the majority operator were the same institution.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Shell as technically dominant minority partner effectively set operational standards for an industry the majority operator was too dependent on Shell to challenge.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This structural capture did not require lobbying; it was an inherent consequence of Shell&rsquo;s technical dominance in a revenue-critical sector with a technically dependent majority state partner.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Shell was not a passive actor in weak Nigerian institutions; its structural position created regulatory capture by design, making meaningful oversight of its own operations structurally precluded.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; OPL 245 fiscal terms: $4.5–6 billion transferred from Nigerian public to Shell/Eni shareholders</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Independent analysts estimated the OPL 245 fiscal terms represented a $4.5–6 billion loss to Nigeria compared to standard deepwater production-sharing agreements.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The negotiating counterparties included officials subsequently accused of corruption; Shell negotiated terms significantly more favourable than standard Nigerian deepwater terms.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Legal validity and development-serving economic terms are not the same thing; a deal can be legally compliant while transferring enormous fiscal value from a poor nation&rsquo;s public treasury to international shareholders.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The OPL 245 deal, independent of criminal allegations, represents a fiscally extractive transaction whose terms transferred $4.5–6 billion in value from Nigerian public revenue to Shell and Eni; this is a documented developmental harm regardless of legal outcome.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Dutch Disease in the Delta: physical destruction of agriculture and fishing</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Shell&rsquo;s operations physically destroyed Niger Delta agricultural land and fishing grounds; export-oriented agriculture fell from 42% to under 3% of Nigerian exports 1970–1985.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Delta communities bore environmental costs of extraction but received no proportionate share of oil revenues, which were collected federally and distributed in ways that systematically disadvantaged production-region minority communities.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Shell&rsquo;s own documents from the 1970s record community grievances about farm and fishery destruction; operations continued without addressing them for decades.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Dutch Disease in the Delta was not abstract macroeconomics &mdash; it was the physical destruction of livelihoods that Shell documented and continued regardless; this is a specific, evidenced harm, not a systemic abstraction.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; Gas flaring: Shell monetised export LNG while flaring domestic gas above community homes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Shell invested in Nigeria LNG / Bonny Island export infrastructure that monetised Nigerian gas for international markets while communities lacked grid electricity and gas flared above their homes for fifty years.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The decision to invest in export LNG rather than domestic gas-to-power was Shell&rsquo;s commercial choice, reflecting international vs. domestic price differentials, not solely Nigerian government infrastructure failure.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The defence&rsquo;s gas flaring attribution to Nigerian government failure is contradicted by Shell&rsquo;s simultaneous successful investment in LNG export infrastructure requiring the same gas it was flaring.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Shell&rsquo;s differential investment in export vs. domestic gas monetisation shows that the failure to end flaring was a commercial choice, not solely a governance constraint; the defence&rsquo;s infrastructure blame-deflection is contradicted by Shell&rsquo;s own LNG investment record.</span></div>
+        </div>
+      </div>
+    </div><!-- end polecon -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'yergin',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'okonta',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
