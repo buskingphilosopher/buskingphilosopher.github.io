@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Numbers Problem — Aggregation Debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Spectral:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f3f1ec;--bg2:#eae8e0;--bg3:#e0ddd4;--bg4:#d4d0c6;
+  --bdr:rgba(45,40,25,.1);--bdr2:rgba(45,40,25,.21);
+  --text:#201c12;--text2:#4c4635;--text3:#938c74;--ink:#191510;--rule:rgba(45,40,25,.13);
+  --prop-col:#1c3e6a;--prop-pill-bg:#e6ecf4;--prop-pill-bdr:#a4bed8;
+  --opp-col:#5a1e6a;--opp-pill-bg:#f0ecf4;--opp-pill-bdr:#c4a8d8;
+  --a1bg:rgba(20,60,120,.07);--a1brd:rgba(20,60,120,.33);--a1tip:#123c78;
+  --a2bg:rgba(20,110,70,.07);--a2brd:rgba(20,110,70,.31);--a2tip:#0e6640;
+  --a3bg:rgba(150,90,15,.08);--a3brd:rgba(150,90,15,.33);--a3tip:#8c5408;
+  --a4bg:rgba(140,25,25,.07);--a4brd:rgba(140,25,25,.31);--a4tip:#821212;
+  --a5bg:rgba(70,35,130,.07);--a5brd:rgba(70,35,130,.3);--a5tip:#421e7e;
+  --a6bg:rgba(20,105,115,.07);--a6brd:rgba(20,105,115,.3);--a6tip:#0e6070;
+  --a7bg:rgba(105,70,10,.07);--a7brd:rgba(105,70,10,.29);--a7tip:#623e06;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'EB Garamond',Georgia,serif;background:var(--bg);color:var(--text)}
+.motion-header{padding:.85rem 2.5rem .75rem;border-bottom:1px solid var(--rule);text-align:center;background:var(--bg2);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(45,40,25,.2),transparent)}
+.motion-eyebrow{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);font-weight:400;margin-bottom:5px}
+.motion-title{font-family:'EB Garamond',serif;font-size:18px;font-weight:400;font-style:italic;color:var(--ink);letter-spacing:.01em;line-height:1.4}
+.motion-title em{font-style:normal;font-weight:600}
+.motion-sub{font-family:'Spectral',serif;font-size:11px;font-style:italic;color:var(--text3);margin-top:4px;letter-spacing:.02em}
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 68px)}
+.col{display:flex;flex-direction:column;overflow:hidden}
+.col.prop{border-right:1px solid var(--rule)}
+.speaker-bar{display:flex;align-items:stretch;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:'DM Mono',monospace;font-size:10px;font-weight:400;padding:8px 12px;cursor:pointer;border:none;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;transition:color .15s,background .15s;flex-shrink:0;white-space:nowrap;letter-spacing:.03em}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.6rem 1.3rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:baseline;gap:.7rem;margin-bottom:2px;flex-wrap:wrap}
+.pill{font-family:'DM Mono',monospace;font-size:9px;font-weight:400;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:2px;flex-shrink:0}
+.pill.prop{background:var(--prop-pill-bg);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill-bg);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:'EB Garamond',serif;font-size:18px;font-weight:400;font-style:italic;color:var(--ink)}
+.col-position{font-family:'Spectral',serif;font-size:12px;font-style:italic;color:var(--text3);margin-top:1px;line-height:1.5}
+.tabs{display:flex;gap:0;margin-top:6px}
+.tab{font-family:'DM Mono',monospace;padding:5px 13px;font-size:10px;letter-spacing:.05em;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:3px 3px 0 0;background:var(--bg3);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2)}
+.prop .tab.active{color:var(--prop-col)}
+.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.2rem 1.5rem;font-size:15.5px;line-height:1.9;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:2px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2)}
+.speaker-panel{display:none}
+.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic;font-size:14px}
+.speech-text em{color:var(--text3)}
+.speech-text .case{font-family:'DM Mono',monospace;font-size:10.5px;background:var(--bg3);border-left:2px solid var(--bdr2);padding:7px 14px;margin:.4rem 0 .85rem;display:block;color:var(--ink);letter-spacing:.02em;line-height:1.85}
+.speech-text .section{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.logic-view{display:flex;flex-direction:column;gap:.85rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .12s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:'DM Mono',monospace;font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.09em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:'EB Garamond',serif;font-size:14.5px;line-height:1.65;color:var(--text2)}
+.plabel{font-family:'DM Mono',monospace;font-weight:400;min-width:16px;font-size:10px;color:var(--text3);padding-top:2px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:'EB Garamond',serif;font-size:14.5px;line-height:1.65;border-top:1px solid var(--bdr);background:var(--bg3);font-style:italic}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:1px;padding:1px 1px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:'DM Mono',monospace;font-size:10px;font-weight:400;font-style:normal;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:2px;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.13);color:var(--ink);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+.modal-wrap{display:none;position:fixed;inset:0;background:rgba(18,14,9,.72);z-index:100;align-items:center;justify-content:center}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:3px;border:1px solid var(--bdr2);width:390px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:'DM Mono',monospace;font-size:10px;color:var(--text);letter-spacing:.04em}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:14px;line-height:1;padding:3px 7px;border-radius:2px}
+.modal-close:hover{background:var(--bg3)}
+.modal-bd{padding:.85rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:2px;overflow:hidden;background:var(--bg3);min-height:120px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:1.5rem;color:var(--text3);font-family:'DM Mono',monospace;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.modal-ph code{font-size:9px;background:var(--bg4);padding:2px 6px;border-radius:2px}
+.modal-cap{margin-top:.5rem;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.03em}
+</style>
+</head>
+<body>
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House · Moral Philosophy · Distributive Ethics</div>
+  <div class="motion-title">"In any conflict between competing claims to be saved, <em>numbers and aggregation across persons are not always morally decisive</em>"</div>
+  <div class="motion-sub">Taurek's drug case (1977) · the headache problem · Scanlon's individualist restriction · Otsuka's pairwise challenge · Voorhoeve's relevance threshold · Brown's formal examination · Kamm's contextual interaction · Parfit's agent-neutral reasons · Broome on fairness and weighing</div>
+</div>
+
+<div class="columns">
+
+<!-- ══════════════════════════════════════════════════════
+     PROPOSITION — numbers / aggregation are NOT always decisive
+     Taurek · Scanlon · Otsuka
+══════════════════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','taurek',this)">Taurek</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','scanlon',this)">Scanlon</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','otsuka',this)">Otsuka</button>
+  </div>
+
+  <div class="col-header" id="prop-taurek-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">John Taurek</span></div>
+    <div class="col-position">"Should the Numbers Count?" (1977) — there is no impersonal standpoint from which losses sum; equal concern requires giving each person an equal chance, not multiplying them into a decision</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','taurek','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','taurek','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="prop-scanlon-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">T.M. Scanlon</span></div>
+    <div class="col-position">Harvard — contractualism and the individualist restriction: saving the many is justified person by person through tie-breaking, never by pooling losses or aggregating across persons</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','scanlon','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','scanlon','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="prop-otsuka-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Michael Otsuka</span></div>
+    <div class="col-position">LSE — pairwise comparison never yields an aggregative conclusion; Scanlon's tie-breaking either collapses into aggregation or fails; the lottery is the only coherent expression of equal concern</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','otsuka','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','otsuka','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ TAUREK ══ -->
+    <div class="speaker-panel active" id="prop-taurek-panel">
+      <div id="prop-taurek-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to begin this debate with what I take to be the central case — the case that strips everything back to its simplest elements and asks the question most directly. I have a supply of a life-saving drug. David needs all of it to survive. Five others — call them the five — each need one-fifth. I cannot divide it further. I cannot save all six. What, morally, should I do?</p>
+        <p>The expected answer is: save the five. More lives saved. The numbers favour it overwhelmingly. I want to resist this answer — not because I am indifferent to the five, but because I believe the argument for it rests on a fundamental philosophical error about what moral reasons are and who they are addressed to.</p>
+        <span class="section">On the impersonal standpoint — and its absence</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">No impersonal standpoint for summing losses</span>The argument for saving the five typically runs as follows: five deaths are worse than one death; therefore we should prevent them. But consider the premise: five deaths are worse than one death. Worse for whom? For each of the five, of course — but each of the five faces the same total loss as David. His death is the end of everything for him. Her death is the end of everything for her. There is no person for whom five deaths are experienced as five times worse than one. There is no impersonal ledger in which losses accumulate. Each person faces only their own loss, and their own loss is total. The claim that five deaths are worse than one, in a sense that generates a reason to save the five, presupposes a standpoint — some vantage point from which all losses are visible and summable — that simply does not exist. Moral reasons are addressed to persons. They are reasons for someone to do something. And no person has a reason grounded in a combined loss that no one experiences.</span></p>
+        <span class="section">On the friend case — and what it reveals</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">The friend case: no strict requirement to save the five</span>Suppose David is my close friend. I give him the drug. I save one person over five. Have I done something morally wrong — violated a strict moral requirement? I do not think most people, on reflection, think so. I may have a special reason deriving from friendship. But even if I had no such special reason, even if David and the five were strangers to me, it does not seem that there is a strict moral requirement compelling me to save the five. If there were such a requirement, the friendship could not override it — the permissibility of saving David-my-friend would be a merely personal permission that has nothing to do with the fundamental moral question. But the intuition that saving David is not a moral violation is not about friendship. It is about the absence of a strict numerical requirement. The friend case is a diagnostic: if you think saving David is permissible even for a stranger who simply chose him, it reveals that you do not really believe the five generate an overriding claim grounded merely in their number.</span></p>
+        <span class="section">On what equal concern actually requires</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Equal concern: a coin-toss or weighted lottery, not automatic saving-of-the-many</span>Equal concern for persons requires that I give each person's situation equal weight in my moral reasoning. It does not require that the output of that reasoning be determined by a headcount. If I genuinely attend to David's situation — his life, his interests, his facing death — I am giving him equal concern. If I then attend equally to each of the five, I am giving each of them equal concern. What I am not required to do is multiply five separate instances of equal concern into a combined force that overrides the one. The appropriate expression of equal concern, when claims are equal, is to give each person an equal chance: a fair lottery or a coin-toss between the two groups. This is not procedural cowardice. It is the only procedure that actually treats each person's claim as having equal weight rather than treating some claims as ballast for others.</span></p>
+        <span class="section">On the headache case and what it shows about the aggregative picture</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The headache case: aggregation leads to absurdity</span>The opposition will tell me that the numbers must count because five deaths are worse than one death. But once we accept that numbers count — once we accept that the moral weight on a side increases with the number of people on that side — we have accepted a principle with no natural stopping point. If five deaths outweigh one death because five is greater than one, then a sufficiently large number of headaches must outweigh one death, because headaches are at least some bad thing and enough of them must sum to something worse than one death. This is the conclusion Parfit himself has been willing to accept in some moods — that at some enormous number, headaches outweigh a death. I find this conclusion not merely counterintuitive but a reductio of the aggregative picture entirely. The fact that aggregationism leads here is evidence that something has gone wrong at its foundations, not that we should revise our intuition about the headache case.</span></p>
+        <span class="section">On what the motion asks us to affirm</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">What numbers-scepticism actually claims</span>I want to be clear about what I am and am not claiming. I am not claiming that the five people's lives do not matter. I am not claiming that David's life matters more than theirs. I am claiming that there is no strict moral requirement generated by the mere number of people on one side of a rescue situation — that the right procedure, when all else is equal, is to give each person an equal chance. This is the motion. This House believes that numbers and aggregation across persons are not always morally decisive. They are not. Each person's claim is their own. No one's claim is strengthened by the accident of who else happens to be drowning beside them.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-taurek-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('taurek',1)">
+          <div class="arg-title"><span>I — No impersonal standpoint exists from which losses sum</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Moral reasons are addressed to persons — they are reasons for someone to do something grounded in someone's situation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Each person faces only their own loss, which is total from their perspective; no person experiences five deaths as a combined loss five times worse than one.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>There is no impersonal ledger — no vantage point from which all losses are visible and summable into a combined worse outcome.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The premise that five deaths are worse than one — in a sense generating a decisive reason to save the five — presupposes an impersonal standpoint that does not exist.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('taurek',2)">
+          <div class="arg-title"><span>II — The friend case reveals no strict numerical requirement</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Saving David when he is a friend is widely judged permissible, not a moral violation — even though it means saving one over five.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If a strict moral requirement to save the five existed, friendship could not override it; the permissibility of saving David must derive from the absence of such a strict requirement.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The permissibility intuition survives even when no special relationship exists — revealing that the numbers alone do not generate an overriding obligation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The friend case is diagnostic: the widespread intuition that saving David is permissible shows there is no strict moral requirement grounded merely in the five's numerical advantage.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('taurek',3)">
+          <div class="arg-title"><span>III — Equal concern requires equal chances, not equal weight in a headcount</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Equal moral concern means giving each person's claim equal weight in deliberation — attending fully to each individual's situation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Multiplying five equal instances of concern into a combined force that overrides one equal instance does not express equal concern — it treats some claims as ballast for others.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A fair lottery or coin-toss gives each person an equal chance, expressing equal concern directly without multiplying claims.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Equal concern, properly understood, requires giving each person an equal chance — not automatically saving the greater number; the lottery is the correct procedure, not a procedural evasion.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('taurek',4)">
+          <div class="arg-title"><span>IV — Aggregationism has no principled stopping point: the headache reductio</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If numbers count because five deaths are worse than one, then the moral weight on a side increases with the number of people — there is no principled stopping point.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A sufficiently large number of headaches must then outweigh one death, since headaches are bad and a large enough sum of bad things must exceed one death.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The conclusion that billions of headaches outweigh a death is not a counterintuitive consequence to be swallowed — it is a reductio of the aggregative premise.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The aggregative principle has no principled limit; its absurd conclusions in the headache case are evidence of a foundational error, not an argument for revising the intuition.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('taurek',5)">
+          <div class="arg-title"><span>V — Each person's claim is their own; no one's is strengthened by who else is drowning</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Each person's claim to be saved is grounded in their own life, interests, and facing of death — not in the contingent fact of who else happens to need saving at the same time.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No individual among the five has a stronger claim than David by virtue of four others standing next to her — her claim is exactly as strong as David's and no stronger.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A procedure that automatically decides in favour of the larger group treats each individual in that group as a fraction of a combined claim, not as a person with their own.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Numbers are not always morally decisive because no individual's claim is strengthened by the presence of others with equal claims — the numerical advantage is not a moral advantage owed to any individual.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCANLON ══ -->
+    <div class="speaker-panel" id="prop-scanlon-panel">
+      <div id="prop-scanlon-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I disagree with Taurek's conclusion. I believe we ought to save the five, and I believe the lottery is not required. But I reach this conclusion by a route that is entirely different from the aggregationists on the other side — and the difference in route matters enormously, because the opposition's route leads to conclusions that contractualism must reject.</p>
+        <p>The motion asks whether numbers and aggregation are always morally decisive. I am on the proposition not because I think the numbers never count, but because I think they count only in a specific and limited way — a way that respects the separateness of persons and does not permit the direct comparison of summed welfares across distinct individuals.</p>
+        <span class="section">On the individualist restriction</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The individualist restriction: moral reasoning is person by person</span>The contractualist framework I defend in What We Owe to Each Other is built around a fundamental constraint: the individualist restriction. When we ask whether a principle can be reasonably rejected, we ask what any one person could reasonably object to — not what the combined objections of many people aggregate to. This restriction rules out the utilitarian move of summing welfare across persons and comparing the sum on one side to the welfare on the other. It rules out Parfit's direct comparison of impersonal losses. And it captures something morally important: each person's claim is owed a response that she herself could accept, not merely a response that maximises some aggregate that no one experiences.</span></p>
+        <span class="section">On the tie-breaking argument</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Tie-breaking: saving the many without aggregation</span>So why should we save the five? Not because five deaths aggregate into something worse than one death. Because a principle of saving the one over the five can be reasonably rejected by each member of the five, considered individually. Consider any one of the five. She faces death. She knows that one other person also faces death. After we match her claim against the one's claim, the claims are equal — neither is stronger than the other. But there are four further people on her side whose claims face no competing claim. A principle that saves the one leaves these four people to die without their claims having been addressed by any competing claim. Each of these four can reasonably reject a principle that fails to address their claims at all. This is not aggregation. It is a sequential procedure — match equal claims, attend to the unmatched — that respects each person as an individual.</span></p>
+        <span class="section">On why this is not aggregation in disguise</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Tie-breaking vs aggregation: a genuine distinction</span>Otsuka will argue that my tie-breaking procedure is simply aggregation under another name. I want to resist this forcefully. Aggregation takes claims from multiple people, sums them, and compares the sum to the claims on the other side — smaller claims can pile up until they outweigh larger ones. Tie-breaking does nothing of the sort. The procedure requires that claims be matched against equal opposing claims before any tie is broken. A thousand headache-claims cannot break a tie between a death-claim and another death-claim, because the headache-claims are not equal to the death-claim and therefore do not participate in the matching procedure. This is the individualist restriction at work: no claim does aggregative work; each claim is individually compared. The opposition's aggregative frameworks, by contrast, allow headaches to sum into something that outweighs a death — which the individualist restriction forbids and which is the central conclusion this House should reject.</span></p>
+        <span class="section">On the World Cup case</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The World Cup case: no individual viewer can reasonably demand we leave the engineer</span>Consider this case: an engineer is trapped and suffering agonising electric shocks. Rescuing him requires interrupting a live football broadcast for fifteen minutes. Millions of viewers would be inconvenienced. The utilitarian view — comparing aggregate viewer discomfort to the engineer's agony — implies that at some number of viewers, we should leave him to suffer. This conclusion is morally monstrous. And it follows directly from the aggregative framework the opposition defends. My contractualist approach avoids it cleanly: no individual viewer can reasonably insist that we leave a man in agony for fifteen minutes of football. The individualist restriction — ask what any one person can reasonably demand, not what the aggregate demands — produces the right result without any ad hoc modification. The World Cup case is not an exception to be explained away. It is evidence that aggregation is the wrong framework and contractualism is the right one.</span></p>
+        <span class="section">On where I part ways with Taurek</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Against the lottery: tie-breaking justifies saving the many</span>Taurek concludes that equal concern requires a lottery. I reject this. A lottery treats the situation as one where no further moral work can be done after attending to each individual claim — as if the equal claims simply cancel out and chance must decide. But the tie-breaking procedure shows that further moral work can be done: the unmatched claims of the four, each individually attended to, give us reason to save the five without a lottery and without aggregation. The lottery is the procedure for cases where no such further work is available. Here, it is available. Giving David a one-in-six chance when we have strong non-aggregative reasons to save the five is not equal concern — it is indifference dressed as principle.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-scanlon-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('scanlon',1)">
+          <div class="arg-title"><span>I — The individualist restriction: no sum of welfares across persons</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The contractualist individualist restriction asks what any one person could reasonably reject — not what the combined objections of many aggregate to.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This rules out summing welfares across persons and comparing the sum on one side to the welfare on the other — the utilitarian and Parfitian moves.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Each person's claim is owed a response she herself could accept, not merely one that maximises an aggregate no one experiences.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The individualist restriction is the core contractualist commitment distinguishing what we owe to each from what produces the best aggregate — it must be preserved in any adequate account of the numbers problem.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('scanlon',2)">
+          <div class="arg-title"><span>II — Tie-breaking: saving the many without aggregating their claims</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A principle of saving the one can be reasonably rejected by each member of the five individually: after matching her equal claim against the one's, four further people have unmatched claims that go unaddressed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Each of the four unmatched claimants can reasonably reject a principle that fails to address their claim at all — no competing claim was weighed against theirs.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This reasoning is sequential and individualist: match equal claims, then attend to unmatched ones — no claim sums with any other.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Saving the five is justified by individual reasonable rejection without aggregation — each person's claim is addressed individually, and the unmatched claims provide decisive non-aggregative reasons.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('scanlon',3)">
+          <div class="arg-title"><span>III — Tie-breaking is categorically distinct from aggregation</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Aggregation allows smaller claims to sum until they outweigh larger claims — this permits headaches to aggregate against a death at sufficient numbers.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Tie-breaking requires claims to match equal opposing claims before participating — headache-claims are not equal to death-claims and cannot participate in the matching procedure.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The individualist restriction is maintained throughout: no claim does aggregative work; each is individually compared against an opposing claim of equal weight.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Tie-breaking and aggregation are not the same — tie-breaking is immune to the headache problem because the individualist restriction prevents unequal claims from participating in the matching procedure.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('scanlon',4)">
+          <div class="arg-title"><span>IV — The World Cup case: aggregation produces monstrous conclusions; contractualism does not</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the World Cup case, aggregating millions of viewers' mild inconvenience against one engineer's agony implies we should leave him to suffer at some sufficiently large viewership.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No individual viewer can reasonably insist that we leave a man in agony for fifteen minutes of football — the contractualist approach produces the correct verdict without modification.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The aggregative framework requires an ad hoc fix (a relevance threshold or incommensurability) to avoid the monstrous conclusion; contractualism avoids it structurally.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The World Cup case provides evidence that aggregation is structurally wrong and contractualism structurally right — the individualist restriction generates the correct verdict without any auxiliary modification.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('scanlon',5)">
+          <div class="arg-title"><span>V — Against the lottery: tie-breaking provides further non-aggregative reasons</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Taurek's lottery assumes that after matching equal claims, no further moral work can be done — chance must decide.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the unmatched claims of the four each provide individually attended non-aggregative reasons to save the five — further moral work is available and the lottery is not required.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A lottery when strong non-aggregative reasons point clearly in one direction is not equal concern — it is indifference masquerading as procedural fairness.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The lottery is the correct procedure only when no further non-aggregative reasons are available; in the drug case, unmatched claims provide such reasons and the lottery should be abandoned in favour of saving the five.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ OTSUKA ══ -->
+    <div class="speaker-panel" id="prop-otsuka-panel">
+      <div id="prop-otsuka-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleagues Taurek and Scanlon represent, respectively, the hardest and the most sophisticated forms of the proposition's case. I sit between them — I think Taurek is right that no aggregative conclusion follows from the mere numbers, and I think Scanlon's tie-breaking argument, while genuinely more sophisticated, ultimately either collapses into the aggregation it claims to avoid, or fails to justify saving the many at all. I want to press this dilemma as sharply as I can, because I think it is the most important unresolved problem in this debate.</p>
+        <span class="section">On the pairwise comparison argument</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Pairwise comparison: no aggregative conclusion follows from equal claims</span>The fundamental question is: what follows from comparing the claims of individuals against each other, one by one? Consider any member of the five — call her Ann — against David. Ann faces death. David faces death. Their claims are identical in strength. Pairwise comparison yields: equal claims, no advantage to either side. Now consider a second member of the five — Beth — against David. Again: equal claims, no advantage. We can run this procedure for all five members of the five and for every pairing with David. In no pairing does any member of the five have a stronger claim than David. If pairwise comparison is the procedure, and pairwise comparison yields equality in every case, then pairwise comparison yields no conclusion that favours saving the five. The aggregationist must be doing something other than pairwise comparison to reach their conclusion — and that something is aggregation.</span></p>
+        <span class="section">On Scanlon's tie-breaking — the dilemma</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Scanlon's dilemma: aggregation in disguise or failure to justify saving the many</span>Scanlon says: match equal claims against each other, then attend to unmatched claims. The four unmatched members of the five provide reasons to save the five. But here is my dilemma for Scanlon. Either the unmatched claims are doing the same kind of work as aggregated claims — accumulating on one side and providing more and more reason as their number grows — in which case Scanlon's procedure is just aggregation with extra steps. Or the unmatched claims do not accumulate — the four unmatched claims count the same as one unmatched claim — in which case the procedure merely shows that there is one person more on one side than the other, which is a reason to save the five only if numbers count, which is precisely what is in question. The dilemma: aggregation in disguise, or question-begging. I do not see a third option.</span></p>
+        <span class="section">On what the pairwise argument reveals about Voorhoeve</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Pairwise comparison and ARC: relevance is not enough</span>Alex Voorhoeve's Aggregate Relevant Claims makes a more refined move: only relevant claims — claims comparable in severity — aggregate. Five death-claims are each relevant to the one death-claim; they aggregate. Headache-claims are not relevant to a death-claim; they do not. But the pairwise comparison argument applies to ARC just as it applies to Scanlon's procedure. In any pairwise comparison between a member of the five and David, the claims are equal. No individual member of the five has a stronger claim than David. For the five's death-claims to aggregate against David's, they must be doing something that pairwise comparison alone cannot justify. Voorhoeve has specified when aggregation is permissible — within the relevance threshold — but he has not shown that permissible aggregation yields claims that are genuinely stronger than the opposing individual claim. The relevance criterion permits the aggregation; it does not explain how aggregation produces stronger individual claims.</span></p>
+        <span class="section">On what follows for the lottery</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The lottery is the only procedure consistent with equal individual claims</span>If pairwise comparison yields equal claims in every matchup, and if no aggregative procedure can be shown to produce genuinely stronger individual claims rather than merely a larger number of equal claims, then the appropriate procedure is the one that treats equal claims equally: the lottery. Taurek is right about this. A coin-toss between David and the group gives each person — David included — an equal chance grounded in their equal individual claim. The only objection to the lottery is that it ignores the number of lives at stake. But that objection assumes what is in question: that the number of lives at stake, beyond what is captured in the individual claims, generates additional reasons. The pairwise argument shows it does not.</span></p>
+        <span class="section">On what saving the greater number would require</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">What saving the many would require: a genuine account of aggregation</span>I am not arguing that we can never justify saving the greater number. I am arguing that none of the accounts on offer — Scanlon's tie-breaking, Voorhoeve's ARC, Parfit's impersonal badness, Kamm's contextual interaction, Brown's residue argument — has yet provided a satisfying account of how individual equal claims combine into something that is stronger than any individual equal claim on the other side. Until that account is provided, the proposition stands: numbers and aggregation across persons are not always morally decisive, and where individual claims are equal, the lottery is the only procedure consistent with taking each person's claim seriously as an individual claim.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-otsuka-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('otsuka',1)">
+          <div class="arg-title"><span>I — Pairwise comparison never yields an aggregative conclusion</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In every pairwise comparison between any member of the five and David, both face death and claims are equal — neither has a stronger individual claim.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Running the procedure for all five pairings with David yields equality in every case — no pairing favours any member of the five over David.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If pairwise comparison is the procedure, and it yields equality in every case, then the aggregationist must be doing something beyond pairwise comparison — and that something is aggregation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Pairwise comparison alone never yields an aggregative conclusion — any argument for saving the five that goes beyond pairwise equality is making an aggregative move that requires independent justification.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('otsuka',2)">
+          <div class="arg-title"><span>II — Scanlon's dilemma: aggregation in disguise or question-begging</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If unmatched claims accumulate — providing more and more reason as their number grows — Scanlon's procedure is aggregation under a different name.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If unmatched claims do not accumulate — four unmatched claims count the same as one — then the procedure merely shows one extra person on one side, which is a reason to save the five only if numbers count, which is what is at issue.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>There is no third option: Scanlon's tie-breaking is either aggregation in disguise or question-begging.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Scanlon's tie-breaking argument faces a dilemma with no exit: it either covertly aggregates or assumes what it needs to prove, and neither horn justifies saving the five on genuinely non-aggregative grounds.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('otsuka',3)">
+          <div class="arg-title"><span>III — ARC permits aggregation but does not explain how it produces stronger claims</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Voorhoeve's relevance criterion specifies when aggregation is permissible — within comparable severity — but does not explain how permissible aggregation produces individual claims stronger than any opposing individual claim.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The pairwise argument applies to ARC: in every pairing of a member of the five with David, the claims are equal; no individual member acquires a stronger claim through aggregation with others.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The relevance criterion permits the aggregation; it does not justify the claim that five equal individual claims aggregate into something stronger than one equal individual claim.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>ARC inherits the fundamental problem facing all aggregative accounts: permitting aggregation is not the same as explaining how aggregation produces genuinely stronger claims — this explanatory gap has not been filled.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('otsuka',4)">
+          <div class="arg-title"><span>IV — The lottery is the only procedure consistent with equal individual claims</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If pairwise comparison yields equal claims in every matchup and no aggregative procedure produces genuinely stronger individual claims, then individual claims are equal across the board.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The only procedure that treats equal individual claims equally is the lottery — giving each person an equal chance grounded in their equal individual claim.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The objection to the lottery — that it ignores the number of lives — assumes what is at issue: that numbers beyond individual claims generate additional reasons.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Until an adequate account of how equal individual claims aggregate into stronger claims is provided, the lottery is the only procedure consistent with taking each person's claim seriously as an individual claim.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('otsuka',5)">
+          <div class="arg-title"><span>V — No existing account explains how equal individual claims combine into stronger ones</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Scanlon's tie-breaking, Voorhoeve's ARC, Parfit's impersonal badness, Kamm's contextual interaction, and Brown's residue argument each attempt to justify saving the many without full aggregation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>None has provided a satisfying account of how individual equal claims combine into something stronger than any individual equal opposing claim — each either covertly aggregates or leaves the combination unexplained.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In the absence of such an account, the aggregative conclusion is not established and the proposition — numbers are not always decisive — stands undefeated.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proposition is not defeated by any existing theory; the fundamental challenge — explain how equal individual claims combine into stronger claims without aggregating — remains unanswered.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end prop-body -->
+</div><!-- end prop col -->
+
+
+<!-- ══════════════════════════════════════════════════════
+     OPPOSITION — numbers / aggregation are (substantially) decisive
+     Parfit · Kamm · Voorhoeve · Brown · Broome
+══════════════════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','parfit',this)">Parfit</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','kamm',this)">Kamm</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','voorhoeve',this)">Voorhoeve</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','brown',this)">Brown</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','broome',this)">Broome</button>
+  </div>
+
+  <div class="col-header" id="opp-parfit-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Derek Parfit</span></div>
+    <div class="col-position"><em>Reasons and Persons</em> — agent-neutral reasons and the impersonal badness of death: five deaths are worse than one from the standpoint of the universe; Taurek's purely personal account of reasons is incomplete</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','parfit','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','parfit','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="opp-kamm-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">F.M. Kamm</span></div>
+    <div class="col-position">Harvard — the Principle of Contextual Interaction: claims change their moral character depending on who else is present; the lottery fails as an expression of equal concern</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','kamm','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','kamm','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="opp-voorhoeve-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Alex Voorhoeve</span></div>
+    <div class="col-position">LSE — Aggregate Relevant Claims: numbers count when claims are comparable in severity; partial aggregation accommodates both the lives-over-lives and the headache intuition simultaneously</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','voorhoeve','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','voorhoeve','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="opp-brown-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Campbell Brown</span></div>
+    <div class="col-position">LSE — "Is Close Enough Good Enough?" — a formal examination of moderate aggregation: the structural problems facing all versions of the Close Enough View, and the best available candidate</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','brown','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','brown','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="opp-broome-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">John Broome</span></div>
+    <div class="col-position">Oxford — weighing and fairness: against Taurek on impersonal value, against Scanlon on tie-breaking; a careful account of how individual claims are weighed without either full aggregation or the lottery</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','broome','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','broome','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ PARFIT ══ -->
+    <div class="speaker-panel active" id="opp-parfit-panel">
+      <div id="opp-parfit-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to approach the numbers problem from a direction that cuts deeper than the formal machinery my colleagues are deploying. I want to ask: what is the fundamental philosophical error in Taurek's position? And I want to argue that the error is a commitment to a purely personal conception of reasons — a conception that fails on independent grounds, and that once abandoned makes the case for counting the numbers not merely defensible but compelling.</p>
+        <span class="section">On what Taurek's argument actually establishes</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Taurek shows no combined subject; he does not show numbers are irrelevant</span>Taurek is right that there is no single person for whom five deaths would be worse than one death — no one experiences five deaths as a combined loss. He is right that each person faces only their own loss. What he is not entitled to conclude is that we have no stronger reason to save the five. The non-existence of a combined subject of loss does not show that numbers are morally irrelevant. It shows only that the numbers do not matter because some super-person would experience a larger loss. They matter for a different and more fundamental reason: because each additional person we could save has their own claim not to be left to die — a claim grounded in the agent-neutral badness of their death — and the existence of that claim generates an additional reason that we do not face when there are fewer people to save.</span></p>
+        <span class="section">On agent-neutral reasons and the impersonal badness of death</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Agent-neutral reasons: death is impersonally bad; five deaths worse than one</span>What grounds our concern for any person who faces death? It is not merely that her death is bad for her — though it is. It is that death is bad, and she faces it. If we take seriously the claim that death is genuinely bad — that there is something terrible about a person ceasing to exist, losing everything they value, everything they will ever experience — then the question of whose death it is cannot be the only morally relevant question. The badness of death is not a property that varies with whose death it is. From the standpoint Sidgwick called the point of view of the universe, five deaths are worse than one death — not because anyone experiences them as a sum, but because they represent five instances of something genuinely terrible, and five instances are worse than one. Taurek's purely personal account cannot accommodate this, and that is a defect in his account of reasons.</span></p>
+        <span class="section">On the separateness of persons — correctly understood</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Separateness of persons: constraint on aggregation, not prohibition on counting claims</span>The proposition will invoke the separateness of persons — the Rawlsian claim that gains for one do not compensate losses for another. I accept this principle. But I deny that it entails anti-aggregationism. The separateness of persons prohibits treating a group's combined welfare as belonging to a single subject, so that gains anywhere compensate for losses elsewhere. That kind of aggregation genuinely fails to respect persons as separate. But counting the number of people we could save — recognising that each additional person has their own separate claim not to be left to die — does not violate the separateness of persons. It honours it. Each person is counted separately. Each claim is attended to individually. The separateness of persons is a constraint on how we aggregate, not a prohibition on recognising that more separate people have more separate claims.</span></p>
+        <span class="section">On Otsuka's pairwise argument</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Reply to Otsuka: pairwise comparison misses agent-neutral reasons</span>Otsuka's pairwise argument is powerful but it proves less than he claims. He shows that in any matched pairing between a member of the five and David, the claims are equal — neither individual has a stronger claim than the other. This is correct. But from this he concludes that the aggregative procedure must be doing something beyond pairwise comparison, and that this something is impermissible aggregation. The error is in thinking that pairwise comparison exhausts the relevant moral considerations. Pairwise comparison captures agent-relative claims — what each person is owed from the perspective of their own interests. It does not capture agent-neutral reasons — reasons grounded in the impersonal badness of outcomes. Five deaths are impersonally worse than one death, and this gives us reason to prevent them that is not captured by any pairwise comparison between individual claims. Otsuka's pairwise procedure assumes that agent-relative claims are the only moral considerations. That assumption is precisely what I am denying.</span></div></p>
+        <span class="section">On the headache case and incommensurability</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Headache case: incommensurability, not a relevance threshold</span>The hardest case for my position is the headache case. If numbers always count and impersonal badness always aggregates, does it follow that a billion headaches outweigh a death? I want to resist this conclusion without invoking Voorhoeve's relevance threshold. The resistance lies in genuine incommensurability: death and headache relief are not on the same scale of value. There is no fact about how many headache-minutes of relief add up to a death-equivalent, because the two kinds of value are incommensurable — they cannot be placed on a single measuring scale at all. Where genuine incommensurability obtains, aggregation is not merely blocked by a threshold — it is undefined, inapplicable. Within the domain of comparable harms, numbers count and aggregation applies. The headache case is one where comparability fails, not one where aggregation is otherwise correct but blocked.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-parfit-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('parfit',1)">
+          <div class="arg-title"><span>I — Taurek establishes no combined subject; not that numbers are irrelevant</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Taurek correctly shows there is no person who experiences five deaths as a combined loss five times greater than one death.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But this shows only that numbers do not matter because of a combined experiencing subject — not that they do not matter at all.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Each additional person we can save has their own separate claim grounded in the agent-neutral badness of their death, which generates an additional reason independent of any combined subject.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Taurek's argument establishes less than he claims — the absence of a combined subject does not show numbers are irrelevant, only that they matter for reasons his framework cannot see.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('parfit',2)">
+          <div class="arg-title"><span>II — Death is impersonally bad; five deaths worse than one from the point of view of the universe</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Death is genuinely bad — not merely bad for the person who dies but bad from an impersonal standpoint; it represents the total loss of everything a person values.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The badness of death does not vary with whose death it is — from the point of view of the universe, five deaths are worse than one because they represent five instances of something genuinely terrible.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A purely personal account of reasons that cannot accommodate this impersonal badness is incomplete as an account of all the morally relevant considerations.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Agent-neutral reasons grounded in the impersonal badness of death establish that numbers matter — Taurek's purely personal account misses a fundamental category of moral reason.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('parfit',3)">
+          <div class="arg-title"><span>III — Separateness of persons constrains aggregation but does not prohibit counting separate claims</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The separateness of persons prohibits treating a group's combined welfare as belonging to a single subject — the objectionable utilitarian aggregation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Counting separate people's separate claims does not treat them as a single subject — it attends to each person individually and recognises that more separate persons have more separate reasons.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The separateness of persons is a constraint on the method of aggregation, not a prohibition on recognising that multiple separate persons have multiple separate claims.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The separateness of persons, correctly understood, supports counting the numbers — it requires each person be counted as a separate individual, which is exactly what saving the five does.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('parfit',4)">
+          <div class="arg-title"><span>IV — Otsuka's pairwise argument misses agent-neutral reasons</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Otsuka correctly shows that pairwise comparison yields equal claims in every matchup — no individual member of the five has a stronger agent-relative claim than David.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But pairwise comparison captures only agent-relative claims — it does not capture agent-neutral reasons grounded in the impersonal badness of outcomes.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Five deaths are impersonally worse than one death, generating agent-neutral reasons that pairwise comparison of agent-relative claims cannot capture.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Otsuka's pairwise argument assumes agent-relative claims exhaust all moral considerations — this assumption is exactly what agent-neutral reasons deny, and Otsuka has not argued for it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('parfit',5)">
+          <div class="arg-title"><span>V — The headache case is explained by incommensurability, not a relevance threshold</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Death and headache relief are genuinely incommensurable — there is no fact about how many headache-minutes of relief constitute a death-equivalent on a single measuring scale.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Where genuine incommensurability obtains, aggregation is not blocked by a threshold — it is inapplicable, undefined.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Within the domain of comparable harms, incommensurability does not arise and numbers count without restriction.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The headache case is explained by incommensurability — not by a relevance threshold that limits otherwise valid aggregation; numbers count fully within the domain where comparability holds.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ KAMM ══ -->
+    <div class="speaker-panel" id="opp-kamm-panel">
+      <div id="opp-kamm-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I agree with Parfit that numbers count and that we should save the five. But I think Parfit has arrived at the right conclusion by a route that misses what is philosophically most important about why the numbers count. And my colleagues Scanlon and Otsuka, in their different ways, have pointed to a genuine problem with aggregative accounts — a problem that can only be answered if we attend more carefully to the structure of the moral situation itself, rather than either summing individual claims or comparing impersonal values.</p>
+        <p>My approach is built around what I call the Principle of Contextual Interaction.</p>
+        <span class="section">On why Taurek's lottery fails as an expression of equal concern</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Against the lottery: equal concern does not require equal chances</span>Taurek's lottery is the most seductive part of his case. Give David a one-in-six chance. Give each of the five a one-in-six chance. Symmetry. But this is not equal concern — it is a profound misidentification of what equal concern requires. Equal concern requires that I take each person's situation seriously and respond to it appropriately. The five people's situation involves each of them facing death. Taking that situation seriously — genuinely attending to what it means for five people to be about to die when I could prevent it — does not lead to the conclusion that the appropriate response is to give them all a one-in-six chance. That response treats certainty of saving five as morally equivalent to a one-sixth probability of saving any one. No account of equal concern that deserves the name implies this equivalence. The lottery is indifference masquerading as fairness.</span></p>
+        <span class="section">On the Principle of Contextual Interaction</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Contextual Interaction: each person's claim is constituted partly by who else is present</span>The key move in my account is that claims do not exist in moral isolation from one another. When five people need saving alongside one, each member of the five is not in the same moral situation as she would be if she were the only person needing help. Her claim exists in a context — a context that includes four other people with equally urgent claims on the same scarce resource. This context is morally constitutive of her situation. Specifically: each member of the five can point to her claim as being part of a set of claims that, taken together as individually urgent claims in a shared predicament, generates a stronger reason for the rescuer to act. This is not Parfit's impersonal addition. It is not the sum of five losses. It is a claim about the internal structure of what each person's situation amounts to when others are present in the same predicament.</span></p>
+        <span class="section">On Otsuka's pairwise argument and contextual interaction</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Reply to Otsuka: pairwise comparison misses contextual structure</span>Otsuka argues that in any pairwise comparison, claims are equal, and no aggregative conclusion follows. But pairwise comparison, conducted as a sequence of isolated two-person comparisons, misses the contextual structure I am pointing to. The five are not facing David one at a time in isolated encounters. They are all present in the same situation, with claims that interact with one another as a set of individually urgent claims in a shared predicament. Asking what Ann's claim is in isolation from Beth, Carol, Diana, and Eve mischaracterises the moral situation. Ann's claim, in context, is different from Ann's claim in isolation — because the context of others sharing her predicament is morally constitutive of what her situation amounts to. Pairwise comparison, conducted without attending to this context, reaches the wrong result because it is asking the wrong question.</span></p>
+        <span class="section">On the complex cases — uninvolved parties</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Contextual interaction and uninvolved parties: the limits of the principle</span>Contextual interaction explains not only why we should save the five but also why we cannot simply aggregate across all persons in all situations. The contextual interaction of claims occurs among people who are in the same predicament — who share a situation of needing help with the same scarce resource at the same time. It does not automatically extend to people outside that predicament. If saving the five would require imposing a harm on an uninvolved sixth party — using their property, say — the uninvolved party's claim has a different character from the claims of those in the shared predicament. She is not in contextual interaction with the five; she stands outside it. Pure aggregation, by contrast, treats all welfare on one side the same way — it cannot distinguish between a claimant in the predicament and an uninvolved bystander whose interests are merely affected. Contextual interaction makes this distinction naturally, and it is a distinction that matters morally.</span></p>
+        <span class="section">On where Voorhoeve is right and where the grounding needs revision</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">ARC: right shape, wrong foundation; contextual interaction is the correct ground</span>Voorhoeve's ARC captures a genuine moral phenomenon — that claims of radically different severity do not interact in the way that comparable claims interact. A headache-claim does not enter into contextual interaction with a death-claim in the way that a paralysis-claim does. On this Voorhoeve is right, and his framework captures something that pure aggregationism misses. Where I differ is on the grounding of the relevance criterion. Voorhoeve grounds it in prudential self-sacrifice reasoning — what a rational agent would accept as a personal trade-off. But the relevant question is not about individual risk attitudes. It is about whether two claims are of a kind that can enter into genuine contextual interaction — an objective structural question about the nature of claims themselves, not a subjective question about any individual's psychology. The foundation of ARC needs revision; contextual interaction provides it.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-kamm-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('kamm',1)">
+          <div class="arg-title"><span>I — The lottery misidentifies equal concern as equal chances</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Equal concern requires taking each person's situation seriously and responding appropriately — not imposing formal symmetry of chances regardless of what the situations warrant.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The lottery treats certainty of saving five as morally equivalent to a one-sixth probability of saving any one — an equivalence that no account of genuine concern for persons can sustain.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Genuine equal concern for the five, who each face death, generates reasons to save them that are not honoured by giving them a coin-flip.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Taurek's lottery does not express equal concern — it expresses indifference to outcomes dressed as procedural fairness; equal concern, properly understood, requires attending to what each person's situation actually demands.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('kamm',2)">
+          <div class="arg-title"><span>II — Contextual Interaction: claims are constituted partly by who else is present</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Each member of the five is in a moral situation constituted partly by the context of four others with equally urgent claims on the same scarce resource.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This context is morally constitutive — each person's claim, in this context, is part of a set of individually urgent claims in a shared predicament that together generate stronger reasons for the rescuer.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is not summing losses or comparing impersonal values — it is attending to the full internal structure of each person's moral situation as it actually exists.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Principle of Contextual Interaction explains why numbers count through the constitutive structure of each person's moral situation — without invoking a combined subject, an impersonal sum, or an isolated pairwise comparison.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('kamm',3)">
+          <div class="arg-title"><span>III — Pairwise comparison misses the contextual structure of the situation</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Otsuka's pairwise procedure treats each comparison as an isolated two-person encounter — missing the contextual structure in which all five are simultaneously present in the same shared predicament.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Each member's claim in context is different from her claim in isolation — the presence of others sharing her predicament is morally constitutive of what her situation amounts to.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Pairwise comparison that abstracts away from this contextual structure is asking the wrong question and reaches the wrong result.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Otsuka's pairwise argument fails because it mischaracterises the moral situation by abstraction — contextual interaction among the five cannot be seen from inside isolated two-person comparisons.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('kamm',4)">
+          <div class="arg-title"><span>IV — Contextual interaction distinguishes claimants from uninvolved parties; aggregation cannot</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Contextual interaction occurs among people in the same shared predicament — needing help with the same scarce resource at the same time; it does not extend to uninvolved parties outside that predicament.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Pure aggregation treats all welfare on one side the same way — it cannot structurally distinguish a claimant in the shared predicament from an uninvolved bystander whose interests are merely affected.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This distinction is morally significant and contextual interaction captures it naturally.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Contextual interaction is more morally discriminating than aggregation — it handles the complex cases involving uninvolved parties that purely aggregative frameworks cannot see.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('kamm',5)">
+          <div class="arg-title"><span>V — ARC has the right shape but needs contextual interaction as its foundation</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>ARC correctly captures that claims of radically different severity do not interact the way comparable claims do — headaches do not contextually interact with deaths.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But Voorhoeve grounds this in prudential self-sacrifice reasoning — individual risk attitudes — rather than in an objective structural question about whether claims can enter genuine contextual interaction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Whether two claims can enter genuine contextual interaction is an objective fact about the nature of claims themselves — it does not vary with individual risk tolerance.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>ARC is right in shape and in its verdicts; contextual interaction provides the correct foundation that ARC's prudential grounding cannot — it makes the relevance criterion objective rather than psychologically relative.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ VOORHOEVE ══ -->
+    <div class="speaker-panel" id="opp-voorhoeve-panel">
+      <div id="opp-voorhoeve-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I hold an unusual position. I think Taurek is wrong that numbers never count. I think Parfit is wrong that numbers always count without qualification. I think Scanlon's contractualism, although it reaches the right verdict in the drug case, struggles to explain why numbers count in the way that they do without covertly relying on the aggregative reasoning Otsuka has exposed. My position — Aggregate Relevant Claims — is that numbers count when and only when the competing claims are sufficiently comparable in severity to be morally relevant to each other. This is not a compromise. It is the correct theory.</p>
+        <span class="section">On the two intuitions that any adequate theory must accommodate</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Two intuitions: numbers count in the lives case; not in the headache case</span>There are two intuitions about this problem that command extremely widespread assent. The first: we ought to save five people from death rather than one, and part of the reason is that there are five of them. Numbers count. The second: we ought to save one person from death rather than cure any number of people of mild headaches — no matter how large that number grows. Numbers do not always count across different severities of harm. Taurek cannot accommodate the first. Full aggregationism, including Parfit's impersonal badness account, struggles genuinely with the second — even Parfit's incommensurability response is, as I shall argue, underdeveloped. Only partial aggregation, in the form of ARC, accommodates both simultaneously. This double adequacy is not a happy accident. It is the primary virtue of the theory and the primary defect of the alternatives.</span></p>
+        <span class="section">On what ARC says</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">ARC: aggregate only relevant claims — those in the same moral conversation</span>ARC holds that when we face competing claims, we may aggregate only those claims that are mutually relevant — that are sufficiently comparable in severity to be, as I put it, in the same moral conversation. Five death-claims are each relevant to one death-claim: each of the five can point to her own death as being in the same conversation as David's. They aggregate; we save the five. A billion headache-claims are not relevant to one death-claim: no headache sufferer can plausibly claim her harm is in the same conversation as a death. They do not aggregate; we save the one. The relevance criterion is not an arbitrary threshold. It is grounded in what persons can reasonably demand of one another in a contractualist framework — specifically, in what they could demand that others take seriously as a comparable burden.</span></p>
+        <span class="section">On why Parfit's incommensurability response is underdeveloped</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against Parfit's incommensurability: the notion does too little work</span>Parfit handles the headache case through incommensurability: death and headache relief cannot be placed on a common scale, so aggregation is inapplicable rather than blocked. This is a philosophically attractive move but it is underdeveloped as a response to the full range of cases. What about moderate harms — chronic severe pain, permanent disability, serious illness? Are these commensurable with death or not? Incommensurability gives us no answer. It requires a theory of when incommensurability obtains and when it does not — and that theory, when spelled out, will look very much like a relevance criterion. Parfit has deferred the problem to the theory of incommensurability without solving it. ARC solves it directly by specifying a principled criterion for when claims can aggregate.</span></p>
+        <span class="section">On Otsuka's challenge to ARC</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Reply to Otsuka's pairwise argument against ARC</span>Otsuka argues that pairwise comparison never yields an aggregative conclusion, and that ARC's relevance criterion permits aggregation without explaining how it produces claims stronger than any individual opposing claim. This is the hardest challenge to my position and I want to address it directly. The relevance criterion does not produce stronger individual claims through aggregation in the way that Otsuka imagines. What it does is specify a domain within which the reasons generated by multiple individual claims combine — not because any one claim is made stronger, but because the total moral reason in that domain is greater when more comparable claims are unaddressed. This is a claim about reasons, not about the strength of individual claims, and it is this distinction that Otsuka's pairwise procedure, which focuses only on individual claim strength, cannot capture.</span></p>
+        <span class="section">On health policy and the practical stakes</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">ARC in health policy: a floor of severity in QALY-maximisation</span>The debate between full and partial aggregationism is not merely academic. In health care priority-setting — in bodies like NICE in the UK — a commitment to full aggregation implies that we should always maximise QALYs, regardless of severity. At sufficient numbers, treating moderate conditions should always crowd out treating severe ones. ARC implies something different: there is a floor of severity below which claims simply do not trade off against larger numbers of milder claims. This has direct policy implications for how we structure health resource allocation — specifically, for the question of whether we should ever allow sufficient numbers of mild-condition treatments to take priority over life-saving interventions. Partial aggregation says no. Full aggregation, consistently applied, says yes. The stakes are not theoretical.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-voorhoeve-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('voorhoeve',1)">
+          <div class="arg-title"><span>I — ARC accommodates both the lives-over-lives and the headache intuition simultaneously</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Saving five from death over one from death, with numbers as part of the reason, is a firm intuition any adequate theory must produce.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Refusing to sacrifice one death to cure any number of headaches is an equally firm intuition any adequate theory must also produce.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Taurek fails the first; full aggregationism struggles with the second; ARC produces both simultaneously.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>ARC's simultaneous accommodation of both well-grounded intuitions is its primary theoretical virtue — a virtue neither numbers-scepticism nor full aggregationism shares.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('voorhoeve',2)">
+          <div class="arg-title"><span>II — The relevance criterion: claims aggregate only when in the same moral conversation</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A claim is relevant to another when the claimant could not reasonably insist that the competing harm is too insignificant to weigh against her own — when both harms are genuinely comparable.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Five death-claims are each relevant to one death-claim; headache-claims are not relevant to a death-claim.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The relevance criterion is grounded in what persons can reasonably demand of one another — it is a contractualist criterion, not an arbitrary threshold.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The relevance criterion gives a principled account of when numbers count — grounded in reasonable demands, not in arbitrary cutoffs or individual risk psychology.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('voorhoeve',3)">
+          <div class="arg-title"><span>III — Parfit's incommensurability defers the problem without solving it</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Parfit's incommensurability response handles the headache case by making aggregation inapplicable — death and headache relief are on different scales.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But incommensurability gives no answer for intermediate cases — chronic pain, disability, serious illness — where a theory of when incommensurability obtains is needed.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>That theory, when spelled out, will look like a relevance criterion — so Parfit has deferred to ARC without acknowledging it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Incommensurability is underdeveloped as a response to the full range of cases — ARC solves the problem Parfit defers by specifying the relevant criterion directly.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('voorhoeve',4)">
+          <div class="arg-title"><span>IV — Reply to Otsuka: ARC is about total reasons, not individual claim strength</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Otsuka objects that ARC cannot explain how individual equal claims combine into stronger claims — pairwise comparison always yields equality.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But ARC's aggregation produces greater total moral reason in the domain of relevant claims — not stronger individual claims but more unaddressed reasons of comparable weight.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Otsuka's pairwise procedure, focused only on individual claim strength, cannot capture this distinction between individual claim strength and total unaddressed relevant reasons.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Otsuka's challenge misidentifies what ARC's aggregation produces — it produces greater total relevant unaddressed reasons, not stronger individual claims, and this distinction is morally significant.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('voorhoeve',5)">
+          <div class="arg-title"><span>V — Health policy: partial aggregation prevents mild conditions crowding out life-saving care</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Full aggregationism in health care priority-setting implies that at sufficient numbers, treating moderate conditions should always crowd out life-saving interventions — QALY maximisation is the only standard.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>ARC implies a floor of severity below which claims do not trade off against larger numbers of milder claims — life-saving interventions are not crowded out by any accumulation of mild-condition treatments.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This difference has direct implications for how we structure health resource allocation, making the stakes of the debate between full and partial aggregationism concrete and significant.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The difference between full and partial aggregationism is not merely theoretical — it determines whether sufficiently many mild treatments can ever take priority over life-saving care, with direct consequences for health justice.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ BROWN ══ -->
+    <div class="speaker-panel" id="opp-brown-panel">
+      <div id="opp-brown-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My role in this debate is somewhat different from my colleagues'. I am not primarily here to defend a particular verdict — though I share the intuition that saving the five is the right thing to do, and I think the motion as stated goes too far in the sceptical direction. I am here to examine, with some rigour, whether the moderate position that most participants in this debate find attractive — that numbers count in some cases but not others — can be given a formally precise and consistent articulation.</p>
+        <p>My paper "Is Close Enough Good Enough?" attempts this investigation. What I found is that moderate aggregation faces serious structural problems. I want to be honest about them, because I think the philosophy progresses better through acknowledged difficulties than through confident assertions that a view's problems are merely apparent.</p>
+        <span class="section">On what the Close Enough View formally requires</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The Close Enough View: formal precision reveals substantive commitments</span>The moderate position — what Parfit calls the Close Enough View — holds that aggregation is permissible when, and only when, conflicting harms are sufficiently similar in severity. Five deaths against one death: close enough, aggregate. A billion headaches against one death: not close enough, do not aggregate. But making this formally precise immediately reveals complications. We need a significance function f that measures the severity of harms on a common scale, a ratio threshold ρ below which a harm is too different in severity to aggregate, and a decision rule specifying what to do with the resulting values. These are not mere implementation details. Different choices produce radically different moral verdicts across cases, and the choice is itself a substantive theoretical commitment that the Close Enough View, stated abstractly, does not settle.</span></p>
+        <span class="section">On Generalised Collectivism and Transposition Pareto</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Generalised Collectivism violates Transposition Pareto</span>The most natural formalisation of ARC and similar moderate views is what I call Generalised Collectivism: minimise the total significance of all relevant unprevented harms, where claims below the threshold have no role. This captures the intuitive core of Voorhoeve's framework. The problem is that it generates violations of a principle I call Transposition Pareto: if outcome A is Pareto-superior to a permutation of outcome B — better for some people and worse for none, under any re-labelling of individuals — then A should be preferred. In certain three-person cases, Generalised Collectivism is indifferent between outcomes where one is straightforwardly better for two people and worse for no one. This is a serious defect. Even committed non-aggregationists should find it unacceptable.</span></p>
+        <span class="section">On Weighted Numbers and ubiquitous weak-trumping</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Weighted Numbers generates weak-trumping across negligible differences</span>An alternative formalisation — Weighted Numbers — achieves moderation by using a strictly concave bounded function of the number of claimants, so that additional persons carry diminishing weight. This avoids some problems of Generalised Collectivism. But it generates a different and arguably worse problem: for any harm x slightly more significant than harm y, there exists some n such that n instances of x outweigh any number of instances of y. A ten-minute headache weakly trumps a nine-minute headache, at sufficiently large numbers. This is not moderate aggregation — it is ubiquitous weak-trumping between arbitrarily similar harms, dressed in moderate-looking clothing. It captures neither the spirit of the Close Enough View nor the intuitions that motivated it.</span></p>
+        <span class="section">On obligation cycles and the structural problem facing all moderate views</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Obligation cycles: moderation entails intransitive better-than relations</span>The most fundamental structural problem is that moderation necessarily generates obligation cycles. Because the "close enough" relation is intransitive — harm A may be close enough to harm B, B close enough to C, without A being close enough to C — there will be triples of outcomes where each is better than one of the others in a cycle. This forces any moderate theory to choose between prohibition dilemmas — situations where no option is permissible — and violations of contraction consistency — where an option permissible in a larger menu becomes impermissible in a smaller one. Neither is comfortable. This is not a problem for a particular implementation of the Close Enough View. It is a structural consequence of moderation itself.</span></p>
+        <span class="section">On the best available candidate: ICH combined with TCM</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">ICH + TCM: best moderate candidate, with acknowledged costs</span>My investigation concludes that the most defensible formalisation is what I call the Individualist-Collectivist Hybrid combined with Transitive Closure Maximisation. ICH first applies a lexical individualist criterion — minimising the most significant unprevented harm, with further tiebreakers — and falls back on standard aggregation only when the individualist criterion leaves the choice undecided. Transitive Closure Maximisation handles obligation cycles by declaring all options in a cycle permissible. This combination satisfies Transposition Pareto and avoids prohibition dilemmas. But I want to be honest: ICH+TCM lacks a unified rationale, its hybrid structure looks ad hoc, and its handling of cycles by making all cycle members permissible is at best an evasion of the underlying intransitivity. The costs of moderation are real. Whether they are worth paying is a question I deliberately leave open — but the opposition's instinct that numbers generally count is I think correct, and it is the articulation, not the verdict, that remains to be perfected.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-brown-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('brown',1)">
+          <div class="arg-title"><span>I — The Close Enough View requires formal precision that reveals substantive commitments</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Close Enough View requires a significance function f, a ratio threshold ρ, and a decision rule — choices among which are substantive theoretical commitments the abstract view does not settle.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Different parameter choices produce radically different moral verdicts across cases.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Any adequate moderate theory must specify these parameters in a principled way — a major theoretical challenge not yet resolved.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Close Enough View is not a simple moderate position — making it precise reveals substantial unresolved theoretical commitments that its proponents have not yet fully addressed.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('brown',2)">
+          <div class="arg-title"><span>II — Generalised Collectivism violates Transposition Pareto</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Generalised Collectivism minimises total relevant harm — the natural formal version of ARC — but implies indifference in three-person cases where one outcome is Pareto-superior to a permutation of another.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Transposition Pareto — if A is better for some and worse for none under any re-labelling of individuals, A should be preferred — is a highly plausible and nearly universally accepted condition.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Violating Transposition Pareto is a serious defect even for non-aggregationists — it implies indifference between outcomes that are unambiguously differently good for persons.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Generalised Collectivism — the most natural extension of ARC — is unacceptable; it violates Transposition Pareto by giving irrelevant harms literally no role, which is too strong a treatment of the relevance criterion.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('brown',3)">
+          <div class="arg-title"><span>III — Weighted Numbers generates ubiquitous weak-trumping across negligible differences</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Weighted Numbers uses a strictly concave bounded function of claimant numbers, so additional persons carry diminishing moral weight.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This implies that for any harm x slightly more significant than y, some n instances of x outweigh any number of instances of y — a ten-minute headache weakly trumps a nine-minute headache.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Ubiquitous weak-trumping across negligible differences captures neither the spirit nor the intuitions of the Close Enough View.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Weighted Numbers fails as an interpretation of the Close Enough View — its moderation is illusory because it generates weak trumping everywhere across arbitrarily small severity differences.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('brown',4)">
+          <div class="arg-title"><span>IV — Obligation cycles are a structural consequence of moderation itself</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The "close enough" relation is intransitive: A may be close enough to B, B to C, without A being close enough to C.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This intransitivity generates obligation cycles in three-outcome cases — each outcome better than one of the others in a cycle — for any moderate choice function satisfying Non-Arbitrariness.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Cycles force a choice between prohibition dilemmas and violations of contraction consistency — both uncomfortable; this is a structural consequence of moderation, not a defect of particular implementations.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Obligation cycles are unavoidable for any moderate view — they are a structural feature of moderation itself, and any formally precise moderate theory must confront them honestly.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('brown',5)">
+          <div class="arg-title"><span>V — ICH + TCM is the best available candidate, with acknowledged structural costs</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Individualist-Collectivist Hybrid applies a lexical individualist criterion first, falling back on aggregation for undecided cases — compatible with Transposition Pareto and avoiding prohibition dilemmas.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Transitive Closure Maximisation handles obligation cycles by making all options in a cycle permissible — avoiding prohibition dilemmas but violating contraction consistency.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>ICH+TCM lacks a unified rationale, appears ad hoc, and its cycle-handling is an evasion of the underlying intransitivity — these costs must be acknowledged honestly.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>ICH+TCM is the most formally defensible moderate candidate, but moderate aggregationists should acknowledge that the formal articulation of their intuitively correct verdict remains a work in progress.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ BROOME ══ -->
+    <div class="speaker-panel" id="opp-broome-panel">
+      <div id="opp-broome-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to approach this problem from the perspective of the theory of weighing — a framework I have developed in Weighing Goods and related work — and to argue that both the proposition's sceptical position and the more naive forms of aggregationism on this side of the chamber rest on confusions about the nature of value, the structure of moral reasons, and what it means to give persons equal consideration.</p>
+        <span class="section">On Taurek's mistake about value</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Against Taurek: impersonal value and the separability of persons</span>Taurek's central argument rests on the claim that there is no standpoint from which five deaths can be worse than one death, since no one experiences a combined loss. This argument conflates two things: the subjective badness of an outcome for those who experience it, and the impersonal value of an outcome considered from outside. I accept, with Parfit, that death has impersonal badness — that a world with more deaths in it is, other things equal, a worse world. But I want to be more careful than Parfit about how this impersonal badness relates to the separability of persons. The separability of persons means that the value of an outcome can be decomposed into contributions from separate individuals. This decomposition is what allows us to say that five deaths are worse than one death — not because five losses sum into a super-loss, but because the outcome with five deaths has five separate negative contributions to its value, one per person, and the outcome with one death has one. Separability, not aggregation in the objectionable sense, explains why numbers count.</span></p>
+        <span class="section">On Scanlon's tie-breaking and why it is unsatisfying</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Against Scanlon's tie-breaking: it does not explain what does the moral work</span>Scanlon's tie-breaking argument is ingenious but it does not explain what is doing the moral work. He says: match equal claims, attend to unmatched claims. But why do unmatched claims matter? Either they matter because they represent additional persons whose interests have weight — in which case Scanlon is committed to something like the claim that more interests have more weight, which is a form of aggregation. Or they matter for some reason that Scanlon has not specified. The tie-breaking procedure produces the right verdict in the drug case, but it does so by deferring the explanation rather than providing one. The explanation that does the actual work is that additional persons' interests have additional weight — which is precisely what the theory of weighing says, and precisely what the proposition needs to resist if it is to maintain that numbers are not always decisive.</span></p>
+        <span class="section">On fairness and the role it plays in the numbers problem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Fairness as a separate consideration in the numbers problem</span>There is a dimension of the numbers problem that both the proposition and much of the opposition has neglected: fairness. In Weighing Goods I argue that fairness is a consideration separate from and potentially in competition with the aggregative considerations about value. A fair lottery, as Taurek suggests, gives each person an equal chance. This is not nothing — it is a genuine expression of a genuine moral consideration. But fairness competes with the consideration of doing as much good as possible. When we must choose between a procedure that is maximally fair and a procedure that produces the best outcome, we face a genuine moral trade-off between two real considerations. The numbers problem is partly a problem about how to weigh fairness against value — and the answer, I think, is that value wins in cases like the drug case, but the claim of fairness is real and not merely confused.</span></p>
+        <span class="section">On the claim that people matter equally — and what it implies</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Equal concern implies numbers count: each person matters, therefore more persons matter more</span>The deepest argument for the numbers counting is the simplest: each person matters equally. If each person matters equally, and five persons each matter equally, then five persons matter more than one person — not because they have greater individual worth, but because there are five of them, each with equal worth. This argument does not require an impersonal standpoint, and it does not require treating the five as a composite. It requires only that we take seriously what it means to say that each person matters. If that commitment is genuine, we cannot be indifferent between saving five and saving one when saving five is available. The proposition's claim that numbers are not always decisive is, at its core, a denial of this implication — a claim that equal individual worth does not translate into greater reasons when there are more individuals. I find this denial hard to sustain.</span></p>
+        <span class="section">On where I part company with unrestricted aggregationism</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Against unrestricted aggregation: the repugnant conclusion and limited aggregation</span>I do not endorse unrestricted aggregationism. The repugnant conclusion — that a world of very many people with lives barely worth living can be better than a smaller world of very happy people — follows from unrestricted aggregation and strikes me as genuinely repugnant. And in the interpersonal trade-offs at issue in this debate, I accept that there are constraints on aggregation: we cannot sacrifice a person's vital interests for sufficiently diffuse benefits to sufficiently many. But these constraints do not support the proposition's position that numbers are not always decisive. They support a more nuanced conclusion: that numbers count, that aggregation is generally valid, and that the cases where it goes wrong are those where it violates a separable person's vital interests rather than merely their diffuse preferences. This is closer to Voorhoeve's ARC than to Taurek's scepticism, and I regard it as the most defensible position in the space.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-broome-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('broome',1)">
+          <div class="arg-title"><span>I — Separability explains why numbers count without a super-subject of loss</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The separability of persons means that the value of an outcome decomposes into separate contributions from each individual — five deaths have five separate negative contributions; one death has one.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This decomposition does not require a super-subject who experiences a combined loss — it requires only that each person's contribution to outcome value is counted separately.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Taurek's argument targets the super-subject reading; it does not touch the separability reading, which is a more accurate account of why numbers count.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Separability — not aggregation in the objectionable super-subject sense — explains why five deaths are worse than one; Taurek's argument targets the wrong account of why numbers count.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('broome',2)">
+          <div class="arg-title"><span>II — Scanlon's tie-breaking defers rather than provides the explanation</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Scanlon's tie-breaking procedure produces the right verdict but does not explain what makes unmatched claims matter.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Either unmatched claims matter because more interests have more weight — which is a form of aggregation — or Scanlon owes an account of why they matter that he has not yet provided.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The explanation that does the actual work in the tie-breaking argument is the aggregative one: additional persons' interests have additional weight.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Scanlon's tie-breaking argument is an incomplete explanation that, when completed, commits him to the aggregative claim he seeks to avoid — the proposition's most sophisticated speaker is covertly an aggregationist.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('broome',3)">
+          <div class="arg-title"><span>III — Fairness is a genuine but defeasible consideration in the numbers problem</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A fair lottery expresses a genuine moral consideration — giving each person an equal chance reflects real concern for equal treatment of persons.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But fairness competes with the consideration of producing the best outcome — these are separate moral considerations that must be weighed against each other.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In the drug case, the consideration of value — saving five lives — outweighs the consideration of fairness — giving each an equal chance — though the fairness consideration is real and not merely confused.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The lottery expresses a genuine moral consideration but one that is outweighed by value in the drug case; the numbers problem is partly a problem about how to weigh fairness against value, and value wins here.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('broome',4)">
+          <div class="arg-title"><span>IV — Equal individual worth implies greater reasons when there are more individuals</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Each person matters equally — this is the moral premise both proposition and opposition accept.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If five persons each matter equally, five persons matter more than one — not because any individual has greater worth, but because there are five individuals each with equal worth.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition's claim that numbers are not always decisive is a denial that equal individual worth translates into greater reasons when there are more individuals — a denial hard to sustain consistently.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The commitment that each person matters equally, consistently applied, implies that more persons matter more — the proposition's scepticism is in tension with its own foundational premise about equal moral worth.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('broome',5)">
+          <div class="arg-title"><span>V — Against unrestricted aggregation: vital interests constrain but do not defeat the numbers</span><span class="img-hint">click</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The repugnant conclusion shows that unrestricted aggregation can produce results inconsistent with any plausible account of personal value — some constraints on aggregation are warranted.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These constraints apply where aggregation would violate a separable person's vital interests for diffuse benefits to many — not where claims are of comparable severity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Within the domain of comparable claims — lives against lives — these constraints do not apply and the numbers are decisive.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The correct position is constrained aggregationism: numbers count and aggregation is generally valid, constrained by vital interests at the boundaries — closer to ARC than to Taurek, and firmly against the motion.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end opp-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+
+<!-- MODAL -->
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd">
+      <span class="modal-hd-title" id="mTitle">Argument image</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh">
+          <div>No image linked</div>
+          <code>Set src in IMAGES object</code>
+        </div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var IMAGES={
+  taurek:{1:{src:'',caption:'Taurek — No impersonal standpoint'},2:{src:'',caption:'Taurek — The friend case'},3:{src:'',caption:'Taurek — Equal concern: lottery'},4:{src:'',caption:'Taurek — Headache reductio'},5:{src:'',caption:"Taurek — Each person's claim is their own"}},
+  scanlon:{1:{src:'',caption:'Scanlon — Individualist restriction'},2:{src:'',caption:'Scanlon — Tie-breaking without aggregation'},3:{src:'',caption:'Scanlon — Tie-breaking vs aggregation'},4:{src:'',caption:'Scanlon — World Cup case'},5:{src:'',caption:'Scanlon — Against the lottery'}},
+  otsuka:{1:{src:'',caption:'Otsuka — Pairwise comparison: no aggregative conclusion'},2:{src:'',caption:"Otsuka — Scanlon's dilemma"},3:{src:'',caption:'Otsuka — Pairwise argument and ARC'},4:{src:'',caption:'Otsuka — Lottery from equal individual claims'},5:{src:'',caption:'Otsuka — No existing account is sufficient'}},
+  parfit:{1:{src:'',caption:'Parfit — Taurek establishes less than he claims'},2:{src:'',caption:'Parfit — Impersonal badness of death'},3:{src:'',caption:'Parfit — Separateness: constraint not prohibition'},4:{src:'',caption:"Parfit — Reply to Otsuka: agent-neutral reasons"},5:{src:'',caption:'Parfit — Headache case: incommensurability'}},
+  kamm:{1:{src:'',caption:'Kamm — Lottery misidentifies equal concern'},2:{src:'',caption:'Kamm — Contextual Interaction'},3:{src:'',caption:'Kamm — Pairwise misses contextual structure'},4:{src:'',caption:'Kamm — Uninvolved parties: limits of aggregation'},5:{src:'',caption:'Kamm — ARC: right shape, contextual foundation'}},
+  voorhoeve:{1:{src:'',caption:'Voorhoeve — Two intuitions simultaneously accommodated'},2:{src:'',caption:'Voorhoeve — Relevance criterion: same moral conversation'},3:{src:'',caption:"Voorhoeve — Against Parfit's incommensurability"},4:{src:'',caption:'Voorhoeve — Reply to Otsuka: total reasons not claim strength'},5:{src:'',caption:'Voorhoeve — Health policy stakes'}},
+  brown:{1:{src:'',caption:'Brown — Close Enough View: formal precision'},2:{src:'',caption:'Brown — Generalised Collectivism violates Transposition Pareto'},3:{src:'',caption:'Brown — Weighted Numbers: ubiquitous weak-trumping'},4:{src:'',caption:'Brown — Obligation cycles: structural consequence'},5:{src:'',caption:'Brown — ICH + TCM: best candidate'}},
+  broome:{1:{src:'',caption:'Broome — Separability explains numbers without super-subject'},2:{src:'',caption:"Broome — Scanlon's tie-breaking defers the explanation"},3:{src:'',caption:'Broome — Fairness: genuine but defeasible'},4:{src:'',caption:'Broome — Equal worth implies greater reasons for more individuals'},5:{src:'',caption:'Broome — Constrained aggregationism'}}
+};
+
+var state={
+  prop:{speaker:'taurek',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'parfit',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
+  document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){sp.classList.remove('hidden');lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{sp.classList.add('hidden');lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+
+function openModal(speaker,n){
+  var d=(IMAGES[speaker]||{})[n]||{src:'',caption:speaker+' arg '+n};
+  document.getElementById('mTitle').textContent=d.caption;
+  document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.style.display='none';ph.style.display='none';}
+  else{img.style.display='none';ph.style.display='flex';}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none';}
+function imgFail(){document.getElementById('mImg').style.display='none';document.getElementById('mPh').style.display='flex';document.getElementById('mPh').querySelector('div').textContent='Image failed to load';}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open');}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal();}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();
+  var cx=r.left+r.width/2,vw=window.innerWidth,mg=8;
+  tip.style.display='block';
+  var tw=tip.offsetWidth;
+  tip.style.left=Math.min(Math.max(cx,tw/2+mg),vw-tw/2-mg)+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
