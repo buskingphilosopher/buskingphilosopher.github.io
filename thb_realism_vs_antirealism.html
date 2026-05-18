@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Realism vs Antirealism — After Khlentzos</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .def-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .def-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.25rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Philosophy of Science &mdash; After Khlentzos, <em>Naturalistic Realism and the Antirealist Challenge</em> (MIT, 2004)</div>
+  <div class="motion-title">&ldquo;This House Believes that the World Exists Independently of the Mind and that Scientific Theories Can Be Straightforwardly True of It&rdquo;</div>
+  <div class="motion-sub">Realism: Khlentzos &middot; Devitt &middot; Papineau &nbsp;&bull;&nbsp; Antirealism: Dummett &middot; Putnam &middot; Wright</div>
+</div>
+<div class="columns">
+
+<!-- ═══════════════════════════════════════
+     LEFT: THE REALISTS
+     Khlentzos · Devitt · Papineau
+═══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','khlentzos',this)">Khlentzos</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','devitt',this)">Devitt</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','papineau',this)">Papineau</button>
+  </div>
+
+  <!-- KHLENTZOS HEADER -->
+  <div class="col-header" id="prop-khlentzos-header">
+    <div class="col-header-top"><span class="pill prop">Naturalistic Realism</span><span class="col-subtitle">Drew Khlentzos</span></div>
+    <div class="col-position">University of New England &middot; <em>Naturalistic Realism and the Antirealist Challenge</em> (MIT, 2004) &middot; The representation problem &middot; Correspondence truth &middot; Non-epistemic conception of truth</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','khlentzos','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','khlentzos','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- DEVITT HEADER -->
+  <div class="col-header hidden" id="prop-devitt-header">
+    <div class="col-header-top"><span class="pill prop">Robust Realism</span><span class="col-subtitle">Michael Devitt</span></div>
+    <div class="col-position">CUNY &middot; <em>Realism and Truth</em> (1984, 1997) &middot; Realism is a straightforward metaphysical thesis &middot; Independent of semantics &middot; Against &ldquo;semantic ascent&rdquo; as a method</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','devitt','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','devitt','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- PAPINEAU HEADER -->
+  <div class="col-header hidden" id="prop-papineau-header">
+    <div class="col-header-top"><span class="pill prop">Naturalist Correspondence</span><span class="col-subtitle">David Papineau</span></div>
+    <div class="col-position">King&rsquo;s College London &middot; <em>Reality and Representation</em> (1987) &middot; Naturalistic theory of representation &middot; Causal-informational content &middot; Truth as reliable representation</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','papineau','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','papineau','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ KHLENTZOS ══ -->
+    <div class="speaker-panel active" id="prop-khlentzos-panel">
+      <div id="prop-khlentzos-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to begin by framing what I take to be the central diagnostic failure of most realist responses to the antirealist challenge. It is not that realists have been wrong in their positive commitments &mdash; that the world exists independently of the mind, that our theories can be straightforwardly true of it, that truth is not reducible to epistemic warrant. They have been right about all of this. The failure is that most realists have not taken the antirealist challenge seriously enough to understand what it is. They have dismissed it as obviously question-begging, as a philosopher&rsquo;s puzzle with no grip on real inquiry, or as a mere verbal dispute. In my book I argue that this dismissal is a strategic error, and that the antirealist challenge &mdash; particularly in its Dummettian form &mdash; is a genuine philosophical threat that requires a substantive, carefully constructed response.</p>
+        <div class="def-box">
+          <strong>The Representation Problem (Khlentzos)</strong>
+          If naturalistic realism is true &mdash; if the world exists independently of the mind &mdash; how can mental representation of that world be explained? The problem is not merely epistemological (how do we know about it?) but semantic: how do our thoughts and utterances manage to refer to mind-independent entities at all? If we are entirely natural systems embedded in a natural world, what is the mechanism by which our mental states &ldquo;reach out&rdquo; to hook onto features of that world? This is what Khlentzos calls the representation problem, and he argues it is the real ground on which the realism/antirealism debate must be fought.
+        </div>
+        <span class="section">i. taking the antirealist challenge seriously</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The representation problem — realists dismiss it at their peril</span>Khlentzos&rsquo;s central diagnostic: realists who are also naturalists &mdash; who believe the mind is a natural system causally embedded in the natural world &mdash; face a special version of the representation problem. If naturalism is true, our mental representations are physical states of a physical system. But physical states have physical causal relations; they do not by themselves have semantic properties like reference and truth. How does the physical state &ldquo;mean&rdquo; something rather than something else? How does the word &ldquo;electron&rdquo; in a physicist&rsquo;s theory manage to refer to electrons rather than to quark configurations or energy fields or nothing at all? The antirealist argues that without a satisfactory answer to this question, the realist has no rational basis for claiming that our theories are &ldquo;true&rdquo; of a mind-independent reality. The realist who dismisses this as a trivial puzzle has not understood why it poses a genuine threat to naturalistic realism.</span></p>
+        <span class="section">ii. truth is non-epistemic</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Non-epistemic truth — truth can transcend all possible evidence</span>The antirealist &mdash; in Dummett&rsquo;s version &mdash; holds that truth cannot transcend what is in principle epistemically accessible: a sentence is true only if, in principle, we could recognise it as true. Against this I defend a radically non-epistemic conception of truth. A sentence is true if and only if it corresponds to facts in the world: if the entities referred to by its constituent terms stand in the relation expressed by the predicate. Whether those facts are recognisable by us &mdash; whether we have or could have evidence for them &mdash; is entirely irrelevant to whether they obtain. The truth that &ldquo;Socrates sneezed in his sleep the night before he drank the hemlock&rdquo; either obtains or it does not, and it does not become indeterminate merely because no evidence is available. Facts in the world do not wait for us to be able to recognise them before they become determinate. This non-epistemic conception of truth is what distinguishes the realist from the antirealist at the deepest level.</span></p>
+        <span class="section">iii. against physicalism and functionalism as solutions</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against physicalism/functionalism — they fail to solve representation</span>I examine and reject current physicalist and functionalist solutions to the representation problem. The functionalist says: a mental state represents X if it plays the causal-functional role that we use to pick out X. The problem is that causal-functional roles are multiply realisable and underdetermine content: a given functional role is compatible with indefinitely many possible representational contents. The physicalist says: reference is grounded in causal co-variation between mental states and worldly features. But causal co-variation is too coarse-grained to determine reference: my beliefs co-vary with distal causes, proximal causes, and a range of property clusters all of which might be the &ldquo;real&rdquo; referent. Neither view provides a satisfactory naturalisation of representation, and without such a naturalisation the naturalistic realist cannot explain how our thoughts and sentences refer to the mind-independent world she posits.</span></p>
+        <span class="section">iv. the correspondence theory of truth — my positive proposal</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Correspondence theory — facts as properties of the world</span>My positive contribution is a version of the correspondence theory of truth. Truth requires mind-independent links between our truth-bearers and the things in the world that they represent. I understand facts not as abstract items that hover between language and world but as genuine properties of the world: relational structures consisting of objects standing in relations. A true sentence is one whose constituents successfully refer to such objects and correctly characterises a relation they stand in. This account is neither verificationist &mdash; it makes no reference to epistemic accessibility &mdash; nor deflationary &mdash; it assigns a genuine, substantive semantic role to the truth predicate, not merely the disquotational role. It is the account that the realist needs to resist the antirealist&rsquo;s claim that any coherent notion of truth must be epistemically constrained.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-khlentzos-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The representation problem: naturalistic realists cannot dismiss the antirealist challenge</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Naturalistic realism: the world exists mind-independently and our mental states are physical states of a natural system.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Physical states have causal relations but not intrinsic semantic properties; how a physical state comes to &ldquo;mean&rdquo; something rather than something else is not explained by its physical nature alone.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Without a solution to the representation problem, the naturalistic realist has no rational basis for claiming our theories refer to and are true of the mind-independent world she posits.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The representation problem is the genuine ground of the antirealist challenge to naturalistic realism; dismissing it without a solution leaves naturalistic realism rationally ungrounded.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Non-epistemic truth: truth cannot be reduced to epistemic warrant</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The antirealist constrains truth to what is in principle epistemically accessible; if we cannot in principle recognise that p, then p has no determinate truth value.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A non-epistemic conception of truth: a sentence is true if and only if the mind-independent facts it represents obtain, regardless of whether those facts are recognisable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Facts in the world do not become indeterminate because we cannot access them; the antirealist&rsquo;s epistemic constraint on truth imports a covert idealism that the realist is entitled to reject.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Truth is non-epistemic; verification-transcendence is a genuine feature of reality, not a philosopher&rsquo;s fiction, and the realist&rsquo;s use of the principle of bivalence for undecidable sentences is rationally defensible.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Against physicalism and functionalism as solutions to representation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Functionalism: a mental state represents X if it plays the functional role that picks out X. But functional roles underdetermine content: the same role is compatible with indefinitely many representational contents.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Physicalism / causal covariation: representation is grounded in causal relations between mental states and worldly features. But causal covariation is too coarse-grained: a mental state co-varies with distal causes, proximal causes, and multiple property clusters.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Neither view determines a unique referent; both leave the representation problem unsolved.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Standard physicalist and functionalist naturalisations of representation fail; a satisfactory solution to the representation problem requires a more robust correspondence theory of the kind Khlentzos defends.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Correspondence theory: facts as properties of the world</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Facts are relational structures: objects standing in relations; they are genuine properties of the world, not intermediaries between language and world.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A true sentence is one whose constituents successfully refer to such objects and correctly characterises a relation they stand in; this is the mind-independent link that realism requires.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This account is neither verificationist (no epistemic accessibility required) nor deflationary (truth plays a substantive semantic role); it is the conception of truth that grounds the realist&rsquo;s resistance to antirealism.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The correspondence theory, properly understood as grounding truth in mind-independent structural facts, provides the realist answer to the antirealist challenge without collapsing into verificationism or deflationism.</span></div>
+        </div>
+      </div>
+    </div><!-- end khlentzos -->
+
+    <!-- ══ DEVITT ══ -->
+    <div class="speaker-panel" id="prop-devitt-panel">
+      <div id="prop-devitt-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to resist what I regard as a methodological confusion that runs through the entire antirealist programme and that Khlentzos, for all his virtues, still does not fully escape. That confusion is what I call &ldquo;semantic ascent&rdquo; as a method for deciding metaphysical questions. Both Dummett and Putnam conduct their debate about realism at the level of language and meaning &mdash; about truth conditions, about the meanings of sentences, about what speakers can manifest. I want to insist that realism is a metaphysical thesis, not a semantic one, and that the antirealist&rsquo;s semantic arguments &mdash; however sophisticated &mdash; simply do not reach their intended target.</p>
+        <div class="pull">&ldquo;Realism is the view that entities of the relevant kinds exist mind-independently. It has nothing directly to do with truth or reference. The mistake of philosophers from Dummett to Putnam is to think that you can argue about whether stones, electrons, and mathematical objects exist by arguing about the semantics of sentences about stones, electrons, and mathematical objects. You cannot. Metaphysics precedes and is independent of semantics.&rdquo;</div>
+        <span class="section">i. realism as a metaphysical thesis</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Realism as metaphysical — independent of semantics</span>In <em>Realism and Truth</em> I argue for a sharp separation between realism as a metaphysical thesis and any associated semantic theses about truth and reference. Realism, as I define it, is the view that the entities posited by our best science &mdash; stones, electrons, magnetic fields, biological species &mdash; exist mind-independently and have their properties mind-independently. This is a thesis about what there is and what it is like, not a thesis about how our language hooks onto it. The antirealist challenges realism by arguing that our use of sentences cannot manifest grasp of evidence-transcendent truth conditions; or that the model-theoretic argument shows reference is indeterminate. These are arguments about semantics and the philosophy of language. They presuppose realism is a thesis about the relationship between language and world. It is not. It is a thesis about the world itself, and semantic arguments cannot touch it.</span></p>
+        <span class="section">ii. the dismissal of &ldquo;just more theory&rdquo;</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Just more theory — Putnam&rsquo;s model-theoretic problem dissolved</span>Putnam&rsquo;s model-theoretic argument is perhaps the most technically sophisticated antirealist argument available. It purports to show that even if our theory is empirically ideal &mdash; consistent with all possible evidence &mdash; there will be infinitely many interpretations of the theory that satisfy it, and no facts fix which interpretation is the &ldquo;intended&rdquo; one. The realist&rsquo;s response &mdash; that causal or natural properties fix reference &mdash; Putnam dismisses as &ldquo;just more theory&rdquo;: it is simply another theory that itself admits multiple models. But this dismissal is question-begging. The realist is not appealing to a theory of reference in order to fix reference within that same theory. She is appealing to a metaphysical fact: that certain natural, causal relations obtain between mental states and mind-independent entities, and that these relations constitute reference. This is a first-order metaphysical claim, not a theory open to model-theoretic attack.</span></p>
+        <span class="section">iii. realism without tears: the common-sense ground</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Common-sense realism — empirical support for the existence of mind-independent objects</span>Realism, on my view, has excellent empirical support that does not depend on semantic argument. The best evidence for the existence of mind-independent objects is simply the extraordinary success of our scientific practices: the predictive power of our theories, the ability to manipulate unobserved entities, the convergence of independent measurement techniques on the same theoretical values. These successes are best explained by the hypothesis that our theories are approximately true of mind-independent entities. The antirealist can dispute this &mdash; and Bas van Fraassen&rsquo;s constructive empiricism offers an elegant agnostic alternative &mdash; but the dispute is then an empirical and methodological one, not a linguistic or semantic one. The realist is not obliged to answer Dummett&rsquo;s manifestation argument before she can be a realist about electrons; she needs only the inference to the best explanation that scientific success provides.</span></p>
+        <span class="section">iv. what distinguishes me from khlentzos</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Devitt vs. Khlentzos — Devitt resists engaging semantic antirealism on its own terms</span>Khlentzos argues that naturalistic realists have been too complacent in the face of Dummett and Putnam; they have dismissed the challenges without understanding them. I think this diagnosis is partially right but the prescription is wrong. Engaging the antirealist&rsquo;s semantic arguments on their own terms &mdash; constructing ever more sophisticated correspondence theories to answer Dummett, refining our theories of representation to answer Putnam&rsquo;s model-theoretic argument &mdash; concedes too much. It accepts that the debate is fundamentally semantic, which it is not. The correct realist response to Dummett is not to produce a better theory of how speakers can manifest grasp of evidence-transcendent truth conditions. It is to point out that whether electrons exist is not decided by what speakers can manifest. The representation problem is a genuine puzzle, but solving it is not a precondition for rational realism.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-devitt-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Realism is metaphysical, not semantic: antirealist semantic arguments miss the target</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Realism is the view that entities of the relevant kinds exist mind-independently with mind-independent properties; it is a thesis about what there is, not about how language hooks onto it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Dummett&rsquo;s and Putnam&rsquo;s antirealist arguments are conducted at the level of semantics: what speakers can manifest, what reference is fixed by, how truth conditions are grasped.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Semantic arguments cannot establish or undermine a first-order metaphysical thesis about the existence and nature of mind-independent entities.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The antirealist&rsquo;s semantic arguments do not reach the target: they are arguments about language and meaning, not about whether electrons, stones, and species exist mind-independently.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Against Putnam&rsquo;s &ldquo;just more theory&rdquo;: causal reference is a metaphysical fact, not a theory</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Putnam&rsquo;s model-theoretic argument: any empirically ideal theory has infinitely many satisfying interpretations; adding a theory of causal reference is &ldquo;just more theory&rdquo; susceptible to the same attack.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The realist&rsquo;s response is not to add a theory of reference but to invoke a metaphysical fact: certain causal relations obtain between mental states and worldly features, and those relations constitute reference.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A metaphysical fact about causal relations is not a theory open to model-theoretic attack; Putnam&rsquo;s &ldquo;just more theory&rdquo; dismissal begs the question by treating the realist&rsquo;s metaphysical claim as if it were another semantic theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Putnam&rsquo;s &ldquo;just more theory&rdquo; response presupposes the question is about theories of reference; the realist&rsquo;s appeal to causal facts is a metaphysical, not a semantic, claim that model theory does not reach.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Empirical support for realism: the no-miracles inference</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The predictive success of our scientific theories, the convergence of independent measurement techniques, and our ability to manipulate unobserved entities are extraordinary facts that require explanation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The best explanation of these facts is that our theories are approximately true of mind-independent entities: the entities posited actually exist and have roughly the properties the theories attribute to them.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This inference to the best explanation provides empirical support for realism that does not depend on prior resolution of semantic questions about manifestation or reference-fixing.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Realism has robust empirical support through the no-miracles argument; the antirealist&rsquo;s semantic challenges are not a precondition the realist must meet before this support is available.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Against Khlentzos: engaging antirealism on semantic terms concedes too much</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Khlentzos argues that realists must engage the representation problem and develop a correspondence theory to answer antirealist semantic arguments.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But engaging on semantic terms accepts that the realism debate is fundamentally semantic; it is not &mdash; it is fundamentally metaphysical.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The representation problem is a genuine philosophical puzzle but not a precondition for rational realism; the correct response is to separate the metaphysical question (does the world exist mind-independently?) from the semantic question (how does language refer to it?).</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Devitt&rsquo;s methodological separation of metaphysical realism from semantic questions is more defensible than Khlentzos&rsquo;s engagement strategy; engaging semantic antirealism on its own terms validates a framing that realists should resist.</span></div>
+        </div>
+      </div>
+    </div><!-- end devitt -->
+
+    <!-- ══ PAPINEAU ══ -->
+    <div class="speaker-panel" id="prop-papineau-panel">
+      <div id="prop-papineau-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My contribution is to address directly the representation problem that Khlentzos identifies as the Achilles heel of naturalistic realism, and to show that a naturalistic theory of mental representation &mdash; one grounded in causal and informational relations between mental states and worldly features &mdash; can provide a satisfactory solution. I disagree with Devitt that the representation problem can simply be sidestepped. I agree with Khlentzos that it must be engaged. But I think the engagement yields a more optimistic result than Khlentzos&rsquo;s somewhat austere correspondence theory suggests.</p>
+        <span class="section">i. the causal-informational theory of content</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Causal-informational content — Papineau&rsquo;s naturalistic representation</span>My positive proposal is a teleological/causal theory of mental content. A mental state represents a worldly feature F if: (1) the state was selected by evolution or learning because it co-varies with F in the organism&rsquo;s environment, and (2) the state is used by the organism&rsquo;s cognitive system as a guide to action in ways that are sensitive to F&rsquo;s presence or absence. This is not mere causal covariation &mdash; Khlentzos is right that covariation is too coarse-grained. It is covariation selected-for in virtue of its reliability: the state represents F because it was constituted to track F as a biologically or cognitively beneficial function. The teleological element solves the disjunction problem: the state misrepresents when it is tokened in the absence of F, because its function is to track F, even though it is causally connected to the disjunction F-or-G.</span></p>
+        <span class="section">ii. solving the disjunction problem</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Disjunction problem — teleological content individuates by function, not cause</span>The disjunction problem is the core difficulty for causal theories of content. A frog&rsquo;s bug-detecting state is caused both by actual bugs and by small black dots; does it represent &ldquo;bug&rdquo; or &ldquo;small black dot&rdquo; or &ldquo;bug-or-small-black-dot&rdquo;? Simple causal covariation cannot say. The teleological account answers: the frog&rsquo;s state represents bugs because its evolutionary function is to detect bugs for the purpose of eating &mdash; small black dots trigger it accidentally, by mimicking the feature it was selected to track. Misrepresentation is possible because the function fixes the representational content independently of the causes of any particular tokening. This is not just a solution to a technical puzzle: it shows that naturalistic realism has the resources to explain how a physical system embedded in the world can genuinely represent features of that world in a semantically determinate way.</span></p>
+        <span class="section">iii. truth as reliable representation</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Truth as reliable representation — naturalistic correspondence</span>Once we have a naturalistic theory of content, we can give a naturalistic account of truth. A sentence is true if the features of the world it represents &mdash; as determined by the causal-teleological theory of content &mdash; actually obtain. Truth is not correspondence to abstract facts in any spooky sense; it is the obtaining of the worldly conditions that the sentence&rsquo;s constituent representations are constituted to track. This account is fully naturalistic: it invokes only causal relations, biological functions, and physical states. It is also non-epistemic: whether the worldly conditions obtain is independent of whether we can recognise that they obtain. And it grounds the realist&rsquo;s use of bivalence for undecidable sentences: a sentence about Socrates&rsquo; sneezing habits is determinately true or false because the worldly conditions it represents either obtain or do not, regardless of epistemic access.</span></p>
+        <span class="section">iv. against dummett&rsquo;s manifestation argument</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Dummett — teleological content manifests realist understanding</span>Dummett&rsquo;s manifestation argument claims that if speakers grasp evidence-transcendent truth conditions, this grasp cannot be manifested in their linguistic behaviour, since their behaviour is constrained to what they have epistemic access to. My naturalistic account provides a direct rebuttal. A speaker&rsquo;s understanding of &ldquo;Socrates sneezed in his sleep the night before he drank the hemlock&rdquo; consists not in a direct confrontation with the past event but in grasping the compositional semantic values of the sentence&rsquo;s component expressions &mdash; values fixed by causal-teleological relations to worldly features. This grasp is manifested in the speaker&rsquo;s appropriate use of the sentence in inference, in her acceptance of excluded-middle instances, and in her understanding that evidence might be gathered that would settle the question. The manifestation is of compositional semantic competence, not of epistemic access to the specific fact. Dummett&rsquo;s argument requires that understanding a sentence involves epistemic confrontation with its truth condition; the naturalistic account shows it does not.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-papineau-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Teleological content: representation fixed by function, not mere covariation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A mental state represents F if it was selected (by evolution or learning) because it co-varies reliably with F in the organism&rsquo;s environment and is used as a guide to action in F-sensitive ways.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The teleological element &mdash; selected-for reliable tracking of F &mdash; individuates content more finely than causal covariation alone: the state represents F, not the disjunction F-or-G that also causes it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This provides a naturalistic account of semantic determinacy: a physical system can represent a specific worldly feature in virtue of the biological or cognitive function of its states.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The teleological theory of content provides the naturalistic solution to the representation problem that Khlentzos seeks: it grounds determinate representation without invoking non-natural semantic relations.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The disjunction problem: misrepresentation is possible under the teleological account</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A frog&rsquo;s bug-detecting state is caused by both bugs and black dots; simple causal covariation cannot determine which is represented.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The teleological account determines that the state represents bugs: its evolutionary function is to detect bugs; black dots trigger it accidentally by mimicking the tracked feature.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Misrepresentation is possible: when triggered by a black dot, the state is tokened but its representational function is not fulfilled &mdash; it represents bugs but is caused by something else.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The teleological account solves the disjunction problem by fixing representational content via function rather than cause; misrepresentation becomes possible, making the account genuinely semantic rather than merely causal.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Truth as obtaining of represented worldly conditions: naturalistic and non-epistemic</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Once content is fixed by the teleological theory, truth is the obtaining of the worldly conditions the sentence&rsquo;s constituent representations are constituted to track.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This account is fully naturalistic (invoking only causal relations and biological functions) and non-epistemic (whether the conditions obtain is independent of whether we can recognise them).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>It grounds bivalence for undecidable sentences: worldly conditions either obtain or do not, regardless of epistemic access.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The naturalistic correspondence account of truth is both realist and scientifically respectable; it vindicates the realist&rsquo;s commitment to evidence-transcendent truth without invoking non-natural semantic relations.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Against Dummett: compositional semantic competence manifests realist understanding</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Dummett claims: understanding a sentence with evidence-transcendent truth conditions cannot be manifested in linguistic behaviour, since behaviour is epistemically constrained.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The naturalistic account shows: understanding a sentence involves grasping the compositional semantic values of its components (fixed by causal-teleological relations), not epistemic confrontation with the specific fact.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This grasp is manifested in inference behaviour, acceptance of excluded-middle instances, and understanding of how evidence would bear on the sentence &mdash; all available without epistemic access to the specific past event.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Dummett&rsquo;s manifestation argument fails against the naturalistic account: understanding consists in compositional semantic competence, not epistemic confrontation with the specific fact, and this competence is manifested in standard linguistic behaviour.</span></div>
+        </div>
+      </div>
+    </div><!-- end papineau -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+<!-- ═══════════════════════════════════════
+     RIGHT: THE ANTIREALISTS
+     Dummett · Putnam · Wright
+═══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','dummett',this)">Dummett</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','putnam',this)">Putnam</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','wright',this)">Wright</button>
+  </div>
+
+  <!-- DUMMETT HEADER -->
+  <div class="col-header" id="opp-dummett-header">
+    <div class="col-header-top"><span class="pill opp">Verificationist Antirealism</span><span class="col-subtitle">Michael Dummett</span></div>
+    <div class="col-position">Oxford &middot; <em>Truth and Other Enigmas</em> (1978) &middot; Manifestation argument &middot; Acquisition argument &middot; Meaning is use &middot; Truth cannot transcend all possible evidence</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','dummett','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','dummett','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- PUTNAM HEADER -->
+  <div class="col-header hidden" id="opp-putnam-header">
+    <div class="col-header-top"><span class="pill opp">Internal Realism</span><span class="col-subtitle">Hilary Putnam</span></div>
+    <div class="col-position">Harvard &middot; <em>Reason, Truth and History</em> (1981) &middot; Model-theoretic argument &middot; No &ldquo;God&rsquo;s eye&rdquo; view &middot; Internal realism &middot; Reference is not fixed from outside a conceptual scheme</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','putnam','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','putnam','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- WRIGHT HEADER -->
+  <div class="col-header hidden" id="opp-wright-header">
+    <div class="col-header-top"><span class="pill opp">Pluralism &amp; Superassertibility</span><span class="col-subtitle">Crispin Wright</span></div>
+    <div class="col-position">NYU / Aberdeen &middot; <em>Truth and Objectivity</em> (1992) &middot; Minimal truth &middot; Superassertibility &middot; Pluralism &middot; Cognitive command &middot; Realism as a graded, domain-specific achievement</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','wright','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','wright','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ DUMMETT ══ -->
+    <div class="speaker-panel active" id="opp-dummett-panel">
+      <div id="opp-dummett-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My contribution to this debate begins not with metaphysics but with the philosophy of language, because I believe that the philosophy of language is the foundation of all philosophy, including metaphysics. The question of what it is for a sentence to be true &mdash; and in particular, whether truth can outrun all possible epistemic access &mdash; is not a free-standing metaphysical question. It is constrained by what a satisfactory theory of meaning can and cannot say. And I want to argue that a satisfactory theory of meaning cannot assign evidence-transcendent truth conditions to sentences, and therefore that the realist&rsquo;s conception of truth is incoherent.</p>
+        <div class="pull">&ldquo;An aspect of our use of language that cannot in principle be correlated with any observable linguistic behaviour can play no role in a proper theory of meaning. If a speaker&rsquo;s grasp of an evidence-transcendent truth condition cannot be manifested in anything she does with the sentence, then that grasp is not a real cognitive state but a philosopher&rsquo;s fiction.&rdquo;</div>
+        <span class="section">i. the manifestation argument</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Manifestation argument — understanding must be manifested in use</span>A theory of meaning, I maintain, must conform to the Wittgensteinian principle that meaning is use: there can be no element of linguistic understanding that is not in principle manifestable in observable behaviour. This is not a behaviourist claim about the reduction of mental states to behaviour. It is a methodological claim about what a theory of meaning must account for: the public, communicable, learnable character of linguistic understanding. If we say that a speaker &ldquo;understands&rdquo; a sentence with an evidence-transcendent truth condition &mdash; a condition she could never in principle recognise as obtaining &mdash; then there is nothing in her behaviour that could distinguish her from a speaker who associates no truth condition with the sentence at all. The grasp of an evidence-transcendent truth condition is behaviourally inert. And behaviourally inert cognitive states are no cognitive states at all: they play no role in the explanation of action, utterance, or inference. The realist&rsquo;s evidence-transcendent truth conditions are empty posits.</span></p>
+        <span class="section">ii. the acquisition argument</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Acquisition argument — realist meaning cannot be learned</span>A companion argument concerns the acquisition of linguistic competence. We learn the meanings of sentences through a process of exposure to their use in a public linguistic practice. We learn to use sentences by learning in what conditions they are appropriately asserted, what inferences they license, and how they interact with other sentences. If the meaning of a sentence were constituted by an evidence-transcendent truth condition &mdash; a condition that in principle outstrips any evidence we could have &mdash; then this condition could play no role in the learning process. We could not acquire it by observation of use; the use would be the same whether or not the truth condition obtained. The realist must either say that the meaning of sentences is innate &mdash; an implausible rationalism &mdash; or that the meaning is acquired from use without being determined by it &mdash; which makes meaning mystically unconstrained by anything learnable.</span></p>
+        <span class="section">iii. bivalence fails for undecidable sentences</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Bivalence — fails for undecidable sentences; classical logic should be revised</span>The realist&rsquo;s commitment to bivalence &mdash; the principle that every sentence is either true or false, regardless of whether we can determine which &mdash; fails for what I call &ldquo;disputed class&rdquo; sentences: sentences about inaccessible regions of the past, about unsurveyable mathematical totalities, about other minds. These sentences cannot in principle be verified or falsified. The realist says they are nevertheless determinately true or false. But on a meaning-use account of truth, there is nothing that makes them true or false: no recognisable condition obtains that constitutes the truth value. The appropriate response is not to cling to bivalence but to revise our logic: to adopt intuitionistic logic, which allows the assertion of excluded middle only when we have a proof procedure. This is not scepticism. It is semantic honesty about what our theories of meaning can coherently commit us to.</span></p>
+        <span class="section">iv. answering papineau&rsquo;s compositionality reply</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against compositionality reply — semantic values must themselves be graspable</span>Papineau argues that a speaker manifests grasp of evidence-transcendent truth conditions by grasping the compositional semantic values of the sentence&rsquo;s components, not by epistemic confrontation with the specific fact. But this reply merely relocates the problem. The semantic values of the sentence&rsquo;s component expressions &mdash; the reference of &ldquo;Socrates,&rdquo; the extension of &ldquo;sneezed&rdquo; &mdash; are themselves either epistemically accessible or not. If the reference of &ldquo;Socrates&rdquo; includes its past-temporal instances &mdash; Socrates as he was on the night before the hemlock &mdash; then grasping that reference requires grasping something that outruns epistemic access, and the manifestation problem reappears at the sub-sentential level. The compositionality reply is a solution only if compositional semantic values are themselves epistemically accessible; but for undecidable sentences, they are not.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-dummett-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Manifestation Argument: evidence-transcendent truth conditions are behaviourally inert</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Meaning is use: there can be no element of linguistic understanding not manifestable in observable behaviour; understanding must be a practical ability that shows in what speakers do with sentences.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If a speaker grasps an evidence-transcendent truth condition, there is nothing in her behaviour that distinguishes her from a speaker who associates no truth condition with the sentence; the grasp is behaviourally inert.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Behaviourally inert cognitive states play no role in explaining action, utterance, or inference; they are not genuine cognitive states but philosopher&rsquo;s fictions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The realist&rsquo;s evidence-transcendent truth conditions cannot figure in a satisfactory theory of meaning; a speaker cannot genuinely understand a sentence whose truth condition is in principle unrecognisable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Acquisition Argument: realist meaning cannot be learned from use</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Linguistic meaning is acquired through observation of public use: we learn what a sentence means by learning in what conditions it is assertible and what inferences it licenses.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If meaning were constituted by an evidence-transcendent truth condition, this condition could play no role in the learning process: the observable use would be the same whether or not the condition obtained.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The realist must either posit innate meaning-knowledge (implausible) or allow meaning to be unconstrained by anything learnable (incoherent).</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Evidence-transcendent truth conditions cannot be acquired through normal processes of linguistic learning; the realist&rsquo;s account of meaning is incompatible with the social, public, and learnable character of language.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Bivalence fails: logic should be revised for undecidable sentences</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Sentences about inaccessible past events, unsurveyable mathematical totalities, and other minds are &ldquo;undecidable&rdquo;: we cannot in principle verify or falsify them.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>On a meaning-use account, there is no recognisable condition that makes such sentences determinately true or false; the realist&rsquo;s commitment to bivalence is ungrounded.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The appropriate response is to adopt intuitionistic logic, which licenses excluded middle only when a proof procedure is available; this is semantic honesty, not scepticism.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Bivalence fails for undecidable sentences; the realist&rsquo;s extension of classical logic to all sentences regardless of decidability is semantically unjustified and should be replaced by intuitionistic logic.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Against compositionality: semantic values of components must themselves be graspable</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Papineau&rsquo;s compositionality reply: understanding evidence-transcendent sentences requires grasping component semantic values, not confronting the specific fact.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the semantic values of components &mdash; the reference of proper names, extensions of predicates across all times &mdash; themselves include evidence-transcendent temporal instances; grasping them requires grasping what outruns epistemic access.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The manifestation problem reappears at the sub-sentential level; the compositionality reply merely relocates the difficulty.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The compositionality reply does not escape the manifestation argument; it relocates it from sentence to sub-sentential level, where the same problem of behaviourally inert, epistemically inaccessible semantic values arises.</span></div>
+        </div>
+      </div>
+    </div><!-- end dummett -->
+
+    <!-- ══ PUTNAM ══ -->
+    <div class="speaker-panel" id="opp-putnam-panel">
+      <div id="opp-putnam-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to press against realism at a different level from Dummett &mdash; not at the level of the theory of meaning but at the level of the theory of reference. Even if we grant, for the sake of argument, that a realist notion of truth is coherent &mdash; which I dispute &mdash; a further problem immediately presents itself. How does our language, or our thought, succeed in referring to mind-independent objects at all? The realist owes us a theory of reference: an account of what determines that our words pick out the specific mind-independent entities they are supposed to pick out. And I want to argue that no such theory is available without circularity, and that this is what my model-theoretic argument establishes.</p>
+        <div class="def-box">
+          <strong>The Model-Theoretic Argument (Putnam)</strong>
+          Suppose our theory T is empirically ideal: consistent with all possible evidence. Löwenheim-Skolem type results entail that any consistent theory has models of arbitrarily large or small cardinality. If any model satisfies T, there are infinitely many models that satisfy it, with different objects playing the roles of &ldquo;cat,&rdquo; &ldquo;mat,&rdquo; &ldquo;electron,&rdquo; etc. What determines which model is the &ldquo;intended&rdquo; interpretation? The realist says: facts about causal or natural relations. But this is &ldquo;just more theory&rdquo; &mdash; it too admits multiple models, and the problem reappears at the second level.
+        </div>
+        <span class="section">i. reference is indeterminate under metaphysical realism</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Model-theoretic argument — reference indeterminate under metaphysical realism</span>The model-theoretic argument shows that reference cannot be fixed from a &ldquo;God&rsquo;s eye&rdquo; perspective outside all conceptual schemes. No matter what constraints we add to our theory &mdash; operational constraints, theoretical constraints, causal constraints &mdash; there will be multiple models satisfying all those constraints, with different objects playing the role of the theory&rsquo;s terms. If there is no further fact &mdash; accessible from outside the theory &mdash; that fixes which model is intended, then reference is indeterminate. And since meaning determines reference, meaning is indeterminate too. The metaphysical realist thinks there is such a further fact: the &ldquo;real&rdquo; referent is fixed by mind-independent reality. But what is the mechanism by which this fixing occurs? The realist has no answer that does not invoke another theory susceptible to the same model-theoretic attack.</span></p>
+        <span class="section">ii. the brain-in-a-vat argument against metaphysical realism</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Brain in a vat — metaphysical realism implies radical sceptical scenarios</span>Metaphysical realism makes possible a form of radical scepticism that I argue is self-defeating. If the meaning of our words is determined by mind-independent reality &mdash; not by anything internal to our conceptual practice &mdash; then it is logically possible that our words refer to a radically different mind-independent reality than the one we take them to refer to. We might be brains in a vat, systematically deceived. The metaphysical realist must allow this as a genuine possibility, because she holds that there is a gap between how we conceive reality and how reality really is. But I argue that the brain-in-a-vat hypothesis is semantically self-undermining. If we were brains in a vat, our word &ldquo;vat&rdquo; would not refer to vats in the real world but to whatever feature of our vat-induced experience plays the role of &ldquo;vat&rdquo; in our vocabulary. The hypothesis, if true, would ensure that we could not successfully entertain it. Metaphysical realism generates sceptical scenarios that cannot be coherently entertained.</span></p>
+        <span class="section">iii. internal realism as the alternative</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Internal realism — truth within a conceptual scheme; no God&rsquo;s-eye view</span>My positive alternative is internal realism: the view that truth is what an epistemically ideal theory would assert. There is no God&rsquo;s-eye view from outside all conceptual schemes that determines which mind-independent facts our sentences correspond to. Truth is what would be warranted under epistemically ideal conditions &mdash; conditions of maximal information, coherence, and rationality. This is not a simple verificationism: it does not reduce truth to what we currently can verify. It distinguishes between truth and current warranted assertibility by relativising truth to epistemically ideal conditions. But it does not allow truth to transcend epistemic accessibility in principle: there is no truth that even an epistemically ideal agent could not in principle recognise. Internal realism thus preserves what is valuable in our talk of truth without incurring the incoherences of metaphysical realism.</span></p>
+        <span class="section">iv. answering devitt: causal reference is &ldquo;just more theory&rdquo;</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Just more theory — Devitt&rsquo;s causal facts are themselves model-theoretically vulnerable</span>Devitt argues that the realist can appeal to metaphysical facts about causal relations to fix reference, and that this is not a theory susceptible to model-theoretic attack. I reject this. The causal relations that Devitt invokes are themselves described in a theory: a theory of causation, of natural kinds, of physical properties. This theory, like any other, admits multiple models. In one model, the causal relation between my &ldquo;water&rdquo; uses and the liquid in my environment fixes reference to H2O; in another model of the causal theory, the same uses fix reference to something else. The facts about causal relations that are supposed to fix reference are themselves interpreted within a model. Devitt&rsquo;s appeal to metaphysical facts about causation does not escape the model-theoretic problem; it simply relocates it to a higher-order theory.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-putnam-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The model-theoretic argument: reference is indeterminate under metaphysical realism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Any empirically ideal theory T has infinitely many models of varying cardinality (Löwenheim-Skolem); these models assign different objects to the theory&rsquo;s terms.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Adding operational, theoretical, or causal constraints does not eliminate the multiplicity of models; the constraint theory itself admits multiple models.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If no external fact fixes the intended model, reference is indeterminate; if such a fact is invoked, it is &ldquo;just more theory&rdquo; susceptible to the same attack.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Reference cannot be fixed by metaphysical realism without circularity or infinite regress; the model-theoretic argument shows that there is no coherent notion of intended interpretation available to the metaphysical realist.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Brain in a vat: metaphysical realism&rsquo;s radical sceptical scenarios are self-undermining</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Metaphysical realism posits a gap between how we conceive reality and how it is; this makes radical sceptical scenarios (brain in a vat) logically possible.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If we were brains in a vat, our words would not refer to real-world objects but to features of our vat-induced experience; the hypothesis, if true, ensures we could not successfully entertain it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A thesis that generates scenarios that cannot be coherently entertained is self-undermining; metaphysical realism&rsquo;s gap between conception and reality collapses into incoherence.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Metaphysical realism&rsquo;s sceptical possibilities are semantically self-defeating; this refutation does not establish scepticism but establishes that the gap metaphysical realism requires cannot be coherently articulated.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Internal realism: truth as ideal epistemic warrant</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Internal realism: truth is what would be warranted under epistemically ideal conditions &mdash; maximal information, coherence, and rationality.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This distinguishes truth from current warranted assertibility (truth can diverge from current best opinion) while keeping truth epistemically accessible in principle (no truth is in principle unrecognisable).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>There is no God&rsquo;s-eye view outside all conceptual schemes; truth is always truth within a conceptual scheme, answerable to the scheme&rsquo;s standards of evidence and inference.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Internal realism preserves a substantive notion of truth (non-deflationary, sensitive to evidence, distinguishable from current warranted assertibility) while avoiding the incoherences of metaphysical realism&rsquo;s evidence-transcendent truth.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Against Devitt: causal reference-fixing facts are themselves model-theoretically vulnerable</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Devitt invokes metaphysical facts about causal relations to fix reference, claiming this is not a theory susceptible to model-theoretic attack.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Facts about causal relations are described in a theory of causation, natural kinds, and physical properties; this theory, like any other, admits multiple models assigning different objects to its terms.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Devitt&rsquo;s appeal to first-order metaphysical facts does not escape the model-theoretic problem; it relocates it to the higher-order theory that describes those facts.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The &ldquo;just more theory&rdquo; response correctly identifies that any appeal to facts &mdash; metaphysical or otherwise &mdash; is itself part of a theory susceptible to model-theoretic attack; Devitt&rsquo;s metaphysical insulation is not available.</span></div>
+        </div>
+      </div>
+    </div><!-- end putnam -->
+
+    <!-- ══ WRIGHT ══ -->
+    <div class="speaker-panel" id="opp-wright-panel">
+      <div id="opp-wright-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I approach this debate differently from Dummett and Putnam, and I want to register my distance from both realism and global antirealism at the outset. I believe the classical framing of the debate &mdash; either there is mind-independent truth or there is not &mdash; is too coarse to capture what is actually at stake in different domains of discourse. In <em>Truth and Objectivity</em> I propose a new framework: rather than asking whether truth is mind-independent in general, we should ask whether, in each specific domain, truth has the features that would distinguish a genuinely realist from a merely minimally truth-apt discourse.</p>
+        <div class="pull">&ldquo;The question is not: &lsquo;Is there mind-independent truth?&rsquo; as if this admitted a single yes or no. The question is: for a given discourse &mdash; science, ethics, comedy, mathematics &mdash; does its truth exhibit the marks of genuine objectivity? And different discourses may answer differently.&rdquo;</div>
+        <span class="section">i. minimal truth and the rejection of deflationism</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Minimal truth — richer than deflationism, thinner than realist correspondence</span>My starting point is a notion of minimal truth: any predicate that satisfies the disquotational schema (&ldquo;P&rdquo; is true iff P), whose norm of use coincides with warranted assertibility, and which potentially diverges in extension from warranted assertibility, qualifies as a truth predicate. This is richer than deflationism &mdash; it allows that truth and warranted assertibility can come apart, so truth is not simply reducible to what we are currently entitled to assert &mdash; but thinner than the realist&rsquo;s correspondence theory, which requires mind-independent facts as truthmakers. The key question for any domain of discourse is then: does its truth predicate have only minimal properties, or does it have richer properties that would make realism about that domain defensible? This is a domain-by-domain question, not a global one.</span></p>
+        <span class="section">ii. superassertibility: a minimum truth standard</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Superassertibility — truth as ideally warranted assertibility</span>The central concept of my analysis is superassertibility: a statement is superassertible if it is warranted by some accessible state of information S and remains warranted under any improvement of S. Superassertibility is the minimal truth standard: it requires only that we could, in principle, acquire warrant for the statement and that this warrant would survive any further enquiry. For some domains &mdash; perhaps comedy, perhaps basic observation &mdash; superassertibility may be all there is to truth: a statement is true just in case it would be recognised as true by any suitably equipped, ideally informed enquirer. For science, by contrast, the question is whether truth transcends even ideal enquiry &mdash; whether there are facts that no possible enquiry would reveal. This is where genuine scientific realism is at issue, and I am sceptical that we can establish it.</span></p>
+        <span class="section">iii. cognitive command: a test for realism</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Cognitive Command — disagreement must be due to error for realism to hold</span>I propose Cognitive Command as a criterion for realism about a domain: a discourse exhibits Cognitive Command if every dispute within it is such that at least one party must be in error &mdash; suffering from bad evidence, reasoning failures, or failure to appreciate relevant facts. If a domain exhibits Cognitive Command, then the disagreements that arise within it are disagreements about facts that are what they are independently of our responses to them. If it does not &mdash; if disputes within it can persist between fully informed, fully rational parties without any party being in error &mdash; then the domain is not genuinely realist. My claim is that the Cognitive Command criterion distinguishes genuinely factual domains from domains where &ldquo;truth&rdquo; is a projection of our attitudes, without prejudging the answer for any specific domain in advance.</span></p>
+        <span class="section">iv. against khlentzos: the correspondence theory is too robust</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Against correspondence — Khlentzos&rsquo;s theory commits realism beyond what we can justify</span>Khlentzos argues that naturalistic realism requires a correspondence theory of truth grounded in mind-independent facts as structural properties of the world. I find this commitment too robust and, for many domains, unjustifiable. The correspondence theory in Khlentzos&rsquo;s sense requires that for a sentence to be true, there must exist a mind-independent fact &mdash; a relational structure of objects &mdash; that the sentence corresponds to. But for domains like mathematics, comedy, and arguably ethics, it is not clear that we have any conception of the mind-independent facts that would serve as correspondents. In mathematics, Khlentzos&rsquo;s correspondence realism seems to require Platonic objects; in ethics, it requires moral facts. The pluralist approach I favour allows these domains to have genuine truth predicates &mdash; predicates with more than merely disquotational content &mdash; without committing to the heavy metaphysical machinery of mind-independent structural facts. Realism should be earned by specific arguments for specific domains, not assumed globally in advance.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-wright-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Minimal truth: richer than deflationism, thinner than realist correspondence</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Minimal truth: any predicate satisfying the disquotational schema, whose norm coincides with warranted assertibility but potentially diverges in extension, qualifies as a truth predicate.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is richer than deflationism (truth can diverge from current warranted assertibility) but thinner than realist correspondence (no mind-independent facts required as truthmakers).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The question for any domain is whether its truth predicate has only minimal properties or richer ones (like Cognitive Command or Euthyphro contrast) that would make realism defensible; this is domain-specific, not global.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The realism debate should be reframed domain by domain: the question is not &ldquo;is there mind-independent truth?&rdquo; globally but &ldquo;does truth in this domain have the marks of genuine objectivity?&rdquo; for each specific discourse.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Superassertibility: a minimum truth standard that avoids evidence-transcendence</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Superassertibility: a statement is superassertible if warranted by some accessible information S and remains warranted under any improvement of S.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>For domains where superassertibility exhausts truth (comedy, basic observation), there is no need for evidence-transcendent facts; for science, the question is whether truth transcends even ideal enquiry.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Superassertibility provides a truth standard that is both substantive (diverging from current warrant) and epistemically constrained (accessible in principle to any ideally informed enquirer).</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Superassertibility provides a domain-sensitive truth standard that avoids Dummett&rsquo;s verificationism (it can diverge from current warrant) while avoiding Khlentzos&rsquo;s commitment to evidence-transcendent correspondence facts.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Cognitive Command: a workable criterion for realism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Cognitive Command: a discourse exhibits CC if every dispute within it must involve error in at least one party (due to bad evidence, reasoning failure, or factual ignorance).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If CC holds for a discourse, its disagreements are about mind-independent facts; if disputes can persist between fully rational, fully informed parties without error, the domain is not genuinely factual.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>CC is a domain-specific, empirically testable criterion that does not prejudge which domains are realist in advance.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Cognitive Command provides a workable, domain-sensitive criterion for realism that can distinguish genuinely factual discourses from projective ones without invoking the heavy metaphysical machinery of correspondence realism.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Against Khlentzos: correspondence realism is too robust for many domains</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Khlentzos&rsquo;s correspondence theory requires mind-independent structural facts as truthmakers for all genuine truths; for mathematics, this implies Platonic objects; for ethics, moral facts.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>We have no adequate conception of what these mind-independent facts would be for many domains; the correspondence commitment outstrips what we can justify.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The pluralist approach allows genuine truth predicates for multiple domains without requiring a single heavy-duty correspondence metaphysics; realism should be earned by domain-specific arguments, not assumed globally.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Khlentzos&rsquo;s global correspondence realism commits to more than can be justified across all domains; Wright&rsquo;s domain-sensitive pluralism is the more defensible position, earning realism where it can be shown rather than assuming it in advance.</span></div>
+        </div>
+      </div>
+    </div><!-- end wright -->
+
+  </div><!-- end opp col-body -->
+</div>
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'khlentzos',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'dummett',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
