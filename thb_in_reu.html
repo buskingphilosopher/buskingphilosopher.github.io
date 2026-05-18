@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Risk-Weighted Expected Utility — The Debate Around Buchak</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-col:#6a9ab0;--prop-pill:#1a2d3a;--prop-pill-bdr:#2e5070;
+  --opp-col:#b08060;--opp-pill:#2e1e10;--opp-pill-bdr:#705030;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp  .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .fact-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .fact-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.25rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Decision Theory Symposium &mdash; The Literature around Buchak&rsquo;s Risk-Weighted Expected Utility</div>
+  <div class="motion-title">&ldquo;This House Believes that Rational Agents May Permissibly Maximise Risk-Weighted Rather Than Plain Expected Utility&rdquo;</div>
+  <div class="motion-sub">Pro-REU: Buchak (<em>Risk and Rationality</em>) &middot; Stefánsson &amp; Bradley (&ldquo;What is Risk Aversion?&rdquo;) &middot; Mogensen (&ldquo;Respect for Others&rsquo; Risk Attitudes&rdquo;) &nbsp;&mdash;&nbsp; Critics: Pettigrew (redescription &amp; dominance) &middot; Briggs (sure-thing principle &amp; diachronic dominance) &middot; Thoma (&ldquo;Risk Aversion and the Long Run&rdquo;)</div>
+</div>
+<div class="columns">
+
+<!-- ═══════════════════════════════════════
+     LEFT: PRO-REU
+     Buchak · Stefánsson & Bradley · Mogensen
+═══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','buchak',this)">Buchak</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','stefansson',this)">Stefánsson &amp; Bradley</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','mogensen',this)">Mogensen</button>
+  </div>
+
+  <!-- BUCHAK HEADER -->
+  <div class="col-header" id="prop-buchak-header">
+    <div class="col-header-top"><span class="pill prop">Pro-REU</span><span class="col-subtitle">Lara Buchak</span></div>
+    <div class="col-position">UC Berkeley &middot; <em>Risk and Rationality</em> (Oxford UP, 2013) &middot; REU theory: the r-function as a genuine third component of rationality alongside credence and utility; Allais preferences vindicated; representation theorem; replies to Pettigrew and Briggs in CJP (2015) and <em>Philosophical Studies</em> (2017)</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','buchak','speech',this)">Position</div>
+      <div class="tab" onclick="sw('prop','buchak','logic',this)">Core Arguments</div>
+    </div>
+  </div>
+
+  <!-- STEFÁNSSON HEADER -->
+  <div class="col-header hidden" id="prop-stefansson-header">
+    <div class="col-header-top"><span class="pill prop">Pro-REU</span><span class="col-subtitle">H. Orri Stefánsson &amp; Richard Bradley</span></div>
+    <div class="col-position">Stockholm / LSE &middot; &ldquo;What Is Risk Aversion?&rdquo; <em>BJPS</em> 70 (2019): 77&ndash;102 &middot; Develops a Jeffrey-Bolker framework for risk aversion via chance propositions: risk attitudes grounded in desires about probabilities, not a third free parameter; critique and extension of Buchak&rsquo;s separation of r from u</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','stefansson','speech',this)">Position</div>
+      <div class="tab" onclick="sw('prop','stefansson','logic',this)">Core Arguments</div>
+    </div>
+  </div>
+
+  <!-- MOGENSEN HEADER -->
+  <div class="col-header hidden" id="prop-mogensen-header">
+    <div class="col-header-top"><span class="pill prop">Extension</span><span class="col-subtitle">Andreas L. Mogensen</span></div>
+    <div class="col-position">University of Oxford &middot; &ldquo;Respect for Others&rsquo; Risk Attitudes and the Long-Run Future&rdquo; <em>No&ucirc;s</em> 58 (2024): 1017&ndash;1031 &middot; REU theory in other-regarding and longtermist contexts: when REU principles apply to decisions affecting future people; a critical extension of Buchak&rsquo;s other-regarding risk arguments</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','mogensen','speech',this)">Position</div>
+      <div class="tab" onclick="sw('prop','mogensen','logic',this)">Core Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ BUCHAK ══ -->
+    <div class="speaker-panel active" id="prop-buchak-panel">
+      <div id="prop-buchak-speech" class="speech-text">
+        <p class="salut">Opening position &mdash; Lara Buchak, <em>Risk and Rationality</em> (2013)</p>
+        <p>The orthodox claim in decision theory is that rational agents must maximise expected utility &mdash; that all defensible preferences over uncertain prospects are fully captured by a probability function and a utility function, and that any deviation from EU-maximisation is a failure of instrumental rationality. I reject this claim. My contention is that rational agents may also possess a third, genuinely distinct component of their evaluative psychology: an attitude toward risk itself, captured by a risk function <em>r</em> mapping probabilities to weights. An agent with a convex risk function &mdash; one that overweights the probability of worse outcomes relative to better ones &mdash; is <em>risk-avoidant</em> in a philosophically principled sense that cannot be reduced to a concave utility function, despite what EU theorists assume.</p>
+        <div class="fact-box">
+          <strong>The REU formula</strong>
+          For a gamble g = {E₁, x₁; …; Eₙ, xₙ} with outcomes ranked x₁ ≤ … ≤ xₙ, risk-weighted expected utility is: REU(g) = u(x₁) + Σⱼ₌₂ⁿ [r(Pr(xⱼ ∨ … ∨ xₙ)) − r(Pr(xⱼ₊₁ ∨ … ∨ xₙ))] · u(xⱼ). When r is the identity function, REU = EU. When r is strictly convex, the agent gives extra weight to low-ranked outcomes &mdash; the hallmark of genuine risk-avoidance.
+        </div>
+        <span class="section">i. the allais preferences and what they reveal</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Allais paradox — REU vindicates the pattern EU cannot accommodate</span>The Allais paradox presents a pair of choice problems in which a large majority of decision-makers prefer A to B (a sure one million to a gamble on more) and C to D (a slightly better gamble to a slightly worse one) &mdash; a preference pattern that violates the Sure-Thing Principle and therefore EU theory. The standard EU-theorist response is that these agents are simply irrational. I dispute this diagnosis. An agent who prefers A to B can be understood as placing special weight on the worst outcome under B &mdash; the possibility of getting nothing when they could have had the million guaranteed. An agent who favours certainty when it is available, and accepts comparable risk when certainty is not on the table, exhibits a coherent global attitude toward risk: they care about the structure of their gamble, not merely its probability-weighted outcome sum. REU theory reconstructs this as the rational expression of a convex risk function, not a cognitive failure.</span></p>
+        <span class="section">ii. the separability of r from u: a genuine third component</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Separability — r cannot be absorbed into u without distorting the components</span>Critics &mdash; including Pettigrew &mdash; have argued that any REU-maximiser can be re-described as an EU-maximiser with a suitably complex utility function; the risk function is therefore redundant. I argue this redescription strategy fails on philosophical, not merely technical grounds. The utility function is supposed to represent the agent&rsquo;s attitudes toward <em>outcomes</em> &mdash; their considered judgements about how valuable various concrete states of the world are, independently of how those states arise. The probability function represents their <em>beliefs</em> about the world. The risk function represents something distinct: their attitude toward the structural features of a gamble &mdash; how outcomes are spread across possible states &mdash; independently of the outcomes&rsquo; intrinsic values. Collapsing r into u merges these genuinely distinct dimensions of practical psychology into a single function, producing a utility assignment that is not interpretable as a representation of desire for outcomes. This is not a formal problem; it is a misidentification of what the components mean.</span></p>
+        <span class="section">iii. the representation theorem and its philosophical upshot</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Representation theorem — r, u, and p each uniquely derivable from REU-conforming preferences</span>A central technical result of <em>Risk and Rationality</em> is a representation theorem in the style of Savage: if an agent&rsquo;s preferences over acts satisfy a weakened set of axioms (specifically, dropping the Sure-Thing Principle and replacing it with weaker comonotonic versions), then those preferences can be uniquely represented by a triple (p, u, r) &mdash; a probability function, a utility function unique up to positive affine transformation, and a unique risk function. This shows three things. First, REU-maximisers form a theoretically tractable class, not an ad hoc grab-bag. Second, the components can in principle be <em>inferred</em> from observable preferences, so the framework is not untestable. Third, the debate between REU and EU theory can be precisely located in which axioms on preferences are correct &mdash; specifically, whether something like the Sure-Thing Principle is a genuine rationality constraint or merely a parochial restriction that happens to characterise EU-maximisers.</span></p>
+        <span class="section">iv. instrumental rationality and the global properties of gambles</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Global sensitivity — attending to gamble structure is genuine means-end reasoning</span>A recurring objection is that paying attention to the &ldquo;global structure&rdquo; of a gamble &mdash; to whether it has a catastrophic worst case, or a brilliant best case &mdash; is not genuine means-end reasoning, because means-end reasoning should only be sensitive to outcomes and their likelihoods, not to structural features of how outcomes are distributed across states. I reject this picture of instrumental rationality. An agent who cares about <em>how</em> the good things in her life come to be distributed across possible futures &mdash; who is willing to forgo some expected value in order to ensure that the worse possibilities do not become too bad &mdash; is exhibiting a coherent, end-directed preference. Prudence itself is a value; the REU-maximiser is not exhibiting a failure to pursue her ends but a richer conception of what those ends are. The EU theorist&rsquo;s picture of rationality is impoverished, not canonical.</span></p>
+        <p><em>&mdash; Buchak, <em>Risk and Rationality</em> (2013), summarised</em></p>
+      </div>
+      <div id="prop-buchak-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Allais preferences are rational; REU vindicates them; EU wrongly condemns them</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Agents who prefer the sure million over a gamble (Allais A vs B) and also the better gamble over the worse one (C vs D) violate the Sure-Thing Principle and so cannot be EU-maximisers.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These agents can be understood as placing coherent extra weight on the worst-case outcome when a certain option is available &mdash; a disposition REU theory reconstructs as a convex risk function.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>There is no compelling reason to classify this global sensitivity as irrational rather than as a legitimate attitude toward the structure of gambles; the EU verdict of irrationality is question-begging.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Allais preferences are evidence that instrumental rationality is compatible with sensitivity to global gamble structure; REU theory captures this; EU theory unjustifiably condemns it as irrational.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; r cannot be absorbed into u without misrepresenting what the components mean</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The utility function represents the agent&rsquo;s attitudes toward outcomes independent of how they arise; the risk function represents attitudes toward the structural distribution of outcomes across possible states. These are genuinely distinct psychological dimensions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Pettigrew&rsquo;s redescription strategy absorbs r into u, producing a utility function whose values cannot be interpreted as representing pure desire for outcomes; they are contaminated by structural considerations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This contamination is not a technical problem but a misidentification of the components; a utility function that encodes risk attitudes is not a utility function in the philosophically intended sense.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The redescription strategy succeeds only by abandoning the interpretation that makes the utility function meaningful; it produces a formal equivalence at the cost of philosophical coherence.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Representation theorem: (p, u, r) uniquely derivable from weakened preference axioms</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Preferences satisfying Buchak&rsquo;s weakened axioms (including comonotonic versions of the Sure-Thing Principle) can be uniquely represented by a triple (p, u, r) &mdash; analogous to the Savage representation but without the full Sure-Thing Principle.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This locates the EU/REU debate precisely in the axioms on preferences; the question becomes whether the Sure-Thing Principle is a genuine rationality requirement, not whether REU is formally ill-defined.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The theorem shows the three components are independently derivable from observable preferences, making the framework empirically tractable and not merely stipulative.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The representation theorem establishes REU as a rigorous, axiomatically grounded alternative to EU theory; the debate reduces to a disagreement about which preference axioms are correct rationality constraints.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Global sensitivity to gamble structure is genuine means-end reasoning</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>An agent who cares about how goods are distributed across possible futures &mdash; who values prudence as an end &mdash; is exhibiting a coherent preference, not a confusion between means and ends.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The EU picture of rationality confines legitimate ends to outcome values and probability estimates; but caring about the structural features of a gamble is a form of caring about one&rsquo;s overall situation under uncertainty, which is a legitimate end.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Nothing in the concept of instrumental rationality requires that agents be indifferent to the shape of their prospect, only to its eventual outcome; the EU restriction is an additional substantive constraint, not a logical consequence of means-end reasoning.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>REU-maximisers are not failing at means-end reasoning; they have a richer set of ends that include the structural character of their gambles; the EU requirement of structural indifference is a substantive restriction, not a truism of rationality.</span></div>
+        </div>
+      </div>
+    </div><!-- end buchak -->
+
+    <!-- ══ STEFÁNSSON & BRADLEY ══ -->
+    <div class="speaker-panel" id="prop-stefansson-panel">
+      <div id="prop-stefansson-speech" class="speech-text">
+        <p class="salut">Position statement &mdash; H. Orri Stefánsson &amp; Richard Bradley, &ldquo;What Is Risk Aversion?&rdquo; <em>BJPS</em> (2019)</p>
+        <p>Buchak&rsquo;s framework introduces a risk function r as a third free parameter alongside utility and credence. Our contribution is to ask whether this is the right way to represent risk attitudes &mdash; and to argue that it is not the only defensible framework, and that it carries a significant cost. The risk function, as Buchak defines it, is wholly independent of the agent&rsquo;s desires about outcomes. This generates a theoretical awkwardness: it makes risk attitudes entirely sui generis, unconnected to the agent&rsquo;s other evaluative attitudes. We develop an alternative framework, grounded in Richard Jeffrey&rsquo;s probabilistic decision theory, in which risk attitudes are explained not by a free-standing r-function but by desires about <em>chance propositions</em> &mdash; propositions describing objective probability distributions over outcomes.</p>
+        <div class="pull">&ldquo;An agent who is risk-averse is not simply someone who mechanically applies a convex function to probabilities. She is someone who cares about the chances that good things will happen to her &mdash; who values a high probability of a good outcome as something desirable in itself, not merely as an index for the expected value she will receive. This is not a third attitude beyond belief and desire; it is a species of desire: a desire about the objective chances one faces.&rdquo;</div>
+        <span class="section">i. the problem with buchak&rsquo;s r-function: disconnection from desire</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">r-function disconnection — Buchak&apos;s risk attitudes are sui generis; Stefánsson-Bradley ground them in chance-desires</span>Buchak&rsquo;s r-function is not defined in terms of anything the agent values or believes; it is a primitive transformation applied to probabilities before they are used to weight outcome utilities. This means an agent&rsquo;s risk attitude is, on her framework, wholly disconnected from her desires about outcomes. But this seems wrong as a piece of decision-theoretic phenomenology. Risk-averse agents are not applying an arbitrary mathematical transformation; they <em>care</em> about the chances of bad outcomes in a way that is not captured merely by the disutility of those outcomes. Our alternative locates this care in the right place: as a desire &mdash; specifically, a desire about the probability proposition &ldquo;the chance that the bad outcome obtains is high.&rdquo; An agent who desires that this chance be low, and values the chance of good outcomes for its own sake, is risk-averse in a way that is grounded in ordinary desire, not in a free-standing structural parameter.</span></p>
+        <span class="section">ii. the jeffrey-bolker framework and chance propositions</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Jeffrey-Bolker — utility defined over chance propositions captures risk aversion within standard framework</span>Jeffrey&rsquo;s probabilistic decision theory defines utility over propositions, including propositions about chances. On our extension, the utility function is defined over chance propositions &mdash; propositions of the form &ldquo;the objective probability that outcome O obtains is p.&rdquo; An agent who has a positive utility for high-probability propositions about good outcomes is thereby risk-averse in the philosophically relevant sense: not merely a lover of expected-value, but a person who values the world where good things are more likely. This framework has a crucial advantage over Buchak&rsquo;s: it does not require a third free parameter. Risk aversion falls out of the utility function naturally, as a feature of an agent&rsquo;s desires. The separation between attitudes to outcomes and attitudes to risk is preserved, but the latter are grounded in the former rather than floating free of them.</span></p>
+        <span class="section">iii. what the framework handles that buchak&rsquo;s cannot</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Diamond paradox — chance-utility framework handles the value of fair procedures; REU cannot</span>One problem that Buchak&rsquo;s REU framework cannot accommodate is the Diamond &ldquo;fair lottery&rdquo; intuition. Diamond argued that it is sometimes valuable to give people a chance at a good even if they do not end up receiving it &mdash; for example, it may be fairer to allocate a scarce good by lottery than by fiat, even if the outcome (one person gets the good) is the same. On REU theory, the value of an outcome is assessed by the utility of the outcome itself; the fact that it was reached by a fair lottery rather than by fiat cannot make any difference, since the outcome is the same. But on the chance-utility framework, the proposition &ldquo;you had a fair chance at the good&rdquo; is itself an object of utility; agents can consistently value having had the chance regardless of whether they received the good. This is a genuine advantage over Buchak&rsquo;s framework for capturing the full range of rational attitudes to uncertainty.</span></p>
+        <span class="section">iv. how the two frameworks relate</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Relationship — the frameworks are not competitors but complementary approaches at different levels</span>Our framework and Buchak&rsquo;s are not straightforward competitors; they operate at somewhat different levels of description. Buchak is giving a formal account of the structure of rational preferences; we are asking what psychological attitudes the formal components represent. Our claim is that where Buchak posits a free-standing r-function, the better account posits desires about chances &mdash; a representational claim, not merely a formal one. An REU-maximiser and a chance-utility maximiser may exhibit the same preference orderings in many cases; the difference lies in what attitude is correctly identified as explaining those preferences. We think chance-utility gives the right explanation because it keeps all the value-laden components of decision within the utility function, where their interpretation as desires is secured, rather than introducing a novel parameter whose psychological grounding is obscure.</span></p>
+        <p><em>&mdash; Stefánsson &amp; Bradley, BJPS (2019), summarised</em></p>
+      </div>
+      <div id="prop-stefansson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Buchak&rsquo;s r-function disconnects risk attitudes from desires; the chance-utility framework reconnects them</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Buchak&rsquo;s r-function is a primitive transformation of probabilities, independent of what the agent values or desires; risk attitudes are thereby sui generis, unconnected to the agent&rsquo;s other evaluative attitudes.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Risk-averse agents phenomenologically care about the chances of bad outcomes &mdash; they have desires about chance propositions &mdash; not merely a disposition to apply a mathematical weighting function to probabilities.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The chance-utility framework locates risk aversion in desires about chance propositions, grounding it in the utility function rather than an additional free parameter, and thereby securing its psychological interpretation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The chance-utility framework provides a better psychological grounding for risk aversion than Buchak&rsquo;s r-function: risk attitudes are a species of desire about objective chances, not a sui generis structural parameter.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Jeffrey-Bolker framework captures risk aversion within standard utility theory via chance propositions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Extending Jeffrey&rsquo;s probabilistic decision theory to include utilities defined over chance propositions allows agents who value high-probability-of-good propositions to exhibit risk aversion without an additional free parameter.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This preserves the separation between attitudes to outcomes and attitudes to risk while grounding the latter in the former: risk aversion is the desire that the chances of good outcomes be high, which is a standard utility claim.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Eliminating the free-standing r-function in favour of chance-desires preserves theoretical parsimony while securing the psychological interpretation of all components.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Jeffrey-Bolker chance-utility framework captures risk aversion more parsimoniously and with better psychological grounding than Buchak&rsquo;s r-function, without conceding the EU theorist&rsquo;s claim that risk attitudes reduce to diminishing marginal utility.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Diamond&rsquo;s fair lottery intuition: chance-utility handles what REU cannot</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Diamond argued that giving people a fair chance at a good is sometimes valuable even if they do not receive it; REU theory cannot accommodate this because it evaluates prospects only by outcome utilities and their probability weights.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The chance-utility framework accommodates this naturally: the proposition &ldquo;you had a fair chance at the good&rdquo; is a chance proposition that can be assigned direct utility, capturing the value of the procedure independently of the outcome.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is a genuine extensional advantage of the chance-utility framework over REU theory: it captures a wider range of rational attitudes to uncertainty, including attitudes to the procedural fairness of lotteries.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The chance-utility framework handles the Diamond fair-lottery intuition that REU theory cannot; this is evidence that chance-desires capture something about risk attitudes that the r-function misses.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; The frameworks are complementary at different levels; chance-utility gives the better psychological explanation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Both frameworks may capture the same preference orderings in many cases; they differ in what attitude they identify as explaining those orderings.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Buchak posits a free-standing r-function whose psychological grounding is obscure; chance-utility posits desires about chances, which are a familiar psychological category whose interpretation as desires within the utility function is secured.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Correct psychological identification of the attitudes underlying preferences matters for the philosophical interpretation of decision theory, not merely for its formal output; chance-utility gives the better identification.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>At the level of psychological interpretation, the chance-utility framework offers the better account of what risk aversion is; the r-function is a representational shortcut whose underlying psychology is better captured by desires about chances.</span></div>
+        </div>
+      </div>
+    </div><!-- end stefansson -->
+
+    <!-- ══ MOGENSEN ══ -->
+    <div class="speaker-panel" id="prop-mogensen-panel">
+      <div id="prop-mogensen-speech" class="speech-text">
+        <p class="salut">Position statement &mdash; Andreas L. Mogensen, &ldquo;Respect for Others&rsquo; Risk Attitudes and the Long-Run Future&rdquo; <em>No&ucirc;s</em> 58 (2024)</p>
+        <p>Buchak&rsquo;s <em>Risk and Rationality</em> concerns individual decision-making. In more recent work she has argued for a principle in other-regarding contexts: when making decisions that affect other people, we should adopt a <em>risk-avoidant</em> risk function as a default, deferring to the risk attitudes of those affected or, when these are unknown, erring on the side of caution. She extends this principle to decisions affecting future people &mdash; including decisions about climate change and existential risk &mdash; where she claims it supports greater risk-avoidance than standard expected utility calculations would recommend. My paper engages with this extension, accepting its premise but identifying a deep problem when we attempt to apply it in variable-population contexts.</p>
+        <div class="pull">&ldquo;The principle that we should respect others&rsquo; risk attitudes when choosing on their behalf faces a dilemma in variable-population cases. Either we aggregate first across persons and then across outcomes, in which case we promote the risk-weighted expectation of aggregate welfare; or we aggregate first across outcomes and then across persons, in which case we promote the aggregate of each person&rsquo;s risk-weighted expected welfare. Plausible considerations support the latter. But no known principle of interpersonal aggregation yields acceptable results for variable-population cases on this approach.&rdquo;</div>
+        <span class="section">i. buchak&rsquo;s other-regarding risk principle</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Other-regarding risk — Buchak&apos;s argument that we should be risk-avoidant on behalf of others we affect</span>Buchak argues that when our choice affects others whose risk attitudes we do not know, we should default to a risk-avoidant risk function rather than a risk-neutral one. The rationale is a principle of respect: we should not impose our own idiosyncratic risk attitude on those we affect, and since we cannot be sure that others share a risk-neutral stance, we should err toward caution. This principle has significant implications. Applied to climate change, it implies we should weight catastrophic outcomes more heavily than standard expected-value calculations suggest. Applied to extinction risk, it implies a similar risk-avoidant stance toward scenarios that eliminate future populations. I accept the core insight of this principle for fixed-population cases. My concern is with variable-population cases.</span></p>
+        <span class="section">ii. the aggregation dilemma in variable-population cases</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Aggregation dilemma — person-first vs outcome-first aggregation give different results; neither works in variable populations</span>In a fixed population, there are two approaches to respecting others&rsquo; risk attitudes. On the <em>outcome-first</em> approach, we aggregate welfare across persons within each outcome, and then take the risk-weighted expectation of these aggregates. On the <em>person-first</em> approach, we compute each person&rsquo;s risk-weighted expected welfare, and then aggregate across persons. In fixed populations, plausible considerations favour the person-first approach: we ought to promote the aggregate of each individual&rsquo;s risk-weighted expected welfare. But in variable-population cases &mdash; where the persons who exist depend on which outcome obtains, as in any decision about the long-run future &mdash; the person-first approach breaks down. We cannot compute a merely possible person&rsquo;s risk-weighted expected welfare under a gamble in which they exist only in some outcomes, because &ldquo;risk-weighted expected welfare over a gamble&rdquo; requires the person to exist throughout the gamble.</span></p>
+        <span class="section">iii. the implication for longtermism and extinction risk</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Longtermism — risk-avoidance on behalf of future people may perversely disfavour extinction prevention</span>Buchak and Pettigrew have claimed that the other-regarding risk principle, applied to decisions affecting future people, actually <em>decreases</em> the attractiveness of extinction prevention. The reasoning: preventing extinction involves accepting significant risks of bad near-term outcomes in order to secure the existence of enormous numbers of future people; an agent with a risk-avoidant function will weight these near-term bad outcomes heavily, making extinction-prevention look worse than expected-value calculations suggest. My paper raises a prior objection: we cannot even get the person-first approach to work in variable-population cases. There is no known principle of interpersonal aggregation for variable populations that is both consistent with the person-first ideal and yields acceptable results. The application of the other-regarding risk principle to longtermist decisions is therefore not merely practically difficult but theoretically under-developed.</span></p>
+        <span class="section">iv. what this shows about REU theory&rsquo;s extensions</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Scope of REU — designed for single agents; extensions to multi-person and variable-population cases require further work</span>My paper is not a critique of REU theory as a theory of individual decision-making. Buchak&rsquo;s original framework concerns a single agent facing a decision problem with fixed outcomes. The difficulties I identify arise only when the framework is extended to other-regarding contexts and variable-population cases. These extensions require a theory of interpersonal aggregation that REU theory does not supply, and for which there is no well-worked-out substitute. This is an important limitation on the practical application of REU theory to policy decisions &mdash; particularly those concerning the long-run future, climate change, and existential risk &mdash; where variable-population considerations are unavoidable. The theory needs supplementation before it can serve as the foundation for the policy conclusions that Buchak and others have drawn from it.</span></p>
+        <p><em>&mdash; Mogensen, No&ucirc;s (2024), summarised</em></p>
+      </div>
+      <div id="prop-mogensen-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Buchak&rsquo;s other-regarding risk principle: respect for others&rsquo; attitudes requires risk-avoidance as default</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When our choice affects others whose risk attitudes we do not know, we should not impose our own idiosyncratic risk attitude on them; respect for others requires erring toward caution.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Since we cannot assume others are risk-neutral, the default for other-regarding decisions should be a risk-avoidant risk function rather than a risk-neutral one.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This principle has significant policy implications: climate change decisions, extinction-risk policy, and decisions affecting future generations should all incorporate a risk-avoidant function rather than standard expected-value maximisation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Buchak&rsquo;s other-regarding risk principle is plausible in fixed-population cases; its extension to variable-population contexts, however, faces the aggregation dilemma identified below.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Aggregation dilemma: person-first approach required by respect fails in variable-population cases</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Plausible considerations support the person-first approach: respect for others&rsquo; risk attitudes requires promoting the aggregate of each individual&rsquo;s risk-weighted expected welfare, not the risk-weighted expectation of aggregate welfare.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The person-first approach requires computing each person&rsquo;s risk-weighted expected welfare over the gamble. But in variable-population cases, merely possible persons do not exist throughout the gamble; there is no subject over whom to take the expectation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No known principle of interpersonal aggregation for variable populations yields acceptable results while remaining consistent with the person-first ideal that the other-regarding risk principle demands.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The other-regarding risk principle, combined with the person-first approach it requires, breaks down in variable-population cases: there is no coherent way to apply it to decisions affecting merely possible future people.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Longtermist implications: the principle may perversely disfavour extinction prevention</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Buchak and Pettigrew have argued the other-regarding risk principle, applied to decisions affecting future people, decreases the attractiveness of extinction prevention: risk-avoidance weights near-term bad outcomes heavily, making the trade-off unfavourable.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But even before reaching this conclusion, the prior aggregation problem applies: we cannot coherently apply the person-first version of the principle to variable populations where the very people whose risk attitudes we are respecting may or may not exist depending on the outcome.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The application of the other-regarding risk principle to longtermist decisions is therefore not merely practically contentious but theoretically underdeveloped at a foundational level.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Before the other-regarding risk principle can be applied to extinction risk and longtermist decisions, a theory of variable-population aggregation consistent with person-first ideals is needed; none currently exists.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; REU theory&rsquo;s scope: individual decisions; extensions require supplementation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>REU theory as developed by Buchak is a theory of individual decision-making by a single agent facing a decision problem with a fixed set of possible outcomes.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Extensions to other-regarding and variable-population contexts require a theory of interpersonal aggregation that REU theory does not supply and for which there is no well-worked-out substitute.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Policy conclusions about climate change, existential risk, and longtermism that draw on REU theory therefore require this supplementation before they are warranted; the theory&rsquo;s individual-decision foundations do not straightforwardly transfer to the population-level context.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>REU theory is well-developed at the individual level; its extension to other-regarding and variable-population cases requires further foundational work that has not yet been done; policy applications must wait on this work.</span></div>
+        </div>
+      </div>
+    </div><!-- end mogensen -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════════════════════════
+     RIGHT: CRITICS OF REU
+     Pettigrew · Briggs · Thoma
+═══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','pettigrew',this)">Pettigrew</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','briggs',this)">Briggs</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','thoma',this)">Thoma</button>
+  </div>
+
+  <!-- PETTIGREW HEADER -->
+  <div class="col-header" id="opp-pettigrew-header">
+    <div class="col-header-top"><span class="pill opp">Critic</span><span class="col-subtitle">Richard Pettigrew</span></div>
+    <div class="col-position">University of Bristol &middot; &ldquo;Risk, Rationality and Expected Utility Theory&rdquo; CJP (2015) &middot; Two-pronged critique: (i) REU-maximisers can be re-described as EU-maximisers with richer outcomes; (ii) a dominance argument from accuracy shows that REU-conforming belief/utility assignments are dominated by EU-conforming ones</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','pettigrew','speech',this)">Position</div>
+      <div class="tab" onclick="sw('opp','pettigrew','logic',this)">Core Arguments</div>
+    </div>
+  </div>
+
+  <!-- BRIGGS HEADER -->
+  <div class="col-header hidden" id="opp-briggs-header">
+    <div class="col-header-top"><span class="pill opp">Critic</span><span class="col-subtitle">Rachael Briggs</span></div>
+    <div class="col-position">University of Queensland / Stanford &middot; &ldquo;Costs of Abandoning the Sure-Thing Principle&rdquo; CJP (2015) &middot; The diachronic dominance objection: REU-maximisers who use sophisticated choice face decision trees in which they predictably choose dominated strategies; their only escape is resolute choice, which carries its own costs</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','briggs','speech',this)">Position</div>
+      <div class="tab" onclick="sw('opp','briggs','logic',this)">Core Arguments</div>
+    </div>
+  </div>
+
+  <!-- THOMA HEADER -->
+  <div class="col-header hidden" id="opp-thoma-header">
+    <div class="col-header-top"><span class="pill opp">Critic</span><span class="col-subtitle">Johanna Thoma</span></div>
+    <div class="col-position">University of Bayreuth (formerly LSE) &middot; &ldquo;Risk Aversion and the Long Run&rdquo; <em>Ethics</em> 129 (2019): 230&ndash;253 &middot; Under standard assumptions about dynamic choice and problem framing, REU theory collapses into EU theory for agents who take a long enough view; a genuine alternative only for myopic or atemporal agents</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','thoma','speech',this)">Position</div>
+      <div class="tab" onclick="sw('opp','thoma','logic',this)">Core Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ PETTIGREW ══ -->
+    <div class="speaker-panel active" id="opp-pettigrew-panel">
+      <div id="opp-pettigrew-speech" class="speech-text">
+        <p class="salut">Critical position &mdash; Richard Pettigrew, &ldquo;Risk, Rationality and Expected Utility Theory&rdquo; CJP (2015)</p>
+        <p>I want to press two distinct objections to Buchak&rsquo;s REU theory. The first is that REU-maximisers can always be re-described as EU-maximisers with more complex outcomes, so the deviation from EU theory is not as substantive as Buchak claims &mdash; REU preference patterns are not empirically distinguishable from EU preference patterns in principle. The second is a dominance argument: there is a measure on which REU-conforming assignments of probability and utility are dominated, in the sense that there are alternative assignments that are closer to the truth in every possible world. This shows that REU-maximisers are committed to unnecessarily inaccurate beliefs about the values they care about, and that this is a form of irrationality.</p>
+        <div class="fact-box">
+          <strong>The redescription strategy</strong>
+          Any REU-maximiser can, in principle, be re-described as an EU-maximiser whose utility function assigns values not just to outcomes but to outcome-in-a-state pairs. Since the risk function r operates on probabilities that are keyed to states, the structural sensitivity of REU can be reproduced by a utility function that is state-sensitive in the right way. Buchak resists this on the grounds that outcomes, not outcome-state pairs, are the proper bearers of utility. Pettigrew disputes this by arguing that any complete description of an outcome must include the state in which it arises if the agent&rsquo;s attitude toward it is state-dependent.
+        </div>
+        <span class="section">i. the redescription argument</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Redescription — any REU pattern can be re-described as EU with state-dependent outcomes</span>Consider an REU-maximiser who, because of her convex risk function, prefers a certain £100 to a gamble that yields £200 with probability 0.6 and £0 with probability 0.4. Her REU for the gamble is lower than 100 because r re-weights the probabilities before combining them with utilities. Now consider an EU-maximiser who assigns utility not just to £200 and £0, but to &ldquo;£200 in the state where the coin lands heads&rdquo; and &ldquo;£0 in the state where the coin lands tails&rdquo; separately, with a utility function that assigns the second of these a lower value than its monetary amount would naively suggest. This EU-maximiser can reproduce the REU-maximiser&rsquo;s preference. Buchak objects that outcomes should be described independently of the states in which they arise; but I argue that this restriction is not principled. If an agent genuinely cares about how an outcome arises &mdash; whether it comes through a safe or a risky path &mdash; then the state is part of the outcome, properly described.</span></p>
+        <span class="section">ii. buchak&rsquo;s reply and why it is insufficient</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Buchak&apos;s reply — redescription collapses the means-ends distinction; Pettigrew&apos;s response</span>Buchak replies that re-describing outcomes as outcome-state pairs collapses the philosophically important distinction between means and ends: if we individuate outcomes by the states in which they arise, we have made the means &mdash; the state of the world &mdash; part of the end &mdash; the outcome. Decision theory is supposed to be the theory of <em>means-end</em> reasoning, and this collapse distorts it. I find this reply unsatisfying. The correct reply to Buchak is that the means-end distinction is not violated by state-dependent outcomes; it is just that the ends are more fine-grained than she assumes. An agent who genuinely cares about receiving £200 in one state differently from receiving £200 in another is not confusing means and ends; she has a preference about an outcome that is inherently relational, including the state as a constituent. This is a legitimate form of preference, and the redescription captures it without distortion.</span></p>
+        <span class="section">iii. the dominance argument from accuracy</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Accuracy dominance — REU-conforming (u,p) assignments dominated by EU-conforming ones under a natural accuracy measure</span>My second argument is more technical but more decisive. Consider an agent&rsquo;s probability-utility assignment as a kind of claim about the world &mdash; the probability function claims that the world has such-and-such probabilistic structure, and the utility function claims that the agent values outcomes to such-and-such degree. There is a natural measure of the accuracy of such assignments: how close they are to the truth in each possible world. I argue that for REU-maximisers who are not also EU-maximisers, there exists an alternative assignment of probability and utility that is closer to the truth in every possible world &mdash; i.e., the REU-conforming assignment is accuracy-dominated. Since rationality requires that we not use dominated strategies, REU-maximisers are using a dominated assignment strategy, and thereby violating a principle of rationality that applies to the beliefs and utilities from which their decisions flow. EU-conforming assignments, by contrast, are not dominated in this way.</span></p>
+        <span class="section">iv. what the argument establishes</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Conclusion — EU-maximisation is the only rational decision strategy given accuracy-dominance of EU-conforming assignments</span>Taken together, the redescription and dominance arguments establish a strong case for EU theory. The redescription argument shows that REU theory does not achieve substantive empirical distinction from EU theory &mdash; the preference patterns REU accommodates are also accommodatable by EU with state-dependent utilities. The dominance argument shows that the specific assignments of probability and utility that REU-maximisers use are epistemically dominated. Buchak correctly identifies costs of both arguments; her replies show that accepting REU requires making choices about the picture of agency and decision theory that are not obviously right. But the costs she acknowledges are real costs, and they constitute reasons to prefer EU theory where it is available.</span></p>
+        <p><em>&mdash; Pettigrew, CJP (2015), summarised</em></p>
+      </div>
+      <div id="opp-pettigrew-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Redescription: any REU-maximiser can be re-described as an EU-maximiser with state-dependent outcomes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Any preference pattern exhibited by an REU-maximiser can be reproduced by an EU-maximiser whose utility function assigns values to outcome-state pairs rather than outcomes simpliciter.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Buchak&rsquo;s objection that this collapses the means-end distinction rests on a restriction &mdash; that outcomes must be described independently of states &mdash; that is not principled; agents who care about how their outcomes arise genuinely have state-dependent preferences, and these are captured by state-dependent utility without confusion of means and ends.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If any REU preference pattern is re-describable as an EU preference pattern, then REU theory does not identify a genuinely new category of rational agent; it redescribes existing EU-compatible preferences using different components.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The redescription argument shows REU theory does not achieve substantive empirical distinctiveness from EU theory; what appears to be a third component is re-describable as a more complex utility function within the standard EU framework.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Buchak&rsquo;s means-ends reply fails: state-dependent preferences are legitimate, not a confusion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Buchak objects that re-describing outcomes as outcome-state pairs distorts decision theory by making the state (means) part of the outcome (end). The means-end distinction is thereby violated.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But an agent who genuinely cares differently about £200 received via a risky gamble and £200 received via a safe path has a fine-grained preference about an inherently relational outcome; this is not a confusion of means and ends but a coherent preference whose object includes the state as a constituent.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The means-end distinction is preserved if we say the means are the acts (gambles) and the ends are the outcome-state pairs; the redescription accommodates Buchak&rsquo;s concern about interpretive integrity while reproducing the REU preference pattern.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Buchak&rsquo;s means-ends objection to the redescription strategy fails; state-dependent outcomes are a legitimate way of capturing preferences about how outcomes arise, and they reproduce REU preference patterns within EU theory.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Accuracy dominance: REU-conforming (p,u) assignments dominated by EU-conforming ones</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Under a natural accuracy measure on probability-utility assignments &mdash; one that scores how close the assignment is to the true values in each possible world &mdash; REU-conforming assignments that are not also EU-conforming are dominated: there exists an alternative assignment closer to the truth in every possible world.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Dominance Principle is agreed upon by all parties: if one option is guaranteed to be better than another in every outcome and not guaranteed to be worse in any, the dominated option is irrational.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>EU-conforming assignments are not so dominated; therefore, an REU-maximiser who is not also an EU-maximiser is using a dominated strategy for choosing probability-utility assignments, which is irrational.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The accuracy-dominance argument shows that REU-conforming assignments are epistemically dominated; since rationality prohibits using dominated strategies, REU-maximisers who deviate from EU theory are violating a principle of epistemic rationality.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; EU-maximisation is the only rational strategy given the dominance and redescription results</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The redescription argument establishes that REU preference patterns are also EU-compatible patterns under a richer outcome individuation; the empirical distinctiveness of REU theory is not achieved.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The accuracy-dominance argument establishes that the probability-utility assignments of REU-maximisers who deviate from EU are epistemically dominated; this is a form of irrationality that applies upstream of decision-making.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Buchak correctly identifies costs of both arguments and shows REU theory can be maintained; but the costs she acknowledges &mdash; rejecting state-dependent outcomes, rejecting the dominance principle as applied to assignments &mdash; are genuine costs that burden REU theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The redescription and dominance arguments together provide strong reasons to prefer EU theory over REU theory; the costs of REU theory are real and the claimed benefits are either not distinctively REU or achievable by EU with richer outcomes.</span></div>
+        </div>
+      </div>
+    </div><!-- end pettigrew -->
+
+    <!-- ══ BRIGGS ══ -->
+    <div class="speaker-panel" id="opp-briggs-panel">
+      <div id="opp-briggs-speech" class="speech-text">
+        <p class="salut">Critical position &mdash; Rachael Briggs, &ldquo;Costs of Abandoning the Sure-Thing Principle&rdquo; CJP (2015)</p>
+        <p>My objection to REU theory is diachronic rather than synchronic. Buchak&rsquo;s main argument is that REU-conforming preferences are internally coherent at a time: an agent can simultaneously hold the Allais preferences without violating any synchronic rationality requirement. I accept this for the sake of argument. My claim is that such agents face a serious problem when they are required to make decisions dynamically &mdash; across time, in decision trees &mdash; and that this diachronic problem either forces them to abandon REU theory or to accept a significant practical cost that makes REU-maximisers systematically less effective at achieving their ends.</p>
+        <div class="pull">&ldquo;An REU-maximiser who uses sophisticated choice &mdash; the standard method for solving decision trees by backward induction &mdash; will, at intermediate nodes of a decision tree, be committed to choosing strategies that are dominated ex ante by alternatives she could have chosen. She either has to choose between irrational diachronic dominance and the unwelcome constraints of resolute choice. Either way, there is a cost that the EU-maximiser does not bear.&rdquo;</div>
+        <span class="section">i. sophisticated choice and the sure-thing principle</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Sophisticated choice — standard method for dynamic decisions; requires plan-consistency that REU violates</span>Sophisticated choice is the standard method for rational decision-making in dynamic contexts. An agent using sophisticated choice backward-inducts: she considers what she will rationally do at later nodes of the decision tree, and then chooses at earlier nodes the branch that, given her anticipated later choices, produces the best outcome. Sophisticated choice is widely regarded as the correct method for sequential decision-making; it prevents agents from making earlier choices that are destabilised by later rational reconsideration. The problem for REU-maximisers is that their preferences are not separable &mdash; the value of a sub-gamble depends on the gamble in which it is embedded, because the risk function takes global properties of the entire gamble into account. This means that an REU-maximiser&rsquo;s rational choice at an intermediate node may conflict with the rational choice she anticipated when choosing at an earlier node, and sophisticated choice cannot be applied without her ending up in a dominated position.</span></p>
+        <span class="section">ii. the diachronic dominance problem stated precisely</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Diachronic dominance — REU maximiser who uses sophisticated choice can predictably end up in dominated strategy</span>Here is a schematic statement of the problem. Suppose an REU-maximiser, Rhoda, faces a two-stage decision tree. In stage one she can choose L or R. In stage two, depending on her earlier choice and what chance has produced, she faces further choices. Rhoda, using sophisticated choice, backward-inducts to determine her optimal strategy. But because her preferences are globally sensitive &mdash; the value of stage-two options depends on what happened in stage one &mdash; the strategy she selects in stage two is not the one that would have been best had she been able to commit to it in stage one. The result: there is an alternative strategy that dominates Rhoda&rsquo;s sophisticated-choice strategy ex ante &mdash; that is, from the standpoint of stage one, Rhoda&rsquo;s strategy is predictably inferior to one she could have chosen. She faces what I call &ldquo;diachronic dominance.&rdquo; The Dominance Principle, endorsed by Buchak, says this is irrational.</span></p>
+        <span class="section">iii. the resolute choice escape and its costs</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Resolute choice — REU&apos;s escape from diachronic dominance; significant constraints on plan revision</span>Buchak accepts the diachronic dominance problem and proposes that REU-maximisers should use <em>resolute choice</em>: they commit in advance to a plan and follow it through, even if, at later nodes, the locally optimal choice would be different. Resolute choice escapes diachronic dominance: by pre-committing to the globally optimal strategy and following it regardless of what seems locally best later, Rhoda avoids ending up in a dominated position. But resolute choice has significant costs. It requires agents to follow plans that they later judge to be suboptimal from the standpoint of their current information and preferences. It eliminates the flexibility to revise plans in light of new information or changing circumstances. And it requires a conception of agency &mdash; the &ldquo;resolute agent&rdquo; who identifies with her past commitments &mdash; that is philosophically controversial and psychologically demanding. The EU-maximiser, whose preferences are separable, needs none of this: sophisticated and resolute choice coincide for her.</span></p>
+        <span class="section">iv. what this shows about the cost of REU theory</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Cost of REU — practical disadvantage in dynamic contexts; EU-maximisers avoid diachronic costs</span>The diachronic dominance argument does not show that REU theory is logically inconsistent or that Allais preferences are irrational in themselves. What it shows is that maintaining REU preferences across a sequence of decisions imposes a practical cost that EU-maximisers do not bear: either you end up in dominated strategies via sophisticated choice, or you accept the constraints of resolute choice. Buchak is right that this is a cost, not a fatal objection; REU-maximisers can still be rational if they adopt resolute choice consistently. But the cost is real, and it means that REU theory is not simply an empirically more permissive version of EU theory &mdash; it is a framework that forces agents into a harder and more costly mode of decision-making in dynamic contexts. Whether the benefits of accommodating Allais preferences outweigh these costs is a genuine question.</span></p>
+        <p><em>&mdash; Briggs, CJP (2015), summarised</em></p>
+      </div>
+      <div id="opp-briggs-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Sophisticated choice requires plan-consistency that REU&rsquo;s global sensitivity undermines</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Sophisticated choice &mdash; backward induction in decision trees &mdash; is the standard method for sequential rational decision-making; it prevents agents from choosing paths destabilised by later rational reconsideration.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>REU-maximisers&rsquo; preferences are not separable: the value of a sub-gamble depends on the gamble in which it is embedded, because the risk function r takes global properties of the entire gamble into account.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This non-separability means an REU-maximiser&rsquo;s optimal choice at an intermediate node may conflict with the choice she anticipated when selecting the earlier branch; sophisticated choice cannot be applied without her ending up in an dominated position.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The global sensitivity that makes REU theory non-separable generates a systematic conflict with sophisticated choice in decision trees; REU-maximisers face a diachronic problem that EU-maximisers, whose preferences are separable, do not.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Diachronic dominance: REU + sophisticated choice yields ex-ante dominated strategy</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>An REU-maximiser using sophisticated choice in a multi-stage decision tree selects a strategy at intermediate nodes that is not the ex-ante optimal strategy from the perspective of stage one.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>There exists an alternative strategy that dominates the sophisticated-choice strategy ex ante: it yields at least as good an outcome in every possible world and a better outcome in some.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Dominance Principle &mdash; endorsed by Buchak and all parties to the debate &mdash; says that choosing a dominated strategy is irrational; therefore the REU-maximiser using sophisticated choice is diachronically irrational.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>REU theory combined with sophisticated choice generates diachronic dominance &mdash; a violation of the Dominance Principle &mdash; in decision trees; the combination is therefore irrational by Buchak&rsquo;s own standards.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Resolute choice escapes dominance but imposes significant costs on plan revision</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Resolute choice pre-commits to a plan and follows it through regardless of what seems locally optimal at later nodes; this escapes diachronic dominance for REU-maximisers.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But resolute choice requires following plans later judged suboptimal; eliminates flexibility in light of new information; and requires a philosophically controversial conception of agency as commitment to past plans.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>EU-maximisers, whose preferences are separable, face no such conflict: sophisticated and resolute choice coincide for them, so they bear none of these costs while achieving the same decision-theoretic goals.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>REU-maximisers must adopt resolute choice to avoid diachronic dominance, but resolute choice imposes significant costs on plan revision and requires a demanding conception of agency; EU-maximisers bear no such costs.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; REU imposes real practical costs in dynamic contexts that EU theory avoids</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The diachronic objection does not show REU theory is inconsistent; it shows that maintaining REU preferences across sequences of decisions forces either dominated strategies (via sophisticated choice) or constrained plans (via resolute choice).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Both horns impose costs that EU-maximisers avoid; the cost of REU theory is therefore real even if not decisive, and must be weighed against the claimed benefit of accommodating Allais-type preferences.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Since EU theory accommodates Allais-type preferences via state-dependent utilities (Pettigrew&rsquo;s point) without imposing diachronic costs, the practical case for REU theory over EU theory is weaker than Buchak suggests.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>REU theory is a harder and costlier decision framework in dynamic contexts; the practical advantages claimed for it are either available within EU theory or outweighed by the costs of the resolute/sophisticated choice dilemma.</span></div>
+        </div>
+      </div>
+    </div><!-- end briggs -->
+
+    <!-- ══ THOMA ══ -->
+    <div class="speaker-panel" id="opp-thoma-panel">
+      <div id="opp-thoma-speech" class="speech-text">
+        <p class="salut">Critical position &mdash; Johanna Thoma, &ldquo;Risk Aversion and the Long Run&rdquo; <em>Ethics</em> 129 (2019): 230&ndash;253</p>
+        <p>My critique of Buchak&rsquo;s REU theory differs from Pettigrew&rsquo;s and Briggs&rsquo;s in focus. I want to argue that REU theory, under commonly held assumptions about dynamic choice and the framing of decision problems, fails to provide a genuine alternative to EU theory for rational agents who take a sufficiently long view. Specifically, I show that for resolute REU-maximisers with a planning horizon that encompasses more than a handful of repeated risky decisions, REU theory recommends the same choices that EU theory does. The distinctive verdicts of REU theory &mdash; those that deviate from EU &mdash; are sustainable only for agents who are either myopic, or who refuse to consider their choices as part of a wider sequence of decisions. This is a significant limitation on what REU theory claims to offer.</p>
+        <div class="fact-box">
+          <strong>The long-run convergence result</strong>
+          For any option L with positive expected utility, if an agent is resolute and takes an extended planning horizon, then for large enough n the REU of repeating L n times exceeds the REU of repeating a sure-thing alternative. This is because the average REU of n independent repetitions of L approaches the average EU as n grows, by a law-of-large-numbers type result. For resolute agents considering their decisions as part of a longer sequence, REU theory therefore converges toward EU theory&rsquo;s verdicts.
+        </div>
+        <span class="section">i. resolute choice and the planning horizon</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Planning horizon — resolute REU maximisers who plan over long sequences converge toward EU verdicts</span>Buchak recommends resolute choice as the response to Briggs&rsquo;s diachronic dominance objection. But adopting resolute choice introduces a sensitivity to the <em>planning horizon</em> &mdash; the temporal scope over which the agent considers her decisions as part of a single plan. An REU-maximiser who plans over a sequence of n independent decisions will, for large enough n, evaluate the sequence by its overall REU, which approaches the sequence&rsquo;s overall EU as n grows. The mathematical result here is a variant of the law of large numbers applied to risk-weighted utilities: the weight that the risk function places on worst-case outcomes is progressively diluted as the sequence grows, because the worst case for the whole sequence becomes a smaller fraction of the total. The practical upshot: a resolute REU-maximiser who thinks about her decisions as part of a sufficiently long sequence will end up making the same choices that an EU-maximiser would.</span></p>
+        <span class="section">ii. the framing problem for REU theory</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Framing sensitivity — REU verdicts depend on whether decisions are framed as isolated or as part of a sequence</span>This convergence result exposes a deeper problem: REU theory&rsquo;s verdicts are sensitive to how decisions are framed. Whether an agent evaluates a risky choice in isolation (as a &ldquo;small world&rdquo;) or as part of a larger sequence of decisions (in a &ldquo;large world&rdquo;) changes which act REU theory recommends. An agent who currently faces a choice between a risky option B and a safe option A may prefer A by REU theory in isolation. But if she considers this choice together with her lunch decision, her transport decisions, and the other independent risky choices she will face today, she may find that the combined plan that includes B has higher REU than the one that includes A. This sensitivity to framing is deeply uncomfortable: a rational decision procedure should not give different verdicts for the same act depending solely on what other decisions the agent happens to consider simultaneously.</span></p>
+        <span class="section">iii. buchak&rsquo;s response and thoma&rsquo;s rejoinder</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Buchak&apos;s reply — small-world reasoning is not required; agents can evaluate each decision in isolation</span>Buchak acknowledged the long-run problem in her reply to Pettigrew and Briggs, noting that small-world reasoning &mdash; evaluating each decision in isolation &mdash; is already problematic for REU-maximisers even before Thoma&rsquo;s result. Her response is to say that the appropriate planning horizon is a feature of the agent&rsquo;s practical situation, not a fixed parameter of the theory. An agent may legitimately consider each decision in isolation if that is how her situation is structured. But this reply is unsatisfying. The argument is not that agents must always plan over long sequences; it is that the verdicts of REU theory differ depending on whether they do or not. A theory of rationality that gives different verdicts for the same act depending on how much the agent thinks about her other decisions is not a stable theory: the rational REU-maximiser who knows about the long-run result has a reason to expand her planning horizon until she arrives at EU verdicts, and then REU has no distinctive contribution to make.</span></p>
+        <span class="section">iv. what the long-run result shows about REU theory</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Conclusion — REU only generates distinct verdicts for myopic or artificially limited agents; not a stable general theory</span>The long-run convergence result shows that REU theory generates its distinctive verdicts &mdash; those that deviate from EU &mdash; only for agents who are either myopic (failing to consider how their current choice fits within their broader life of choices) or artificially limited in their planning horizon. A rational agent who is both resolute and reflective about her planning horizon will, for any sufficiently large set of decisions, arrive at EU-conforming verdicts via REU theory. This means REU theory is not a stable, general alternative to EU theory; it is a theory that generates alternative verdicts only for a restricted class of agents in a restricted class of decision contexts. The class of decisions in which REU makes a genuine difference is smaller than Buchak&rsquo;s presentation of the theory suggests, and for the broader class of sequential decisions that constitute most human life, EU theory and REU theory converge.</span></p>
+        <p><em>&mdash; Thoma, Ethics (2019), summarised</em></p>
+      </div>
+      <div id="opp-thoma-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Resolute REU-maximisers with extended planning horizons converge toward EU verdicts</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>For a resolute REU-maximiser who evaluates n independent repetitions of a risky choice as a single plan, the average REU of the repeated gamble approaches the average EU as n grows; the risk function&rsquo;s worst-case weighting is progressively diluted.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>For large enough n, any risky option with positive EU will have higher REU than the safe alternative when evaluated as a repeated plan; the REU-maximiser&rsquo;s verdict converges to the EU-maximiser&rsquo;s verdict.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This result holds for any resolute agent who takes a planning horizon extending over a sequence of at least 11 independent decisions (for typical risk functions); the convergence is robust and not merely asymptotic in a practically irrelevant sense.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Resolute REU-maximisers who take a sufficiently extended planning horizon converge to EU verdicts; REU theory generates distinctive verdicts only for agents with short or artificially limited planning horizons.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Framing sensitivity: REU verdicts change depending on whether decisions are framed in isolation or as part of a sequence</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>An agent may prefer the safe option A over the risky option B when evaluating the decision in isolation by REU; but prefer B over A when evaluating the decision together with other independent risky choices she faces in the same period.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Whether to frame a choice in isolation or as part of a sequence is not determined by the choice itself but by arbitrary features of how the agent conceptualises her situation; the framing should not change what is rational.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A decision theory whose verdicts are sensitive to framing in this way fails to provide stable, consistent action guidance; rational agents who know about this sensitivity have a reason to expand their framing until they reach EU verdicts.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>REU theory&rsquo;s framing sensitivity is a fundamental instability: rational agents who understand the long-run result have a reason to expand their planning horizon until REU converges to EU; the theory thereby undermines its own distinctive verdicts.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Buchak&rsquo;s reply (planning horizon is a practical feature) fails; reflective REU-maximisers converge</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Buchak&rsquo;s response to the long-run problem: the planning horizon is a feature of the agent&rsquo;s practical situation, and agents may legitimately evaluate decisions in isolation when that is how their situation is structured.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the argument is that a rational reflective agent who knows about the long-run result has a reason to expand her planning horizon; REU theory itself gives her a reason to arrive at EU verdicts by considering more decisions simultaneously.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A theory that gives agents who understand it a reason to abandon its distinctive verdicts by adjusting their planning horizon is self-undermining as a normative theory; it cannot stably recommend its own distinctive conclusions to reflective agents.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Buchak&rsquo;s reply fails because reflective agents who understand REU theory have an internal reason to expand their planning horizon until they arrive at EU verdicts; the theory is self-undermining for the reflective agents it claims to address.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; REU generates distinctive verdicts only for myopic or artificially limited agents; not a stable general theory</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The long-run convergence result confines REU theory&rsquo;s distinctive verdicts to agents who are myopic (short-planning-horizon) or who artificially limit their problem-frame to single decisions in isolation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>For the broader class of sequential decisions that constitute most human life &mdash; decisions embedded in an ongoing life of interrelated choices &mdash; REU and EU theory converge; the practical scope of REU&rsquo;s alternatives is far smaller than presented.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A theory of ideal rationality that generates its distinctive verdicts only for myopic agents is not a general alternative to EU theory but a framework with restricted application; it cannot serve as the foundation for the broad policy and ethical conclusions Buchak draws from it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>REU theory is not a stable general alternative to EU theory; it generates distinctive verdicts only for artificially limited agents in isolated decisions; for the broader class of sequential human decisions, it converges to EU theory.</span></div>
+        </div>
+      </div>
+    </div><!-- end thoma -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'buchak',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'pettigrew',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
