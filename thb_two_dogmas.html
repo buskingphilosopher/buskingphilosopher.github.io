@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quine's Two Dogmas of Empiricism — The Debate</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-col:#6a88a0;--prop-pill:#182028;--prop-pill-bdr:#2a4858;
+  --opp-col:#a07050;--opp-pill:#281808;--opp-pill-bdr:#604020;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp  .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .fact-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .fact-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.25rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Epistemology &amp; Philosophy of Language Symposium &mdash; The Legacy of Quine&rsquo;s 1951 Attack on the Foundations of Empiricism</div>
+  <div class="motion-title">&ldquo;This House Believes that Quine Was Right: the Analytic/Synthetic Distinction and Semantic Reductionism Are Untenable Dogmas&rdquo;</div>
+  <div class="motion-sub">Pro-Quine: Quine (<em>Two Dogmas</em>, 1951 &amp; <em>Word and Object</em>, 1960) &middot; Harman (holism &amp; the death of meaning) &middot; Putnam (<em>Two Dogmas Revisited</em>) &nbsp;&mdash;&nbsp; Anti-Quine: Grice &amp; Strawson (<em>In Defence of a Dogma</em>, 1956) &middot; Kripke (<em>Naming and Necessity</em>: separating necessity from analyticity) &middot; Boghossian (<em>Analyticity Reconsidered</em>: epistemic analyticity survives)</div>
+</div>
+<div class="columns">
+
+<!-- ═══════════════════════════════════════
+     LEFT: PRO-QUINE
+     Quine · Harman · Putnam
+═══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','quine',this)">Quine</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','harman',this)">Harman</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','putnam',this)">Putnam</button>
+  </div>
+
+  <!-- QUINE HEADER -->
+  <div class="col-header" id="prop-quine-header">
+    <div class="col-header-top"><span class="pill prop">Pro-Quine</span><span class="col-subtitle">W. V. O. Quine</span></div>
+    <div class="col-position">Harvard University &middot; &ldquo;Two Dogmas of Empiricism&rdquo; <em>Philosophical Review</em> 60 (1951) &middot; <em>Word and Object</em> (1960) &middot; <em>Ontological Relativity and Other Essays</em> (1969) &middot; The analyticity circle; Duhemian holism; the web of belief; naturalism as the consequence of rejecting the dogmas</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','quine','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','quine','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- HARMAN HEADER -->
+  <div class="col-header hidden" id="prop-harman-header">
+    <div class="col-header-top"><span class="pill prop">Pro-Quine</span><span class="col-subtitle">Gilbert Harman</span></div>
+    <div class="col-position">Princeton University &middot; <em>Change in View</em> (1986) &middot; &ldquo;The Death of Meaning&rdquo; and &ldquo;Analyticity Regained?&rdquo; in <em>Reasoning, Meaning and Mind</em> (1999) &middot; Inference to the best explanation as the model of belief revision; no principled distinction between revising logic and revising empirical theory; the holism runs all the way down</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','harman','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','harman','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- PUTNAM HEADER -->
+  <div class="col-header hidden" id="prop-putnam-header">
+    <div class="col-header-top"><span class="pill prop">Partial Defence</span><span class="col-subtitle">Hilary Putnam</span></div>
+    <div class="col-position">Harvard University &middot; &ldquo;&lsquo;Two Dogmas&rsquo; Revisited&rdquo; in <em>Realism and Reason</em> (1983) &middot; <em>Meaning and the Moral Sciences</em> (1978) &middot; Accepts Quine&rsquo;s holism but argues he conflates two separable theses; the meaning of &ldquo;meaning&rdquo; resists Quinean dissolution; natural kind terms and semantic externalism complicate the picture</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','putnam','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','putnam','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ QUINE ══ -->
+    <div class="speaker-panel active" id="prop-quine-panel">
+      <div id="prop-quine-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>Modern empiricism has been conditioned in large part by two dogmas. One is a belief in some fundamental cleavage between truths which are analytic &mdash; grounded in meanings independently of matters of fact &mdash; and truths which are synthetic, or grounded in fact. The other dogma is reductionism: the belief that each meaningful statement is equivalent to some logical construct upon terms which refer to immediate experience. Both dogmas, I have argued, are ill-founded. Let me say why.</p>
+        <div class="fact-box">
+          <strong>The two dogmas stated precisely</strong>
+          First dogma &mdash; the analytic/synthetic distinction: some truths are true purely in virtue of meaning (&ldquo;No bachelor is married&rdquo;), independently of any facts about the world; others are true in virtue of fact (&ldquo;The cat is on the mat&rdquo;). Second dogma &mdash; semantic reductionism: each meaningful statement can be translated, statement by statement, into some empiricist language of immediate experience. Both, Quine argues, are connected: the only way to save analyticity once it cannot be grounded in logic is to appeal to verification &mdash; analytic statements are those whose verification conditions are trivially or vacuously satisfied &mdash; but the verification theory is itself a form of reductionism, and reductionism falls to holism.
+        </div>
+        <span class="section">i. the analyticity circle</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Analyticity circle — every attempted definition of analyticity presupposes what it aims to explain; the circle is tight and the concept unintelligible</span>The first dogma rests on the notion of analyticity. But every attempt to explain analyticity turns out to presuppose it or concepts equally problematic. To say that &ldquo;No bachelor is married&rdquo; is analytic is to say it is true by virtue of meanings, specifically that &ldquo;bachelor&rdquo; is synonymous with &ldquo;unmarried man.&rdquo; But synonymy is as obscure as analyticity: to say two terms are synonymous is to say they are interchangeable <em>salva veritate</em> in all modal contexts &mdash; but that presupposes a notion of necessity, which is itself explained in terms of analyticity. We go round in circles: analyticity is explained by synonymy, synonymy by necessity, necessity by analyticity. No definition escapes the circle by appealing to semantic rules, because we only understand what a semantic rule is by knowing which rules are the analytic-preserving ones. The notion of analyticity has not been explained; it has been moved from one unexplained term to another within the same closed family.</span></p>
+        <span class="section">ii. the duhem-quine thesis and the second dogma</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Holism — statements face tribunal of experience collectively, not individually; no statement is immune from revision; no statement is purely analytic</span>The second dogma &mdash; reductionism &mdash; holds that each meaningful statement has its own empirical content: a range of experiences that would confirm or disconfirm it independently. This is what makes the analytic/synthetic distinction tractable: analytic statements are simply those whose confirmation range is vacuously broad (everything confirms them) and synthetic statements are those with a determinate confirmation range. But the Duhem-Quine thesis undermines this. Our statements about the external world face the tribunal of experience not individually but as a corporate body. A single statement, taken in isolation, faces no experiences at all: it is only in conjunction with auxiliary hypotheses, background theories, and the rest of our beliefs that any statement implies anything about experience. If this is right, then the unit of empirical significance is the whole body of knowledge &mdash; or at minimum a substantial portion of it &mdash; not the individual statement. And if the unit is holistic, then there are no isolated analytic truths immune from revision and no isolated synthetic truths each facing experience on their own.</span></p>
+        <span class="section">iii. the web of belief and the consequences</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Web of belief — beliefs form an interconnected web; any can be revised given sufficient pressure; logic and mathematics are not immune; pragmatism follows</span>The picture that emerges when both dogmas are abandoned is what I call the web of belief. Our total body of knowledge is like a man-made fabric that impinges on experience only at its edges. When experience recalcitrant to expectation occurs, the web must be readjusted &mdash; but there is a great deal of latitude in how to do this. We can revise any statement to accommodate the recalcitrant experience, provided we make enough adjustments elsewhere. Statements near the periphery of the web &mdash; those directly tied to experience &mdash; are more vulnerable to revision by recalcitrant experience. Statements near the centre &mdash; including the laws of logic and mathematics, previously thought to be analytic and immune from revision &mdash; are more protected, but they are not immune. No statement is held true come what may. The difference between logical and empirical truths is one of degree, not of kind. And the appropriate attitude, given this, is pragmatic: we hold those beliefs that best balance simplicity, predictive power, and consistency with experience.</span></p>
+        <span class="section">iv. the blurring of metaphysics and science</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Metaphysics/science — without the dogmas, the supposed boundary collapses; speculative metaphysics is continuous with natural science; ontological questions are internal to science</span>One of the most significant consequences of abandoning the two dogmas is the blurring of the boundary between speculative metaphysics and natural science. The logical positivists used the analytic/synthetic distinction to draw this boundary sharply: analytic statements belong to logic and mathematics (cognitively meaningful but vacuous), synthetic statements belong to empirical science (cognitively meaningful and factual), and everything else &mdash; traditional metaphysics, ethics, theology &mdash; is cognitively meaningless, neither analytic nor empirically verifiable. But if there is no principled analytic/synthetic distinction, this demarcation collapses. Metaphysical questions about the existence of abstract entities, the nature of causation, the structure of space-time, are not categorically different from scientific questions. They are continuous with science &mdash; higher-level, more abstract, less directly testable &mdash; but subject to the same pragmatic evaluation. Ontological questions are scientific questions answered by the best available scientific theory.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-quine-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The analyticity circle: every explication of analyticity presupposes it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Analyticity is explained by synonymy (&ldquo;bachelor&rdquo; = &ldquo;unmarried man&rdquo;). Synonymy is explained as interchangeability <em>salva veritate</em> in modal contexts. Modality (&ldquo;necessarily&rdquo;) is explained by analyticity. The circle is tight.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Attempts to break the circle via semantic rules fail: we only understand what counts as a semantic rule by presupposing which sentences are analytic; the notion is not independently grounded.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A concept that cannot be explained except by appeal to equally obscure co-explicanda is not a well-founded concept; analyticity has not been explained, only moved among equally unintelligible relatives.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>No satisfactory explanation of analyticity has been given; every attempted explication is circular; the first dogma rests on a concept that has not been rendered intelligible.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Holism: statements face experience as a corporate body; individual empirical content is a myth</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Duhem-Quine thesis: no isolated statement implies anything about experience; only in conjunction with auxiliary hypotheses, background theories, and the rest of our beliefs does any statement bear on experience.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If the unit of empirical significance is the body of beliefs collectively rather than individual statements, then no statement has its own individual empirical content; the second dogma &mdash; statement-by-statement empirical content &mdash; is false.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>And if no statement has isolated empirical content, then no statement is purely analytic (immune to all experience) or purely synthetic (facing experience independently); the distinction collapses.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Duhem-Quine thesis shows that empirical significance is holistic; this collapses both the second dogma (reductionism) and the first (analyticity), since both require that individual statements have isolable empirical or non-empirical content.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The web of belief: any statement can be revised; logic and mathematics are not immune</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Given holism, when experience is recalcitrant we can revise any statement in our web of belief, provided we make sufficient compensating adjustments elsewhere; there are no statements held true come what may.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Logic and mathematics, previously thought immune from revision (analytic), are protected by their centrality in the web but not immune: in principle, radical recalcitrance could lead us to revise the law of excluded middle, as quantum mechanics has suggested to some.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The difference between logical truths and empirical truths is therefore a difference in degree of centrality and resistance to revision, not a difference in kind between immune-from-experience and experience-dependent.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The web of belief picture shows that the analytic/synthetic distinction is at best a loose gradient of proximity to experience, not a sharp categorical boundary; the first dogma, understood as a sharp distinction, is false.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Metaphysics is continuous with science; the positivist demarcation collapses</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The positivist used the analytic/synthetic distinction to dismiss metaphysics as cognitively meaningless: neither analytic nor verifiable. Abandoning the distinction dissolves this demarcation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Metaphysical questions are continuous with scientific ones: higher-level, more abstract, less directly testable, but subject to the same pragmatic evaluation by simplicity, coherence, and predictive power.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Ontological questions &mdash; what kinds of things exist &mdash; are answered by the best available scientific theory; there is no privileged philosophical standpoint from which to legislate ontology independently of science.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Abandoning the two dogmas dissolves the positivist demarcation between science and metaphysics; the result is naturalism: philosophy is continuous with science, and ontological questions are answered by our best theory of the world.</span></div>
+        </div>
+      </div>
+    </div><!-- end quine -->
+
+    <!-- ══ HARMAN ══ -->
+    <div class="speaker-panel" id="prop-harman-panel">
+      <div id="prop-harman-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to take Quine&rsquo;s arguments further than Quine himself took them. Quine showed that the analytic/synthetic distinction cannot be grounded, and that our beliefs form a holistic web in which all are equally subject to revision in principle. What I want to add is a positive account of rational belief revision that makes the Quinean picture not merely negative but explanatory &mdash; and to press the point that the attempt to revive analyticity, whether by Grice and Strawson or by more recent theorists like Boghossian, systematically misunderstands what rational revision requires.</p>
+        <div class="pull">&ldquo;In reasoning, one relies on some of one&rsquo;s prior beliefs and intentions. Changes in view are always changes in a total view, never changes of a single belief in isolation. And what it is rational to add or subtract from one&rsquo;s view cannot be determined by looking at each belief independently, but only by looking at the total view and asking which changes make it most coherent, simple, and well-evidenced.&rdquo; &mdash; Harman, <em>Change in View</em> (1986)</div>
+        <span class="section">i. inference to the best explanation as the model of all belief revision</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Inference to best explanation — all rational belief revision, including logic, operates by IBE; no beliefs are revised by logic alone</span>Harman&rsquo;s central thesis in <em>Change in View</em> is that all rational belief revision is governed by inference to the best explanation, not by any algorithmic logical procedure. When we receive new information, we update our total view by asking which modification produces the most coherent, simple, and well-grounded overall picture. This means that logic &mdash; the laws of contradiction, excluded middle, modus ponens &mdash; is not a privileged set of revision-immune truths but a component of our total theory of the world, subject to the same evaluation by coherence and explanatory power that any other component faces. The suggestion that revising classical logic might produce a better total theory is not incoherent: it is simply an option that has so far been less coherent-making than alternatives. If this is right, then no belief is analytic in the sense of being immune to rational revision by considerations of coherence and explanatory fit. The death of analyticity follows from a general theory of rational revision, not merely from Quine&rsquo;s circularity argument.</span></p>
+        <span class="section">ii. there is no distinctive belief-revision mechanism for analytic truths</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">No distinctive mechanism — &apos;analytic&apos; truths are not revised differently from other beliefs; the claim that they are is empirically unsupported</span>The defender of analyticity needs to say not merely that some truths are analytic but that analytic truths are <em>revised differently</em> from synthetic ones &mdash; that they are held in a distinctive way, immune from the kind of empirical pressure that moves synthetic beliefs. But there is no evidence that this is true. When scientists revise a deeply held theoretical belief &mdash; whether it is a belief about the ether, about the simultaneity of spatially separated events, or about the discreteness of energy levels &mdash; the process by which they revise it is the same: they weigh the costs and benefits of revision against the costs and benefits of alternatives, guided by explanatory power and coherence. There is no class of beliefs that is revised by a distinctive mechanism of &ldquo;meaning-change&rdquo; rather than &ldquo;fact-change.&rdquo; The dichotomy is not reflected in the actual psychology of rational belief revision.</span></p>
+        <span class="section">iii. the boghossian challenge to holism</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against Boghossian — epistemic analyticity is a label not an explanation; it doesn&apos;t show beliefs can be revised by meaning alone</span>Boghossian has argued that epistemological analyticity &mdash; the idea that some sentences can be justifiably believed merely on the basis of understanding their meaning &mdash; survives Quine&rsquo;s attack on metaphysical analyticity. But I want to press on what this claim actually amounts to. If &ldquo;justifiable merely on the basis of understanding meaning&rdquo; means that understanding the meaning of &ldquo;bachelor&rdquo; is sufficient justification for believing &ldquo;all bachelors are unmarried,&rdquo; then this is either trivially true (competent speakers do believe this on the basis of understanding the terms) or it misidentifies what justifies the belief. The belief is justified not by its logical relation to its meaning but by its place in our total theory &mdash; by the fact that revising it would require massive and costly changes to the rest of our conceptual scheme. Boghossian&rsquo;s epistemic analyticity is either trivial or it smuggles in the very holistic structure it was supposed to transcend.</span></p>
+        <span class="section">iv. the pragmatic upshot</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Pragmatism — the correct attitude toward logic, mathematics, and science is uniform: pragmatic assessment by coherence and explanatory power</span>The correct attitude toward our total body of belief, including logic and mathematics, is uniformly pragmatic. We hold those beliefs that, in combination, best satisfy our desiderata of simplicity, coherence, comprehensiveness, and empirical adequacy. Logic and mathematics are extraordinarily well-entrenched not because they are immune from revision &mdash; nothing is &mdash; but because revising them would require such massive reconfigurations of the rest of our beliefs that the costs are almost never worth the benefit. This pragmatic account explains the appearance of immunity without positing a special category of analytic truths. It is explanatorily parsimonious and consistent with the actual history of how deeply held beliefs have been revised when the pressure was great enough. Quantum mechanics prompted serious discussion of revising classical logic; the discussion was eventually set aside, but not because classical logic was analytic.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-harman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; All rational belief revision, including logic, operates by inference to the best explanation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>All rational belief revision is governed by inference to the best explanation: we update by asking which modification produces the most coherent, simple, and well-grounded overall picture. This applies to logical as much as empirical beliefs.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Revising classical logic would be less coherence-making than alternatives in our current situation; but this is a contingent fact about the best available theories, not a logical impossibility.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If no belief is immune from rational revision by coherence and explanatory-power considerations, then no belief is analytic in the sense of revision-immune; the death of analyticity follows from the general theory of rational revision.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The IBE model of rational belief revision shows that no beliefs &mdash; including logic and mathematics &mdash; are immune from revision; analyticity as revision-immunity is false, and the first dogma is undermined by the correct account of rational belief revision.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; No distinctive belief-revision mechanism for analytic truths exists or is evidenced</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The analyticity defender needs analytic truths to be revised differently &mdash; by a distinctive mechanism of &ldquo;meaning-change&rdquo; rather than &ldquo;fact-change&rdquo; &mdash; to be immune from the empirical pressure that moves synthetic beliefs.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The actual history of scientific belief revision shows no such distinctive mechanism: revisions of deeply held theoretical beliefs &mdash; ether, absolute simultaneity, energy continuity &mdash; all follow the same pattern of cost-benefit analysis under IBE.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Without a distinctive revision mechanism, there is no functional difference between &ldquo;analytic&rdquo; and &ldquo;well-entrenched&rdquo; beliefs; the category of analyticity is doing no work that entrenchment plus IBE cannot do.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The supposed distinctive revision mechanism for analytic truths is not evidenced in the actual history of belief revision; analyticity reduces to high entrenchment within the IBE framework, and the distinction is not principled.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Boghossian&rsquo;s epistemic analyticity is either trivial or presupposes holism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Boghossian&rsquo;s claim: some sentences can be justifiably believed merely on the basis of understanding their meaning. If this means competent speakers believe &ldquo;all bachelors are unmarried&rdquo; on the basis of knowing what &ldquo;bachelor&rdquo; means &mdash; trivially true but not the philosophically loaded claim needed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If it means the belief is <em>justified</em> by meaning alone &mdash; independent of its coherence with the rest of our beliefs &mdash; then this is false: what justifies the belief is its extraordinary entrenchment, the massive cost of revising it within our total theory.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Epistemic analyticity is thus either trivial (competent speakers believe these sentences) or it smuggles in the holistic structure it was supposed to transcend.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Boghossian&rsquo;s epistemic analyticity is either trivial or it presupposes holism; it does not provide a third alternative between Quinean holism and the failed first dogma.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Pragmatism about logic and mathematics: high entrenchment, not analyticity, explains apparent immunity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Logic and mathematics appear immune from revision because revising them would require massive reconfigurations of our total belief system &mdash; an extraordinarily costly change under IBE. This explains the appearance of immunity without positing a special category.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The history of science confirms this: quantum mechanics prompted serious philosophical discussion of revising classical logic; the revision was rejected not because classical logic is analytic but because available quantum logics imposed greater total costs.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The pragmatic, holistic account is explanatorily parsimonious: it explains the appearances without positing a philosophically mysterious analytic/synthetic boundary.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>High entrenchment within the IBE framework explains the apparent immunity of logic and mathematics without appealing to analyticity; the pragmatic account is both more parsimonious and more consistent with the actual history of scientific belief revision.</span></div>
+        </div>
+      </div>
+    </div><!-- end harman -->
+
+    <!-- ══ PUTNAM ══ -->
+    <div class="speaker-panel" id="prop-putnam-panel">
+      <div id="prop-putnam-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My position is complex and has evolved. I want to both partially defend Quine and partially depart from him &mdash; in a way that I think is more illuminating than either wholehearted Quinean holism or the traditionalist defences of analyticity. The picture I want to paint is one in which Quine is substantially right about the holism, but has conflated two separable theses, and in which the philosophy of language after Quine &mdash; particularly the recognition of semantic externalism &mdash; changes the terms of the debate in ways that neither Quine nor his original critics anticipated.</p>
+        <div class="pull">&ldquo;Quine was right that there is no analytic/synthetic distinction if the &lsquo;analytic&rsquo; means &lsquo;immune from revision by experience.&rsquo; But he was wrong to think that this is the only interesting distinction between types of truths, and he was wrong to think that it follows from holism that there are no truths of meaning. The meaning of meaning is not dissolved by holism.&rdquo; &mdash; Putnam, paraphrasing his own position in <em>&lsquo;Two Dogmas&rsquo; Revisited</em></div>
+        <span class="section">i. what quine got right: the inseparability of science and philosophy</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Quine right on holism — science and philosophy are continuous; the positivist demarcation was artificial; revisability of logic is a live option</span>Quine was right that the positivist demarcation between logic/mathematics (analytic, immune) and empirical science (synthetic, revisable) was artificial and untenable. The history of science vindicates this: the special theory of relativity required revising what appeared to be logical truths about simultaneity and absolute rest. Quantum mechanics requires, on some interpretations, revising classical logic. Geometry &mdash; once the paradigm of a priori analytic knowledge &mdash; has been empirically revised. What is true a priori at one stage of inquiry can become false a posteriori at a later stage. Quine&rsquo;s holism captures this historical pattern correctly. The positivist picture of a fixed a priori framework immune from empirical revision is historically and philosophically naive.</span></p>
+        <span class="section">ii. where quine went wrong: conflating two theses</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Quine wrong on meaning — holism doesn&apos;t dissolve meaning; Quine conflates revisability with meaninglessness of synonymy</span>But Quine makes a move that does not follow from his holism: he concludes from the revisability of apparently analytic truths that the notion of meaning (and synonymy) is unintelligible. This is a non-sequitur. From the fact that &ldquo;all bachelors are unmarried&rdquo; is in principle revisable, it does not follow that &ldquo;bachelor&rdquo; and &ldquo;unmarried man&rdquo; mean the same thing is unintelligible. These are separable theses. The first thesis &mdash; everything is revisable &mdash; is defensible. The second &mdash; meaning is eliminable &mdash; is much more radical and requires independent argument that Quine does not supply. He is entitled to say that no truth is unrevisable; he is not entitled to say that there are no truths of meaning. Grice and Strawson were right to insist that synonymy is a perfectly intelligible ordinary-language concept, even if it does not carve out an immune class of truths.</span></p>
+        <span class="section">iii. semantic externalism and the meaning of &ldquo;meaning&rdquo;</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Externalism — the meaning of natural kind terms is fixed by external facts, not by internal descriptions; this creates a new class of necessary a posteriori truths that Quine&apos;s framework cannot accommodate</span>My own subsequent work on semantic externalism &mdash; the view that the meanings of natural kind terms like &ldquo;water&rdquo; and &ldquo;gold&rdquo; are determined partly by facts about the external world rather than solely by speakers&rsquo; internal descriptions &mdash; creates a further complication for Quine&rsquo;s picture. If the meaning of &ldquo;water&rdquo; is partly determined by its actual chemical composition (H₂O), then &ldquo;water is H₂O&rdquo; is in some sense true in virtue of the meaning of &ldquo;water&rdquo; as used in our world &mdash; even though this is an empirical discovery, not an a priori truth. This seems to yield a new class of truths &mdash; necessary but a posteriori, as Kripke later made explicit &mdash; that fits neither Quine&rsquo;s picture (no analytic truths) nor the traditional picture (only a priori truths are necessary). The rigid-designator framework has created a more complex semantic landscape than either Quine or his positivist predecessors envisioned.</span></p>
+        <span class="section">iv. the lasting significance of quine&rsquo;s attack</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Quine&apos;s legacy — the dogmas are dead; their death opened philosophy to naturalism, externalism, and the recognition that conceptual revision is continuous with scientific revision</span>Whatever its specific limitations, Quine&rsquo;s attack on the two dogmas was philosophically liberating in a way that more than justifies its canonical status. It freed philosophy from the positivist straitjacket of the protocol sentence and the analytic/synthetic boundary. It opened the door to naturalism: the view that philosophy proceeds by the same methods as science, with the same fallibility and the same potential for revision. It prepared the way for semantic externalism by showing that the internal description of a concept does not exhaust its meaning &mdash; that meaning is not simply a function of the speaker&rsquo;s head. And it showed that the boundary between conceptual revision and empirical discovery is far more permeable than the positivists imagined. These are permanent contributions to philosophy of language and epistemology, regardless of the fate of the specific arguments about analyticity.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-putnam-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Quine right on holism: the positivist a priori framework has been historically revised</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Special relativity revised apparently logical truths about simultaneity and absolute rest; quantum mechanics prompts revision of classical logic; geometry was revised empirically. These are historical vindications of Quinean revisability.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>What is true a priori at one stage of inquiry can become false a posteriori at a later stage; the positivist picture of a fixed immune a priori framework is historically naive and philosophically untenable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Quine&rsquo;s holism correctly captures the historical pattern of scientific inquiry: philosophy and science are continuous, and conceptual revision is part of scientific progress.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Quine&rsquo;s holism and the rejection of the immune a priori framework are vindicated by the history of science; the positivist picture was historically and philosophically untenable; Quine was right on this point.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Quine wrong on meaning: revisability does not entail the unintelligibility of synonymy</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Quine&rsquo;s argument: analytic truths are revisable; therefore there is no principled analytic/synthetic distinction; therefore the notion of meaning (synonymy) is unintelligible. This conflates two separable theses.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>From the fact that &ldquo;all bachelors are unmarried&rdquo; is in principle revisable, it does not follow that &ldquo;bachelor&rdquo; and &ldquo;unmarried man&rdquo; are not synonymous; revisability of truths and intelligibility of meaning are distinct questions.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Grice and Strawson were right that synonymy is an intelligible ordinary-language concept; Quine is entitled to the revisability thesis but not to the eliminability-of-meaning thesis without further independent argument.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Quine conflates two separable theses; the revisability of analytic truths does not entail the unintelligibility of synonymy; he is entitled to holism but not to the eliminability of meaning without independent argument.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Semantic externalism: meaning is partly external; a new class of necessary a posteriori truths emerges</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The meaning of natural kind terms like &ldquo;water&rdquo; is determined partly by external facts (actual chemical composition: H₂O), not solely by speakers&rsquo; internal descriptions; meaning outruns internal conceptual content.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>&ldquo;Water is H₂O&rdquo; is in some sense true in virtue of the meaning of &ldquo;water&rdquo; as used in our world, yet was discovered empirically; this seems to yield truths that are necessary but a posteriori, fitting neither Quine&rsquo;s nor the positivists&rsquo; picture.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This creates a more complex semantic landscape than either Quine or his positivist predecessors envisioned: the rigid-designator framework, developed by Kripke, shows that the categories of the necessary and the a priori are not coextensive.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Semantic externalism creates a class of necessary a posteriori truths that cannot be accommodated by either Quinean holism or traditional analyticity; the debate has moved to a richer semantic landscape that transcends the original terms of the dispute.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; Quine&rsquo;s lasting significance: naturalism, externalism, and the permeability of conceptual and empirical revision</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Quine&rsquo;s attack freed philosophy from the positivist demarcation, opened the door to naturalism (philosophy proceeds by the same methods as science), and prepared the way for semantic externalism by showing that meaning is not exhausted by internal description.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The recognition that conceptual revision is continuous with empirical discovery &mdash; a permanent Quinean contribution &mdash; is vindicated by the history of science and by the post-Quinean development of philosophy of language.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These contributions are permanent regardless of the fate of the specific analyticity arguments; Quine&rsquo;s philosophical legacy is secure even where his specific arguments require qualification.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Quine&rsquo;s attack on the two dogmas has permanent philosophical significance in its liberation of philosophy from positivism, its opening of naturalism, and its contribution to semantic externalism, even where its specific arguments about synonymy require qualification.</span></div>
+        </div>
+      </div>
+    </div><!-- end putnam -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════════════════════════
+     RIGHT: ANTI-QUINE
+     Grice & Strawson · Kripke · Boghossian
+═══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','grice',this)">Grice &amp; Strawson</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','kripke',this)">Kripke</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','boghossian',this)">Boghossian</button>
+  </div>
+
+  <!-- GRICE/STRAWSON HEADER -->
+  <div class="col-header" id="opp-grice-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">H. P. Grice &amp; P. F. Strawson</span></div>
+    <div class="col-position">Oxford &middot; &ldquo;In Defence of a Dogma&rdquo; <em>Philosophical Review</em> 65 (1956) &middot; Quine&rsquo;s standards for explicating analyticity are unreasonably high; the analyticity/synonymy cluster is a perfectly intelligible family of related concepts; refusing analyticity leads to refusing all intentional concepts</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','grice','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','grice','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- KRIPKE HEADER -->
+  <div class="col-header hidden" id="opp-kripke-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Saul Kripke</span></div>
+    <div class="col-position">Princeton &middot; <em>Naming and Necessity</em> (lectures 1970, published 1980) &middot; The necessary/contingent distinction is independent of the analytic/a priori distinction; necessary a posteriori truths and contingent a priori truths show the old framework was wrong; Quine&rsquo;s attack on modality is undermined</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','kripke','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','kripke','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BOGHOSSIAN HEADER -->
+  <div class="col-header hidden" id="opp-boghossian-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Paul Boghossian</span></div>
+    <div class="col-position">New York University &middot; &ldquo;Analyticity Reconsidered&rdquo; <em>No&ucirc;s</em> 30 (1996) &middot; Distinguishes metaphysical from epistemological analyticity; while Quine may have been right to reject the former, the latter survives and can explain the a priori without the objectionable metaphysics; implicit definition as the mechanism</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','boghossian','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','boghossian','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ GRICE & STRAWSON ══ -->
+    <div class="speaker-panel active" id="opp-grice-panel">
+      <div id="opp-grice-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>We published our reply to Quine in 1956, and we stand by its central arguments. Quine has set an unreasonably high standard for explicating the notion of analyticity, and then declared the failure to meet this standard as evidence that the concept is unintelligible. The argument is fallacious. We will show that the analyticity/synonymy cluster of concepts is perfectly intelligible as a matter of ordinary linguistic practice, that Quine&rsquo;s standards would destroy far more than the analytic/synthetic distinction, and that the actual use of these concepts by competent speakers is all the vindication they need.</p>
+        <div class="pull">&ldquo;We wish to maintain that Quine&rsquo;s attempt to find out what the analytic-synthetic distinction is fails, and fails because he sets too high a standard for its explication. Quine argues that &lsquo;analytic&rsquo; cannot be adequately explained; we claim that it can be, at any rate as well as a great many other concepts that no one would wish to reject.&rdquo; &mdash; Grice &amp; Strawson, <em>In Defence of a Dogma</em> (1956)</div>
+        <span class="section">i. quine&rsquo;s standards are unreasonably high</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">High standards — Quine&apos;s demand for explication of &apos;analytic&apos; is not satisfied by any ordinary concept; the charge of unintelligibility proves too much</span>Quine demands that the concept of analyticity be explicable without appeal to any concepts in the same circle of interrelated notions: synonymy, necessity, meaning, semantic rule. But this demand, applied uniformly, would destroy virtually every philosophical concept. Consider: &ldquo;cause&rdquo; can only be explained by appeal to concepts like counterfactual dependence, regularity, and mechanism, each of which is as philosophically contentious as the others. &ldquo;Knowledge&rdquo; is explained by appeal to truth, belief, and justification, each of which requires explanation in turn. Quine&rsquo;s demand that analyticity be explained without appeal to co-circular notions would, if applied universally, generate a philosophical scepticism so sweeping that it would destroy the enterprise of conceptual explication entirely. The demand proves too much. The failure of any concept to be explained without appeal to related concepts does not show it is unintelligible; it shows it belongs to a cluster of mutually illuminating concepts, which is the normal situation in philosophy.</span></p>
+        <span class="section">ii. the ordinary-language criterion</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Ordinary language — analyticity and synonymy are perfectly intelligible ordinary concepts; competent speakers reliably distinguish analytic from synthetic sentences</span>There is a test for whether a concept is intelligible that Quine ignores: ordinary linguistic practice. Competent speakers of English can and do reliably distinguish sentences like &ldquo;No bachelor is married&rdquo; from sentences like &ldquo;No bachelor is happy.&rdquo; They regard the first as true in virtue of meaning in a way the second is not. This is not a philosophically sophisticated judgement; it is an exercise of ordinary linguistic competence. If the concept of analyticity were unintelligible, this distinction would not be systematically and reliably drawn by competent speakers. But it is. The concept, whatever its philosophical complexities, is perfectly functional in ordinary linguistic practice &mdash; and ordinary linguistic practice is the primary criterion of intelligibility for an ordinary-language concept.</span></p>
+        <span class="section">iii. the consequence of rejecting synonymy</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Meaning scepticism — Quine&apos;s rejection of synonymy entails rejecting meaning itself; a reductio</span>Quine&rsquo;s scepticism about synonymy has a consequence that he does not sufficiently acknowledge. If no two expressions are synonymous &mdash; if there is no such relation as sameness of meaning &mdash; then there is no such thing as meaning at all. For to say an expression has a meaning is to say that it has the same meaning as itself: the meaning of &ldquo;bachelor&rdquo; is the meaning of &ldquo;bachelor.&rdquo; If synonymy is unintelligible, this reflexive claim is unintelligible, and the notion of an expression having a meaning collapses. But Quine cannot coherently accept this. His own account of holism &mdash; his description of the web of belief and the confrontation of theory with experience &mdash; uses concepts like &ldquo;sentence,&rdquo; &ldquo;statement,&rdquo; &ldquo;belief,&rdquo; each of which is individuated by its meaning. Quine&rsquo;s own philosophical apparatus presupposes what his argument is supposed to eliminate. This is a reductio of Quine&rsquo;s position.</span></p>
+        <span class="section">iv. the scope of quine&rsquo;s success</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Scope — Quine shows the distinction cannot be sharply drawn at the boundary; he does not show it doesn&apos;t exist at the core</span>We want to concede something to Quine: he has shown that the analytic/synthetic distinction cannot be drawn with perfect precision at the boundary, and that the positivist aspiration to a sharp criterion separating the two classes was unattainable. There are borderline cases: &ldquo;Nothing can be red and green all over&rdquo; &mdash; is this analytic? It is not obvious. But the existence of borderline cases does not show there are no clear cases. &ldquo;No bachelor is married&rdquo; is a clear analytic case; &ldquo;The cat is on the mat&rdquo; is a clear synthetic case. Many important distinctions have fuzzy boundaries without being unintelligible: the distinction between tall and not-tall, between bald and not-bald, between knowledge and mere belief. Quine has attacked the border; he has not attacked the core. The distinction, suitably chastened and relieved of positivist excess, stands.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-grice-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Quine&rsquo;s standards are unreasonably high and prove too much if applied uniformly</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Quine demands that &ldquo;analytic&rdquo; be explicable without appeal to concepts in its circle (synonymy, necessity, meaning). But &ldquo;cause,&rdquo; &ldquo;knowledge,&rdquo; and most philosophical concepts can only be explained by appeal to equally contested co-circular notions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Applied uniformly, Quine&rsquo;s standard would destroy virtually every philosophical concept, generating a scepticism so sweeping it would eliminate the enterprise of conceptual explication entirely.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A philosophical standard that proves too much if applied uniformly is not a legitimate standard; the charge of unintelligibility against analyticity does not succeed because the same charge could be levelled at concepts no sceptic would wish to reject.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Quine&rsquo;s explication-standard is unreasonably high and proves too much; the failure of analyticity to meet this standard is not evidence of its unintelligibility but evidence that the standard is wrong.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Ordinary linguistic practice shows analyticity is intelligible: competent speakers reliably distinguish the cases</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Competent English speakers reliably distinguish &ldquo;No bachelor is married&rdquo; from &ldquo;No bachelor is happy&rdquo;: they regard the first as true in virtue of meaning in a way the second is not. This distinction is reliably drawn without philosophical training.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If the concept of analyticity were unintelligible, this distinction would not be systematically and reliably drawn. But it is. The concept is therefore intelligible by the primary criterion of intelligibility for ordinary concepts: systematic use by competent speakers.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Quine&rsquo;s argument focuses on the failure to provide a philosophically satisfying reduction of analyticity; but intelligibility does not require reduction, only systematic use.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Ordinary linguistic practice establishes that analyticity is intelligible; competent speakers reliably apply it; the concept&rsquo;s failure to be reducible to non-circular terms does not show it is unintelligible.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Rejecting synonymy entails rejecting meaning: a reductio of Quine&rsquo;s position</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If no two expressions are synonymous, then no expression has a meaning (since having a meaning entails being synonymous with itself &mdash; trivially). Quine&rsquo;s rejection of synonymy entails the elimination of meaning.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But Quine&rsquo;s own holistic account of the web of belief presupposes that sentences, statements, and beliefs can be individuated &mdash; and they can only be individuated by their meanings. His philosophical apparatus presupposes what his argument eliminates.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is a reductio: the argument for eliminating synonymy uses concepts that presuppose synonymy; it is self-undermining.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Quine&rsquo;s rejection of synonymy entails the elimination of meaning, which his own philosophical apparatus presupposes; this is a reductio of his position and shows the rejection of synonymy cannot be consistently maintained.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Quine attacks the border but not the core: clear cases survive fuzzy boundaries</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Quine is right that the analytic/synthetic distinction cannot be drawn with perfect precision at the boundary: there are borderline cases (&ldquo;Nothing can be red and green all over&rdquo;). This much we concede.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But clear cases remain: &ldquo;No bachelor is married&rdquo; is clearly analytic; &ldquo;The cat is on the mat&rdquo; is clearly synthetic. Many distinctions have fuzzy borders without being unintelligible: tall/not-tall, bald/not-bald. Fuzzy borders do not eliminate the distinction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Quine&rsquo;s attack on the border does not defeat the distinction at the core; a suitably chastened, non-positivist version of the analytic/synthetic distinction, limited to clear cases, survives his critique.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Quine&rsquo;s success is limited to showing that precise boundary conditions for analyticity cannot be given; the core distinction &mdash; clear analytic cases vs. clear synthetic ones &mdash; survives his critique; the distinction, suitably chastened, stands.</span></div>
+        </div>
+      </div>
+    </div><!-- end grice -->
+
+    <!-- ══ KRIPKE ══ -->
+    <div class="speaker-panel" id="opp-kripke-panel">
+      <div id="opp-kripke-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>Quine&rsquo;s attack on the two dogmas was directed at a specific package: the package in which analytic, necessary, and a priori are treated as co-extensive categories &mdash; different labels for the same underlying distinction between what is true by meaning alone and what requires empirical investigation. My argument is that this package is wrong, but not because Quine is right to dissolve all three categories. Rather, the three categories come apart: there are truths that are necessary but known a posteriori, and truths that are contingent but known a priori. Once we see this, the Quinean argument loses much of its force, because the interesting distinctions can be preserved in a new framework that does not rely on the positivist equation that Quine correctly attacks.</p>
+        <div class="fact-box">
+          <strong>Kripke&rsquo;s separation of the modalities</strong>
+          Quine (and the positivists) assumed: necessary = analytic = a priori. Kripke&rsquo;s framework separates these. <em>Necessary a posteriori</em>: &ldquo;Water is H₂O&rdquo; is necessary (true in every possible world where the relevant substance exists) but known a posteriori (discovered by empirical chemistry). <em>Contingent a priori</em>: &ldquo;The standard metre stick is one metre long&rdquo; is contingent (the stick could have been a different length) but known a priori (by the very stipulation that fixes the reference of &ldquo;one metre&rdquo;).
+        </div>
+        <span class="section">i. the necessary a posteriori</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Necessary a posteriori — &apos;water is H₂O&apos; is necessary but known empirically; necessity and a priority come apart; Quine&apos;s attack on the former does not touch the latter</span>Consider &ldquo;Water is H₂O.&rdquo; This was discovered empirically &mdash; it required chemistry to establish. In Quine&rsquo;s framework, it should therefore be synthetic and revisable: a claim about the world that could turn out to be false. But I argue it is necessary: in every possible world, the substance that plays the role water plays in our world &mdash; the watery stuff of our experience &mdash; is H₂O, because that is what water actually is. &ldquo;Water&rdquo; is a rigid designator &mdash; it refers to the same substance in every possible world &mdash; and since that substance is necessarily H₂O (it is constituted by H₂O in every world in which it exists), the identity is necessary even though it was discovered a posteriori. This shows that necessity and a priority are not coextensive: some necessities are empirically discovered. Quine&rsquo;s critique of analyticity, even if it succeeds, does not eliminate necessity; it only shows that the necessary does not coincide with the a priori.</span></p>
+        <span class="section">ii. the contingent a priori</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Contingent a priori — &apos;the standard metre stick is one metre&apos; is known a priori by stipulation but contingent; the categories cross-cut in both directions</span>Consider the statement &ldquo;The standard metre stick S is one metre long,&rdquo; made in the context of the original stipulation that fixes the reference of &ldquo;one metre.&rdquo; This statement is known a priori: the very act of stipulating that &ldquo;one metre&rdquo; means the length of S makes the statement true by stipulation, without the need for empirical measurement. But the statement is contingent: S could have been a different length, and if it had been, &ldquo;one metre&rdquo; would have referred to a different length. What we know a priori is not what is metaphysically necessary. These two categories cross-cut in both directions. Quine assumes that the interesting distinction is between a priori and a posteriori, which he then attacks by showing that the boundary is not sharp. But even if he is right about the a priori/a posteriori distinction, he has not touched the necessary/contingent distinction, which is a metaphysical distinction about how things could have been, not an epistemological distinction about how we know.</span></p>
+        <span class="section">iii. the new framework and its implications for analyticity</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">New framework — Kripke&apos;s separation allows analytic truths to be retained in the a priori/contingent quadrant while necessary a posteriori truths are added; the framework is richer than Quine allows</span>Once we separate necessity from a priority, a richer semantic framework becomes available. Analytic truths &mdash; if we retain the notion &mdash; can be placed in the a priori/contingent quadrant: sentences that are true by virtue of meaning, knowable without empirical investigation, but not necessarily true in the metaphysically robust sense (since meaning is a conventional matter and could have been otherwise). The necessary a posteriori goes in the a posteriori/necessary quadrant. And the contingent a priori goes in the a priori/contingent quadrant alongside the analytic. This framework does not vindicate the positivist's use of analyticity to establish the priority of logic and mathematics as immune from empirical revision. But it does show that Quine&rsquo;s critique of the positivist package is not a critique of every interesting distinction in the area; the modal, the epistemic, and the semantic distinctions survive in a form that Quine&rsquo;s holism cannot touch.</span></p>
+        <span class="section">iv. rigid designation and the critique of quine on modal logic</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Rigid designation — Quine&apos;s attack on quantified modal logic rests on confusing names with descriptions; rigid designators dissolve the problem</span>Quine famously attacked quantified modal logic on the grounds that de re modal statements &mdash; statements about what a specific object could or could not have been &mdash; generate intensional contexts that undermine standard logic. His argument relied on the observation that if we describe an object by different descriptions (&ldquo;the number of planets,&rdquo; &ldquo;nine&rdquo;), what appears to be necessary under one description appears contingent under the other. This shows, Quine thought, that modality is not coherent. But the rigid designator framework dissolves this problem. Proper names and natural kind terms are rigid designators: they refer to the same object in every possible world. When we substitute rigid designators for descriptions, the intensionality problems Quine identified disappear. Modal logic, properly interpreted using rigid designators, is coherent; Quine&rsquo;s critique rested on a confusion between descriptions and names.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-kripke-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Necessary a posteriori: &ldquo;Water is H₂O&rdquo; is necessary but empirically discovered</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>&ldquo;Water&rdquo; is a rigid designator: it refers to the same substance &mdash; H₂O &mdash; in every possible world. Therefore &ldquo;water is H₂O&rdquo; is true in every possible world in which the relevant substance exists: it is necessary.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The identity was discovered empirically through chemistry; it is not knowable a priori by conceptual analysis. Hence it is a posteriori. Necessity and a priority come apart: some necessities are empirically discovered.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Quine&rsquo;s critique of analyticity, even if it succeeds, does not eliminate necessity; it shows only that some necessary truths are not a priori; the modal category survives Quine&rsquo;s epistemic attack.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The necessary a posteriori shows that necessity and a priority are not coextensive; Quine&rsquo;s critique of the a priori does not eliminate the category of the necessary; a robust modal framework survives his attack.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Contingent a priori: &ldquo;The standard metre stick is one metre&rdquo; is known a priori but contingent</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The statement &ldquo;Stick S is one metre long&rdquo; is known a priori in the original stipulative context: the very act of fixing the reference of &ldquo;one metre&rdquo; makes this true without empirical measurement.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the statement is contingent: S could have been a different length. If it had been, &ldquo;one metre&rdquo; would have referred to a different quantity. The a priori knowable is not the metaphysically necessary.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These two categories cross-cut in both directions; Quine assumes they coincide and attacks the boundary between them; but once they are separated, his attack is misdirected.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The contingent a priori shows that a priority and necessity are not coextensive in either direction; Quine&rsquo;s attack on the analytic/a priori conflation misses the more fundamental modal/epistemic distinction.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The new framework: richer than Quine&rsquo;s dichotomy; the interesting distinctions survive</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Kripke&rsquo;s framework yields four cells: analytic (a priori, possibly contingent as conventional), necessary a posteriori, contingent a priori, and synthetic a posteriori. The positivist equation collapses but the interesting distinctions do not.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Quine&rsquo;s holism cannot touch the modal distinctions (necessary/contingent), which are metaphysical rather than epistemological; the web-of-belief picture is an epistemological theory and does not directly address modal metaphysics.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The richer framework shows that Quine&rsquo;s critique is a critique of the positivist package (analytic = necessary = a priori), not of the modal, epistemic, and semantic distinctions separately maintained.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Kripke&rsquo;s separation of the modalities yields a richer framework than Quine&rsquo;s binary; the interesting distinctions survive Quine&rsquo;s critique; only the positivist conflation is destroyed, not the underlying categories.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Rigid designation dissolves Quine&rsquo;s critique of modal logic</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Quine argued that de re modal statements generate intensional contexts that undermine standard logic: &ldquo;the number of planets&rdquo; is necessarily 9 under one description, contingently under another. This appeared to show modality is incoherent.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Rigid designators &mdash; proper names and natural kind terms &mdash; refer to the same object in every possible world; substituting them for descriptions eliminates the intensionality problems Quine identified.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Quine&rsquo;s critique of modal logic rested on the confusion of rigid with non-rigid designators; once that confusion is cleared up, modal logic is coherent and Quine&rsquo;s objection dissolves.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Rigid designation dissolves Quine&rsquo;s critique of modal logic; the intensionality problems he identified were artefacts of the confusion between descriptions and names; modal logic is coherent under the rigid designator framework.</span></div>
+        </div>
+      </div>
+    </div><!-- end kripke -->
+
+    <!-- ══ BOGHOSSIAN ══ -->
+    <div class="speaker-panel" id="opp-boghossian-panel">
+      <div id="opp-boghossian-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My strategy is to accept more of Quine&rsquo;s critique than Grice and Strawson did, and yet to show that what survives is philosophically more important. Quine may have been right to reject what I will call <em>metaphysical analyticity</em> &mdash; the idea that some sentences are true purely in virtue of meaning, where this is a metaphysical claim about the relationship between truth and meaning. But he was wrong to reject &mdash; or rather, he never properly engaged with &mdash; what I call <em>epistemological analyticity</em>: the idea that some sentences can be justifiably believed merely on the basis of understanding their meaning. The epistemological notion is what does the philosophically important work, and it survives Quine&rsquo;s critique.</p>
+        <div class="pull">&ldquo;It further argues that, while Quine may have been right to reject the metaphysical notion [of analyticity], the epistemological notion can be defended from his critique and put to work explaining a priori justification. We need to distinguish between a sentence that is &lsquo;true purely in virtue of its meaning&rsquo; and a sentence that &lsquo;can be justifiably believed merely on the basis of understanding its meaning&rsquo;.&rdquo; &mdash; Boghossian, <em>Analyticity Reconsidered</em> (1996)</div>
+        <span class="section">i. the metaphysical/epistemological distinction</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Two analyticity concepts — metaphysical (true in virtue of meaning) vs. epistemological (justifiably believed in virtue of meaning); Quine attacks the former; the latter survives</span>Metaphysical analyticity: a sentence is metaphysically analytic if it is true purely in virtue of its meaning &mdash; if the fact that it is true is fully explained by the meaning of its terms, without any contribution from the world. This is the notion that Quine attacks, and his attack is at least partially successful: the notion of truth being explained by meaning alone is obscure, and the positivist attempts to cash it out do fall into the analyticity circle. Epistemological analyticity: a sentence is epistemologically analytic if understanding its meaning is sufficient for being justified in believing it &mdash; if grasping what the sentence says gives one all the justification one needs for accepting it. This notion is more defensible. It does not require a metaphysical claim about what makes the sentence true; it makes an epistemological claim about what justifies belief in it. The epistemological notion is what does the philosophical work in explaining the a priori, and Quine&rsquo;s critique of the metaphysical notion does not transfer to it.</span></p>
+        <span class="section">ii. implicit definition and a priori justification</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Implicit definition — logical constants get their meaning from implicit definitions constituted by our inferential dispositions; accepting the definition justifies accepting the logical truths</span>How does epistemic analyticity work for logical truths like &ldquo;All bachelors are unmarried&rdquo; or the law of modus ponens? My account appeals to implicit definition. The logical constants &mdash; &ldquo;and,&rdquo; &ldquo;not,&rdquo; &ldquo;if...then&rdquo; &mdash; get their meanings partly from the inferential rules that govern their use: modus ponens partly constitutes what &ldquo;if...then&rdquo; means. Accepting modus ponens is part of what it is to understand &ldquo;if...then.&rdquo; Consequently, a competent user of &ldquo;if...then&rdquo; is entitled to accept modus ponens on the basis of understanding the conditional &mdash; not because the logical law is metaphysically guaranteed by meaning, but because the meaning of &ldquo;if...then&rdquo; is partly constituted by commitment to the inference rule. This is a non-circular, epistemologically tractable account of how logical truths are known a priori.</span></p>
+        <span class="section">iii. the holism objection reconsidered</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against holism — Quine&apos;s holism doesn&apos;t show that no beliefs are justified by meaning alone; it shows that all beliefs face experience together, which is compatible with some being meaning-constituted</span>Harman argues that Quine&rsquo;s holism shows that no beliefs are justified by meaning alone: all justification is holistic, and beliefs are justified only in relation to the total web. But this does not follow from holism. Holism is a thesis about what beliefs confront experience together &mdash; about the unit of confirmation and disconfirmation. It says that when experience is recalcitrant, we can revise any belief, including logical ones. But this is compatible with holding that some beliefs are meaning-constituted in a way that gives them a distinctive epistemic status: they can be justified by understanding their meaning, even if they can also be revised in extremis. Revisability and meaning-constitution are not incompatible. The fact that a belief can in principle be revised does not show that it cannot be justified by meaning. Meaning-constituted beliefs are just the last to go.</span></p>
+        <span class="section">iv. non-factualism about analyticity would be self-refuting</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Self-refutation — Quine&apos;s non-factualism about meaning entails non-factualism about Quine&apos;s own claims; the position is self-undermining</span>Quine&rsquo;s position is not merely that there is no analytic/synthetic distinction. It is, more radically, that there are no facts about synonymy or meaning at all &mdash; that the very notion of a sentence meaning something is not a well-defined factual matter. But this non-factualism about meaning, if accepted, applies to Quine&rsquo;s own sentences. When Quine says &ldquo;there is no analytic/synthetic distinction,&rdquo; this sentence either has a determinate meaning or it does not. If it does, non-factualism is false. If it does not &mdash; if it is just a sequence of noises with no determinate content &mdash; then it makes no claim that could be true or false, and the argument is not an argument at all. Quine&rsquo;s non-factualism about meaning is self-refuting: it undermines the very sentences by which it tries to state itself. This is not a peripheral problem. It is a reductio of the most radical form of Quinean scepticism about meaning.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-boghossian-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Metaphysical vs. epistemological analyticity: Quine attacks the former; the latter survives</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Metaphysical analyticity: true purely in virtue of meaning &mdash; a metaphysical claim about what makes sentences true. Quine&rsquo;s attack on the analyticity circle is at least partially successful against this notion; it is obscure.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Epistemological analyticity: justifiably believable merely on the basis of understanding meaning &mdash; an epistemological claim about what justifies belief. This does not require the metaphysical claim and Quine&rsquo;s critique of the latter does not transfer to the former.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The epistemological notion is what does the philosophical work in explaining the a priori; it is what is needed to explain how we have knowledge that does not seem to depend on empirical investigation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Distinguishing metaphysical from epistemological analyticity shows that Quine&rsquo;s critique, even if successful against the former, does not undermine the latter; epistemological analyticity survives and can explain the a priori.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Implicit definition: logical constants get their meanings from inferential dispositions; this grounds a priori justification</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Logical constants get their meanings partly from the inferential rules governing their use: accepting modus ponens is partly constitutive of understanding &ldquo;if...then.&rdquo; Meaning is implicitly defined by inferential commitment.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A competent user of &ldquo;if...then&rdquo; is thereby entitled to accept modus ponens on the basis of understanding the conditional: the justification is epistemologically analytic, grounded in meaning-constitution, not in empirical evidence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is a non-circular, epistemologically tractable account of a priori knowledge of logical truths that does not require the obscure metaphysical claim that logic is true in virtue of meaning alone.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Implicit definition provides a non-circular epistemological account of a priori justification for logical truths; this account does not invoke metaphysical analyticity and is not undermined by Quine&rsquo;s critique.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Holism does not show that beliefs cannot be justified by meaning; revisability is compatible with meaning-constitution</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Quine&rsquo;s holism: all beliefs face experience together; any can be revised in extremis. Harman uses this to argue that no belief is justified by meaning alone.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But holism is a thesis about confirmation and revision, not about the source of justification. A belief can be meaning-constituted (justified by understanding the meaning) and also revisable in extremis; these are compatible claims.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Meaning-constituted beliefs are just the last to go in the face of recalcitrant experience &mdash; as Quine himself acknowledges when he says logical truths are central to the web of belief. Their central position is explained by their meaning-constitution.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Holism is compatible with meaning-constitution; revisability in extremis does not preclude justification by meaning; epistemic analyticity survives Harman&rsquo;s holism-based objection.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; Non-factualism about meaning is self-refuting: Quine&rsquo;s sentences would themselves lack content</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Quine&rsquo;s most radical position is that there are no facts about synonymy or meaning &mdash; that meaning-claims are not genuine factual claims. This is non-factualism about meaning.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Non-factualism about meaning applies to Quine&rsquo;s own sentences: &ldquo;there is no analytic/synthetic distinction&rdquo; either has a determinate meaning (contradicting non-factualism) or it does not (making it no argument at all).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A philosophical position that undermines the very sentences by which it states itself is self-refuting; non-factualism about meaning is self-refuting in precisely this way.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Quinean non-factualism about meaning is self-refuting: it undermines the very sentences by which it tries to state itself; this is a reductio of the most radical form of Quine&rsquo;s scepticism about meaning and analyticity.</span></div>
+        </div>
+      </div>
+    </div><!-- end boghossian -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'quine',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'grice',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
