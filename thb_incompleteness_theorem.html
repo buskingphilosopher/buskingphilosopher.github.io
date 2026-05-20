@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gödel's Incompleteness Theorems — The Philosophical Debate</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-col:#7888b8;--prop-pill:#181e30;--prop-pill-bdr:#303858;
+  --opp-col:#a07840;--opp-pill:#281e0a;--opp-pill-bdr:#605020;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp  .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .fact-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .fact-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.25rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Logic, Mathematics &amp; Philosophy of Mind Symposium &mdash; From the Incompleteness Theorems to Their Philosophical Legacy</div>
+  <div class="motion-title">&ldquo;This House Believes that G&ouml;del&rsquo;s Incompleteness Theorems Have Deep Philosophical Implications Beyond Mathematical Logic&rdquo;</div>
+  <div class="motion-sub">Proposition: G&ouml;del (Platonism &amp; mathematical intuition) &middot; Lucas &amp; Penrose (mind transcends mechanism) &middot; Hofstadter (strange loops, self-reference, and consciousness) &nbsp;&mdash;&nbsp; Opposition: Feferman (incompleteness proves less than claimed) &middot; Wittgenstein (grammatical misuse of the theorem) &middot; Detlefsen (formalism survives; Hilbert&rsquo;s program not destroyed)</div>
+</div>
+<div class="columns">
+
+<!-- ═══════════════════════════════════════
+     LEFT: PROPOSITION — Deep implications
+     Gödel · Lucas & Penrose · Hofstadter
+═══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','godel',this)">G&ouml;del</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','penrose',this)">Lucas &amp; Penrose</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','hofstadter',this)">Hofstadter</button>
+  </div>
+
+  <!-- GÖDEL HEADER -->
+  <div class="col-header" id="prop-godel-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Kurt G&ouml;del</span></div>
+    <div class="col-position">Institute for Advanced Study, Princeton &middot; &ldquo;On Formally Undecidable Propositions&rdquo; (1931) &middot; &ldquo;What is Cantor&rsquo;s Continuum Problem?&rdquo; (1947, rev. 1964) &middot; &ldquo;Russell&rsquo;s Mathematical Logic&rdquo; (1944) &middot; The theorems vindicate mathematical Platonism; mathematical intuition perceives truths beyond formal proof; the mind is not a Turing machine</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','godel','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','godel','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- PENROSE HEADER -->
+  <div class="col-header hidden" id="prop-penrose-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">J. R. Lucas &amp; Roger Penrose</span></div>
+    <div class="col-position">Lucas: Oxford &middot; &ldquo;Minds, Machines and G&ouml;del&rdquo; <em>Philosophy</em> 36 (1961) &middot; Penrose: Oxford &middot; <em>The Emperor&rsquo;s New Mind</em> (1989), <em>Shadows of the Mind</em> (1994) &middot; The G&ouml;delian argument that human mathematical understanding cannot be fully captured by any Turing machine; mechanism is false</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','penrose','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','penrose','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- HOFSTADTER HEADER -->
+  <div class="col-header hidden" id="prop-hofstadter-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Douglas Hofstadter</span></div>
+    <div class="col-position">Indiana University &middot; <em>G&ouml;del, Escher, Bach: An Eternal Golden Braid</em> (Pulitzer Prize, 1979) &middot; <em>I Am a Strange Loop</em> (2007) &middot; The strange loop of self-reference as the key to consciousness; Gödelian incompleteness as the structural model of subjective experience; the &ldquo;I&rdquo; as a self-referential tangle</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','hofstadter','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','hofstadter','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ GÖDEL ══ -->
+    <div class="speaker-panel active" id="prop-godel-panel">
+      <div id="prop-godel-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to be precise at the outset about what my theorems establish and what I believe they imply, because both have been misread &mdash; sometimes by those who overstate and sometimes by those who understate their significance. My theorems are mathematical results about formal systems. But they have implications for the philosophy of mathematics that I have argued for explicitly, and I stand by those arguments.</p>
+        <div class="fact-box">
+          <strong>The incompleteness theorems &mdash; stated precisely</strong>
+          First incompleteness theorem (1931): Any consistent formal system F capable of expressing basic arithmetic contains a sentence G<sub>F</sub> that is true (under the standard interpretation) but not provable within F. G<sub>F</sub> encodes: &ldquo;This sentence is not provable in F.&rdquo; Second incompleteness theorem: No such system F can prove its own consistency from within itself &mdash; provided it is consistent. Both results apply to any system strong enough to express elementary number theory, including ZFC.
+        </div>
+        <span class="section">i. the theorems and mathematical platonism</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Platonism — incompleteness reveals mathematical truth exceeds provability; this presupposes mind-independent mathematical reality</span>The first incompleteness theorem says that there are statements that are <em>true</em> but not <em>provable</em> in any given formal system. The very formulation of this result presupposes a distinction between truth and provability &mdash; a distinction that only makes sense if there is something for the statement to be true <em>about</em> independently of what formal systems can derive. If mathematical truth were exhausted by provability in some formal system, the distinction would be vacuous. That it is not vacuous &mdash; that we can recognise the G&ouml;del sentence as true even when we cannot prove it within the system &mdash; shows that mathematical truth transcends any particular formal system. And mathematical truth that transcends formal systems requires a mind-independent mathematical reality for statements to be true about: precisely what mathematical Platonism asserts. As I wrote in my 1944 Russell paper: the fact that mathematical intuitions are evidently correct suggests that they constitute a form of genuine perception of an independent mathematical domain. The theorems support this.</span></p>
+        <span class="section">ii. what gödel sentences show about mathematical intuition</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Mathematical intuition — we can recognise Gödel sentence truth without proving it; this shows intuition outstrips formal derivation</span>Consider the G&ouml;del sentence G<sub>F</sub> for a system F you accept. If you accept F as sound &mdash; as proving only truths &mdash; then you can recognise that G<sub>F</sub> is true: for if it were false, F would prove it, and F would have proved something false, contradicting soundness. This recognition is not a formal proof within F; it is a piece of mathematical reasoning that steps outside F and sees something F cannot see from within. We &mdash; mathematical minds &mdash; can perform this step for any system we accept. No formal system can perform it for itself. This asymmetry between what mathematical intuition can see and what any fixed formal system can prove is exactly what I mean by the claim that mathematical intuition provides knowledge that exceeds the deliverances of formal proof. The theorems reveal the structure of a gap that Platonism, and only Platonism, can explain.</span></p>
+        <span class="section">iii. the hilbert program and the second theorem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Hilbert's program — second theorem shows it cannot be completed; consistency cannot be proved from within; this is a foundational disaster</span>Hilbert&rsquo;s programme sought to secure the foundations of mathematics by proving the consistency of all of mathematics from a minimal, finitary standpoint. If this programme had succeeded, formalism &mdash; the view that mathematics is a manipulation of symbols without independent meaning &mdash; would have been vindicated. My second theorem shows it cannot be completed. No sufficiently powerful consistent formal system can prove its own consistency. This means the finitary consistency proofs Hilbert sought do not exist for the systems that contain them. To secure the consistency of Peano Arithmetic, you need a stronger system; to secure that system, a stronger one again; and so on without end. The Feferman-style response &mdash; that partial realisations of Hilbert&rsquo;s programme survive &mdash; does not rescue the original ambition: Hilbert wanted <em>all</em> of mathematics secured from a minimal finitary standpoint, and this is precisely what the second theorem forbids.</span></p>
+        <span class="section">iv. the disjunction: mechanism or platonism</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Gödel's disjunction — either mind exceeds mechanism, or there are absolutely unprovable mathematical truths; both horns vindicate something beyond formalism</span>I have argued for what is sometimes called &ldquo;G&ouml;del&rsquo;s disjunction&rdquo;: either the human mind is not a Turing machine, or there exist absolutely unprovable mathematical truths. Both horns are philosophically momentous. If the first horn is true, mathematical intuition transcends mechanical computation &mdash; and the question of what kind of thing a mathematical mind is becomes urgent in exactly the way formalists hoped to avoid. If the second horn is true, then mathematical truth outstrips all possible formal systems, not just any particular one &mdash; and the only explanation of what that truth is about is the Platonist&rsquo;s mind-independent mathematical reality. Either way, formalism &mdash; the view that mathematics is nothing beyond what formal systems derive &mdash; is false. The incompleteness theorems do not merely set a local limit on a particular system; they reveal the shape of something that lies beyond all formal systems whatsoever.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-godel-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The truth/provability gap presupposes mind-independent mathematical reality</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The first incompleteness theorem asserts sentences that are <em>true</em> but not <em>provable</em> in F. This distinction between truth and provability is non-vacuous only if there is something for statements to be true about independently of what formal systems derive.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If mathematical truth were exhausted by provability in some formal system, the truth/provability gap the theorem asserts would be empty; the theorem would be stating a tautology rather than a substantive result.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The theorem is substantive &mdash; it reveals a genuine gap &mdash; therefore mathematical truth is not exhausted by formal provability, and there must be a mind-independent mathematical domain for statements to be true about: the core Platonist claim.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The first incompleteness theorem presupposes and vindicates mathematical Platonism: its substantive content requires that mathematical truth exceed formal provability, which is only possible if there is a mind-independent domain of mathematical fact.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Mathematical intuition outstrips formal derivation: we can see what F cannot prove</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If we accept a formal system F as sound, we can recognise that its G&ouml;del sentence G<sub>F</sub> is true &mdash; by reasoning outside F about what would happen if G<sub>F</sub> were false. This recognition is not a formal proof within F.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No formal system can perform this step for itself: F cannot prove G<sub>F</sub> from within F. Mathematical minds can transcend any given formal system; no formal system can transcend itself.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This asymmetry &mdash; between what mathematical intuition can see and what any fixed formal system can prove &mdash; shows that mathematical knowledge is not reducible to formal derivation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Mathematical intuition provides knowledge that transcends what any given formal system can prove; the theorems reveal this gap between intuition and derivation as a structural feature of mathematical cognition.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The second theorem destroys Hilbert&rsquo;s programme in its original form</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Hilbert&rsquo;s programme required finitary proofs of the consistency of all mathematics &mdash; specifically, proofs expressible within a weaker system than the one whose consistency is being secured.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The second incompleteness theorem shows that no sufficiently powerful consistent system F can prove its own consistency within F; proving Con(F) requires a stronger system, which faces the same problem at its level.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Partial salvage operations (Feferman, Detlefsen) recover consistency proofs for weaker systems, but these do not rescue Hilbert&rsquo;s original ambition of securing all of classical mathematics from a minimal finitary base.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The second theorem destroys Hilbert&rsquo;s programme as originally conceived; the foundationalist ambition of finitary self-security for classical mathematics is provably unattainable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; G&ouml;del&rsquo;s disjunction: either minds transcend machines or absolutely unprovable truths exist</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Either (a) the human mind is not a Turing machine, or (b) there exist absolutely unprovable mathematical truths &mdash; truths not provable in any formal system.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If (a), mathematical intuition transcends mechanical computation, and the nature of mathematical minds poses questions formalism cannot address. If (b), mathematical truth outstrips all possible formal systems, and only Platonism explains what that truth is <em>about</em>.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Both horns are incompatible with formalism &mdash; the view that mathematics is nothing beyond what formal systems derive; the incompleteness theorems therefore refute formalism regardless of which horn is accepted.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>G&ouml;del&rsquo;s disjunction shows that the incompleteness theorems refute formalism on either horn: they reveal that mathematical reality exceeds what formal systems can contain, whether that excess resides in the nature of mathematical minds or in the structure of mathematical truth itself.</span></div>
+        </div>
+      </div>
+    </div><!-- end godel -->
+
+    <!-- ══ LUCAS & PENROSE ══ -->
+    <div class="speaker-panel" id="prop-penrose-panel">
+      <div id="prop-penrose-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My argument is that G&ouml;del&rsquo;s incompleteness theorems provide a decisive reason for rejecting mechanism &mdash; the view that the human mind is, at its core, a Turing machine. I want to state the argument precisely enough that the objections can be clearly seen to fail, and then engage with the most serious of them.</p>
+        <div class="pull">&ldquo;G&ouml;del&rsquo;s theorem seems to me to prove that mechanism is false, that is, that minds cannot be explained as machines. For G&ouml;del has shown that in any consistent system which is strong enough to produce simple arithmetic there are formulae which cannot be proved in the system, but which we can see to be true. Any such formula is one which a machine can never prove, but which any rational being, if he knew it to be produced by a consistent machine, could see to be true. We can therefore construct a formula which a machine cannot prove but which a rational being can see to be true.&rdquo; &mdash; Lucas, <em>Philosophy</em> (1961)</div>
+        <span class="section">i. the lucas-penrose argument stated precisely</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Lucas-Penrose — if the mind were a Turing machine M, we could construct a Gödel sentence for M that the mind can see is true but M cannot prove; so the mind outstrips M; mechanism is false</span>Here is the argument in its cleanest form. Suppose, for reductio, that my mind is a Turing machine M that proves all the mathematical statements I can prove. M is equivalent to a formal system F. If F is consistent and sound &mdash; as my mind purports to be &mdash; then by G&ouml;del&rsquo;s first theorem, F has a G&ouml;del sentence G<sub>F</sub> that is true but not provable in F. But I, knowing that M is consistent (assuming I do), can recognise that G<sub>F</sub> is true by the standard reasoning: if G<sub>F</sub> were false, F would prove it, contradicting consistency. So I can prove G<sub>F</sub> &mdash; but M, which is F, cannot. Contradiction: M cannot be an adequate model of my mathematical mind. Since the same argument applies for any Turing machine proposed as a model of my mind, no Turing machine can model it. Mechanism is false.</span></p>
+        <span class="section">ii. penrose&rsquo;s refinement: knowably sound formal systems</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Penrose's refinement — we cannot be a &apos;knowably sound&apos; formal system; Penrose is more cautious than Lucas about the scope</span>Penrose&rsquo;s version in <em>Shadows of the Mind</em> is more careful than Lucas&rsquo;s. He does not claim that humans can prove the G&ouml;del sentence of every formal system. He claims the more modest conclusion: human mathematical reasoning cannot be captured by any <em>knowably sound</em> formal system &mdash; one we know to be sound. For any formal system F that we know to be sound, we can construct G<sub>F</sub> and see it to be true. There is no knowably sound formal system that outpaces this capacity. This is weaker than Lucas&rsquo;s original claim and more defensible. The mechanist cannot rescue their position by positing a sound but <em>unknowably sound</em> formal system as the model of the mind, because that move concedes that we do not have complete algorithmic access to our own mathematical reasoning &mdash; which is itself a philosophically substantial concession that undermines the most interesting form of mechanism.</span></p>
+        <span class="section">iii. the consistency objection answered</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Consistency objection — humans may be inconsistent; answered: what matters is our mathematical capacity, not our error-prone psychology; and inconsistent systems are worse for mechanism</span>The standard objection, pressed by Feferman and others, is that human mathematical reasoners are not consistent: we make errors, hold contradictions, and revise our beliefs. If humans are not consistent, G&ouml;del&rsquo;s theorem does not apply &mdash; it concerns only <em>consistent</em> formal systems. But this objection conflates mathematical capacity with mathematical performance. When I make an arithmetic error, I am not exercising my mathematical capacity; I am failing to exercise it. The question is not whether humans always reason correctly, but whether their mathematical understanding &mdash; their capacity for mathematical insight when exercised correctly &mdash; can be fully captured by a Turing machine. Moreover, if humans are genuinely inconsistent, mechanism faces a worse problem, not a better one: an inconsistent formal system proves everything, and a mechanism that proves everything is not a model of mathematical understanding at all.</span></p>
+        <span class="section">iv. penrose and quantum consciousness</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Quantum consciousness — Penrose-Hameroff Orch-OR: non-computational physics in microtubules may be the seat of non-algorithmic mathematical insight</span>Penrose goes further in <em>Shadows of the Mind</em> to ask: if the mind is not a Turing machine, what kind of physical process could underlie non-computable mathematical insight? His conjecture involves quantum gravity processes in microtubules &mdash; structures within neurons &mdash; where objective reduction of quantum states (the Orch-OR theory, developed with anaesthesiologist Stuart Hameroff) might implement a physically non-computable process. I want to be clear that the philosophical argument for the non-computability of mind does not depend on this physical speculation: the G&ouml;delian argument stands or falls independently. But Penrose&rsquo;s additional step matters: mechanism&rsquo;s defenders cannot simply say &ldquo;the mind must be computational because everything physical is&rdquo; without engaging with the question of whether current physics already contains non-computable processes at the level relevant to cognition.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-penrose-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Lucas-Penrose argument: if my mind were a Turing machine M, I could see the truth of G<sub>M</sub> which M cannot prove</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Suppose my mind is a consistent, sound Turing machine M = formal system F. By the first incompleteness theorem, F has a G&ouml;del sentence G<sub>F</sub> that is true but unprovable in F.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Knowing M is consistent, I can recognise G<sub>F</sub> is true by the argument: if G<sub>F</sub> were false, F would prove it, contradicting consistency. So I can prove G<sub>F</sub> but M cannot. Contradiction with the assumption that M = my mind.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Since the same argument applies for any proposed Turing machine model of my mind, no Turing machine can model it. Mechanism is false.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>No consistent, sound Turing machine can model human mathematical understanding; the G&ouml;delian construction produces a sentence the mind can recognise as true that the machine cannot prove; mechanism is refuted.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Penrose&rsquo;s refinement: the mind cannot be a <em>knowably sound</em> formal system</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>For any formal system F that we know to be sound, we can construct G<sub>F</sub> and recognise it as true. There is therefore no knowably sound formal system that captures all mathematical truths we can recognise.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The mechanist cannot rescue their position by positing an unknowably sound formal system as the model of the mind: this concedes that we lack complete algorithmic access to our own mathematical reasoning.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A mechanism that is unknowably sound to its own subject is not the interesting form of mechanism &mdash; the view that our mathematical minds are, in principle, fully formalizable; conceding unknowable soundness surrenders the core mechanist thesis.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Penrose&rsquo;s refined argument shows that human mathematical reasoning cannot be captured by any knowably sound formal system; the interesting form of mechanism is refuted even by this weaker version of the argument.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Consistency objection answered: mathematical capacity not performance; inconsistency is worse for mechanism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The objection that humans are inconsistent confuses mathematical capacity (what understanding can achieve when properly exercised) with mathematical performance (what error-prone humans actually produce). G&ouml;del&rsquo;s argument concerns capacity.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>An inconsistent formal system proves everything; if humans are genuinely inconsistent, they would have a mechanism that proves every statement, which is not a model of mathematical understanding at all &mdash; a result worse for mechanism than for the anti-mechanist.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The objection therefore either confuses capacity with performance, in which case it fails; or it concedes that mechanism cannot model genuine mathematical understanding even in an inconsistent form, in which case it also fails.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The consistency objection to the Lucas-Penrose argument fails on both readings; it either confuses capacity with performance, or it concedes that mechanism cannot model mathematical understanding in either the consistent or inconsistent form.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; The physical question: if mind is not Turing-computable, what physics underlies it?</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If the G&ouml;delian argument establishes that mathematical reasoning is not Turing-computable, the question arises of what physical process underlies it; mechanism&rsquo;s defenders cannot simply assume all physical processes are computable.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Penrose conjectures that quantum gravity processes in microtubules (Orch-OR) could implement physically non-computable operations; this is speculative but engages with the physical level that mechanism requires.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The philosophical G&ouml;delian argument stands independently of this speculation; but the speculation shows the non-computability claim is not obviously physically impossible within current open questions in physics.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The physical realisation of non-computable mathematical reasoning is an open question in physics, not a settled impossibility; Penrose&rsquo;s speculations are not required for the philosophical argument but show it is not physically incoherent.</span></div>
+        </div>
+      </div>
+    </div><!-- end penrose -->
+
+    <!-- ══ HOFSTADTER ══ -->
+    <div class="speaker-panel" id="prop-hofstadter-panel">
+      <div id="prop-hofstadter-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My reading of G&ouml;del&rsquo;s incompleteness theorems leads me to a very different conclusion from Penrose&rsquo;s. Where Penrose sees the theorems as revealing something non-computational about human minds, I see them as revealing the precise structure of what makes any sufficiently complex formal system &mdash; and any sufficiently complex physical system &mdash; capable of generating the appearance of consciousness and selfhood. The key is not to escape from formal systems but to understand what happens when formal systems become sufficiently complex and self-referential. G&ouml;del did not show that the mind transcends computation; he showed that computation of sufficient complexity and self-referential depth produces something that looks astonishingly like what we call a mind.</p>
+        <div class="pull">&ldquo;Something very strange thus emerges from the G&ouml;delian loop: the revelation of the causal power of meaning in a rule-bound but meaning-free universe. Strange loops are the key to consciousness: the &lsquo;I&rsquo; is not a thing but a pattern &mdash; an emergent self-referential process that arises when a system models itself and its own modelling. G&ouml;del showed us the structure; the question is how deep the structure goes.&rdquo; &mdash; Hofstadter, <em>I Am a Strange Loop</em> (2007)</div>
+        <span class="section">i. the strange loop: what gödel&rsquo;s construction actually reveals</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Strange loop — Gödel numbering creates self-reference within formal systems; this is the structural model of self-consciousness</span>G&ouml;del&rsquo;s proof works by G&ouml;del numbering: every formula and proof in the system is encoded as a natural number, and the system&rsquo;s own provability predicate is expressed arithmetically. This creates a strange loop: the system talks about its own talk. A formal system, through G&ouml;del numbering, becomes capable of self-reference &mdash; of making statements about its own structure. G&ouml;del&rsquo;s undecidable sentence is the culmination of this: a sentence that says, in effect, &ldquo;I am not provable.&rdquo; What I find astonishing is not the undecidability but the self-reference. The sentence <em>is about itself</em>. It has achieved, within a purely syntactic system, a kind of primitive semantic pointing &mdash; it refers to itself. And I want to suggest that this is the structural model of consciousness: not the undecidability, not the non-computability, but the self-referential loop that emerges when a system becomes complex enough to model itself.</span></p>
+        <span class="section">ii. the &ldquo;i&rdquo; as emergent strange loop</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Emergent self — the self is not a thing but a self-referential pattern; like a Gödel sentence, it arises from, but is not reducible to, the underlying system</span>The self &mdash; the &ldquo;I&rdquo; that Descartes placed at the centre of his philosophy and that seems so self-evident to each of us &mdash; is not a thing. It is a pattern. It is the emergent pattern of self-modelling that arises when a physical system &mdash; a brain &mdash; becomes complex enough to represent itself representing the world. Like the G&ouml;del sentence, which arises from within the formal system but points back at the system, the &ldquo;I&rdquo; arises from neural activity but refers back to itself. The illusion of a stable, unified self with genuine agency is an epiphenomenon of this self-referential loop. G&ouml;del showed us the abstract structure of how a system can contain a self-referential element that it cannot fully capture &mdash; the sentence that says &ldquo;I cannot be proved here.&rdquo; Consciousness is the biological analogue: the neural process that says, in a much more complex way, &ldquo;I am here, processing this.&rdquo;</span></p>
+        <span class="section">iii. where hofstadter diverges from penrose</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Divergence from Penrose — Hofstadter accepts computationalism; the strange loop is the explanation of consciousness within, not beyond, computational systems</span>Penrose reads G&ouml;del as showing that minds are non-computational. I read him as showing that sufficiently complex computational systems produce self-referential structures that we call minds. These are not the same reading. Penrose&rsquo;s argument requires that we can recognise the truth of the G&ouml;del sentence through some non-algorithmic intuition that transcends computation. I do not accept this. What we do when we recognise the G&ouml;del sentence as true is perform a meta-level reasoning step that is itself a formal operation &mdash; it is carried out by a (possibly very complex) level of our formal processing that includes information about the lower level. We are not stepping outside all formal systems; we are operating within a larger informal system that includes the formal one as a component. The strange loop is still a loop: it remains within the physical, within the computational, within the emergent.</span></p>
+        <span class="section">iv. the deeper significance: semantics from syntax</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Semantics from syntax — the deepest lesson of Gödel is that meaning can emerge from purely formal systems; this is the key to understanding consciousness</span>The deepest lesson I draw from G&ouml;del is not a lesson about limits but about possibilities. G&ouml;del showed that a purely formal, syntactic system can &mdash; when sufficiently complex and self-referential &mdash; produce statements with genuine semantic content: statements that are about themselves. Syntax, given enough self-referential structure, begets semantics. This is the miracle that G&ouml;del&rsquo;s proof demonstrates. And I believe the same miracle underlies consciousness: a purely physical system &mdash; neurons firing according to electrochemical rules &mdash; produces, when organised with sufficient complexity and self-referential structure, genuine mental content: thoughts that are about the world and about themselves. G&ouml;del did not show that the mind escapes the physical. He showed us how the physical can, through self-referential organisation, give rise to what transcends the merely physical in appearance while remaining entirely within it in fact.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-hofstadter-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; G&ouml;del numbering creates the structural model of self-reference; the strange loop is the key finding</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>G&ouml;del numbering encodes every formula and proof as a natural number, allowing formal systems to express their own provability predicate arithmetically; this makes the system capable of self-reference.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The G&ouml;del sentence &mdash; which says &ldquo;I am not provable in F&rdquo; &mdash; is not merely undecidable but self-referential; it achieves, within a purely syntactic system, a kind of primitive semantic pointing back to itself.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The structural significance of this is not the undecidability (which is a limit) but the self-referential loop (which is a possibility): it shows that purely syntactic systems can contain structures that refer to themselves.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The deep finding of G&ouml;del&rsquo;s proof is not the incompleteness but the self-referential structure it creates; this strange loop is the abstract model of how meaning and self-reference can arise within a formal system.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The self is an emergent strange loop: not a thing but a self-referential pattern</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The &ldquo;I&rdquo; is not a metaphysical entity but the emergent self-referential pattern that arises when a physical system becomes complex enough to model itself modelling the world: like the G&ouml;del sentence, it points back at the system that generates it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Just as the G&ouml;del sentence arises from within the formal system but cannot be fully captured by it, the self arises from neural activity but generates a perspective that seems to transcend its physical substrate.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This analogy is not metaphor but structural: G&ouml;del showed the abstract architecture of a self-referential loop within a formal system; consciousness is the physical instantiation of a more complex version of the same architecture.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>G&ouml;del&rsquo;s theorems provide the structural model for understanding consciousness as an emergent self-referential pattern; the &ldquo;I&rdquo; is the biological analogue of the G&ouml;del sentence: self-referential, generated from within, not reducible to its substrate.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Hofstadter diverges from Penrose: the loop explains consciousness within, not beyond, computational systems</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When we recognise the G&ouml;del sentence as true, we are performing a meta-level reasoning step that is itself a formal operation within a larger informal system that includes the formal system as a component; we are not stepping outside all formal systems.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The strange loop is still a loop: it remains within the physical, within the computational, within the emergent; G&ouml;del&rsquo;s proof does not show that minds escape computation but that computation of sufficient self-referential depth produces mind-like properties.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Penrose&rsquo;s reading requires non-algorithmic insight; Hofstadter&rsquo;s requires only that formal systems of sufficient complexity exhibit emergent self-referential structures; the latter is explanatorily more parsimonious.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Gödelian strange loop explains consciousness as an emergent property of sufficiently complex computational self-reference; no non-algorithmic insight is required; Penrose over-interprets the incompleteness result.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; Semantics from syntax: the deepest lesson of G&ouml;del is about possibility, not just limits</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>G&ouml;del showed that a purely syntactic, formal system, given sufficient self-referential complexity, can produce statements with genuine semantic content: statements about themselves. Syntax, organised self-referentially, begets semantics.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The same principle applies to consciousness: purely physical systems, organised with sufficient self-referential complexity, produce mental content &mdash; thoughts about the world and about themselves. The physical, through self-referential organisation, generates what appears to transcend it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is not a lesson about escaping physics or computation but about what physics and computation can produce when organised appropriately; G&ouml;del&rsquo;s theorems are the abstract proof-of-concept for this emergence.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The deepest philosophical lesson of G&ouml;del is that self-referential systems produce genuine meaning from pure syntax; this is the structural explanation of consciousness as an emergent property of physical self-reference, not an argument for mind&rsquo;s transcendence of the physical.</span></div>
+        </div>
+      </div>
+    </div><!-- end hofstadter -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════════════════════════
+     RIGHT: OPPOSITION — Incompleteness proves less
+     Feferman · Wittgenstein · Detlefsen
+═══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','feferman',this)">Feferman</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','wittgenstein',this)">Wittgenstein</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','detlefsen',this)">Detlefsen</button>
+  </div>
+
+  <!-- FEFERMAN HEADER -->
+  <div class="col-header" id="opp-feferman-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Solomon Feferman</span></div>
+    <div class="col-position">Stanford University &middot; &ldquo;Penrose&rsquo;s G&ouml;delian Argument&rdquo; <em>Psyche</em> (1995) &middot; &ldquo;Does Mathematics Need New Axioms?&rdquo; (1999) &middot; &ldquo;G&ouml;del&rsquo;s Incompleteness Theorems, Free Will and Mathematical Thought&rdquo; (2011) &middot; The theorems vindicate neither Platonism nor anti-mechanism; they prove what they prove and no more</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','feferman','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','feferman','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- WITTGENSTEIN HEADER -->
+  <div class="col-header hidden" id="opp-wittgenstein-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Ludwig Wittgenstein</span></div>
+    <div class="col-position">Cambridge &middot; <em>Remarks on the Foundations of Mathematics</em> (posthumous, 1956) &middot; The &ldquo;notorious paragraph&rdquo; on G&ouml;del &middot; The supposed philosophical implications rest on a confused use of &ldquo;true&rdquo; outside the system; grammar is being misused; the theorems cannot say what they are taken to say</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','wittgenstein','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','wittgenstein','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- DETLEFSEN HEADER -->
+  <div class="col-header hidden" id="opp-detlefsen-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Michael Detlefsen</span></div>
+    <div class="col-position">Notre Dame &middot; <em>Hilbert&rsquo;s Program</em> (1986) &middot; &ldquo;On an Alleged Refutation of Hilbert&rsquo;s Program&rdquo; <em>Journal of Philosophical Logic</em> (1990) &middot; The incompleteness theorems do not refute Hilbert&rsquo;s programme, which can be reconstructed in a form they do not touch; the formalist tradition survives</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','detlefsen','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','detlefsen','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ FEFERMAN ══ -->
+    <div class="speaker-panel active" id="opp-feferman-panel">
+      <div id="opp-feferman-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to be very clear at the outset about my position. I consider G&ouml;del&rsquo;s incompleteness theorems to be among the most important results in mathematical logic, with genuine implications for our understanding of formal systems. But I do not believe they vindicate mathematical Platonism, and I do not believe the Penrose-Lucas argument from them to the non-computability of the human mind succeeds. Both arguments import philosophical conclusions that the mathematical results themselves do not support.</p>
+        <div class="pull">&ldquo;The incompleteness theorems in and of themselves do not support mathematical Platonism. The first of them looks as though it vindicates some form of mathematical realism when expressed in the form that there are statements that are true but not provable in S, since it seems to tell us something significant about the truth of statements of S. But the vindication is only apparent, since the notion of truth is already presumed in the very formulation of the theorem.&rdquo; &mdash; Feferman, <em>London Review of Books</em> (2006)</div>
+        <span class="section">i. incompleteness does not vindicate platonism</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Against Platonism — the truth predicate in the theorem is already assumed; the theorem doesn&apos;t independently establish that truths exceed provability</span>G&ouml;del&rsquo;s argument is supposed to reveal truths that exceed provability, thereby vindicating Platonism. But notice the structure carefully: the theorem says there is a sentence G<sub>F</sub> that is <em>true</em> but not provable in F. The notion of truth invoked here is the standard Tarskian truth predicate for arithmetic, which is defined from outside F using a metalanguage that presupposes the natural numbers and their structure. This is not a discovery that truth transcends provability; it is a consequence of the fact that we are already working with an interpretation &mdash; the standard model of arithmetic &mdash; that we brought to the table before the theorem was stated. The theorem, in other words, already presupposes the mathematical reality it purports to reveal. It is circular to cite the theorem as independent evidence for Platonism when the theorem&rsquo;s very statement requires Platonic commitments that we imported in advance.</span></p>
+        <span class="section">ii. penrose-lucas argument fails: the consistency assumption</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Against Penrose-Lucas — the argument requires knowing we are consistent; but by the second theorem we cannot know this from within our own reasoning; the argument is self-undermining</span>The Lucas-Penrose argument requires that I know &mdash; or at least am justified in believing &mdash; that my mathematical reasoning is consistent. Only then can I use the G&ouml;del construction to see G<sub>F</sub> is true. But by the second incompleteness theorem, no consistent formal system can prove its own consistency. If my mind is a formal system &mdash; as mechanism claims &mdash; then I cannot know from within that I am consistent. And if I am not a formal system, the argument that I can always see the truth of G<sub>F</sub> is not supported by G&ouml;del&rsquo;s theorem at all, which concerns formal systems only. The Lucas-Penrose argument requires exactly what G&ouml;del&rsquo;s own second theorem forbids: that the system in question can establish its own consistency. This is not an incidental problem; it is a structural self-undermining of the argument.</span></p>
+        <span class="section">iii. the inconsistency of human mathematical reasoning</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Human inconsistency — mathematicians hold contradictions, make errors, and revise; if we are inconsistent, Gödel&apos;s theorems do not apply; and an inconsistent reasoner can prove anything</span>There is strong reason to believe that human mathematical reasoning, taken as a whole, is not consistent. Mathematicians have believed false theorems, held contradictory commitments simultaneously, and relied on implicit assumptions later shown to be inconsistent. The history of mathematics is a history of revision: the naive set theory that Frege built and mathematicians used was inconsistent; the intuitively plausible axioms that generated Russell&rsquo;s paradox were believed by experts. G&ouml;del&rsquo;s theorem applies to <em>consistent</em> formal systems. If human mathematical reasoning is not consistent &mdash; if it includes the potential to endorse contradictions &mdash; the theorem simply does not apply to it. The Lucas-Penrose argument must establish that human mathematical reasoning is consistent before deploying G&ouml;del, and this it cannot do &mdash; precisely because, by the second theorem, no consistent formal system (if that is what we are) can establish its own consistency.</span></p>
+        <span class="section">iv. what the theorems actually establish</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">What incompleteness establishes — formal results about formal systems; the philosophical inflation is not licensed by the mathematics</span>What G&ouml;del&rsquo;s incompleteness theorems actually establish is this: for any consistent, sufficiently powerful formal system F, there are sentences of F&rsquo;s language that are neither provable nor disprovable in F. The first theorem identifies one such sentence (the G&ouml;del sentence). The second theorem shows that the sentence expressing F&rsquo;s own consistency is also not provable in F. These are results about formal systems. They tell us about the limits of particular formal methods. They do not, by themselves, tell us that mathematical truth transcends all possible formal systems (as Platonism requires), or that the human mind transcends computation (as Lucas-Penrose requires), or that Hilbert&rsquo;s programme is unrealisable in any form (as the foundational crisis narrative claims). Each of these further conclusions requires additional philosophical argument that the theorems alone do not supply.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-feferman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The truth predicate is presupposed, not revealed; incompleteness does not independently vindicate Platonism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The incompleteness theorem says G<sub>F</sub> is <em>true but not provable in F</em>. The truth predicate invoked is the standard Tarskian predicate for arithmetic, defined from outside F in a metalanguage that already presupposes the natural numbers and their structure.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This means the theorem&rsquo;s statement already imports the mathematical reality (the standard model of arithmetic) that Platonism is supposed to establish; the Platonic commitments are not discovered by the theorem but built into its very formulation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Citing the theorem as evidence for Platonism is therefore circular: it uses Platonic assumptions to establish a theorem and then cites the theorem as evidence for those same assumptions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The incompleteness theorems do not independently vindicate mathematical Platonism; the truth/provability gap they assert presupposes rather than establishes the mind-independent mathematical reality that Platonism claims.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Lucas-Penrose argument requires consistency-knowledge that the second theorem forbids</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Lucas-Penrose argument requires that we know (or be justified in believing) our mathematical reasoning is consistent. Only with this knowledge can we apply the G&ouml;del construction and see G<sub>F</sub> is true.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>By the second incompleteness theorem, no consistent formal system can prove its own consistency. If our minds are formal systems, we cannot know from within that we are consistent. If our minds are not formal systems, G&ouml;del&rsquo;s theorem does not apply to them.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Lucas-Penrose argument therefore either relies on a form of self-knowledge that the second theorem forbids (if minds are formal systems) or invokes a result about formal systems that does not apply (if minds are not formal systems). Either way, the argument fails.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Lucas-Penrose argument is self-undermining: it requires consistency-knowledge that G&ouml;del&rsquo;s own second theorem shows is unavailable within any formal system; the argument uses the theorems in a way that violates their own constraints.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Human mathematical reasoning is likely inconsistent; the theorems therefore do not apply</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Human mathematicians have believed false theorems, relied on principles later shown inconsistent (Frege&rsquo;s naive set theory), and held simultaneously contradictory commitments. The history of mathematics is a history of inconsistency correction.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>G&ouml;del&rsquo;s theorems concern <em>consistent</em> formal systems only; an inconsistent formal system proves everything and is not subject to incompleteness. If human mathematical reasoning is inconsistent, the theorems simply do not apply to it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Lucas-Penrose argument must establish consistency of human mathematical reasoning before deploying G&ouml;del, but this establishment is precisely what the second theorem forbids if we are formal systems.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The likely inconsistency of human mathematical reasoning blocks the Lucas-Penrose argument at its first premise: G&ouml;del&rsquo;s theorems require consistency, which cannot be assumed of human mathematical reasoning and cannot be established from within it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The theorems establish results about formal systems; each philosophical extension requires further argument</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The incompleteness theorems establish: for any consistent, sufficiently powerful F, some sentences of F&rsquo;s language are neither provable nor disprovable in F, and F cannot prove its own consistency.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Each philosophical extension &mdash; to Platonism, to anti-mechanism, to the collapse of Hilbert&rsquo;s programme &mdash; requires additional philosophical argument that the mathematical results alone do not supply.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The philosophical inflation of the theorems &mdash; treating them as establishing more than formal results about formal systems &mdash; is the central intellectual error in the popular reception of G&ouml;del.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>G&ouml;del&rsquo;s incompleteness theorems establish rigorous and important results about formal systems; their extension to Platonism, anti-mechanism, or foundational crisis each requires further argument that the theorems themselves do not provide.</span></div>
+        </div>
+      </div>
+    </div><!-- end feferman -->
+
+    <!-- ══ WITTGENSTEIN ══ -->
+    <div class="speaker-panel" id="opp-wittgenstein-panel">
+      <div id="opp-wittgenstein-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to approach G&ouml;del&rsquo;s theorems from a direction that may seem surprising: I want to ask about the grammar of the claims being made. When the proposition says that the G&ouml;del sentence is &ldquo;true but unprovable,&rdquo; what does &ldquo;true&rdquo; mean in that sentence? This is not a merely pedantic question. The answer to it shows, I believe, that much of what is philosophically claimed about the theorems rests on a confusion &mdash; a confusion about what it means for a sentence to be &ldquo;true&rdquo; in a formal system, and what it means for a sentence to be &ldquo;true&rdquo; in mathematics.</p>
+        <div class="fact-box">
+          <strong>Wittgenstein&rsquo;s notorious paragraph &mdash; the basic point</strong>
+          In <em>Remarks on the Foundations of Mathematics</em> (Appendix III, &sect;8), Wittgenstein considers the situation where P is a G&ouml;del sentence: &ldquo;provably unprovable in Russell&rsquo;s system.&rdquo; He asks: if it has been proved that it is <em>unprovable</em>, what does it mean to say it is <em>true</em>? &ldquo;If &lsquo;provable&rsquo; means &lsquo;provable in Russell&rsquo;s system&rsquo; then the proposition P is not true in the sense in which &lsquo;true&rsquo; has meaning in Russell&rsquo;s system.&rdquo; G&ouml;del was convinced Wittgenstein had misunderstood the theorem. The dispute continues.
+        </div>
+        <span class="section">i. the grammar of &ldquo;true&rdquo; in formal systems</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Grammar of &apos;true&apos; — &apos;true&apos; in a formal system means something different from &apos;true&apos; in informal mathematical discourse; the philosophical argument runs the two together</span>Within a formal system, the grammar of &ldquo;provable&rdquo; is well-defined: a sentence is provable if there is a derivation of it from the axioms using the rules. What is the grammar of &ldquo;true&rdquo; within the system? If &ldquo;true&rdquo; means the same as &ldquo;provable,&rdquo; then saying G<sub>F</sub> is &ldquo;true but unprovable&rdquo; is a contradiction. If &ldquo;true&rdquo; means something beyond &ldquo;provable,&rdquo; then we need to specify what that something is. The proposition imports the standard Tarskian semantics: truth-in-the-standard-model of arithmetic. But this semantics is external to the formal system; it is not a property the system itself can recognise or deploy. To say G<sub>F</sub> is &ldquo;true in the standard model but unprovable in F&rdquo; is not to make a statement within the formal system at all; it is to step outside the system and comment on it from the perspective of a particular interpretation. This stepping-outside is entirely legitimate &mdash; but it is not what the philosophical arguments based on the theorem treat it as.</span></p>
+        <span class="section">ii. what follows from true-but-unprovable</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">True-but-unprovable — if this just means true-in-the-standard-model, then it&apos;s a result about model theory, not about mind-independent mathematical reality</span>If G<sub>F</sub> is &ldquo;true but unprovable&rdquo; means &ldquo;true in the standard model of arithmetic but not derivable from F&rsquo;s axioms,&rdquo; then what the theorem shows is a result in model theory: the standard model satisfies more sentences than F can prove. This is important and interesting. But it does not show that mathematical truth is mind-independent in the Platonic sense, because the standard model is itself a mathematical construction &mdash; we chose it, we defined it, we use it as our interpretation. The &ldquo;truths&rdquo; it contains are truths relative to our chosen interpretation, not truths in a metaphysically loaded sense that exists independently of all thought and formal systems. The philosophical sleight of hand is to move from &ldquo;true-in-the-standard-model&rdquo; (a precise model-theoretic claim) to &ldquo;true-in-a-mind-independent-Platonic-realm&rdquo; (a metaphysical claim) without acknowledging that this is a substantial further step requiring its own argument.</span></p>
+        <span class="section">iii. the paradox-like character of the gödelian claims</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Paradox structure — the Gödel sentence has the structure of a semantic paradox; Wittgenstein treats it accordingly; this is not a confusion but a diagnosis</span>G&ouml;del&rsquo;s construction is closely related to the Liar paradox. The Liar sentence &ldquo;this sentence is false&rdquo; leads to contradiction. The G&ouml;del sentence &ldquo;this sentence is unprovable in F&rdquo; leads to incompleteness rather than contradiction, because &ldquo;unprovable&rdquo; is weaker than &ldquo;false.&rdquo; But the structural similarity is deep. Wittgenstein&rsquo;s treatment of the G&ouml;del sentence as paradox-like is not a mistake but a deliberate philosophical move: he is pointing out that the sentence achieves its effects by a self-referential trick that makes it impossible to straightforwardly assign it truth conditions within the system. The philosophical arguments that draw conclusions from the theorem&rsquo;s results &mdash; about Platonism, about minds, about the nature of mathematical truth &mdash; are all, in some sense, treating the paradox as if it had revealed something about the world rather than exposing a limit of our grammatical framework.</span></p>
+        <span class="section">iv. the therapeutic conclusion: dissolve rather than draw conclusions</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Therapeutic — the philosophical implications debate is a grammatical confusion; the correct response is to dissolve the puzzlement, not to draw metaphysical conclusions</span>My response to the philosophical debate about G&ouml;del&rsquo;s theorems is the same as my general response to philosophical puzzlement: we should dissolve rather than answer. The feeling that the incompleteness theorems reveal deep truths about the nature of mathematical reality, or about the relationship between mind and formal systems, or about the foundations of knowledge, is a grammatical illusion produced by running together different uses of the word &ldquo;true.&rdquo; When we distinguish clearly between truth-in-a-formal-system (provability), truth-in-a-model (model-theoretic satisfaction), and truth-as-established-by-mathematical-practice, the apparent profundity dissolves. This is not to deny that the theorems are important. They are. But their importance is mathematical and technical, not the philosophical revelation of a Platonic realm or of the transcendence of mind over machine.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-wittgenstein-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; &ldquo;True&rdquo; in formal systems has different grammar from &ldquo;true&rdquo; in philosophical argument; running them together produces confusion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Within a formal system, &ldquo;provable&rdquo; is well-defined. &ldquo;True&rdquo; either means the same (in which case &ldquo;true but unprovable&rdquo; is contradictory) or something external to the system (truth-in-a-model, defined from outside).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>&ldquo;True in the standard model but unprovable in F&rdquo; is a model-theoretic claim from outside the formal system; it is not a statement the formal system can recognise as such.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The philosophical arguments from incompleteness treat &ldquo;true&rdquo; as if it meant something mind-independent and Platonically loaded; but this requires a further argument about what truth-in-the-standard-model means beyond the model-theoretic claim, which is not supplied.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The philosophical implications drawn from &ldquo;true but unprovable&rdquo; rest on equivocation between model-theoretic truth (a precise technical notion) and mind-independent Platonic truth (a metaphysical notion); disambiguating the grammar dissolves the apparent profundity.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; True-in-the-standard-model is a model-theoretic, not a metaphysical, claim; Platonism is not established</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The standard model of arithmetic is a mathematical construction; we choose it as our interpretation. &ldquo;True in the standard model&rdquo; means satisfying the conditions of this chosen interpretation, not existing in a mind-independent Platonic realm.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The move from &ldquo;true-in-the-standard-model&rdquo; to &ldquo;true-in-a-mind-independent-realm&rdquo; is a substantial philosophical step that requires its own argument; the incompleteness theorem does not supply this argument.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Presenting this step as obvious &mdash; as if the model-theoretic result automatically vindicates Platonism &mdash; is the grammatical confusion that generates the false appearance of philosophical significance.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Model-theoretic truth is not Platonic truth; the step from one to the other requires an argument that the incompleteness theorems do not provide; the Platonist conclusion is not established by the mathematical result.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The G&ouml;del sentence has paradox-like structure; philosophical arguments treat it as world-revealing rather than grammar-exposing</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The G&ouml;del sentence is structurally similar to the Liar paradox: it achieves self-reference by a numbering trick that makes it impossible to assign standard truth conditions from within the system.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Wittgenstein&rsquo;s treatment of the G&ouml;del sentence as paradox-like is a deliberate philosophical move: he identifies the self-referential mechanism as a grammatical peculiarity, not a window onto mathematical reality.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Arguments that draw metaphysical conclusions from the theorem treat the grammatical peculiarity as a substantive discovery about the world; this is the move Wittgenstein identifies as confusion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The G&ouml;del sentence&rsquo;s self-referential structure is a grammatical peculiarity, not a window onto mathematical reality; treating its effects as world-revealing rather than grammar-exposing is the source of the philosophical confusion about the theorem&rsquo;s implications.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Therapeutic dissolution: distinguish uses of &ldquo;true&rdquo; and the profundity dissolves</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The sense of philosophical profundity generated by the incompleteness theorems is produced by running together three different uses of &ldquo;true&rdquo;: provable-in-F, satisfying-in-the-standard-model, and true-in-a-Platonic-realm.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When these uses are distinguished carefully, no single statement connects them in the way that the philosophical arguments require: the theorem establishes only the model-theoretic sense, and the move to the Platonic sense is an unsupported step.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Dissolving the confusion by tracing the grammar of &ldquo;true&rdquo; shows that the theorem&rsquo;s philosophical significance is not a deep discovery but a grammatical illusion; the correct response is dissolution, not inflation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The philosophical implications debate about G&ouml;del is sustained by grammatical confusion about &ldquo;true&rdquo;; distinguishing its uses dissolves the apparent profundity; the theorems are important mathematical results that do not yield the metaphysical conclusions claimed for them.</span></div>
+        </div>
+      </div>
+    </div><!-- end wittgenstein -->
+
+    <!-- ══ DETLEFSEN ══ -->
+    <div class="speaker-panel" id="opp-detlefsen-panel">
+      <div id="opp-detlefsen-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to make an argument that will surprise those who assume Hilbert&rsquo;s programme is simply dead. The standard narrative says: G&ouml;del&rsquo;s second incompleteness theorem proved that Hilbert&rsquo;s programme cannot be completed, because the consistency of classical mathematics cannot be proved by the finitary methods Hilbert required. This narrative has been accepted for almost a century. I want to show that it rests on a misunderstanding of what Hilbert&rsquo;s programme actually required, and that a suitably clarified version of the programme is not refuted by G&ouml;del at all.</p>
+        <div class="pull">&ldquo;The idea that G&ouml;del&rsquo;s theorems settled the question of the feasibility of Hilbert&rsquo;s programme by showing that it could not succeed is, I believe, mistaken. The proof of this contention consists in showing that G&ouml;del&rsquo;s theorems do not say what it is standardly assumed they say about the justificatory relationship between a finitist standpoint and classical mathematics.&rdquo; &mdash; Detlefsen, <em>Hilbert&rsquo;s Program</em> (1986)</div>
+        <span class="section">i. what hilbert&rsquo;s programme actually required</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Hilbert&apos;s real requirements — not a proof that classical mathematics is true, but a proof that it is a reliable instrument; instrumentalism, not Platonism</span>Hilbert&rsquo;s programme is standardly presented as a project to prove the consistency of classical mathematics &mdash; to show that applying its methods will never yield a proof of a false arithmetical sentence. But Hilbert was not a Platonist; he did not believe classical mathematics referred to a mind-independent realm of mathematical objects whose existence needed to be secured. His more defensible view was instrumentalist: classical mathematics is a useful instrument for deriving real (finitary) results, and what needs to be secured is the reliability of this instrument, not the independent existence of its objects. On an instrumentalist reading, what the G&ouml;del second theorem shows is that a particular formal system cannot prove its own reliability in a particular way &mdash; using its own methods. But this does not show that classical mathematics is an unreliable instrument. The instrument can be reliable even if it cannot prove its own reliability from within.</span></p>
+        <span class="section">ii. the formal representation of consistency proofs</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Formal representation — the second theorem applies to the formal representation of consistency proofs; Hilbert may not have needed fully formal representations</span>The second incompleteness theorem applies to the formal sentence Con(F) &mdash; the sentence that, within F&rsquo;s language, encodes the claim that F is consistent. It says: if F is consistent and sufficiently powerful, F cannot prove Con(F). But Hilbert&rsquo;s programme required a finitary proof that classical mathematics is consistent, not necessarily a proof expressible within classical mathematics itself. The theorem shows that <em>if</em> Hilbert&rsquo;s finitary proofs were expressible within the systems whose consistency they were meant to secure, then they cannot prove consistency. But Hilbert himself was not clear that finitary proofs needed to be so expressible. If finitary mathematics is a proper subsystem of the classical system, and the consistency proof can be carried out in a finitary system not including the classical one, the second theorem does not immediately apply. Gentzen&rsquo;s 1936 consistency proof of Peano Arithmetic using transfinite induction shows that finitary-but-not-expressible-in-PA proofs are not an empty category.</span></p>
+        <span class="section">iii. partial realisations and the programme&rsquo;s significance</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Partial realisations — significant portions of Hilbert&apos;s programme survive; the &apos;foundational crisis&apos; narrative is overstated</span>Feferman&rsquo;s own work on predicative mathematics &mdash; mathematics that avoids impredicative reasoning &mdash; shows that an enormous portion of scientifically applicable mathematics is recoverable within systems that are predicatively justified. The mathematical content that is genuinely lost &mdash; that requires genuinely non-constructive or impredicative methods not reachable from a Hilbert-style restricted standpoint &mdash; is surprisingly small. Harvey Friedman&rsquo;s reverse mathematics programme shows, conversely, that most classical theorems are equivalent to one of a small number of base systems, and most can be proved in systems far weaker than ZFC. The narrative of a global foundational crisis following G&ouml;del is historically and mathematically overstated. What we have is a precise map of the landscape of mathematical justification, not a proof that the entire enterprise is insecure.</span></p>
+        <span class="section">iv. the real lesson: the foundations are richer, not destroyed</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Real lesson — incompleteness shows mathematics is richer and more complex than any single formal system; this is a positive result about the structure of mathematics, not a crisis</span>The incompleteness theorems show that no single formal system can capture all of mathematical truth. This is often presented as a crisis: mathematics has no secure foundations. But the lesson is better read the other way. Mathematics is too rich to be captured by any single formal system &mdash; which means that the mathematical universe is, in a precise sense, inexhaustible. There is always more. For every formal system we accept, there are further truths we can come to accept that extend beyond it. This is not a deficiency but a discovery about the structure of mathematical cognition and mathematical reality. The theorems reveal the topology of a mathematical universe that is richer, more complex, and more interesting than Hilbert&rsquo;s programme imagined. They do not destroy the foundationalist project; they transform it into a more sophisticated investigation of the structure of mathematical justification.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-detlefsen-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Hilbert&rsquo;s programme was instrumentalist, not Platonist; the second theorem does not refute instrumentalism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Hilbert&rsquo;s instrumentalist reading: classical mathematics is a reliable instrument for deriving finitary results; what must be secured is the instrument&rsquo;s reliability, not the independent existence of mathematical objects.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The second incompleteness theorem shows a formal system cannot prove its own consistency from within. But this does not show classical mathematics is an unreliable instrument: an instrument can be reliable even if it cannot prove its own reliability from within.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The standard narrative conflates the failure of a particular internal consistency proof with the failure of the instrumentalist programme; these are distinct, and only the former is what the theorem establishes.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>On the instrumentalist reading of Hilbert&rsquo;s programme, the second incompleteness theorem does not refute it; the failure of internal consistency proofs is compatible with the reliability of classical mathematics as an instrument for deriving finitary truths.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The theorem applies to formal representations of consistency proofs; Hilbert may not have needed these</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The second theorem applies to Con(F) &mdash; the formal sentence within F encoding F&rsquo;s consistency. It says F cannot prove Con(F). But this requires that consistency proofs be expressible within F.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Hilbert never clearly required that finitary consistency proofs be expressible within the classical systems they were meant to secure. If finitary mathematics is a proper subsystem, consistency proofs in finitary mathematics need not be expressible in the classical system.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Gentzen&rsquo;s 1936 consistency proof of Peano Arithmetic using transfinite induction up to ε₀ is an example of a consistency proof not expressible within PA that uses methods outside PA; this shows Hilbert-style proofs from outside the target system are not empty.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The standard refutation of Hilbert&rsquo;s programme assumes consistency proofs must be expressible within the target system; this assumption was not clearly part of Hilbert&rsquo;s programme, and Gentzen&rsquo;s result shows that non-trivial external consistency proofs exist.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Partial realisations survive; the foundational crisis narrative is overstated</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Feferman&rsquo;s work shows that an enormous portion of scientifically applicable mathematics is recoverable within predicatively justified systems &mdash; systems that avoid the impredicative principles that are genuinely inaccessible from a Hilbert-style standpoint.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Friedman&rsquo;s reverse mathematics shows most classical theorems are equivalent to one of a small set of base systems, and most are provable in systems much weaker than ZFC.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The mathematical content genuinely requiring non-constructive methods is surprisingly small; the global foundational crisis narrative following G&ouml;del is mathematically overstated relative to what the detailed reverse-mathematics picture shows.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Significant portions of Hilbert&rsquo;s programme survive via partial realisations; the foundational crisis narrative is an overcorrection; incompleteness has produced a map of mathematical justification, not a proof that the entire enterprise is insecure.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; The real lesson: mathematics is inexhaustible; incompleteness is positive, not catastrophic</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The incompleteness theorems show that no single formal system captures all of mathematical truth; for every system we accept, there are truths we can come to accept beyond it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This inexhaustibility is a positive discovery about the structure of mathematical cognition and mathematical reality; it reveals a mathematical universe richer and more complex than formalist programmes anticipated.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Reading the theorems as foundational crisis rather than foundational enrichment is a philosophical choice, not a mathematical necessity; the theorems transform the foundationalist project into a more sophisticated investigation of mathematical justification, rather than destroying it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The incompleteness theorems reveal the inexhaustible richness of mathematics and transform, rather than destroy, the foundationalist project; the crisis narrative is a misreading; the theorems are positive contributions to our understanding of mathematical structure.</span></div>
+        </div>
+      </div>
+    </div><!-- end detlefsen -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'godel',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'feferman',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
