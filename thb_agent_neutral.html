@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent-Neutral vs Agent-Relative Reasons — Proposition and Opposition</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-col:#5a8ab0;--prop-pill:#1a2d3e;--prop-pill-bdr:#2e5070;
+  --opp-col:#8a6ab0;--opp-pill:#281e3e;--opp-pill-bdr:#503070;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp  .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .fact-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .fact-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.25rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Philosophy of Practical Reason Symposium &mdash; Impartiality, Partiality &amp; the Structure of Moral Demands</div>
+  <div class="motion-title">&ldquo;This House Believes that Agent-Neutral Reasons Are the Only Genuine Moral Reasons&rdquo;</div>
+  <div class="motion-sub">Proposition: Parfit (<em>Reasons &amp; Persons</em>) &middot; Singer (impartialist demands) &middot; Railton (sophisticated consequentialism) &nbsp;&mdash;&nbsp; Opposition: Nagel (<em>The View from Nowhere</em>) &middot; Williams (integrity &amp; ground projects) &middot; Scheffler (agent-centred prerogative)</div>
+</div>
+<div class="columns">
+
+<!-- ═══════════════════════════════════════
+     LEFT: PROPOSITION
+     Parfit · Singer · Railton
+═══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','parfit',this)">Parfit</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','singer',this)">Singer</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','railton',this)">Railton</button>
+  </div>
+
+  <!-- PARFIT HEADER -->
+  <div class="col-header" id="prop-parfit-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Derek Parfit</span></div>
+    <div class="col-position">All Souls College, Oxford &amp; NYU &middot; <em>Reasons and Persons</em> (1984) &middot; <em>On What Matters</em> (2011) &middot; The self-defeat of agent-relative common-sense morality; convergence of ethical theories at the impartialist pole</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','parfit','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','parfit','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- SINGER HEADER -->
+  <div class="col-header hidden" id="prop-singer-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Peter Singer</span></div>
+    <div class="col-position">Princeton University &middot; <em>Famine, Affluence and Morality</em> (1972) &middot; <em>Practical Ethics</em> (1979) &middot; The argument from the expanding moral circle; no principled basis for the agent-relative boundary at proximity or kinship</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','singer','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','singer','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- RAILTON HEADER -->
+  <div class="col-header hidden" id="prop-railton-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Peter Railton</span></div>
+    <div class="col-position">University of Michigan &middot; &ldquo;Alienation, Consequentialism and the Demands of Morality&rdquo; (1984) &middot; Sophisticated consequentialism: agent-neutral foundations with agent-relative heuristics &mdash; the appearance of partiality explained without endorsing it as fundamental</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','railton','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','railton','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ PARFIT ══ -->
+    <div class="speaker-panel active" id="prop-parfit-panel">
+      <div id="prop-parfit-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to begin by drawing a distinction that I think the opposition will either deny or, more dangerously, quietly concede and then forget. A reason is <em>agent-neutral</em> if it can be stated without reference to the agent for whom it is a reason: &ldquo;pain is bad&rdquo; gives every agent a reason to prevent pain, regardless of whose pain it is. A reason is <em>agent-relative</em> if it essentially refers to the agent: &ldquo;your child&rsquo;s suffering matters more because it is <em>your</em> child.&rdquo; The motion asks whether the latter kind of reason can be a genuine <em>moral</em> reason. I want to argue that it cannot &mdash; and that this conclusion, far from being a cold philosophical technicality, tracks something deep about the nature of morality itself.</p>
+        <div class="pull">&ldquo;Common-sense morality is collectively self-defeating. When each of us acts on the agent-relative reasons common sense endorses &mdash; prioritising our own, our family, our community &mdash; the total outcome is worse by the lights of what each of us most deeply cares about: that things go well. This is not a paradox to be accepted. It is a reductio of the structure of agent-relative moral reasoning.&rdquo;</div>
+        <span class="section">i. the collective self-defeat of agent-relative morality</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Self-defeat — agent-relative morality undermines its own aims collectively</span>In <em>Reasons and Persons</em> I argued that common-sense morality &mdash; the familiar view that we have stronger reasons to benefit those near and dear to us, to honour our special obligations, to give our own projects extra weight &mdash; is collectively self-defeating. Here is why. If everyone acts on agent-relative reasons, each prioritising their own, then the global distribution of attention, resources, and care is determined by the morally arbitrary facts of who happens to stand in which relationships to whom. The child with loving, wealthy parents is well cared for; the child with indifferent or impoverished parents is not. Each parent, acting on their agent-relative reasons, does what their theory tells them to do. But the outcomes, aggregated, are worse by any standard those same parents would endorse from a detached perspective. The theory tells each agent to do X, and when they all do X, everyone is worse off than if they had each done something else. This is the signature of a theory that has got the structure of reasons wrong.</span></p>
+        <span class="section">ii. the separateness of persons objection, reconsidered</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Separateness of persons — the Rawlsian objection answered</span>The opposition will invoke Rawls&rsquo;s argument that impartialism &mdash; including the agent-neutral view I defend &mdash; fails to take seriously the separateness of persons: that it treats the distribution of welfare across persons as if it were the distribution of welfare across a single person&rsquo;s lifetime, and that this elides the moral significance of individual boundaries. I want to meet this argument directly. The separateness of persons is not a ground for agent-relative reasons. It is, if anything, a ground for the opposite. Taking the separateness of persons seriously means recognising that <em>each</em> person&rsquo;s suffering has equal weight regardless of their relationship to me. The Rawlsian objection, properly understood, is an objection to certain aggregative forms of consequentialism &mdash; the objection is that we must not trade one person&rsquo;s severe suffering against many others&rsquo; minor benefits. This is a constraint on how agent-neutral reasons are aggregated, not a licence for agent-relative ones.</span></p>
+        <span class="section">iii. the convergence thesis: what survives critical scrutiny</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Convergence — Kantian, contractualist, and consequentialist theories align at impartialist conclusions</span>In <em>On What Matters</em>, I argued that the great ethical theories &mdash; Kantian deontology, Scanlonian contractualism, and consequentialism &mdash; converge on their most defensible formulations at a set of shared conclusions. One of those conclusions is the priority of agent-neutral reasons in the moral domain. Kant&rsquo;s Categorical Imperative demands that we act only on principles we could will to be universal laws &mdash; a fundamentally agent-neutral structure. Scanlon&rsquo;s contractualism demands that we act only on principles that no one could reasonably reject from a position that gives each person equal standing &mdash; again, agent-neutral. The convergence is not accidental. It reflects the fact that morality, as distinct from prudence or personal preference, is essentially a framework for adjudicating among competing claims from a position that does not privilege the claimant. The agent-relative theorist must explain why morality should privilege some claimants by brute positional luck. I have not seen a satisfying answer.</span></p>
+        <span class="section">iv. what agent-relative reasons actually are</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Category error — agent-relative reasons are prudential or personal, not distinctively moral</span>I want to close with what I believe is the deepest point. Agent-relative reasons are real. I do not deny that I have a stronger reason, of some kind, to comfort my own child than a stranger&rsquo;s. But the question is what <em>kind</em> of reason this is. My claim is that this reason belongs to the domain of prudence and personal attachment &mdash; to the web of commitments, affections, and projects that constitute a life &mdash; rather than to morality proper. Morality enters when we ask how those personal attachments should be constrained and balanced against the equal claims of others. At that point, the agent-relative element must be subordinated to an agent-neutral framework, because the distinctive function of morality is to adjudicate from a position that does not privilege any particular first-person perspective. Agent-relative reasons are genuine reasons; they are not genuine <em>moral</em> reasons. The motion is correct.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-parfit-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Common-sense morality is collectively self-defeating because it is agent-relative</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Common-sense morality assigns each agent stronger reasons to benefit those nearby: family, friends, community members. Each agent acts on these agent-relative reasons.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When all agents act on agent-relative reasons, the global distribution of care and resources is determined by the morally arbitrary facts of who happens to be related to whom; children of indifferent or poor parents are systematically neglected.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This outcome is worse by standards all those agents would themselves endorse from any impartial perspective; the theory tells each to do X and the result of all doing X is worse than alternative distributions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Common-sense morality, being agent-relative, is collectively self-defeating; this structural defect is evidence that it has misidentified the nature of moral reasons rather than correctly captured them.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The separateness of persons supports agent-neutrality, not agent-relativity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Rawlsian &ldquo;separateness of persons&rdquo; objection holds that impartialism wrongly treats welfare distribution across persons as commensurable with distribution within a single life.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But taking persons seriously as separate means recognising that each person&rsquo;s suffering has equal weight independent of their relationship to the agent; this is a reason for more even attention, not for privileging those contingently proximate to me.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The separateness objection is properly an objection to certain aggregative procedures within consequentialism, not a licence for agent-relative discrimination; the opposition runs it backwards.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The separateness of persons, correctly understood, motivates agent-neutral concern for each individual&rsquo;s claims; it does not ground the agent-relative reasons the opposition defends.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Kantian, contractualist, and consequentialist theories converge on agent-neutral conclusions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Kant&rsquo;s Categorical Imperative requires acting only on universalisable maxims &mdash; an agent-neutral structure. Scanlon&rsquo;s contractualism requires principles no one could reasonably reject from equal standing &mdash; also agent-neutral.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This convergence across the three major ethical frameworks on agent-neutral conclusions is not coincidental; it reflects the essential function of morality as a framework adjudicating competing claims from a position that does not privilege the claimant.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The agent-relative theorist must explain why this convergent structure of all major moral theories is systematically mistaken; the burden of proof is substantial.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The convergence of Kantian, contractualist, and consequentialist theories on agent-neutral conclusions is strong evidence that impartiality is a structural feature of morality, not a doctrinal preference of one tradition.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Agent-relative reasons are genuine but belong to prudence, not morality proper</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Agent-relative reasons &mdash; to help my child, honour my commitments, pursue my projects &mdash; are real reasons. The proposition does not deny this. They belong to the domain of prudential and personal attachment.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Morality&rsquo;s distinctive function is to adjudicate among competing first-person claims from a position that does not privilege any particular perspective; this function requires agent-neutral reasoning by definition.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>When agent-relative commitments conflict with others&rsquo; equal claims, morality adjudicates by subordinating the agent-relative to an agent-neutral standard; the agent-relative thus operates within, not alongside, a morally primary agent-neutral framework.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Agent-relative reasons are genuine prudential or personal reasons; moral reasons, as such, are agent-neutral because the role of morality is precisely to adjudicate from the impartial position that agent-relative reasons cannot provide.</span></div>
+        </div>
+      </div>
+    </div><!-- end parfit -->
+
+    <!-- ══ SINGER ══ -->
+    <div class="speaker-panel" id="prop-singer-panel">
+      <div id="prop-singer-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I will make my argument with a thought experiment, because I think this debate is one in which the abstract formulations have run ahead of the concrete cases that motivate them. Suppose you are walking past a shallow pond in which a child is drowning. You can save the child at trivial cost to yourself &mdash; ruining your shoes, being late for an appointment. Most people accept, without hesitation, that you are morally required to save the child. Now: the children dying of preventable disease in low-income countries today are equally within your causal reach &mdash; a donation of modest size to an effective health intervention will save a child&rsquo;s life with something close to the same certainty. The opposition&rsquo;s agent-relative view says you have substantially weaker reasons to save the distant child than the drowning one. I want to press hard on what grounds that asymmetry.</p>
+        <div class="fact-box">
+          <strong>The drowning child &mdash; the thought experiment and its generalisation</strong>
+          Singer&rsquo;s original 1972 argument: if it is in our power to prevent something bad from happening without sacrificing anything of comparable moral importance, we ought to do it. This principle is agent-neutral: it makes no reference to the physical distance, relationship, or proximity of the agent to the person in need. Distance, kinship, and prior relationship are morally arbitrary features &mdash; facts about the causal and social structure of the world that bear no independent moral weight.
+        </div>
+        <span class="section">i. the arbitrariness of the agent-relative boundary</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Arbitrariness — distance, kinship, and proximity as morally arbitrary features</span>The agent-relative view holds that I have stronger moral reasons to benefit those near to me &mdash; my children, my neighbours, my compatriots &mdash; than those far away. But when I press for the principled basis of this hierarchy, what do I find? Distance is a fact about geography, not about the moral worth of persons. Kinship is a fact about biological or social relationship, not about the intrinsic importance of the interests at stake. Nationality is a fact about which state&rsquo;s bureaucracy issued one&rsquo;s documents. None of these features bear any direct relationship to what matters morally, which is the degree to which a person&rsquo;s interests &mdash; their suffering, their flourishing, their life &mdash; is at stake. The child dying of malaria in a country I will never visit has interests that matter equally, by any criterion that does not simply smuggle in the conclusion. The agent-relative view must either identify what is morally special about proximity and kinship, or admit that it is encoding a bias, not a principle.</span></p>
+        <span class="section">ii. the expanding circle and the direction of moral progress</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Moral progress — expanding circle as evidence for agent-neutral direction</span>Moral progress, historically, has consistently moved in the direction of expanding the circle of moral consideration and weakening the grip of agent-relative special treatment. We once thought it obvious that we had stronger reasons to protect members of our tribe than strangers. We once thought kinship and caste determined moral standing. We once thought national boundaries settled the question of who mattered. At each stage, moral reflection revealed these boundaries to be morally arbitrary &mdash; projections of contingent social fact onto the structure of reasons. The history of moral progress is a history of the gradual triumph of agent-neutral considerations over agent-relative ones. To endorse agent-relative reasons as fundamental is to arrest this progress at the current boundary and declare that the parochialism that remains &mdash; family, community, nation &mdash; is, unlike those previously abandoned, principled.</span></p>
+        <span class="section">iii. the demandingness objection is not an objection to the motion</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Demandingness — distinguishing what morality requires from what psychology permits</span>The opposition will argue that an agent-neutral moral view is impossibly demanding &mdash; that requiring each person to give equal weight to every other person&rsquo;s interests collapses the personal life entirely and produces a moral theory no one can live by. I accept that this is a serious practical problem. But it is not an objection to the motion. The question is not what people can sustainably do, but what morality genuinely requires. Physics is not refuted by the fact that most of us cannot do quantum mechanics; ethics is not refuted by the fact that most of us cannot achieve full impartiality. The gap between what morality requires and what psychology permits is real, but the correct response is to acknowledge it honestly &mdash; not to rewrite moral theory to fit our psychological limitations and call the result a principled framework.</span></p>
+        <span class="section">iv. what agent-relative moral theory actually entails</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Entailments — agent-relative view licenses morally troubling partialities</span>Consider the entailments of a genuinely agent-relative moral view taken seriously. If I have stronger moral reasons to benefit my children than strangers&rsquo; children, how much stronger? By what factor? If the answer is &ldquo;any finite factor,&rdquo; then at some margin I am morally permitted to let thousands of strangers die to provide a trivial benefit to my child. If the answer is that there is no precise factor &mdash; that agent-relative reasons simply &ldquo;count for more,&rdquo; without specifying how much more &mdash; then the view has no action-guiding content whatsoever. The agent-relative view either licenses monstrous partiality at its margins or dissolves into vagueness. Neither is a satisfactory moral theory.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-singer-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Distance, kinship, and proximity are morally arbitrary; they do not bear on what matters</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The agent-relative view gives extra moral weight to proximity, kinship, and nationality. But distance is a geographical fact, kinship a biological or social fact, and nationality a bureaucratic one; none bears any direct relationship to the interests at stake.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The drowning child and the distant dying child have equal interests, equally at stake; what differs is only a set of facts about the causal and social structure of the world that carry no independent moral weight.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The agent-relative view must identify what is morally special about these features; in the absence of such a principled account, it is encoding a bias rather than a moral principle.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The morally arbitrary character of the features that agent-relative reasons track &mdash; distance, kinship, proximity &mdash; is strong evidence that agent-relative reasons are parochial projections rather than genuine moral principles.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The history of moral progress is the history of expanding agent-neutral consideration</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Moral progress has consistently moved by recognising previously accepted agent-relative boundaries &mdash; tribe, caste, race, sex &mdash; as morally arbitrary and expanding the circle of equal consideration accordingly.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>At each stage, the boundaries abandoned were defended by those who held them as principled rather than parochial; the same structure now applies to the remaining agent-relative boundaries of family and community.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Endorsing agent-relative reasons as fundamental requires claiming that the remaining parochialism &mdash; family, community, nation &mdash; is, unlike those previously abandoned, genuinely principled; this requires a positive argument the opposition has not provided.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The direction of moral progress is the progressive triumph of agent-neutral over agent-relative considerations; endorsing agent-relative reasons at this stage requires a principled account of why this particular boundary is morally real when previous ones were not.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument III &mdash; Demandingness is evidence of moral truth, not a refutation of it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The opposition argues that agent-neutral morality is impossibly demanding and therefore false or inapplicable; but the gap between moral requirement and psychological capacity is not a refutation of the former.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>We do not revise the laws of physics when they exceed human computational capacity; we do not revise the demands of logic when people cannot follow the argument. There is no principled reason why ethics should be uniquely revised to fit our failures of will.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Acknowledging the gap between what morality requires and what psychology permits is honest; rewriting moral theory to eliminate the gap and calling the result a principled framework is evasion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The demandingness of agent-neutral morality is evidence of its truth and our weakness, not evidence of its falsity; accepting demanding moral conclusions and acknowledging our failure to meet them is the appropriate response.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Agent-relative views either license monstrous partiality or dissolve into vagueness</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If agent-relative reasons give me stronger but finitely stronger reasons for my own: at some margin I am permitted to let many strangers die to provide trivial benefit to mine. If the weighting is infinite: the view is fanatical partiality. Either entailment is morally unacceptable.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If the agent-relative weight is unspecified &mdash; my reasons are simply &ldquo;stronger,&rdquo; by no particular factor &mdash; then the view provides no determinate guidance in any case of conflict and has no action-guiding content.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A moral theory that either licenses monstrous partiality at its margins or dissolves into indeterminacy at its core has failed as a theory; the dilemma applies to any specification of the agent-relative view.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The agent-relative view faces a dilemma: specify the weight and face monstrous entailments, or leave it unspecified and forfeit action-guidance; neither horn is a satisfactory moral theory.</span></div>
+        </div>
+      </div>
+    </div><!-- end singer -->
+
+    <!-- ══ RAILTON ══ -->
+    <div class="speaker-panel" id="prop-railton-panel">
+      <div id="prop-railton-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to make a distinction the opposition has systematically blurred: the distinction between the <em>criterion of moral correctness</em> and the <em>decision procedure</em> an agent should use. My position &mdash; which I have called sophisticated consequentialism &mdash; holds that the criterion of moral correctness is agent-neutral: an act is right if and only if it produces the best outcomes impartially assessed. But the decision procedure that best reliably produces such outcomes may, and typically will, include strong attachments, personal commitments, and partial concerns that look like agent-relative reasons. The opposition takes appearances for reality. Because moral agents should cultivate partiality as a reliable means to agent-neutral ends, it concludes that partiality is morally fundamental. This is the genetic fallacy applied to ethical psychology.</p>
+        <div class="pull">&ldquo;The sophisticated consequentialist holds that someone who deliberates about whether to help their drowning friend by calculating impersonal welfare functions has thereby shown that they value their friend too little. The warm, spontaneous, partial response is the right response &mdash; and it is the right response because, at the level of criterion, it is what agent-neutral morality recommends. The justification is impartialist even when the motive is not.&rdquo;</div>
+        <span class="section">i. the criterion/decision-procedure distinction</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Criterion vs decision procedure — the key distinction sophisticated consequentialism draws</span>Consider the case of a man who, seeing his friend drowning, pauses to calculate whether saving this particular friend produces more aggregate welfare than the alternative uses of his energies. Bernard Williams would say this man has shown that he has &ldquo;one thought too many&rdquo; &mdash; that his friendship is conditional, and therefore not a genuine friendship at all. Williams intends this as a reductio of agent-neutral morality: if impartialism requires this calculation, it has misunderstood the moral significance of friendship. But Williams&rsquo;s argument proves less than he thinks. It shows that the <em>decision procedure</em> of explicit impartial calculation is inappropriate in contexts of personal relationship. It does not show that the <em>criterion of rightness</em> is anything other than agent-neutral. The criterion tells us that cultivating genuine friendship, with its partial concern, is what agent-neutral morality recommends &mdash; because a world of people with genuine attachments produces better outcomes, and the man who pauses to calculate is producing worse ones.</span></p>
+        <span class="section">ii. the alienation objection answered</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Alienation — agent-neutral criterion doesn&apos;t require agent-neutral motivation</span>In my 1984 paper, I argued against the objection that consequentialism alienates agents from their personal commitments by requiring them to stand perpetually outside their own projects in moral assessment. The alienation objection assumes that an agent whose fundamental justification is agent-neutral must live with agent-neutral motivations &mdash; must experience their love for their child as &ldquo;the child whose welfare is one unit in the global welfare function.&rdquo; But this is a non-sequitur. The sophisticated consequentialist holds that the best life, from the standpoint of agent-neutral value, is one in which agents have deep, genuine, partial attachments. The justification is impartialist; the psychology need not be. There is no incoherence in holding that the moral criterion is agent-neutral while the psychological states that best realise that criterion include warmth, partiality, and commitment.</span></p>
+        <span class="section">iii. the self-effacement of agent-relative theory</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Self-effacement — agent-relative morality requires agent-neutral justification to be plausible</span>Here is a pressure point for the opposition. When they argue that agent-relative reasons &mdash; the reasons of partiality, friendship, and special obligation &mdash; are <em>genuine moral reasons</em>, not merely prudential or psychological facts, they owe us an account of why they are moral reasons. That account, I submit, inevitably appeals to agent-neutral considerations. Why does the parent-child relationship generate genuine moral reasons? Because the institution of parent-child attachment produces better outcomes for children than alternative care arrangements. Why does friendship generate genuine moral obligations? Because a world of people with genuine, partial friendships goes better than a world of calculating strangers. The agent-relative theorist cannot justify their agent-relative reasons without appealing to agent-neutral facts about what makes things go well. The agent-neutral justification is foundational; the agent-relative reasons are derived.</span></p>
+        <span class="section">iv. moral theory and moral psychology</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Moral psychology — the empirical claim about what dispositions best serve agent-neutral value</span>The opposition sometimes argues that agent-neutral morality is psychologically unrealistic &mdash; that beings like us cannot function as fully impartial reasoners and that a moral theory must be liveable to be genuine. I agree that moral theory must engage with moral psychology. But the lesson I draw is different. We should ask, empirically, which psychological dispositions &mdash; which patterns of attachment, partiality, and commitment &mdash; in beings like us, in worlds like ours, reliably produce the best outcomes assessed agent-neutrally. This is an empirical question, not a foundational one. The answer will include substantial partiality, rich attachments, and strong personal commitments. But these are recommended by an agent-neutral criterion, not by an agent-relative one. The foundation remains impartialist; the psychology it recommends is happily partial.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-railton-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The criterion/decision-procedure distinction: agent-neutral criterion, agent-relative heuristics</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Williams&rsquo;s &ldquo;one thought too many&rdquo; objection shows that explicitly impartial deliberation is the wrong <em>decision procedure</em> in contexts of personal relationship; it does not show that the criterion of moral rightness is anything other than agent-neutral.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Sophisticated consequentialism holds that cultivating genuine, partial attachments is what agent-neutral morality recommends at the level of criterion, because agents with genuine attachments produce better outcomes than calculators.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The distinction between criterion and decision procedure allows agent-neutral foundations to recommend agent-relative psychology without making the agent-relative psychology foundational.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Williams&rsquo;s integrity objection refutes only the naive consequentialist decision procedure, not the agent-neutral criterion; sophisticated consequentialism preserves impartialist foundations while recommending partial psychology.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The alienation objection: agent-neutral criterion does not require agent-neutral motivation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The alienation objection assumes that an agent whose fundamental moral justification is agent-neutral must live with agent-neutral motivations, experiencing love as welfare-unit calculation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is a non-sequitur: the best life from the standpoint of agent-neutral value is one with deep, partial attachments; the criterion justifies warmth and commitment even though the criterion itself is impartial.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>There is no incoherence in holding that the moral criterion is agent-neutral while the psychological states that best realise that criterion are partial and warm; the opposition conflates justification with motivation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Sophisticated consequentialism escapes the alienation objection by distinguishing the agent-neutral criterion from the agent-relative psychology it recommends; the objection only lands against a naive theory that Railton does not hold.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Agent-relative theories self-efface: their justification appeals to agent-neutral considerations</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When the opposition claims agent-relative reasons are genuine <em>moral</em> reasons, they owe an account of why. Any plausible account &mdash; why parent-child relationships matter, why friendship generates obligation &mdash; appeals to agent-neutral facts about human flourishing and welfare.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If the justification of agent-relative reasons is agent-neutral, then agent-neutral considerations are foundational; agent-relative reasons are derived from, not alternatives to, the agent-neutral framework.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An agent-relative theory that justifies itself by appeal to agent-neutral foundations is not a genuine alternative to agent-neutral morality; it is a derivative account within it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Agent-relative moral theories self-efface under scrutiny: their own justification reveals that the foundational reasons are agent-neutral; this shows that agent-neutral reasons are primary even by the lights of theories that purport to reject them.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; Which dispositions best serve agent-neutral value is an empirical question, not a foundational one</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The question of which psychological dispositions &mdash; which attachments, which patterns of partiality &mdash; in beings like us, in worlds like ours, best realise agent-neutral value is empirical, not a question of foundational moral theory.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The empirical answer includes substantial partiality, rich attachments, and strong commitments; these are recommended by the agent-neutral criterion even though they are agent-relative in psychological character.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Treating the empirical answer &mdash; that partial psychology is recommended &mdash; as if it were a foundational claim &mdash; that agent-relative reasons are foundationally moral &mdash; commits the genetic fallacy: confusing what recommends a disposition with the disposition itself as a ground of reasons.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The fact that agent-neutral morality recommends partial psychology does not make agent-relative reasons foundationally moral; the foundation remains agent-neutral and the partial psychology is a recommended means, not an alternative foundation.</span></div>
+        </div>
+      </div>
+    </div><!-- end railton -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════════════════════════
+     RIGHT: OPPOSITION
+     Nagel · Williams · Scheffler
+═══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','nagel',this)">Nagel</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','williams',this)">Williams</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','scheffler',this)">Scheffler</button>
+  </div>
+
+  <!-- NAGEL HEADER -->
+  <div class="col-header" id="opp-nagel-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Thomas Nagel</span></div>
+    <div class="col-position">NYU &middot; <em>The Possibility of Altruism</em> (1970) &middot; <em>The View from Nowhere</em> (1986) &middot; Agent-relative and agent-neutral reasons are both genuine; the view from nowhere cannot fully capture the moral significance of the personal standpoint</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','nagel','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','nagel','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- WILLIAMS HEADER -->
+  <div class="col-header hidden" id="opp-williams-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Bernard Williams</span></div>
+    <div class="col-position">Cambridge &amp; Oxford &middot; &ldquo;A Critique of Utilitarianism&rdquo; in <em>Utilitarianism: For and Against</em> (1973) &middot; <em>Moral Luck</em> (1981) &middot; The integrity objection; ground projects; what morality cannot demand without destroying the agent it claims to address</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','williams','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','williams','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- SCHEFFLER HEADER -->
+  <div class="col-header hidden" id="opp-scheffler-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Samuel Scheffler</span></div>
+    <div class="col-position">NYU &middot; <em>The Rejection of Consequentialism</em> (1982) &middot; The agent-centred prerogative: a principled rationale for why agents need not always produce the best outcome, grounded in the independence of the personal point of view</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','scheffler','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','scheffler','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ NAGEL ══ -->
+    <div class="speaker-panel active" id="opp-nagel-panel">
+      <div id="opp-nagel-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I introduced the terminology that organises this debate, and I want to begin by clarifying what the motion actually asserts. It claims that agent-neutral reasons are the <em>only</em> genuine <em>moral</em> reasons. Note the scope: not that agent-neutral reasons exist &mdash; I have always accepted this &mdash; but that they exhaust the moral domain. This is a far stronger claim than anything I argued in <em>The Possibility of Altruism</em>, and stronger than anything the argument from impartiality can establish. What I want to show is that agent-relative reasons are genuinely moral reasons &mdash; not merely prudential, psychological, or heuristic &mdash; and that the proposition&rsquo;s attempt to relegate them to non-moral domains misunderstands the structure of practical reason.</p>
+        <div class="pull">&ldquo;The objective standpoint reveals something about what matters; but it does not reveal everything that matters. The fact that my child is suffering is a reason for me to act that is not fully captured by the agent-neutral fact that a child is suffering somewhere. The first-person perspective is not an illusion to be transcended; it is a genuine locus of value that a complete account of practical reason must accommodate.&rdquo;</div>
+        <span class="section">i. the dual-standpoint theory of reasons</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Dual standpoint — both objective and subjective perspectives generate genuine reasons</span>In <em>The View from Nowhere</em>, I argued that the tension between subjective and objective standpoints &mdash; between the first-person perspective of an agent embedded in particular relationships and projects, and the impersonal perspective that sees all persons as equally real &mdash; is a genuine and irreducible feature of practical reason. It is not to be resolved by declaring one perspective the real one and the other a useful fiction or a mere psychological fact. When I recognise that it is <em>my</em> child in pain, I recognise something the agent-neutral formulation &mdash; &ldquo;a child is in pain&rdquo; &mdash; fails to fully capture. The indexical content of the first-person perspective is not illusory; it is a genuine feature of my situation that generates genuine reasons. The proposition wants to dissolve this first-person content into the impersonal description; but what is dissolved in the process is the agenthood of the agent whose moral reasons we are trying to understand.</span></p>
+        <span class="section">ii. the problem with the criterion/decision-procedure move</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Criterion/procedure — why the distinction fails to vindicate agent-neutral foundations</span>Railton argues that agent-neutral reasons are foundational at the level of criterion, while agent-relative psychology is merely recommended as the best means. I want to identify a critical problem with this move. If the agent-neutral criterion is foundational, then the value of my particular attachments &mdash; to my child, my friend, my community &mdash; is entirely derivative: they matter only because and insofar as they produce better impersonal outcomes. But this means the value of my child to me is fully explicable in terms of the contribution my attachment makes to impersonal welfare. This is not how the value of a child to a parent works, and it is not how parental love that misses this child-specific value is love at all. The criterion/procedure distinction saves the psychological appearances; it does not save the correct account of what the love is a response to. Agent-relative reasons are not heuristics for agent-neutral ends; they are responses to genuine agent-relative value.</span></p>
+        <span class="section">iii. what the proposition cannot explain: agent-relative obligations</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Special obligations — agent-relative duties that resist agent-neutral reduction</span>Consider the special obligations generated by promises, contracts, and voluntary commitments. If I promise to meet you for lunch and an opportunity arises to produce marginally greater aggregate welfare by breaking the promise, the agent-neutral view seems committed to saying I should break it. But this misunderstands the nature of promissory obligation. When I promise, I create a specific obligation to <em>you</em> &mdash; not a general obligation to the world to produce good outcomes that happens to have you as a contingent locus. The obligation is indexed to our particular relationship and the specific act of undertaking. Agent-neutral morality can accommodate this only by treating the disvalue of promise-breaking as an agent-neutral bad &mdash; but this seems to get the phenomenology and the normative structure precisely backwards. The promise is a reason because of its particular relational character, not because breaking it has bad impersonal effects.</span></p>
+        <span class="section">iv. the asymmetry between promoting and doing harm</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Doing/allowing — agent-relative structure of the deontological constraint</span>The distinction between doing harm and allowing harm &mdash; between killing and letting die, between actively injuring and failing to prevent injury &mdash; is one of the most deeply embedded features of commonsense morality, reflected in law, in institutional practice, and in the moral intuitions of virtually every population studied. Agent-neutral morality, if it is consistent, must deny this distinction: if the badness of an outcome is agent-neutral, it should not matter whether I am its proximate cause or a passive bystander. Yet the distinction seems not merely to reflect our psychology &mdash; it seems to track something morally real about the agent&rsquo;s specific relationship to an outcome. The agent-relative structure of this doing/allowing asymmetry is evidence that agent-relative reasons are genuinely moral, not merely prudential or heuristic.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-nagel-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The dual-standpoint theory: both objective and first-person perspectives generate genuine reasons</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The first-person perspective of an agent embedded in particular relationships &mdash; it is <em>my</em> child, <em>my</em> friend &mdash; contains indexical content that the agent-neutral formulation &ldquo;a child is suffering&rdquo; does not fully capture.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This indexical content is not an illusion; it is a genuine feature of the agent&rsquo;s situation that generates reasons. Dissolving it into the impersonal description dissolves the agenthood of the agent whose reasons we are examining.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The tension between the subjective and objective standpoints is an irreducible feature of practical reason, not to be resolved by declaring one perspective the real one and the other a useful fiction.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The first-person perspective generates genuine reasons not captured by agent-neutral descriptions; the proposition&rsquo;s attempt to dissolve this perspective into the impersonal standpoint misunderstands the structure of practical reason.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The criterion/procedure distinction fails to vindicate agent-neutral foundations</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If agent-neutral reasons are foundational, the value of my particular attachments is entirely derivative: they matter only because my attachment contributes to impersonal welfare. The value of my child to me is explained by the impersonal contribution of parental attachment.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But a love that values its object only for its contribution to impersonal welfare is not love of the child; it is love of a welfare-producing relationship. This is not the correct account of what parental love is a response to.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Agent-relative reasons are not heuristics for agent-neutral ends; they are responses to genuine agent-relative value &mdash; the value of this child, this friend, this relationship &mdash; that the criterion/procedure distinction fails to accommodate.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Railton&rsquo;s criterion/procedure distinction saves psychological appearances but misrepresents what agent-relative attachments are responses to; genuine partiality responds to agent-relative value, not to agent-neutral value that happens to be promoted by partiality.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Promissory obligations have an essentially agent-relative structure that resists agent-neutral reduction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A promise creates a specific obligation to the promisee &mdash; not a general obligation to produce good outcomes that happens to have that person as a locus. The obligation is indexed to the particular relationship and the specific act of undertaking.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Agent-neutral morality can accommodate promise-keeping only by treating the disvalue of promise-breaking as an agent-neutral bad; but this gets the normative structure backwards: the reason to keep a promise is its particular relational character, not its impersonal effects.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If agent-neutral reduction of promissory obligation is incorrect &mdash; if what makes promise-breaking wrong is the betrayal of a particular relationship, not impersonal consequences &mdash; then agent-relative reasons are irreducible moral reasons.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Promissory obligations have an essentially agent-relative normative structure; their reduction to agent-neutral reasons misrepresents what makes them obligatory; this is evidence that agent-relative reasons are irreducibly moral.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The doing/allowing asymmetry tracks agent-relative moral structure</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The doing/allowing distinction &mdash; between killing and letting die &mdash; is deeply embedded in commonsense morality, law, and cross-cultural moral intuition; if outcomes alone determine moral assessment, this distinction is unjustifiable.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the distinction does not merely reflect psychology; it tracks the agent&rsquo;s specific causal relationship to an outcome, which is an irreducibly agent-relative feature of the moral situation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the doing/allowing asymmetry is a genuine moral distinction &mdash; and the weight of intuition, law, and practice strongly suggests it is &mdash; then agent-relative features of situations generate genuine moral reasons, and the proposition is false.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The doing/allowing asymmetry is a moral distinction grounded in agent-relative features of situations; its genuineness entails that agent-relative reasons are genuine moral reasons and refutes the proposition.</span></div>
+        </div>
+      </div>
+    </div><!-- end nagel -->
+
+    <!-- ══ WILLIAMS ══ -->
+    <div class="speaker-panel" id="opp-williams-panel">
+      <div id="opp-williams-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to begin by identifying what I take to be the deepest mistake of the agent-neutral position, and it is a mistake about what morality is for. The agent-neutral view assumes that morality is a system of reasons that operates from a standpoint external to any particular agent &mdash; from what Nagel calls &ldquo;the view from nowhere.&rdquo; Its fundamental move is to step outside the agent&rsquo;s particular situation, relationships, and commitments and ask what reasons exist from that impersonal vantage point. My objection is not merely that this produces demanding or unrealistic conclusions. My objection is that the move itself &mdash; the construction of the view from nowhere as the primary locus of moral reasons &mdash; is a philosophical mistake that misunderstands the relationship between reasons and the agents who hold them.</p>
+        <div class="pull">&ldquo;Morality is a system of reasons that addresses agents as they actually are &mdash; beings with particular commitments, attachments, and projects that partly constitute their identities. A system of reasons that requires those beings to abstract away from everything that makes them the agents they are has not produced a more rigorous moral theory. It has produced a theory about a different kind of entity.&rdquo;</div>
+        <span class="section">i. ground projects and the conditions of agency</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Ground projects — the condition of moral agency itself</span>I have argued that what I call &ldquo;ground projects&rdquo; &mdash; the deep commitments, relationships, and undertakings that give a life its structure and direction &mdash; are not merely psychologically important but are constitutive of moral agency. It is because I am a person with commitments &mdash; to my work, my friendships, my children &mdash; that I have anything at stake in the world, and therefore any reasons at all for action. The agent-neutral view treats these commitments as contingent inputs into a prior and independent system of reasons. I am arguing that they are partly constitutive of the agent who has reasons &mdash; that without them, there is no agent robust enough to be the subject of a moral theory. A moral theory that requires agents to be prepared to abandon any particular commitment whenever impartial calculation demands it has not produced a demanding ethics. It has produced an ethics addressed to no one.</span></p>
+        <span class="section">ii. jim and the indians: what the case actually shows</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Jim case — the one thought too many objection</span>Consider my case of Jim, who finds himself in a South American town square where a captain is about to execute twenty prisoners. The captain offers Jim a deal: kill one prisoner and the others go free; refuse and all twenty die. Utilitarian calculation gives a clear verdict: Jim should kill one to save nineteen. But notice what this verdict requires Jim to do. It requires him to treat his deep commitment against killing innocents &mdash; a commitment that is not a preference but a constitutive feature of who he is &mdash; as simply one input into an impersonal calculation that he must be prepared to override whenever the numbers demand it. The utilitarian says this is obvious; I say the obviousness is the problem. A man who shoots the prisoner without the slightest sense that his integrity has been compromised &mdash; who kills with the cheerfulness of a good consequentialist calculator &mdash; has not made the right decision efficiently. He has shown that he was never the kind of person who could have faced this dilemma in the morally interesting way.</span></p>
+        <span class="section">iii. internal and external reasons</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Internal reasons — the motivational condition on genuine reasons for action</span>My argument about internal and external reasons is directly relevant here. A genuine reason for action must be capable of motivating the agent for whom it is a reason &mdash; it must connect with something in that agent&rsquo;s &ldquo;motivational set,&rdquo; their existing commitments, desires, and values. An &ldquo;external&rdquo; reason &mdash; one that purports to apply to an agent regardless of their actual motivational psychology &mdash; cannot explain why that agent should act; it can at most explain what we might say to them or how we might try to change them. The agent-neutral view generates, paradigmatically, external reasons: reasons that apply to all agents regardless of their particular attachments. But external reasons of this kind have a problematic relationship to motivation and action. The proposition owes us an account of how an agent-neutral moral reason connects to the motivation of a particular agent embedded in a particular life; the account cannot be simply &ldquo;it applies regardless of your motivational set,&rdquo; because that abandons the connection between reasons and action that makes reasons practical.</span></p>
+        <span class="section">iv. the critique of moral theory itself</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Anti-theory — systematic moral theory distorts rather than captures moral reality</span>My deepest objection to the proposition is not to its specific conclusions but to its method. The attempt to identify a single foundational kind of moral reason &mdash; whether agent-neutral or agent-relative &mdash; and derive all of ethics from it is a symptom of what I call &ldquo;one thought too many&rdquo; applied to moral theory itself. Moral life is not organised around a foundational kind of reason. It is organised around a complex web of particular relationships, specific undertakings, contextual judgements, and historically embedded commitments that resist systematic derivation from any single principle. The proposition wants to vindicate one side of this web as foundational. But the correct response to the complexity of moral life is not to identify its foundation. It is to describe its complexity honestly and resist the temptation to simplify it into something that admits of systematic justification.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-williams-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Ground projects are constitutive of moral agency, not inputs into a prior system</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Deep commitments &mdash; to work, friendships, children &mdash; are not merely psychologically important; they are partly constitutive of the agent who has reasons. Without them, there is no agent robust enough to be the subject of a moral theory.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A moral theory that requires agents to abandon any particular commitment whenever impartial calculation demands is not demanding ethics; it is ethics addressed to a different entity &mdash; one without the ground projects that constitute actual agency.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If ground projects are constitutive of agency, then the agent-relative reasons they generate are not optional add-ons to a prior agent-neutral moral framework; they are conditions of there being any agent with moral reasons at all.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Ground projects constitute moral agency; a moral theory that treats them as contingent and overridable by agent-neutral calculation has misunderstood its own subject matter and is not addressing actual agents.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Jim case: the agent-neutral verdict requires the destruction of the moral self it addresses</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Jim&rsquo;s commitment against killing innocents is not a preference but a constitutive feature of who he is as a moral agent. The agent-neutral verdict &mdash; kill one to save nineteen &mdash; requires him to override this commitment as a mere input into calculation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A man who performs the killing without any sense that his integrity has been compromised has not resolved a moral dilemma efficiently; he has demonstrated that he lacked the moral character that made it a genuine dilemma.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The agent-neutral view produces verdicts by abstracting from the very features of agents &mdash; their constitutive commitments &mdash; that make moral situations morally interesting; this is not rigour but impoverishment.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Jim case shows that agent-neutral verdicts are reached by abstracting from the constitutive moral commitments of the agent; a theory that requires this abstraction has misunderstood the nature of moral agency and moral dilemma.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Internal reasons: genuine reasons must connect to the agent&rsquo;s motivational set</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A genuine reason for action must connect to something in the agent&rsquo;s motivational set; an external reason that applies regardless of the agent&rsquo;s actual psychology cannot explain why that particular agent should act on it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Agent-neutral reasons are paradigmatically external: they apply to all agents regardless of particular attachments. The proposition must explain how such reasons connect to the motivation of a particular embedded agent; &ldquo;it applies regardless of your motivational set&rdquo; abandons the practical dimension of reasons.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Agent-relative reasons, by contrast, connect directly to the agent&rsquo;s actual motivational set &mdash; their love for their child, their commitment to their friend &mdash; and thereby satisfy the motivational condition that genuine practical reasons must meet.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The internal reasons thesis, if correct, favours agent-relative reasons as genuine practical reasons; agent-neutral reasons, as external reasons, have a problematic relationship to the practical force that reasons must have to guide action.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Moral theory itself is the problem: systematising moral life distorts it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Moral life is organised around a complex web of particular relationships, specific undertakings, contextual judgements, and historically embedded commitments that resist derivation from any single foundational principle.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The proposition&rsquo;s project &mdash; identifying agent-neutral reasons as the sole foundational kind &mdash; imposes a systematic structure on this web that distorts rather than captures its actual character.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The correct response to moral complexity is honest description of that complexity and resistance to the temptation to simplify it into something that admits of a single-principle justification.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The search for a foundational kind of moral reason is itself a philosophical error; the correct response to moral life&rsquo;s complexity is description, not systematisation; the proposition&rsquo;s project is mistaken at its root.</span></div>
+        </div>
+      </div>
+    </div><!-- end williams -->
+
+    <!-- ══ SCHEFFLER ══ -->
+    <div class="speaker-panel" id="opp-scheffler-panel">
+      <div id="opp-scheffler-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My contribution to this debate is more constructive than Williams&rsquo;s and more moderate than Nagel&rsquo;s. I want to offer what I believe is the strongest positive argument for why agent-relative reasons are genuine moral reasons &mdash; and I want to do so in a way that meets the proposition on its own terms, engaging directly with Parfit&rsquo;s self-defeat argument and Railton&rsquo;s criterion/procedure distinction. My argument centres on what I call the &ldquo;independence of the personal point of view&rdquo; &mdash; the claim that the fact that a cost falls on a particular agent, rather than on some other agent, is a morally significant fact that agent-neutral theories systematically fail to accommodate.</p>
+        <div class="fact-box">
+          <strong>The agent-centred prerogative &mdash; what it claims</strong>
+          Scheffler&rsquo;s agent-centred prerogative holds: each agent is morally permitted to assign extra weight to their own interests and projects, relative to the weight assigned in impartial assessments, in deciding what to do. The prerogative is not unlimited; it is proportional. The rationale is not psychological convenience but a principled claim about the moral significance of the personal point of view as a distinct and irreducible standpoint within moral reasoning.
+        </div>
+        <span class="section">i. the independence of the personal point of view</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Personal point of view — a rational strategy, not mere psychology</span>The proposition treats the personal point of view &mdash; the perspective from which my commitments, interests, and relationships appear with special salience &mdash; as a mere psychological fact to be accommodated instrumentally within an agent-neutral framework. I argue that it is more than this: it is a genuinely distinct evaluative standpoint whose independence from the impersonal standpoint provides the rationale for agent-relative permissions. The personal point of view is not an illusion to be overcome or a heuristic to be used and discarded. It is a perspective from which costs and benefits have a different character &mdash; from which what is required of <em>me</em> is not the same kind of fact as what is required of agents in general. Giving extra weight to one&rsquo;s own interests and projects is a rational strategy for taking seriously the fact that one is a particular agent with a particular life, not merely an instance of the abstract type &ldquo;agent.&rdquo;</span></p>
+        <span class="section">ii. the prerogative is not unlimited: meeting parfit</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Prerogative limits — moderate agent-relative view escapes Parfit&rsquo;s self-defeat objection</span>Parfit&rsquo;s self-defeat argument targets a version of agent-relative morality that gives agent-relative reasons unlimited priority over agent-neutral ones. My view does not do this. The agent-centred prerogative is proportional: I may assign extra weight to my own interests, but not unlimited weight. At some threshold of cost to others, the prerogative gives way to agent-neutral requirements. This moderate structure escapes the self-defeat problem: it does not require each agent to pursue their own interests and special relations without limit, and it therefore does not generate the collectively disastrous outcomes Parfit describes. Parfit&rsquo;s reductio assumes that agent-relative morality is maximally self-concerned; but no sophisticated defender of agent-relative reasons holds this view.</span></p>
+        <span class="section">iii. the asymmetry thesis: prerogatives without restrictions</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Asymmetry — prerogatives are more defensible than restrictions; both exceed agent-neutral morality</span>One of my most important findings is what I call the asymmetry between agent-centred prerogatives and agent-centred restrictions. Prerogatives &mdash; permissions not to produce the best outcome &mdash; have a principled rationale in the independence of the personal point of view. Restrictions &mdash; prohibitions on producing the best outcome even when one could &mdash; are harder to justify from a similar rationale. This asymmetry matters for the debate because it shows that the agent-relative position is not all-or-nothing. Even if agent-centred restrictions are hard to justify, the prerogative stands: morality does not require agents always to produce the best outcomes, because the costs of doing so fall on particular agents with particular lives, and this distributional fact is morally significant. The proposition must show not merely that some agent-relative claims fail, but that all do &mdash; including the prerogative, whose rationale is better established than the restrictions.</span></p>
+        <span class="section">iv. what the proposition must deny</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">What proposition entails — demanding to sacrifice my child&apos;s surgery to benefit more strangers</span>Let me press the proposition on a specific case. I have a child who needs surgery that will cost me a significant sum. I could spend that sum on an effective anti-malaria intervention that would save several strangers&rsquo; lives. The agent-neutral view &mdash; if it is consistent &mdash; says I am morally required to save the strangers. The prerogative says I am morally permitted to fund my child&rsquo;s surgery instead. Now I want to ask: what exactly is wrong with funding my child&rsquo;s surgery? If the answer is &ldquo;nothing at all, practically speaking,&rdquo; then the proposition has conceded that agent-relative reasons are genuine moral reasons that confer genuine permissions. If the answer is &ldquo;it is morally impermissible to prioritise your child,&rdquo; then the proposition has a consequence that virtually no one is prepared to accept and that cannot be grounded in any widely shared moral commitment. The proposition must either concede or accept a conclusion that refutes it.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-scheffler-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The personal point of view is a genuinely distinct evaluative standpoint, not mere psychology</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The personal point of view &mdash; from which my commitments and relationships appear with special salience &mdash; is a genuinely distinct evaluative standpoint, not a psychological fact to be accommodated instrumentally within agent-neutral reasoning.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>From this standpoint, what is required of me as a particular agent with a particular life is not the same kind of fact as what is required of agents in general; the personal point of view generates its own evaluative claims.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Giving extra weight to one&rsquo;s own interests is a rational strategy for taking seriously the fact that one is a particular agent &mdash; not merely an instance of the abstract type &ldquo;agent&rdquo; &mdash; and this rationality has moral, not merely prudential, significance.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The independence of the personal point of view provides a principled rationale for the agent-centred prerogative; this rationale is moral in character because it is about the structure of moral demands on particular agents, not merely about psychology.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The moderate prerogative escapes Parfit&rsquo;s self-defeat objection</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Parfit&rsquo;s self-defeat argument targets agent-relative morality that gives agent-relative reasons unlimited priority; at some threshold, the prerogative gives way to agent-neutral requirements, preventing the collectively disastrous outcomes Parfit describes.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The moderate prerogative does not require agents to pursue their own interests without limit; it is proportional and threshold-sensitive, making it structurally distinct from the unlimited partiality Parfit targets.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Parfit&rsquo;s reductio assumes maximum self-concern; no sophisticated defender of agent-relative reasons holds this; the self-defeat objection is addressed to a position the opposition does not occupy.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The moderate agent-centred prerogative escapes Parfit&rsquo;s self-defeat argument; Parfit&rsquo;s reductio is addressed to an unlimited version of the agent-relative view that the opposition does not hold.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The asymmetry thesis: prerogatives are well-grounded even if restrictions are not</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Agent-centred prerogatives (permissions not to produce the best outcome) have a principled rationale in the independence of the personal point of view; agent-centred restrictions (prohibitions on producing the best outcome) are harder to justify from a comparable rationale.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This asymmetry shows the agent-relative position is not all-or-nothing; even if restrictions fail, prerogatives stand, and prerogatives already refute the proposition.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition must show that all agent-relative moral reasons fail, including the prerogative; showing that restrictions are hard to justify is insufficient, since the prerogative&rsquo;s rationale is better established.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The asymmetry between prerogatives and restrictions shows that at least the prerogative is well-grounded as a genuine moral reason; even a partial vindication of agent-relative reasons suffices to refute the proposition&rsquo;s claim that only agent-neutral reasons are genuine moral reasons.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The child&rsquo;s surgery case: proposition must either concede or accept a near-universally rejected conclusion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>I have a child needing surgery costing £X; the same amount spent on anti-malaria interventions would save more lives. The consistent agent-neutral view holds that funding my child&rsquo;s surgery is morally impermissible.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If the proposition concedes that funding my child&rsquo;s surgery is morally permissible, it concedes that agent-relative reasons confer genuine moral permissions &mdash; which refutes the proposition.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the proposition maintains that funding my child&rsquo;s surgery is morally impermissible, it accepts a conclusion virtually no one endorses and that conflicts with the deepest commitments of common morality, requiring a very strong positive argument it has not provided.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The child&rsquo;s surgery case presents the proposition with a dilemma: concede that agent-relative reasons generate genuine moral permissions, or accept a conclusion about parental obligation that is morally unacceptable and lacks supporting argument.</span></div>
+        </div>
+      </div>
+    </div><!-- end scheffler -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'parfit',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'nagel',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
