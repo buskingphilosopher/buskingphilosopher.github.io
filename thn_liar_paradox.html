@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THB: The Liar Paradox Demonstrates that Classical Logic Must Be Revised</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0c12;--bg2:#131220;--bg3:#191828;--bg4:#222038;
+  --bdr:rgba(255,255,255,.07);--bdr2:rgba(255,255,255,.13);
+  --text:#ccc8dc;--text2:#7870a0;--text3:#403858;
+  --gold:#7058c0;
+  --prop-col:#6850c8;--prop-pill:#100820;--prop-pill-bdr:#281060;
+  --opp-col:#c07840;--opp-pill:#281408;--opp-pill-bdr:#603010;
+  --a1bg:rgba(120,80,230,.10);--a1brd:rgba(120,80,230,.36);--a1tip:#9868e8;
+  --a2bg:rgba(80,180,220,.09);--a2brd:rgba(80,180,220,.34);--a2tip:#58b8e0;
+  --a3bg:rgba(220,80,120,.10);--a3brd:rgba(220,80,120,.36);--a3tip:#e05888;
+  --a4bg:rgba(60,200,140,.09);--a4brd:rgba(60,200,140,.34);--a4tip:#40c898;
+  --a5bg:rgba(240,180,60,.09);--a5brd:rgba(240,180,60,.34);--a5tip:#d8a830;
+  --a6bg:rgba(200,100,240,.09);--a6brd:rgba(200,100,240,.34);--a6tip:#c068f0;
+  --a7bg:rgba(240,140,80,.09);--a7brd:rgba(240,140,80,.34);--a7tip:#e09050;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+
+.motion-header{padding:.72rem 1.8rem .58rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.65}
+.motion-eyebrow{font-family:sans-serif;font-size:9.5px;text-transform:uppercase;letter-spacing:.2em;color:var(--gold);margin-bottom:3px;font-weight:500}
+.motion-title{font-size:13.5px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em;line-height:1.55}
+
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:10px;font-weight:500;padding:6px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp  .speaker-btn.active{color:var(--opp-col)}
+
+.col-header{padding:.48rem .95rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.48rem;margin-bottom:.32rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:11.5px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:9.5px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:3px 11px;font-size:11px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+
+.col-body{flex:1;overflow-y:auto;padding:.95rem 1.2rem;font-size:13.5px;line-height:1.97;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+
+.speech-text p{margin-bottom:.75rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{font-style:italic;color:var(--text)}
+.speech-text cite{font-style:italic;color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.15rem 0 .22rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.38rem .78rem;margin:.6rem 0 .65rem;font-size:13px;line-height:1.75;background:rgba(112,88,192,.07)}
+.speech-text .liar{font-family:monospace;font-size:12.5px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:4px;padding:.3rem .7rem;margin:.45rem 0 .55rem;display:block;color:var(--a1tip);line-height:1.6}
+
+.logic-view{display:flex;flex-direction:column;gap:.72rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:5px 9px;font-family:sans-serif;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:7px 9px 4px}
+.premise{display:flex;gap:7px;margin-bottom:6px;font-family:sans-serif;font-size:11.5px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:14px;font-size:9.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:7px;padding:5px 9px;font-family:sans-serif;font-size:11.5px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:10.5px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:4px 9px;box-shadow:0 2px 14px rgba(0,0,0,.9);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House · The Liar Paradox</div>
+  <div class="motion-title">"This House Believes the Liar Paradox Demonstrates that Classical Logic Must Be Revised — No Solution Preserving Bivalence, the T-Schema, and Self-Reference Can Succeed"</div>
+</div>
+
+<div class="columns">
+
+<!-- ══════════════════════ PROPOSITION ══════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','kripke',this)">Kripke &amp; Field</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','priest',this)">Priest &amp; Beall</button>
+  </div>
+
+  <div class="col-header" id="prop-kripke-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Saul Kripke &amp; Hartry Field</span></div>
+    <div class="col-position">For revision — truth-value gaps; the fixed-point construction; paracomplete logic; Field's conditional saves the T-schema without classical bivalence</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','kripke','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','kripke','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="prop-priest-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Graham Priest &amp; JC Beall</span></div>
+    <div class="col-position">For dialetheism — truth-value gluts; the liar is both true and false; LP rejects Explosion not Non-Contradiction; the strengthened liar is a feature not a bug</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','priest','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','priest','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ── KRIPKE & FIELD ── -->
+    <div class="speaker-panel active" id="prop-kripke-panel">
+      <div id="prop-kripke-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>Let me begin with the paradox itself, stated with the precision the debate requires. Consider a sentence — call it <em>L</em> — that says of itself exactly that it is not true:</p>
+        <div class="liar">L: "This sentence is not true."</div>
+        <p>Now reason classically. Suppose L is true. Then what it says holds — so L is not true. Contradiction. Suppose L is not true. Then what it says holds — so L is true. Contradiction. Every assumption leads to contradiction. Something in the reasoning must be surrendered. The opposition will tell you it is self-reference that must go, or the T-schema, or a level distinction they can smuggle in. I want to argue that each of these manoeuvres fails — and that the correct response, which Hartry Field and I have developed in different but complementary ways, is to revise classical logic at the point where it most directly generates the paradox: the principle of bivalence, the assumption that every sentence is either true or false.</p>
+        <div class="pull">"The liar sentence is not true, and it is not false. It belongs to a third category — sentences that fail to reach a definite truth value through any grounded process of semantic evaluation. This is not a concession of defeat. It is the correct description of what the sentence is: semantically indeterminate, in a way that a rigorous formal theory can capture and reason about without generating contradiction."</div>
+        <span class="section">i. the fixed-point construction — Kripke's solution</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Fixed-point — grounded sentences; stages of evaluation; liar never stabilises; gaps are principled</span>In my 1975 paper "Outline of a Theory of Truth," I constructed a formal model in which sentences are evaluated in stages, beginning from a classical base of atomic sentences whose truth values are determined by the non-semantic facts. At each stage, the truth predicate is extended: a sentence gets the value <em>true</em> if it was grounded at some stage as true, <em>false</em> if it was grounded as false. The evaluation continues until a fixed point is reached — a stage at which no new assignments are made. Sentences like "Snow is white" reach their truth value early and stably. The liar sentence never stabilises: assigning it <em>true</em> requires subsequently assigning it <em>false</em>, and vice versa. It therefore falls outside the extension of the truth predicate at the fixed point. It is neither true nor false — it occupies what I call a truth-value gap. This is not an ad hoc stipulation; it is the natural outcome of the most principled bottom-up construction of a truth predicate that anyone has offered.</span></p>
+        <span class="section">ii. the T-schema without bivalence</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">T-schema preserved for grounded sentences; bivalence restricted; T-schema only fails for paradoxical sentences</span>A central virtue of the fixed-point approach is that the T-schema — "P is true if and only if P" — is preserved for all grounded sentences. For "Snow is white," the sentence is true if and only if snow is white: the schema holds. The schema fails only for the liar and other semantically indeterminate sentences — and this failure is principled rather than ad hoc, because these sentences are precisely the ones that fail to be grounded. We do not restrict the T-schema globally. We restrict bivalence — the assumption that every sentence must be either true or false — in a way that is independently motivated by the fact that some sentences are not semantically connected to the world in any way that would determine their truth value. Hartry Field's extension of my approach adds a conditional operator satisfying most classical conditional laws, enabling reasoning about the liar without generating contradiction, and closing the most significant technical gap my original construction left open.</span></p>
+        <span class="section">iii. why the opposition's hierarchy fails</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Hierarchy critique — stratification is artificial; ordinary language is semantically closed; hierarchy cannot capture all truths</span>Tarski's hierarchical solution — which the opposition will defend — stratifies language into levels: truth predicates at level <em>n</em> can only apply to sentences at levels below <em>n</em>. The liar paradox is blocked because a sentence cannot predicate truth of itself; it belongs to a lower level than its own truth predicate. This solution is technically impeccable within formal systems. As a description of natural language, it is a disaster. Ordinary English does not sort its truth predicates by level. When I say "everything on this list is true" I use a single truth predicate ranging over sentences of any level, including the one I am currently uttering. The hierarchy solution deals with the paradox by describing a language nobody speaks. It also cannot capture the generalisation "every truth is knowable" or "every sentence is either true or false" — generalisations that require quantifying over all levels simultaneously. These are things we want to say, and the hierarchy prevents us from saying them.</span></p>
+        <span class="section">iv. the strengthened liar and Field's response</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Strengthened liar — "this sentence is not true or gappy"; revenge; Field's indeterminate response</span>The most serious objection to gap theories — including mine — is the strengthened liar. Consider the sentence:</p>
+        <div class="liar">S: "This sentence is not true or does not have a determinate truth value."</div>
+        <p>If S has no truth value (a gap), then it is not determinately true — which is exactly what S says. So S seems to be true after all. The gap has generated the paradox at a higher level — this is what theorists call "revenge." Hartry Field's response in <cite>Saving Truth from Paradox</cite> is subtle: he argues that the notion of "determinacy" used in the strengthened liar is itself indeterminate — that S generates not a new paradox but an ascent into a hierarchy of indeterminacies, each of which is itself indeterminate. This does not fully dissolve the revenge problem, and Field is honest about the remaining difficulties. But it demonstrates that the gap approach handles a substantially larger class of paradoxes than critics acknowledge, and that the revenge problem is a continuing challenge for all theories, not a decisive refutation of non-classical approaches specifically.</span></p>
+        <span class="section">v. the naturalness of semantic indeterminacy</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Semantic indeterminacy — vagueness; reference failure; indeterminate sentences are a natural category</span>The category of truth-value gaps is not invented for the liar paradox. It is the natural category for sentences that are semantically defective in a principled way: sentences involving reference failure ("The present King of France is bald"), sentences involving radical vagueness at the borderline ("This borderline heap is a heap"), and sentences like the liar that are not grounded in any non-semantic fact. These are genuinely different from sentences that are true and those that are false, and the refusal to admit a third category is an ideological commitment to bivalence, not a logical necessity. The opposition defends classical bivalence as though it were a law of nature. It is a simplifying assumption — useful for most purposes, but unable to accommodate the full complexity of semantic phenomena, of which the liar is the most vivid illustration.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-kripke-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The fixed-point construction: gaps are principled, not stipulated</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Sentences are evaluated in stages from grounded atomic sentences; the truth predicate is extended at each stage until a fixed point is reached.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The liar sentence never stabilises at any stage: assigning it true requires subsequently assigning it false, so it falls outside the extension of the truth predicate at the fixed point.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Truth-value gaps are therefore the natural outcome of the most principled bottom-up construction of a truth predicate — not an ad hoc stipulation but the fixed-point's verdict on ungrounded sentences.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The gap is principled: it arises from a formal construction motivated independently of the paradox, and it correctly identifies the liar as a sentence that fails to ground out in semantic evaluation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — T-schema preserved for all grounded sentences; only bivalence is restricted</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>For all grounded sentences — the vast majority — the T-schema holds: "P is true iff P" is satisfied without restriction.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Bivalence fails only for semantically ungrounded sentences: precisely the class that generates paradox and that independently lacks determinate truth conditions.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Field's conditional extension enables reasoning about paradoxical sentences without violation of the T-schema, closing the principal technical gap in the original Kripke construction.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The gap approach preserves the T-schema for all non-paradoxical sentences and restricts only bivalence — the assumption least defensible independently — constituting a minimal, motivated revision of classical logic.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — The hierarchy fails as a description of natural language</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Natural language uses a single unrestricted truth predicate ranging over sentences of any level; no ordinary speaker stratifies their truth-talk by Tarskian level.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The hierarchy cannot express generalisations like "every truth is knowable" or "every sentence is true or false" — generalisations that require quantifying across all levels simultaneously.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A solution to the paradox that describes a language nobody speaks and cannot capture what we want to say about truth in ordinary contexts is not a solution to the paradox as it actually arises.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Tarskian hierarchy is technically sound but linguistically revisionary in a way that is philosophically unacceptable; the paradox in natural language remains unsolved by it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — The strengthened liar: Field's indeterminate response handles a large class</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The strengthened liar ("this sentence is not true or gappy") threatens to regenerate the paradox within gap theories by apparently being true if it is gappy.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Field's response: "determinacy" is itself indeterminate — S generates an ascent into a hierarchy of indeterminacies, each indeterminate, rather than a fully determinate new paradox.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Revenge is a continuing challenge for all theories, not a decisive refutation of non-classical approaches specifically; Field handles substantially more cases than critics acknowledge.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The revenge problem is a genuine difficulty but not a decisive objection to gap theories; Field's indeterminacy approach handles it better than the classical alternatives, which face their own revenge problems.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — Truth-value gaps are independently motivated by vagueness and reference failure</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Reference failure ("The present King of France is bald") and borderline vagueness ("This is a heap") independently require a category of sentences without determinate truth values.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The liar belongs to this independently motivated category — sentences not grounded in any non-semantic fact — making the gap treatment principled rather than paradox-specific.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Commitment to bivalence is an ideological simplification, not a logical necessity; its costs — inability to handle vagueness, reference failure, and the liar — exceed its benefits.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The gap category is independently needed; rejecting bivalence to accommodate vagueness and reference failure is well-motivated, and the liar is a further instance of the same natural phenomenon.</span></div>
+        </div>
+      </div>
+    </div><!-- end kripke/field -->
+
+    <!-- ── PRIEST & BEALL ── -->
+    <div class="speaker-panel" id="prop-priest-panel">
+      <div id="prop-priest-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleague Kripke has defended truth-value gaps — the view that the liar sentence is neither true nor false. I want to argue for the opposite revision of classical logic: that the liar sentence is both true and false simultaneously, and that this is not the reductio it appears to be, but the correct description of a genuine dialetheia — a true contradiction. This is the position of dialetheism, and I have defended it at length in <cite>In Contradiction</cite> and <cite>The Logic of Paradox</cite>. It requires us to abandon not the law of excluded middle, as Kripke does, but the principle of explosion — the classical inference from a contradiction to anything whatsoever.</p>
+        <div class="pull">"The liar paradox does not merely threaten our theory of truth. It reveals something deep and correct about the structure of reality: that some contradictions are true. The response is not to retreat into gaps or hierarchies — evacuating the problematic sentence of all truth value — but to accept the contradiction and build a logic strong enough to reason within it without collapsing into triviality."</div>
+        <span class="section">i. the argument from the strengthened liar — the gap theory refutes itself</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Strengthened liar — gap theories generate their own paradox; "not true" captures both false and gappy</span>The most powerful argument for dialetheism over the gap theory is that gap theories generate their own paradox more vividly than the dialetheist position does. Consider the strengthened liar:
+        <div class="liar">S: "This sentence is not true."</div>
+        On Kripke's theory, the liar sentence L is neither true nor false — it has no truth value. But if L has no truth value, then L is not true. But L says of itself that it is not true. So if L is not true, then what L says holds — so L is true. We have derived that L is both true and something — not true or gappy. The gap theory generates the contradiction it was designed to avoid. The dialetheist has a clean story: L is true and false, exactly as it appears to be. The "revenge" problem that Kripke's theory faces is internal to the gap approach. The dialetheist embraces the contradiction rather than being surprised by it.</span></p>
+        <span class="section">ii. LP — the logic of paradox</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">LP — three values; both; LEM retained; Explosion rejected; paraconsistency</span>My Logic of Paradox (LP) is a three-valued logic with values <em>true</em>, <em>false</em>, and <em>both</em>. Unlike Kripke's three-valued logic K3 — which has truth-value gaps — LP has truth-value gluts: the liar sentence receives the value <em>both</em>. LP retains the law of excluded middle (every sentence is either true or both, covering all cases) but rejects the principle of explosion — <em>ex contradictione quodlibet</em> — the inference from a contradiction to anything whatsoever. In classical logic, if both P and not-P are true, then every sentence is true — the system trivialises. LP blocks this by treating <em>both</em> as a designated value that does not propagate to arbitrary conclusions. This preserves the ability to reason within a theory containing contradictions without the theory implying everything — which is what makes paraconsistent logic a genuine logic rather than a mere concession to chaos.</span></p>
+        <span class="section">iii. dialetheism and the T-schema</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">T-schema fully preserved — no restriction; dialetheia are genuine truths; the paradox is a solution</span>Dialetheism's decisive advantage over both the hierarchy approach and the gap approach is that it preserves the T-schema without restriction. Every instance of "P is true if and only if P" holds — including for the liar. That the liar is true follows from the T-schema applied to the fact that the liar sentence asserts its own untruth. That the liar is false follows from the T-schema applied to the fact that if the liar is true, then what it says holds — that it is not true. Both assignments follow from an unrestricted T-schema. The contradiction is not a failure of the theory; it is what the theory correctly predicts. JC Beall's extension of this position into a coherent theory of transparent truth — in which the truth predicate is fully substitutable in any non-opaque context — shows that a fully naïve, unrestricted theory of truth is both formally consistent within paraconsistent logic and expressively complete in ways that the restricted theories are not.</span></p>
+        <span class="section">iv. the inclosure schema — the paradox has a uniform structure</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Inclosure schema — Russell, Burali-Forti, liar all share structure; dialetheism provides uniform solution</span>In my analysis of the paradoxes of self-reference, I identify a common structure — the inclosure schema — that underlies the liar, Russell's paradox, Burali-Forti's ordinal paradox, Cantor's theorem, and others. Each paradox involves a totality Ω and a diagonalisation function δ that produces an object inside and outside Ω simultaneously: δ(Ω) ∈ Ω and δ(Ω) ∉ Ω. For the liar, Ω is the set of true sentences, and the liar sentence is both a member (because it asserts its own non-membership, making it true) and a non-member (because being true makes it false). Dialetheism provides a uniform solution to all inclosure paradoxes: wherever the inclosure schema applies, a dialetheia exists at the boundary. The alternatives — hierarchy solutions, gap solutions — must handle each paradox ad hoc, applying different restrictions to different cases. The structural uniformity of the dialetheist solution is a powerful point in its favour.</span></p>
+        <span class="section">v. is explosion so obvious?</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Explosion — not self-evidently valid; natural deduction suspicion; relevance logicians concur</span>The opposition will object that rejecting explosion — the inference from contradiction to anything — amounts to abandoning logic itself. This objection confuses classical logic with logic as such. Explosion is a theorem of classical logic, not a self-evident logical truth. Relevance logicians — following Anderson and Belnap — have independently argued that explosion is invalid on grounds of relevance: a conclusion is not validly inferred from premises if the conclusion shares no propositional content with the premises. "The liar is true and not true, therefore the moon is made of cheese" is not a valid inference on any plausible account of what makes an inference valid: the moon's constitution has nothing to do with the liar. If explosion is independently suspect, rejecting it to accommodate the liar is not special pleading — it is the application of an independently motivated revision to a case that clearly requires it.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-priest-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The strengthened liar refutes gap theories from within</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>On Kripke's theory, the liar sentence L is neither true nor false — a gap.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If L has no truth value, then L is not true; but L says it is not true, so if L is not true, L is true. The gap generates the contradiction it was designed to prevent.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Dialetheism's response is clean: L is both true and false — exactly what the paradox appears to show — without any further revenge.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The strengthened liar is an internal refutation of gap theories; dialetheism, which embraces the contradiction rather than avoiding it, avoids this revenge problem entirely.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — LP: paraconsistent logic retains LEM, rejects Explosion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>LP admits a third value <em>both</em> (truth glut); it retains excluded middle (every sentence is true, false, or both — all "designated") but rejects explosion.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Explosion — from P and ¬P, derive any Q — is rejected because <em>both</em> does not propagate to unrelated conclusions; the logic remains non-trivial despite containing contradictions.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>LP is a genuine logic with clear semantics, not an ad hoc restriction: it mirrors K3 exactly but with gluts instead of gaps, and rejects explosion rather than excluded middle.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>LP is a rigorous paraconsistent logic that allows contradictions without trivialisation; it is a coherent alternative to classical logic, not a capitulation to inconsistency.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Dialetheism preserves the T-schema without any restriction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Every instance of "P is true iff P" holds — including for the liar: "the liar is true iff the liar is not true" is satisfied because the liar is both true and not true.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Beall's transparent truth extends this: the truth predicate is fully intersubstitutable in any non-opaque context, giving a fully naïve and expressively complete truth theory.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No competing theory — hierarchy, gap, contextual — preserves the T-schema without restriction and without generating new paradoxes; dialetheism is unique in this regard.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Dialetheism is the only approach that preserves the unrestricted T-schema; the contradiction it generates is the cost of this maximal semantic fidelity, and it is a cost worth paying.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — The inclosure schema: uniform solution to all self-reference paradoxes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The liar, Russell's paradox, Burali-Forti, and Cantor's theorem share the inclosure structure: a diagonalisation function produces an object both inside and outside a totality.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Dialetheism provides a uniform solution: wherever the inclosure schema applies, a dialetheia — a true contradiction — exists at the boundary of the totality.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Hierarchy and gap solutions handle each paradox differently — Russell's paradox by type theory, the liar by levels or gaps — with no unified rationale for why the solutions differ.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Dialetheism provides a unified structural account of all inclosure paradoxes; its competitors' ad hoc different solutions for structurally identical paradoxes reveals a failure of theoretical unity.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — Explosion is independently suspect; rejecting it is not special pleading</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Explosion — from P and ¬P, any Q follows — is a theorem of classical logic, not a self-evident logical truth; relevance logicians reject it on independent grounds of content-relevance.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>"The liar is both true and false, therefore the moon is made of cheese" is not a valid inference by any plausible relevance criterion: the conclusion shares no content with the premises.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If explosion is independently questionable, rejecting it to accommodate the liar is principled revision, not ad hoc paradox-avoidance.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Rejecting explosion is independently motivated by relevance considerations; the dialetheist move is not a desperate concession but the application of a well-grounded logical revision to a case that requires it.</span></div>
+        </div>
+      </div>
+    </div><!-- end priest/beall -->
+
+  </div>
+</div><!-- end prop col -->
+
+<!-- ══════════════════════ OPPOSITION ══════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','tarski',this)">Tarski &amp; Quine</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','burge',this)">Burge, Contextualism &amp; Prior</button>
+  </div>
+
+  <div class="col-header" id="opp-tarski-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Tarski &amp; Quine</span></div>
+    <div class="col-position">Against revision — the hierarchy dissolves the paradox; semantic closure is the culprit; classical logic is preserved at the cost of expressive restriction</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','tarski','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','tarski','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="opp-burge-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Burge, Contextualism &amp; Prior</span></div>
+    <div class="col-position">Against revision — truth predicates are context-sensitive; the liar has a truth value relative to context; Prior's implicit assertion move dissolves the paradox without hierarchy</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','burge','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','burge','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ── TARSKI & QUINE ── -->
+    <div class="speaker-panel active" id="opp-tarski-panel">
+      <div id="opp-tarski-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The proposition's speakers have presented the liar paradox as a refutation of classical logic. I want to argue the opposite: that the liar paradox is a refutation of a specific and independently questionable feature of certain natural and formal languages — the feature of <em>semantic closure</em> — and that once this feature is correctly identified and eliminated, classical logic proceeds without modification. The paradox does not show that classical logic is wrong. It shows that a language cannot coherently contain its own truth predicate while also permitting unrestricted self-reference. That is a finding about the limits of semantic self-description, not a finding about the laws of logic.</p>
+        <div class="pull">"The source of the paradox is not in logic — it is in language. Natural languages are semantically closed: they allow sentences to express truths about their own truth values. This is an accident of natural language, not a necessity of logic. The correct response is to construct a hierarchy of formal languages in which each level can express truths about the level below it but not about itself. Within this hierarchy, every sentence has a determinate truth value, classical logic applies without restriction, and the liar paradox simply cannot be formulated."</div>
+        <span class="section">i. semantic closure is the culprit — Tarski's diagnosis</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Semantic closure — T-schema + self-reference = paradox; hierarchy eliminates semantic closure</span>My diagnosis of the paradox — presented in "The Concept of Truth in Formalized Languages" (1933/1936) — is precise. The paradox is generated by the conjunction of three features: (a) the language contains the T-schema as a logical law; (b) the language contains its own truth predicate applying to sentences of the same language; (c) self-referential sentences can be constructed within the language. Each feature alone is harmless. The combination is lethal. My solution is to separate the truth predicate from the object language: every formalised language has a truth predicate only in its metalanguage — the language used to talk <em>about</em> it. No sentence can apply a truth predicate to itself, because the predicate belongs to a higher-level language. The paradox is not blocked by adding a new axiom or revising a logical law; it is dissolved by correctly articulating the semantic architecture that a language must have to avoid self-undermining.</span></p>
+        <span class="section">ii. Tarski's Undefinability Theorem</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Undefinability Theorem — no language can define its own truth predicate; proved from Gödel's diagonalisation</span>My Undefinability Theorem gives a rigorous proof — using Gödel's diagonalisation technique — that no sufficiently expressive language can define its own truth predicate without contradiction. This is not a contingent finding about particular languages; it is a theorem provable within classical mathematics. If a language L contains arithmetic and a truth predicate for L, we can construct a sentence G of L that is true if and only if it is not in the extension of the truth predicate — replicating the liar's structure. Classical logic, applied within the metalanguage, then proves that L's truth predicate is indefinable within L. The proposition treats this as an embarrassment for classical logic. It is, correctly understood, a triumph: classical logic rigorously proves its own limits, which is precisely what a reliable logical system should do.</span></p>
+        <span class="section">iii. Quine's dissolution — the paradox is a pseudo-problem in formal contexts</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Quine — quotation and semantic ascent; the liar conflates use and mention; pseudo-problem for natural language</span>W. V. O. Quine approached the paradox from a different angle. In <cite>The Ways of Paradox</cite>, Quine argues that the liar paradox arises from a confusion between use and mention — between a sentence and its name. When we say "this sentence is not true," we are using the sentence while mentioning it: the sentence refers to itself. But self-reference of this kind — achieved through quotation or through devices like "this sentence" — is a trick of natural language that can be diagnosed and eliminated without revising logic. In formalised languages equipped with a proper use-mention distinction, the liar sentence either cannot be formulated or can be shown to violate a well-defined syntactic constraint. The apparent depth of the paradox is an illusion generated by the looseness of natural language. A sufficiently rigorous formal language has no liar.</span></p>
+        <span class="section">iv. the charge of ad hocness — answered</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Ad hoc charge — hierarchy is principled; fundamental principle of truth underlies it; T-schema restricted for good reason</span>The proposition charges that the hierarchy solution is ad hoc: stratified to block the paradox rather than motivated independently. This charge is answered by the Undefinability Theorem itself. The hierarchy is not an arbitrary choice to avoid one bad sentence; it is the formal expression of a theorem about what truth predicates can do — namely, that they cannot consistently apply to their own language. The restriction on the T-schema that the hierarchy imposes — allowing "P is true" only when P belongs to a lower level — is justified by the same theorem that shows unrestricted self-application generates contradiction. The philosophical principle underlying the hierarchy is: truth is always truth-in-a-language, and the language that applies the truth predicate must be richer than the language to which it applies. This is a substantial philosophical claim, not a technical dodge.</span></p>
+        <span class="section">v. against the non-classical alternatives</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Against gaps and gluts — both accept paradoxical sentences as meaningful; hierarchy denies this; classical logic preserved</span>Both gap theories and dialetheism accept the liar sentence as meaningful and then dispute what truth value it receives. I take a more radical position: the liar sentence, in the context of a properly constructed formal language, is not meaningful in any way that generates paradox. It is a sentence that violates the syntactic constraints of the language — specifically, the constraint that truth predicates apply only to sentences of lower-level languages. Treating it as meaningful and then arguing about whether it has no truth value, both truth values, or some novel third status is to accept the question on the paradox's own terms. The correct response is to deny that the question arises: in any well-constructed language, the liar sentence is ill-formed or inexpressible. Both non-classical alternatives preserve the paradoxical sentence's meaningfulness at the cost of classical logic. The hierarchy dissolves the sentence's meaningfulness and preserves classical logic. This is the superior trade-off.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-tarski-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Semantic closure is the culprit: separate object language from metalanguage</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The paradox requires: (a) T-schema as law; (b) truth predicate applies to sentences of the same language; (c) self-referential sentences constructible. Each harmless alone; lethal together.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The hierarchy eliminates (b): the truth predicate belongs to the metalanguage and applies only to sentences of the object language — no sentence can apply a truth predicate to itself.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is not a revision of classical logic but a correction of the semantic architecture that allowed the paradox to arise: the diagnosis is linguistic, not logical.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Semantic closure is the source of the paradox; eliminating it through a language hierarchy dissolves the paradox while preserving classical logic intact.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Undefinability Theorem: classical logic proves its own limits rigorously</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Using Gödel's diagonalisation, Tarski proves: no sufficiently expressive language L can define its own truth predicate — if it could, a liar-type sentence would generate contradiction.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is a theorem of classical mathematics, not a concession to paradox: classical logic rigorously demonstrates the conditions under which self-reference becomes problematic.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The theorem is a vindication, not a refutation, of classical logic: it tells us precisely what formal languages can and cannot express, within classical logic.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Tarski's Undefinability Theorem shows that classical logic correctly characterises its own limits; the paradox's lesson is about language design, not about classical logic's inadequacy.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Quine: the paradox conflates use and mention; it is a pseudo-problem in rigorous formal languages</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Self-reference in the liar ("this sentence") conflates use and mention: the sentence uses itself while mentioning itself — a trick of natural language looseness, not a logical truth.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In a rigorous formal language with a proper use-mention distinction, the liar sentence either cannot be formulated or violates a syntactic constraint that is independently well-motivated.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The paradox's apparent depth is an artefact of natural language's looseness; it has no grip on properly constructed formal languages.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The liar is a pseudo-problem arising from natural language's failure to distinguish use from mention; it does not arise in rigorous formal languages and requires no revision of classical logic.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — The hierarchy is principled, not ad hoc: the Undefinability Theorem is its warrant</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The hierarchy is not an arbitrary choice to block one bad sentence; it is the formal expression of the Undefinability Theorem — truth predicates cannot consistently self-apply.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The underlying philosophical principle — truth is always truth-in-a-language, the truth predicate's language must be richer than its subject language — is substantial and independently defensible.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The T-schema restriction (applying only to lower-level sentences) is justified by the same theorem that shows unrestricted self-application generates contradiction: the restriction and the theorem are the same result.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The hierarchy is principled — warranted by the Undefinability Theorem and by the philosophical principle that truth is always relative to a language level — not an ad hoc paradox-blocker.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — Against both non-classical alternatives: they accept the question on the paradox's own terms</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Both gap theories and dialetheism accept the liar sentence as meaningful and then dispute its truth value; the hierarchy denies that the sentence is expressible in any well-formed language.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Accepting the question — "what truth value does the liar have?" — concedes the paradox's framing; the correct response is to show that in any well-constructed language, the question does not arise.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The hierarchy preserves classical logic at the cost of expressive restriction; the non-classical alternatives preserve expressive range at the cost of classical logic. The former trade-off is superior: logic is more fundamental than expressive convenience.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The hierarchy is the superior solution: it dissolves rather than solves the paradox, preserves classical logic, and correctly identifies expressive restriction as the right price to pay for semantic consistency.</span></div>
+        </div>
+      </div>
+    </div><!-- end tarski/quine -->
+
+    <!-- ── BURGE / CONTEXTUALISM / PRIOR ── -->
+    <div class="speaker-panel" id="opp-burge-panel">
+      <div id="opp-burge-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My opposition colleague Tarski has argued that the solution requires a formal hierarchy of languages. I want to offer a different classical response: one that preserves classical logic, allows unrestricted self-reference in natural language, but shows that the liar paradox rests on a misunderstanding of how truth predicates actually work in context-sensitive natural language. Two distinct but related approaches converge on this response: Tyler Burge's account of truth as an indexical predicate sensitive to pragmatic context, and Arthur Prior's argument that every statement implicitly asserts its own truth — an insight that, if correct, dissolves the paradox before it gets started.</p>
+        <div class="pull">"The liar paradox presents the sentence 'This sentence is false' as though it were a stable, context-independent object with a fixed content. But the truth predicate is not like that. When I utter 'That is true,' what I am applying the truth predicate to depends on context: which sentence I am talking about, which language I am in, what my conversational purposes are. The liar sentence, examined carefully, either has a perfectly determinate truth value given its context, or it changes the context in which it is evaluated and becomes determinate in that new context."</div>
+        <span class="section">i. Burge — truth as a context-sensitive indexical</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Burge — truth predicate indexical; context determines extension; liar shifts context; truth value determinate in each context</span>Tyler Burge's 1979 paper "Semantical Paradox" argues that the truth predicate is context-sensitive in the way indexical expressions are: just as "I" refers to the current speaker and "now" refers to the current time, "true" applies to the extension determined by the current pragmatic context. Different contexts of utterance can assign different extensions to the truth predicate. When we reason through the liar paradox — "the liar is true, so the liar is false, so the liar is true" — we are not reasoning within a single fixed context. Each step of the reasoning shifts the context: the truth predicate is being applied at successively higher contextual levels. At any given context level, the liar sentence has a perfectly determinate truth value — it is false at the context at which it is first evaluated, because it asserts something that fails at that context. The paradox arises only if we conflate the truth predicate's extension across different contextual levels, which is the same mistake as thinking "I" means the same thing when different speakers utter it.</span></p>
+        <span class="section">ii. the contextualist hierarchy — implicit not formal</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Implicit hierarchy — context-shifting is natural; no formal level assignment needed; ordinary speakers navigate it</span>Burge's crucial advantage over Tarski's hierarchy is that it does not require explicitly assigning formal level numbers to linguistic expressions. The hierarchy is implicit in the contextual dynamics of ordinary language. When I say "Everything John said is true" and John has said "Everything Mary said is false" and Mary has said "Everything John said is true," the apparent regress is navigated by the natural context-shifting of ordinary truth attribution: at each stage of evaluation, the truth predicate is applied at a higher contextual level than the one being evaluated. No sentence needs to be labelled "level 7 in Tarski's hierarchy"; the context-shifting happens automatically. This preserves the naturalness of ordinary truth-talk while blocking the paradox through the same mechanism Tarski employs — but at the level of pragmatics rather than formal syntax.</span></p>
+        <span class="section">iii. Prior's implicit assertion — every statement implies its own truth</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Prior — implicit self-assertion of truth; liar additionally asserts its falsity; net content is inconsistent; no paradox arises</span>Arthur Prior's dissolution of the paradox, attributed by him to Charles Peirce and John Buridan, begins from the observation that every statement implicitly asserts its own truth. When I assert "It is raining," I am not only asserting that it is raining but also asserting that it is true that it is raining — the truth-assertion is carried by the act of assertion itself. Now consider the liar sentence: "This sentence is false." On Prior's account, this sentence asserts two things: (a) that it is true (by the implicit assertion involved in any statement), and (b) that it is false (by its explicit content). These two assertions are jointly inconsistent — but they are jointly inconsistent in a way that makes the sentence simply false. The sentence says it is true and says it is false; since it says something false (namely that it is true), it is false. The apparent paradox — that the liar's being false makes it true — does not arise because the implicit truth-assertion is built into the sentence's assertoric character, not into its semantic content evaluable for truth.</span></p>
+        <span class="section">iv. the revenge objection — contextualism's strongest challenge</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Revenge — "this sentence is false at every context"; contextualism faces its own strengthened version</span>The revenge problem for contextualism is the sentence: "This sentence is false at every context." This sentence, if it is false at some context C, is true — because it says it is false at every context, including C. But if it is true, it is false at every context, including the one at which it is true. This strengthened liar apparently regenerates the paradox even after the context-shift move. I acknowledge this is the strongest objection to contextualist solutions. My response is that "at every context" is itself a context-sensitive quantifier: the contexts it ranges over are determined by the conversational context in which the sentence is uttered. When the liar sentence shifts us to a higher context, the quantifier "every context" shifts too — it now ranges over a larger collection of contexts, at which the sentence again receives a determinate value. The regress is potentially infinite, but at each stage the sentence has a determinate truth value relative to its evaluative context.</span></p>
+        <span class="section">v. why classical logic should be preserved</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Classical logic — minimal mutilation principle; track record; non-classical logics lack inferential strength</span>I want to close with a principled defence of preserving classical logic. The principle of minimal mutilation — revise as little as possible when confronted with a recalcitrant datum — applies with special force in logic, the most general of our inferential systems. Classical logic's track record is unparalleled: it underlies mathematics, scientific reasoning, formal linguistics, and computer science. Every non-classical alternative sacrifices inferential strength: gap theories lose the law of excluded middle; dialetheism loses the principle of explosion; both lose theorems that are useful and apparently valid in reasoning outside the paradox context. Preserving classical logic at the cost of expressive restriction or contextual complexity in truth attribution is the right trade-off: it keeps the powerful inferential machinery of classical logic intact while treating the paradox as a finding about language's semantic self-description rather than a refutation of logic itself.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-burge-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Burge: truth is context-sensitive; the liar has a determinate value at each context</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The truth predicate is context-sensitive like an indexical: its extension — what it applies to — is determined by the current pragmatic context of utterance.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The liar paradox's apparently circular reasoning shifts contexts at each step; at any given context, the liar sentence has a determinate truth value — false, at the context of initial evaluation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The paradox arises only from conflating the truth predicate's extension across different contextual levels — as mistaken as treating "I" as constant across different speakers.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The liar paradox is dissolved by recognising that truth is context-sensitive; at any given context, the liar has a determinate classical truth value, and no revision of classical logic is required.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Contextualism's hierarchy is implicit and natural, not formal and artificial</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Burge's hierarchy is implicit in the natural pragmatic dynamics of truth attribution — no formal level-labelling is required; ordinary speakers navigate it without explicit level assignment.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Context-shifting in truth attribution is a general feature of indexical language, not a special-purpose device for the paradox; the solution is grounded in a general theory of semantic context-dependence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This preserves the naturalness of ordinary truth-talk — without Tarski's artificial level-numbering — while blocking the paradox through the same mechanism at the pragmatic level.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Contextualism provides a more linguistically natural implementation of the Tarskian insight — truth attribution is level-sensitive — without the artificial formal apparatus that Tarski's solution requires.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Prior: every statement implicitly asserts its truth; the liar is simply false</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Every assertion implicitly asserts its own truth — this is built into the assertoric character of statements, not their propositional content.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The liar sentence asserts both (a) that it is true (implicit assertion) and (b) that it is false (explicit content); these are jointly inconsistent, making the sentence simply false.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The apparent paradox — that the liar's being false makes it true — does not arise because the implicit truth-assertion is assertoric, not part of the evaluable semantic content.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Prior's implicit assertion analysis dissolves the liar without any logical revision: the liar is simply false, its assertoric self-endorsement notwithstanding, and classical logic applies throughout.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Revenge: context-quantifiers shift with context; the regress is infinite but determinate at each stage</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The revenge sentence ("false at every context") uses "every context" as a context-sensitive quantifier whose range is determined by the current evaluative context.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When the liar sentence shifts evaluation to a higher context, "every context" shifts to range over a larger collection; at each stage, the sentence has a determinate value.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The regress is potentially infinite but not paradoxical: each stage produces a determinate truth value relative to its context, and no context produces a contradiction.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The contextualist revenge response is available: "every context" is itself context-sensitive, and the apparent regress produces determinate values at each stage rather than paradox.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — Minimal mutilation: classical logic's track record demands preservation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The minimal mutilation principle: revise as little as possible when confronted with recalcitrant data; classical logic underlies mathematics, science, linguistics, and computing.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Every non-classical alternative sacrifices inferential strength: gaps lose excluded middle; gluts lose explosion; both lose theorems useful in ordinary reasoning outside the paradox context.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Preserving classical logic at the cost of expressive restriction or pragmatic complexity is the superior trade-off: it keeps the most powerful inferential system intact while locating the paradox's source in language, not logic.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Classical logic should be preserved: its inferential power and track record exceed those of any alternative, and the paradox is correctly diagnosed as a finding about semantic self-description rather than a logical failure.</span></div>
+        </div>
+      </div>
+    </div><!-- end burge/prior -->
+
+  </div>
+</div><!-- end opp col -->
+
+</div>
+</div>
+
+<script>
+var state={
+  prop:{speaker:'kripke',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'tarski',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var x=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=x+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
