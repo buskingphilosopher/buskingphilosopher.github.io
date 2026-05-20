@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Problem of Induction — From Hume to Goodman and Beyond</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-col:#6a9070;--prop-pill:#1a2a1e;--prop-pill-bdr:#2e5038;
+  --opp-col:#9070a0;--opp-pill:#221828;--opp-pill-bdr:#503060;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp  .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .fact-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .fact-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.25rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Epistemology &amp; Philosophy of Science Symposium &mdash; Hume, Goodman, and the Contemporary Debate</div>
+  <div class="motion-title">&ldquo;This House Believes that Inductive Inference Can Be Rationally Justified&rdquo;</div>
+  <div class="motion-sub">Proposition: Strawson (dissolution) &middot; Howson &amp; Urbach (Bayesian approach) &middot; Norton (material theory) &nbsp;&mdash;&nbsp; Opposition: Hume/Goodman (the old and new riddles) &middot; Popper (eliminativist) &middot; Lange (laws, counterfactuals, deepening the problem)</div>
+</div>
+<div class="columns">
+
+<!-- ═══════════════════════════════════════
+     LEFT: PROPOSITION — Induction is defensible
+     Strawson · Howson & Urbach · Norton
+═══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','strawson',this)">Strawson</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','howson',this)">Howson &amp; Urbach</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','norton',this)">Norton</button>
+  </div>
+
+  <!-- STRAWSON HEADER -->
+  <div class="col-header" id="prop-strawson-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">P. F. Strawson</span></div>
+    <div class="col-position">Oxford &middot; <em>Introduction to Logical Theory</em> (1952), Ch. 9 &middot; The dissolution of the problem: asking whether induction is rational is like asking whether a legal system is legal; inductive standards just are the standards of empirical rationality; Goodman&rsquo;s entrenchment partly vindicated</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','strawson','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','strawson','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- HOWSON HEADER -->
+  <div class="col-header hidden" id="prop-howson-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Colin Howson &amp; Peter Urbach</span></div>
+    <div class="col-position">LSE &middot; <em>Scientific Reasoning: The Bayesian Approach</em> (1989, 3rd ed. 2006) &middot; Howson, <em>Hume&rsquo;s Problem</em> (2000) &middot; Bayesian conditionalisation as inductive logic; Hume&rsquo;s problem is real but manageable within a coherentist subjectivist probability framework; grue dissolved by prior probabilities</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','howson','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','howson','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- NORTON HEADER -->
+  <div class="col-header hidden" id="prop-norton-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">John D. Norton</span></div>
+    <div class="col-position">University of Pittsburgh &middot; <em>The Material Theory of Induction</em> (University of Calgary Press, 2021) &middot; &ldquo;All induction is local&rdquo;: inductive inferences are warranted by domain-specific facts, not universal schemas; Hume&rsquo;s problem does not arise for a material theory; Bayesianism&rsquo;s failure with ignorance</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','norton','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','norton','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ STRAWSON ══ -->
+    <div class="speaker-panel active" id="prop-strawson-panel">
+      <div id="prop-strawson-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The problem of induction, as traditionally posed, asks: what rational justification can we give for inductive inference? This question has been taken seriously for two and a half centuries &mdash; and I want to suggest that taking it seriously in that way is precisely the mistake. The question rests on a misunderstanding of what justification is and what rationality requires. Once the misunderstanding is diagnosed, the problem does not get solved; it disappears.</p>
+        <div class="pull">&ldquo;To ask whether it is reasonable to place reliance on inductive procedures is like asking whether it is reasonable to proportion the degree of one's conviction to the strength of the evidence. Doing this just is what it is to be reasonable about matters of fact. If a man asks &lsquo;is it rational to use inductive standards?&rsquo; I can only reply by asking him what he means by rational.&rdquo;</div>
+        <span class="section">i. the analytic connection between rationality and induction</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Dissolution — rationality about empirical matters just IS inductive reasoning; the demand is self-undermining</span>Hume&rsquo;s demand is that we justify inductive inference by showing it reliably leads from true premises to true conclusions. The only available justification for that would be either deductive &mdash; which it cannot be, because induction is ampliative by definition &mdash; or inductive &mdash; which is circular. Hume takes this dilemma to show that induction cannot be justified. But notice what has been assumed: that justification must take the form of a deductive proof or a non-circular inductive argument. This assumption, however, is not itself a logical truth. It is a philosophical stipulation about what counts as justification. And once we ask why we should accept this demanding standard, the answer becomes circular: we accept it because it seems to be the rational standard. But &ldquo;rational&rdquo; in the context of empirical matters just means inductively well-grounded. The demand for a non-circular deductive justification of induction is a demand for something that nothing could satisfy &mdash; not because induction is irrational, but because the demand has set the bar at an impossible height that it cannot coherently set for itself.</span></p>
+        <span class="section">ii. the legal system analogy</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Legal analogy — inductive standards define empirical rationality as law defines legality</span>Consider the question &ldquo;Is the legal system legal?&rdquo; This is not a meaningful question in any ordinary sense, because legal standards just are the standards by reference to which questions of legality are decided. To ask whether the legal system is legal is to ask a question that presupposes a standard of legality external to and independent of the legal system &mdash; and no such standard exists as a matter of conceptual necessity. Induction stands in exactly the same relation to empirical rationality. Inductive standards just are the standards by reference to which we evaluate empirical claims. Asking whether induction is rational is asking for an external standard of rationality &mdash; external to and independent of the inductive standards that <em>constitute</em> empirical rationality. No such external standard is available, and nothing about induction&rsquo;s legitimacy depends on its being so.</span></p>
+        <span class="section">iii. goodman&rsquo;s new riddle and the entrenchment response</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Goodman's riddle — entrenchment as a pragmatic vindication; not circular but practice-constitutive</span>Goodman&rsquo;s new riddle of induction &mdash; the grue problem &mdash; is often thought to deepen Hume&rsquo;s problem by showing that even if induction is vindicated at the formal level, we cannot say which inductive inferences are legitimate. Our evidence supports both &ldquo;all emeralds are green&rdquo; and &ldquo;all emeralds are grue&rdquo; equally, yet only the former is projectable. Goodman&rsquo;s solution &mdash; that &ldquo;green&rdquo; is more <em>entrenched</em> than &ldquo;grue,&rdquo; having featured in more successful past projections &mdash; is often criticised as arbitrary or circular. But from the dissolving perspective, entrenchment is not a suspicious appeal to past success; it is a description of our inductive practice, which is what constitutes empirical rationality. The fact that &ldquo;green&rdquo; is entrenched and &ldquo;grue&rdquo; is not is not a psychological accident we need to justify; it is a feature of what our empirical concept-scheme is. There is no standpoint outside our practice from which to condemn it.</span></p>
+        <span class="section">iv. what the dissolution does not claim</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Limits of dissolution — doesn&apos;t show induction is truth-tracking, only that the demand for such proof is incoherent</span>I want to be clear about what this dissolution does and does not establish. It does not show that induction is truth-tracking, or that the world is uniform, or that future emeralds will in fact be green. The dissolution is not a proof that inductive conclusions are likely to be true. It is a proof that the demand for such a proof &mdash; for a non-circular demonstration that induction is reliable &mdash; is incoherent. Those who feel this is unsatisfying have simply not fully taken in what kind of answer was being sought. If your question was &ldquo;is induction reliably truth-tracking in a way that could be established without using inductive reasoning?&rdquo;, the answer is no. But that question, as I have shown, is not a coherent question to ask. What remains is the pragmatic fact that inductive reasoning is the only method we have for extending our knowledge of the empirical world, and this is not a fact we could wish away by demanding a justification at the impossible level Hume set.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-strawson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Rationality and induction are analytically connected; Hume&rsquo;s demand is self-undermining</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Hume demands a non-circular justification of induction: either a deductive proof or a non-inductive inductive argument. Neither is possible by definition.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This demand presupposes a standard of justification external to inductive practice. But in the domain of empirical matters, &ldquo;rational&rdquo; just means inductively well-grounded; there is no external standard available.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A demand for justification that cannot in principle be met &mdash; because it uses &ldquo;rational&rdquo; in a sense that requires inductive standards but asks for something independent of them &mdash; is not a coherent demand.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Hume&rsquo;s problem rests on an incoherent demand for justification; the problem dissolves once this is recognised; induction&rsquo;s rationality is not threatened by the failure to meet a standard that nothing could satisfy.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Legal analogy: inductive standards constitute empirical rationality as law constitutes legality</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>&ldquo;Is the legal system legal?&rdquo; is not a meaningful question because legal standards define legality; asking for an external standard of legality is conceptually confused.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Similarly, inductive standards define empirical rationality; asking whether induction is rational presupposes a standard external to and independent of inductive standards &mdash; and none exists.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The analogy shows the philosophical demand is not unanswered but unanswerable by its own terms; the appropriate response is diagnosis of the confusion, not provision of a justification.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Asking whether induction is rational is as confused as asking whether the legal system is legal; both questions presuppose an external standard that does not exist; the confusion, once diagnosed, dissolves the apparent problem.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Goodman&rsquo;s riddle: entrenchment is practice-constitutive, not circular</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Goodman&rsquo;s grue problem asks why &ldquo;green&rdquo; is projectable and &ldquo;grue&rdquo; is not, given that evidence equally supports both. His answer &mdash; &ldquo;green&rdquo; is more entrenched in past inductive practice &mdash; is criticised as arbitrary.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>From the dissolving perspective, entrenchment is not a suspicious appeal to past success but a description of what our empirical concept-scheme is; no standpoint external to practice exists from which to condemn it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The charge of arbitrariness assumes we can ask &ldquo;why these practices?&rdquo; from a position outside all practice; but that position is not available, and there is nothing arbitrary about using the concept-scheme we have.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Goodman&rsquo;s entrenchment response is not an appeal to questionable contingency but a characterisation of our inductive practice, which just is what constitutes projectibility; the new riddle, like the old, dissolves on the Strawsonian approach.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; What the dissolution establishes and what it does not</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The dissolution does not prove induction is truth-tracking or that the world is uniform; it proves the demand for such a proof is incoherent.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The pragmatic residue: induction is the only method available for extending empirical knowledge; this is not a fact that demands further justification but a constitutive feature of empirical inquiry.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The dissatisfaction felt at this response reflects a lingering desire for a justification at the impossible level Hume set; once that level is abandoned as incoherent, the dissatisfaction has no remaining object.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The dissolution is not incomplete; it is a diagnosis that the demand was incoherent; the appropriate philosophical response is to abandon the demand, not to satisfy it at the price of circularity or to despair at its non-satisfaction.</span></div>
+        </div>
+      </div>
+    </div><!-- end strawson -->
+
+    <!-- ══ HOWSON & URBACH ══ -->
+    <div class="speaker-panel" id="prop-howson-panel">
+      <div id="prop-howson-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to make a case that Hume&rsquo;s problem is real &mdash; I do not dissolve it as Strawson does &mdash; but that it is tractable within a Bayesian framework, and that this framework simultaneously handles Goodman&rsquo;s new riddle in a way that the non-probabilistic approaches cannot. The key is to be precise about what the problem requires us to justify and what a Bayesian confirmation theory can legitimately offer.</p>
+        <div class="fact-box">
+          <strong>The Bayesian framework for induction</strong>
+          Bayesian confirmation theory holds that rational agents have degrees of belief (credences) represented by a probability function. When new evidence E arrives, rational agents update their credence in hypothesis H by conditionalisation: P(H|E) = P(E|H)·P(H) / P(E). An inductive inference from observed instances to a generalisation is a special case: observing many F&rsquo;s that are G should raise P(All F&rsquo;s are G) relative to its prior. Whether it does depends on prior probabilities and likelihoods. The Bayesian claims: this is all that inductive justification requires &mdash; coherent conditionalisation on a prior that assigns positive probability to the hypothesis.
+        </div>
+        <span class="section">i. what hume&rsquo;s problem actually requires</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Hume's real target — probabilistic learning, not deductive certainty; Bayesianism addresses this</span>Hume&rsquo;s argument, properly understood, is not that induction cannot produce certainty &mdash; no one ever thought it could. The serious version of the argument is that induction cannot even raise the probability of a universal generalisation on the evidence of finite instances, because any justification of that probability-raising inference would itself be inductive. In my book <em>Hume&rsquo;s Problem</em>, I argue that the Bayesian framework addresses this at the right level. Conditionalising on observed instances of F&rsquo;s that are G does raise P(All F&rsquo;s are G), given a prior that assigns positive probability to the generalisation and certain standard independence assumptions. The resulting credence update is not a deductive proof but it is a valid probabilistic inference, and the demand for a deductive proof is precisely what Strawson correctly diagnoses as incoherent. Bayesianism gives us something better than a deductive proof: a precise model of how evidence rationally constrains credence.</span></p>
+        <span class="section">ii. the grue problem dissolved by prior probabilities</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Grue dissolved — rational priors massively favour &apos;green&apos; over &apos;grue&apos; before any emeralds are observed</span>Goodman argues that evidence equally supports &ldquo;all emeralds are green&rdquo; and &ldquo;all emeralds are grue,&rdquo; generating a paradox about which generalisation to project. The Bayesian solution is precise: rational agents should assign vastly lower prior probability to &ldquo;all emeralds are grue&rdquo; than to &ldquo;all emeralds are green,&rdquo; before observing any emeralds. Why? Because &ldquo;grue&rdquo; is defined in terms of a specific future time <em>t</em>: something is grue if it is observed before <em>t</em> and green, or observed after <em>t</em> and blue. A hypothesis that is sensitive to a specific future time in this way is, on any reasonable prior, far less plausible than one that is not &mdash; because there are infinitely many possible cut-off times, and the world&rsquo;s inductive regularities do not privilege any specific one. The prior probability of the grue hypothesis should therefore be extremely low, and conditionalising on emerald observations does not raise it to the level of the green hypothesis. Goodman&rsquo;s new riddle is dissolved not by brute stipulation but by the principled assignment of prior probabilities.</span></p>
+        <span class="section">iii. the subjectivist response to the objectivity problem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Subjectivism — different priors converge on same posteriors given sufficient evidence; Dutch book guarantees coherence</span>The most common objection to the Bayesian approach is that it is too subjective: different agents can have different priors, and Bayesianism does not tell us which priors are correct. I accept that Bayesianism does not provide a uniquely correct prior, but this is not the devastating objection it appears to be. First, the Dutch book argument shows that <em>coherent</em> priors &mdash; those that form a genuine probability function &mdash; are the minimum requirement of rationality; any incoherent agent can be made to accept a guaranteed loss. Second, for a very wide class of priors, Bayesian conditionalisation on the same evidence will cause credences to converge as evidence accumulates &mdash; so that agents who begin with different but coherent priors will end up agreeing once they have seen enough. This convergence theorem shows that the subjectivity of priors is not a permanent feature of Bayesian inference but a transient one that decreases with evidence.</span></div>
+        <span class="section">iv. what bayesianism offers that no alternative provides</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Bayesian uniqueness — precise model of incremental confirmation; handles Duhem-Quine; no alternative does this</span>Bayesianism offers something no alternative theory of induction provides: a precise, mathematically tractable model of how evidence incrementally confirms hypotheses, how multiple competing hypotheses can be compared simultaneously, and how the confirmation of auxiliary hypotheses relates to the confirmation of the primary theory. On Popper&rsquo;s falsificationist view, no theory ever receives positive confirmation &mdash; only corroboration through surviving tests, which is not the same thing. On Norton&rsquo;s material theory, each domain has its own inductive logic, but this leaves unspecified how the domain-specific logics are evaluated for coherence and how they handle cases of multiple competing hypotheses. Bayesianism provides a unified, precise, formally rigorous framework for all of these problems. Whatever its limitations, no serious alternative has matched its formal precision or its handling of the incremental character of scientific evidence.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-howson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Bayesianism addresses the real problem: not certainty but probabilistic learning</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The serious form of Hume&rsquo;s problem is not that induction cannot produce certainty but that it cannot even raise the probability of a generalisation on finite evidence without begging the question.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Bayesian conditionalisation on observed instances does raise P(All F&rsquo;s are G) given a positive prior and standard independence assumptions; this is a valid probabilistic inference that is not deductive and not circular.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The demand for a deductive proof is diagnosed as incoherent by Strawson; Bayesianism offers something better: a precise model of how evidence rationally constrains credence at the probabilistic level that induction actually operates.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Bayesian conditionalisation is a legitimate, non-circular probabilistic response to the real form of Hume&rsquo;s problem; it shows how evidence rationally raises the credibility of inductive generalisations without claiming deductive certainty.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Goodman&rsquo;s grue dissolved by principled prior probability assignments</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Rational priors should assign vastly lower probability to &ldquo;all emeralds are grue&rdquo; than to &ldquo;all emeralds are green,&rdquo; because grue is indexed to a specific future time t, and there are infinitely many possible cut-off times with no reason to privilege any particular one.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Given this prior probability difference, conditionalising on observations of green/grue emeralds does not raise P(all emeralds are grue) to the level of P(all emeralds are green); the evidence discriminates between the hypotheses at the level of posterior probability.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is a principled, not ad hoc, solution: any prior that is not indexically biased toward a specific future time will generate the correct asymmetry; Goodman&rsquo;s paradox arises only if we insist on treating priors as given by the evidence alone, which Bayesianism correctly rejects.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Goodman&rsquo;s new riddle is dissolved by rational prior probability assignments that penalise time-indexed predicates; the Bayesian framework provides a principled, not arbitrary, solution to the grue paradox.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Subjectivity of priors is transient: Dutch book coherence plus convergence</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Dutch book arguments show that coherent priors &mdash; those forming a genuine probability function &mdash; are the minimum requirement of rationality; any incoherent agent accepts guaranteed loss.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>For a wide class of coherent priors, Bayesian conditionalisation on the same evidence causes credences to converge; agents starting from different but coherent priors will agree as evidence accumulates.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The subjectivity of priors is therefore a transient feature of the initial state, not a permanent feature of Bayesian inference; convergence provides a form of inter-subjective objectivity that pure subjectivism does not have.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The subjectivity objection to Bayesianism is answered by Dutch book coherence at the minimum level and convergence theorems at the dynamic level; Bayesian subjectivism is not an anything-goes view.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Bayesianism uniquely provides a formal, precise, unified model of incremental confirmation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>No serious alternative theory of induction provides a formally precise model of how evidence incrementally confirms hypotheses, how competing hypotheses are compared, and how auxiliary hypotheses interact with confirmation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Popper&rsquo;s falsificationism provides only corroboration, not confirmation; Norton&rsquo;s material theory provides domain-specific logics without specifying how their coherence is evaluated or how they handle multiple competing hypotheses.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Bayesianism provides all of this within a single, unified, mathematically rigorous framework; whatever its limitations regarding the choice of priors, no alternative has matched its formal precision.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Bayesianism is the best available formal theory of inductive inference; its competitors are either less precise or less comprehensive; the objections it faces are real but not decisive relative to the alternatives.</span></div>
+        </div>
+      </div>
+    </div><!-- end howson -->
+
+    <!-- ══ NORTON ══ -->
+    <div class="speaker-panel" id="prop-norton-panel">
+      <div id="prop-norton-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The traditional approach to induction &mdash; including the Bayesian approach &mdash; assumes that there is a single, universally applicable schema or rule that captures what makes an inductive inference good. The history of philosophy of science is littered with failed attempts to find this schema: enumerative induction, inference to the best explanation, Bayesian conditionalisation, the hypothetico-deductive method. Each has been shown to fail in certain domains or to presuppose what it was supposed to establish. My material theory of induction begins by abandoning this assumption. There are no universal inductive schemas. All induction is local.</p>
+        <div class="pull">&ldquo;The inductive inferences of science are grounded in matters of fact that hold only in particular domains, so that all inductive inference is local. Since a material theory no longer separates the factual and schematic parts of an induction, it proves not to be vulnerable to Hume&rsquo;s problem of the justification of induction. The problem does not arise, because the material theory requires no universal schema that would need a universal justification.&rdquo; &mdash; Norton, <em>The Material Theory of Induction</em> (2021)</div>
+        <span class="section">i. why no universal schema can work</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">No universal schema — ampliative character means all schemas fail in some domain; induction is locally grounded</span>Any inductive inference takes us from what we have observed to what we have not. The conclusion contains more information than the premises. This ampliative character means that the conclusion is not guaranteed by the premises, and any schema attempting to capture when the premises support the conclusion must appeal to something beyond the logical relationship between them. What is that something? The traditional answer is: a universally applicable rule &mdash; enumerative induction, the principle of the uniformity of nature, Bayes&rsquo;s theorem. My answer is: the facts that prevail in the specific domain of inquiry. In physics, the facts that ground inductive inference are facts about physical laws and symmetries. In chemistry, they are facts about molecular structure. In social science, they are different facts again. There is no domain-neutral fact that could ground inductive inference across all domains &mdash; and if we try to identify one, we find either that it is circular (it assumes induction works) or empty (it is too abstract to constrain any actual inference).</span></p>
+        <span class="section">ii. how the material theory dissolves hume&rsquo;s problem</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Hume dissolved — material theory requires no universal schema; the demand for universal justification does not arise</span>Hume&rsquo;s problem arises for theories that posit a universal schema of induction: why is that schema justified? The demand for justification is pressing because the schema is supposed to be universally applicable &mdash; it must work in all domains, for all kinds of inductive inference, and the justification must be non-circular. But on the material theory, there is no universal schema. Each inductive inference is grounded in domain-specific facts. The justification of any particular inference consists in showing that those domain-specific grounding facts obtain &mdash; a task that can be done by investigating those facts, not by appealing to a universal principle. Hume&rsquo;s problem does not arise for the material theory because the material theory does not claim that there is a universal schema that could be asked for a universal justification. The problem was always about the justification of the universal claim; eliminate the universal claim and the problem dissolves.</span></p>
+        <span class="section">iii. what the material theory does with goodman&rsquo;s riddle</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Grue handled locally — &apos;green&apos; is grounded in physical facts about spectral reflectance; &apos;grue&apos; is not</span>Goodman&rsquo;s grue predicate generates a paradox only for formal theories that evaluate inductive inferences by their schematic logical structure alone. On the material theory, the relevant question is not whether &ldquo;all emeralds are grue&rdquo; has the same logical form as &ldquo;all emeralds are green,&rdquo; but whether the former is grounded in facts about the domain of emeralds and the physical world. It is not. The predicate &ldquo;grue&rdquo; is indexed to a specific future time with no grounding in any physical fact about emeralds, spectral reflectance, or mineral composition. The predicate &ldquo;green,&rdquo; by contrast, corresponds to a physically real property &mdash; a range of spectral reflectance &mdash; that is grounded in the facts of physics and chemistry. The material theory handles grue by asking which predicates track real features of the domain; &ldquo;grue&rdquo; does not, and the material theory correctly excludes inductive inferences using it.</span></p>
+        <span class="section">iv. the failure of bayesianism with ignorance</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Bayesianism fails — cannot handle genuine ignorance; material theory can reason under complete uncertainty</span>The Bayesian approach requires a prior probability distribution over all hypotheses. But what are we to do in cases of genuine ignorance, where we have no background knowledge from which to construct a prior? The Bayesian faces a serious problem here. Any prior we assign in conditions of complete ignorance will be arbitrary, and the results of conditionalisation will depend sensitively on this arbitrary choice. Attempts to handle ignorance by using &ldquo;non-informative priors&rdquo; &mdash; uniform distributions, maximum entropy priors &mdash; have been shown to be inconsistent: different parameterisations of the same problem yield different non-informative priors and therefore different posterior probabilities after conditionalisation. The material theory handles ignorance differently: in a domain where we have no warranting facts, we simply have no basis for inductive inference. We suspend judgement. This is the correct response to ignorance; the Bayesian is forced by her framework to make up a number.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-norton-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; No universal inductive schema can work; induction is grounded in domain-specific facts</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Induction is ampliative: conclusions go beyond premises. Any schema governing when this is legitimate must appeal to something beyond the logical relationship between premises and conclusion.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The domain-neutral facts that universal schemas invoke are either circular (assuming induction works) or too abstract to constrain actual inferences (the uniformity of nature, the principle of maximum entropy).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The facts that actually warrant inductive inferences are domain-specific: physical laws in physics, molecular structure in chemistry, population statistics in epidemiology; each domain has its own inductive logic grounded in its own facts.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>There is no universal schema of induction because inductive warrant is always provided by domain-specific facts; the traditional search for a universal schema is misguided and its failure is not accidental but structural.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Hume&rsquo;s problem dissolves: the material theory requires no universal schema to justify</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Hume&rsquo;s problem asks: what justifies the universal schema of induction? The demand for non-circular justification of a universal schema is pressing and, as Hume showed, cannot be met.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>On the material theory, there is no universal schema; each inference is grounded in domain-specific facts. The justification of any inference consists in showing those facts obtain &mdash; a task achievable by empirical investigation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Since there is no universal schema, the demand for a universal justification does not arise; Hume&rsquo;s problem presupposes exactly what the material theory denies.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The material theory dissolves Hume&rsquo;s problem by eliminating the universal schema that the problem demands justification for; the problem is not solved but shown not to arise for a theory that correctly represents induction.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Goodman&rsquo;s grue: the material theory handles it by asking which predicates track real domain features</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>&ldquo;Grue&rdquo; is indexed to a specific future time with no grounding in any physical fact about emeralds, spectral reflectance, or mineral composition; it does not track a real feature of the domain.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>&ldquo;Green&rdquo; corresponds to a physically real property &mdash; a range of spectral reflectance &mdash; grounded in facts of physics and chemistry; it tracks a genuine feature of the domain.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The material theory correctly excludes grue-inferences because they are not grounded in warranting facts about the domain; the distinction between projectible and non-projectible predicates is explained by whether the predicate tracks real domain features, not by entrenchment or prior probability.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The material theory handles Goodman&rsquo;s riddle by grounding projectibility in real features of the domain; predicates that track real features are projectible; those that do not are not; this is a principled and non-circular distinction.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Bayesianism fails under ignorance; material theory correctly suspends judgement</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In conditions of genuine ignorance, Bayesian priors are arbitrary; different parameterisations of the same problem yield different non-informative priors and therefore different posteriors after conditionalisation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The material theory handles ignorance correctly: where no warranting facts exist, no inductive inference is supported and judgement is suspended.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Suspending judgement is the epistemically correct response to ignorance; being forced by the formal framework to assign a number is not a virtue of Bayesianism but a structural defect that produces spurious precision.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Bayesianism cannot handle genuine ignorance without arbitrary priors; the material theory correctly models the epistemic situation by allowing suspension of judgement; this is a decisive advantage of the material over the Bayesian approach.</span></div>
+        </div>
+      </div>
+    </div><!-- end norton -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════════════════════════
+     RIGHT: OPPOSITION — Induction cannot be justified
+     Hume & Goodman · Popper · Lange
+═══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','hume',this)">Hume &amp; Goodman</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','popper',this)">Popper</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','lange',this)">Lange</button>
+  </div>
+
+  <!-- HUME/GOODMAN HEADER -->
+  <div class="col-header" id="opp-hume-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Hume &amp; Goodman — The Old and New Riddles</span></div>
+    <div class="col-position">Hume: <em>Treatise of Human Nature</em> (1739), <em>Enquiry Concerning Human Understanding</em> (1748) &middot; Goodman: <em>Fact, Fiction, and Forecast</em> (1955) &middot; The classic problem: circular justification of the uniformity of nature &middot; The new riddle: grue shows that the problem is not merely formal but substantive and unsolvable by entrenchment</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','hume','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','hume','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- POPPER HEADER -->
+  <div class="col-header hidden" id="opp-popper-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Karl Popper</span></div>
+    <div class="col-position">London School of Economics &middot; <em>The Logic of Scientific Discovery</em> (1934/1959) &middot; <em>Objective Knowledge</em> (1972) &middot; Induction plays no role in science; falsifiability replaces induction; corroboration is not confirmation; the price of eliminating induction</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','popper','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','popper','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- LANGE HEADER -->
+  <div class="col-header hidden" id="opp-lange-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Marc Lange</span></div>
+    <div class="col-position">UNC Chapel Hill &middot; <em>Laws and Lawmakers</em> (Oxford UP, 2009) &middot; &ldquo;Would Direct Realism Resolve the Classical Problem of Induction?&rdquo; <em>No&ucirc;s</em> (2004) &middot; Laws, counterfactuals, and the deepening of the problem: what induction requires of the world goes far beyond mere regularities; natural necessity and the modal structure of laws</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','lange','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','lange','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ HUME & GOODMAN ══ -->
+    <div class="speaker-panel active" id="opp-hume-panel">
+      <div id="opp-hume-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to state both Hume&rsquo;s problem and Goodman&rsquo;s extension of it with full precision, because I think that neither Strawson&rsquo;s dissolution nor the Bayesian approach has engaged with their full force. The classical problem and the new riddle are related but distinct difficulties, and together they constitute a challenge that no existing theory has overcome.</p>
+        <div class="fact-box">
+          <strong>Hume&rsquo;s argument &mdash; the canonical formulation</strong>
+          (1) All inductive inferences rest on the assumption that unobserved cases will resemble observed ones (the uniformity of nature). (2) This assumption cannot be justified deductively &mdash; it is logically possible that nature is not uniform. (3) To justify it inductively would be circular: we are using the very principle we are trying to establish. (4) Therefore, there is no rational justification for inductive inference. &mdash; Hume&rsquo;s famous conclusion: &ldquo;custom&rdquo; or habit, not reason, drives our inductive practice. Goodman&rsquo;s new riddle (1955): even if we assume the uniformity of nature, the problem of which predicates are projectible remains unsolved and, Goodman argues, unsolvable by any objective criterion.
+        </div>
+        <span class="section">i. hume&rsquo;s argument and why the responses fail</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Hume's argument — neither dissolution nor Bayesianism genuinely answers the circularity; both presuppose what they seek to justify</span>Strawson says that asking whether induction is rational is like asking whether the legal system is legal &mdash; a pseudo-question. But this response concedes Hume&rsquo;s point. Hume&rsquo;s point is not that there is some external standard by which induction fails; it is that the demand for justification cannot be met from within our own epistemic practice without circularity. Strawson&rsquo;s response says: there is no external standpoint, so the demand is confused. But this is precisely what Hume predicted: we cannot justify induction, so the correct conclusion is that our inductive practice rests not on reason but on custom. Strawson has described the situation Hume described and called it a solution. The Bayesian response fares no better. Howson claims that Bayesian conditionalisation justifies induction probabilistically. But the conditionalisation rule itself requires justification &mdash; why must rational agents update by conditionalisation? Any answer will either appeal to long-run frequency considerations (which are themselves inductive) or to Dutch book arguments (which presuppose a prior, which already encodes inductive commitments).</span></p>
+        <span class="section">ii. goodman&rsquo;s new riddle: the grue paradox</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Grue paradox — formally identical evidence equally supports green and grue; entrenchment is circular and cannot be objective</span>Define <em>grue</em>: an object is grue if it is examined before time <em>t</em> and found to be green, or not examined before <em>t</em> and blue. Every emerald we have ever observed is both green and grue, since all observations have been before <em>t</em>. Therefore our evidence &mdash; the same body of observations &mdash; equally supports &ldquo;all emeralds are green&rdquo; and &ldquo;all emeralds are grue.&rdquo; Both hypotheses are confirmed to exactly the same degree by all past evidence. Yet they make conflicting predictions about post-<em>t</em> observations: one predicts green, one predicts blue. The problem is not merely that we choose green over grue; the problem is that no objective criterion distinguishes the legitimate from the illegitimate choice. Goodman&rsquo;s own criterion &mdash; entrenchment &mdash; is explicitly admitted to be a contingent fact about our linguistic practice. The Bayesian criterion &mdash; prior probability &mdash; raises the question of why rational priors should systematically disfavour time-indexed predicates without already presupposing facts about natural uniformity that are themselves inductively established.</span></p>
+        <span class="section">iii. why entrenchment does not solve the new riddle</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Entrenchment — historically contingent; does not distinguish valid from invalid inductions; alien scientists problem</span>Goodman&rsquo;s entrenchment criterion says that &ldquo;green&rdquo; is projectable because it has figured in more past successful inductive projections than &ldquo;grue.&rdquo; Three problems. First, this is a historical accident: had our linguistic ancestors used grue-like predicates for millions of successful inductions, grue would be entrenched. But it is not obvious that those ancestors would have been inductively irrational &mdash; their predicates would have worked as well, given that all observations were pre-<em>t</em>. Second, the criterion requires that past projections have been &ldquo;successful&rdquo; &mdash; but success is assessed relative to projectible predicates, which is precisely what entrenchment was supposed to explain. The criterion is circular at the point that matters. Third: consider scientists on a planet where the year is very long and they have never encountered a post-<em>t</em> observation. Their entire inductive history supports both &ldquo;green&rdquo; and &ldquo;grue&rdquo; equally, and by Goodman&rsquo;s criterion both would be equally entrenched. The criterion gives no guidance precisely where the problem is sharpest.</span></p>
+        <span class="section">iv. the permanence of the problem</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Permanence — Hume&apos;s and Goodman&apos;s problems resist all solutions; the correct response is sceptical humility</span>The combined Humean and Goodmanian argument shows that inductive inference rests on two unjustified foundations: the assumption that unobserved cases will resemble observed ones, and the assumption that the predicates we use carve nature at its actual joints. Neither assumption can be justified without circularity. The correct philosophical response is not to declare the problem dissolved, nor to find a formal model that reproduces our practice without explaining it. The correct response is sceptical humility: we engage in inductive inference because we cannot help it &mdash; Hume was right that custom, not reason, drives us. But we should not mistake the inevitability of a practice for its rational vindication. The fact that we cannot help projecting &ldquo;green&rdquo; rather than &ldquo;grue&rdquo; does not make the projection rational in any philosophically serious sense; it makes it human.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-hume-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Neither Strawson nor Bayesianism escapes Hume&rsquo;s circularity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Strawson&rsquo;s dissolution says there is no external standpoint from which induction can be questioned; but this concedes Hume&rsquo;s prediction that no non-circular justification is possible &mdash; it describes the problem rather than solving it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Bayesian conditionalisation rule itself requires justification; Dutch book arguments presuppose a prior, which already encodes inductive commitments; long-run frequency justifications are themselves inductive.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No response to Hume has succeeded in providing a non-circular justification of induction; all successful-seeming responses either restate the problem in different vocabulary or presuppose inductive reliability at some level.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Hume&rsquo;s circularity argument is intact: neither dissolution, nor Bayesianism, nor any other response has provided a non-circular justification of induction; the problem remains genuinely open.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Goodman&rsquo;s grue: identical evidence supports green and grue; no objective criterion distinguishes them</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>All observed emeralds satisfy both &ldquo;green&rdquo; and &ldquo;grue&rdquo; by definition; the evidence base is identical for both hypotheses; both are confirmed to exactly the same degree by all past observations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Yet the hypotheses make conflicting predictions about post-<em>t</em> observations; an inductive inference from the same evidence leads to contradictory conclusions depending on which predicate is used.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No objective criterion &mdash; not logical form, not simplicity, not entrenchment, not prior probability &mdash; distinguishes projectible from non-projectible predicates without presupposing what it is supposed to establish.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Goodman&rsquo;s new riddle establishes that the problem of induction is not merely the Humean problem of circularity but the additional problem of projectibility; no objective criterion resolves it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Entrenchment is circular at the point that matters and contingent in a damaging way</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Goodman&rsquo;s entrenchment criterion is explicitly contingent: had our ancestors used grue-like predicates successfully, grue would be entrenched; it is not obvious their practice would have been irrational.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The criterion requires assessing past projections for success, but success is assessed relative to projectible predicates, which is precisely what entrenchment was supposed to explain; the criterion is circular at the crucial point.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>On a planet where no post-<em>t</em> observations have been made, green and grue would be equally entrenched, and the criterion gives no guidance; the problem is sharpest precisely where entrenchment is silent.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Entrenchment fails as a solution to Goodman&rsquo;s riddle: it is contingent in a damaging way, circular at the crucial point, and silent in the limiting cases where the problem is most acute.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Sceptical humility: inevitability of inductive practice is not its rational vindication</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Hume was right that we engage in inductive inference from custom, not from reason; we cannot help projecting green rather than grue, but this psychological inevitability is not a rational justification.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The philosophical error is to mistake the inevitability of a practice for its rational vindication; dissolution strategies make this mistake explicitly.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The correct philosophical response is sceptical humility: acknowledging that induction is indispensable while conceding that it is not rationally justified in any philosophically demanding sense.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Humean sceptical conclusion stands: induction rests on custom and cannot be rationally justified; the philosophically honest response is sceptical humility, not false comfort from pseudo-solutions.</span></div>
+        </div>
+      </div>
+    </div><!-- end hume -->
+
+    <!-- ══ POPPER ══ -->
+    <div class="speaker-panel" id="opp-popper-panel">
+      <div id="opp-popper-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to make the most radical claim on this panel: induction plays no role in science. Not a reduced role, not a justified role, not a role confined to prior probabilities. No role at all. The method of science is not induction but conjecture and refutation. We propose bold hypotheses, we derive testable predictions, and we attempt to falsify them. This method requires no inductive inference at any stage, and its adoption does not require solving Hume&rsquo;s problem &mdash; it requires recognising that Hume&rsquo;s problem, rightly understood, is a reason to abandon induction, not to rescue it.</p>
+        <div class="pull">&ldquo;I have found a solution to Hume&rsquo;s problem of induction: it is to abandon induction. The logic of scientific discovery is the logic of conjecture and refutation. We test our theories against experience not to confirm them but to find the fault that will tell us in which direction to improve them. Induction never enters the picture. &mdash; Popper, <em>Objective Knowledge</em> (1972)</div>
+        <span class="section">i. the asymmetry of falsification and the logic of scientific discovery</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Falsification asymmetry — one black swan refutes &apos;all swans are white&apos;; no number of white swans confirms it; this asymmetry is the basis of scientific method</span>Hume showed that no finite number of observed white swans can logically establish that all swans are white. But a single observed black swan conclusively refutes it. This logical asymmetry between verification and falsification is the foundation of my philosophy of science. Science advances not by confirming theories with positive instances but by proposing bold conjectures that predict surprising, testable results &mdash; predictions that would be surprising if the theory were false &mdash; and then attempting to falsify them. A theory that has survived many serious attempts at falsification has passed severe tests; it is <em>corroborated</em>. But corroboration is not confirmation, and it does not mean the theory is likely to be true. It means the theory has so far withstood our best efforts to refute it &mdash; a rational basis for provisional preference without any inductive inference.</span></p>
+        <span class="section">ii. why the responses to hume are unnecessary</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Responses unnecessary — if induction is abandoned, Hume&apos;s problem need not be solved; science proceeds without it</span>The three-hundred-year project of responding to Hume proceeds on the assumption that induction is indispensable and must therefore be rescued. But this assumption is false. Everything that the sciences do &mdash; everything that contributes to the growth of knowledge &mdash; can be described without any appeal to inductive inference. A physicist does not infer from past planetary positions to the law of gravitation; she proposes the law as a conjecture and then derives predictions. An epidemiologist does not infer from past disease rates to a causal hypothesis; she proposes the hypothesis and tests it against controlled observations. In neither case is there an inductive step from observed instances to a generalisation. There is conjecture, derivation, and falsification. Hume&rsquo;s problem is a problem for a theory of science that relies on induction; it is not a problem for a theory that does not.</span></p>
+        <span class="section">iii. the criticism of bayesian confirmation</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against Bayesianism — prior probabilities require inductive commitments; updating rule requires justification; no positive confirmation</span>The Bayesian response to Hume offers confirmation by conditionalisation. I have three objections. First, conditionalisation of a universal hypothesis on a finite body of evidence requires that the hypothesis have a non-zero prior probability. But the assignment of prior probabilities to universal hypotheses is itself a form of inductive commitment: saying that Newton&rsquo;s law has a higher prior than a grue-analogue of Newton&rsquo;s law already encodes inductive assumptions about which regularities nature is likely to contain. This is not a solution to Hume&rsquo;s problem but a relocation of it. Second, the conditionalisation rule is not a logical truth; it requires justification, and any justification will be either deductive (and therefore insufficient for ampliative inference) or inductive (and therefore circular). Third, Bayesian confirmation makes theories more probable than they were; but probability is not truth, and a theory that is slightly more probable than before is still overwhelmingly likely to be false if the prior was low. What we want from science is not slightly-more-probable theories but bold, corroborated conjectures about the structure of reality.</span></p>
+        <span class="section">iv. the price of eliminativism and why it is worth paying</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Price of eliminativism — corroboration does not justify acting on theories; the practical problem remains; Popper accepts it</span>There is a genuine price to my view: I cannot say that corroborated theories are probably true, or that we are rationally justified in acting on them rather than their falsified rivals. Salmon argued that this makes my philosophy practically useless: a theory that has been severely corroborated gives us no reason to act on it, since corroboration has no bearing on future performance. I accept this. But the practical problem &mdash; which corroborated theory to act on &mdash; is not the epistemological problem of the justification of induction. Acting on our best corroborated theories is rational in a practical sense even without inductive justification; it is irrational to act on refuted theories when unrefuted ones are available. The epistemological question &mdash; are we rationally justified in expecting corroborated theories to make true predictions? &mdash; receives the Humean answer: we are not, and cannot be. The honest scientist accepts this and proceeds anyway.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-popper-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Verification/falsification asymmetry: falsification is deductively valid; verification is not</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>One black swan deductively refutes &ldquo;all swans are white&rdquo;; no finite number of white swans deductively confirms it. The logical asymmetry is absolute.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Scientific method, correctly understood, exploits this asymmetry: bold conjectures are proposed with testable consequences, and severe tests attempt to falsify them; surviving falsification is corroboration, not confirmation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This method requires no inductive inference at any stage: conjecture is not inductive, derivation is deductive, and falsification is deductive; induction is eliminable from an account of scientific method.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The asymmetry between verification and falsification provides a deductive, non-inductive account of scientific method; induction is eliminable; Hume&rsquo;s problem is sidestepped by abandoning induction, not by rescuing it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Responding to Hume is unnecessary: science proceeds without inductive inference</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The assumption that induction is indispensable to science is false; everything scientists do &mdash; proposing, deriving, testing, refuting &mdash; can be described without inductive inference.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Hume&rsquo;s problem is a problem for theories of science that rely on induction; it is not a problem for falsificationism, which does not rely on induction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The correct response to a problem generated by an unnecessary assumption is to abandon the assumption, not to solve the problem; falsificationism abandons induction and thereby sidesteps Hume.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Science proceeds by conjecture and refutation, without inductive inference; Hume&rsquo;s problem does not arise for falsificationism; the correct response to Hume is to abandon the assumption of inductive indispensability.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Against Bayesian confirmation: priors require inductive commitments; conditionalisation requires justification</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Assigning non-zero prior probability to universal hypotheses encodes inductive assumptions about which regularities nature is likely to contain; prior assignment is not prior-free but prior-dependent in a way that already commits to inductive conclusions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The conditionalisation rule is not a logical truth and requires justification; any such justification will be either deductive (insufficient) or inductive (circular).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Bayesian confirmation raises probability but does not secure truth; an overwhelmingly improbable hypothesis that is confirmed by evidence remains overwhelmingly improbable; the scientific goal is corroborated conjectures, not marginally more probable ones.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Bayesian confirmation relocates Hume&rsquo;s problem into prior probabilities rather than solving it, requires its own unjustified rule of update, and delivers an epistemically weak product; corroboration without inductive commitments is preferable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Price of eliminativism: Popper accepts practical underjustification as the honest position</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Salmon&rsquo;s objection: Popper cannot say it is rational to act on corroborated theories, since corroboration has no bearing on future performance; this makes his philosophy practically useless.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Popper accepts this: the practical problem (which theory to act on) is separate from the epistemological problem (justification of induction); acting on unrefuted rather than refuted theories is rational in a practical sense even without inductive justification.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The epistemological question receives the Humean answer: corroborated theories are not inductively justified; the honest scientist accepts this. The alternative &mdash; pretending Bayesianism has solved Hume &mdash; is philosophically dishonest.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Popper&rsquo;s eliminativism is honest about what science can and cannot claim; the price &mdash; no inductive justification for acting on corroborated theories &mdash; is real but preferable to the false comfort of pseudo-solutions to Hume.</span></div>
+        </div>
+      </div>
+    </div><!-- end popper -->
+
+    <!-- ══ LANGE ══ -->
+    <div class="speaker-panel" id="opp-lange-panel">
+      <div id="opp-lange-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to argue that the problem of induction is deeper than either Hume or Goodman appreciated, and that the contemporary literature on laws of nature, natural necessity, and counterfactual conditionals has uncovered a structural problem that the existing responses cannot address. The issue is not merely that we cannot justify the inference from observed to unobserved; it is that we cannot even characterise what inductive inference requires of the world without invoking the very modal notions &mdash; natural necessity, counterfactual conditionals, law-like regularities &mdash; that are themselves inductively grounded and epistemically inaccessible in the same way.</p>
+        <div class="pull">&ldquo;For induction to be a reliable guide to truth about the unobserved, the world must be governed by genuine laws of nature that support counterfactual conditionals. But our access to those laws is itself inductive. We are not merely assuming that the future resembles the past; we are assuming that the future resembles the past in a modally robust way &mdash; that the regularities we observe are necessary regularities, not accidental ones. That assumption is not just unverified; it is unverifiable in principle by any inductive means.&rdquo;</div>
+        <span class="section">i. what induction requires beyond mere regularities</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Modal requirement — induction requires laws, not mere regularities; only laws support counterfactuals; laws are not inductively accessible</span>The Humean tradition reduces laws of nature to regularities: a law is a universal generalisation that happens to be true everywhere and always. On this view, the assumption underlying induction is simply that observed regularities continue. But this Humean picture faces a well-known problem: the same evidence supports both law-like and accidental generalisations. &ldquo;All copper conducts electricity&rdquo; is law-like; &ldquo;all the coins in my pocket are copper&rdquo; is not. The difference is that the former supports counterfactuals &mdash; &ldquo;if this wire were made of copper, it would conduct electricity&rdquo; &mdash; while the latter does not. For induction to be legitimate, we need the observed regularities to be law-like &mdash; to support counterfactual conditionals. But the distinction between law-like and accidental regularities cannot itself be read off the observed regularities; it requires a prior commitment to natural necessity that goes beyond anything observable.</span></p>
+        <span class="section">ii. the modal depth of the problem</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Modal depth — assumption of uniformity is not just temporal but modal; requires that regularities be necessary, not accidental</span>Hume characterised the assumption underlying induction as &ldquo;the future will resemble the past.&rdquo; But this is too weak. What induction requires is that observed regularities be nomically necessary &mdash; that they hold not only in all actual cases but in all relevant counterfactual situations. When we infer from &ldquo;all observed copper conducts electricity&rdquo; to &ldquo;all copper conducts electricity,&rdquo; we are not merely extrapolating a temporal pattern; we are claiming that copper has a dispositional property &mdash; a property it would manifest in any case, not merely in the cases we have observed. This commitment to natural necessity goes far beyond the Humean assumption. It requires that the world have a modal structure &mdash; genuine dispositional properties, natural kinds, laws that support counterfactuals &mdash; that cannot be observed directly and cannot be established by any sequence of particular observations, no matter how extensive.</span></p>
+        <span class="section">iii. the regress from laws to meta-laws</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Law regress — laws of nature themselves require laws governing them; meta-laws generate an infinite regress of inductive justification</span>In my work on the structure of laws of nature, I have argued that laws are not merely contingent regularities but statements that hold with a kind of necessity that supports counterfactuals across a wide range of hypothetical scenarios. I call this &ldquo;sub-nomic stability.&rdquo; But now notice a further problem for induction. If induction is legitimate only when the regularities being projected are law-like, then we need to know which regularities are law-like. This requires knowing what the laws of nature are. But our knowledge of the laws is itself inductive. And for that inductive inference to be legitimate, the meta-level regularities governing laws must themselves be law-like &mdash; must be supported by meta-laws. But our knowledge of meta-laws is itself inductive. And so on. The regress has no natural termination, and each level of the regress faces the same Humean circularity. The modal requirements of induction generate an infinite regress of inductive commitments, each as unjustified as the last.</span></p>
+        <span class="section">iv. norton&rsquo;s material theory and the deepening problem</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Norton — domain-specific facts are themselves modally loaded; the material theory inherits the modal problem</span>Norton&rsquo;s material theory says that inductive inferences are grounded in domain-specific facts: the warranting facts of physics are physical laws, and these ground legitimate inductive inference in physics. But physical laws are precisely the kind of facts I have been arguing are modally loaded and inductively inaccessible. When Norton says that an inductive inference in physics is warranted by the laws of physics, he has relocated the problem into the laws themselves. The question &ldquo;why should we project this physical regularity?&rdquo; is answered by &ldquo;because it is a law&rdquo; &mdash; but &ldquo;it is a law&rdquo; means &ldquo;it supports counterfactuals, has modal necessity, and governs the physical world&rdquo; &mdash; and each of these modal claims is itself inductively grounded and faces the same justificatory regress. The material theory does not dissolve the problem; it inherits it at the level of the warranting facts.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-lange-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Induction requires law-like regularities, not mere regularities; laws involve modal necessity beyond the observable</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>For induction to be legitimate, observed regularities must be law-like: they must support counterfactuals (&ldquo;if this were copper, it would conduct&rdquo;). Accidental generalisations do not support counterfactuals and should not be projected.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The distinction between law-like and accidental regularities cannot be read off observed regularities themselves; it requires a commitment to natural necessity that goes beyond what observation can establish.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Any inductive justification of the commitment to natural necessity will be circular: to say that induction is legitimate because laws are real is to presuppose that laws are real, which can only be established inductively.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Induction requires a commitment to natural necessity that is inductively inaccessible; this deepens Hume&rsquo;s problem: the assumption required is not merely temporal uniformity but modal robustness, which goes far beyond what any sequence of observations can establish.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The modal depth: induction requires nomic necessity, not just temporal uniformity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When we project &ldquo;all copper conducts electricity,&rdquo; we claim copper has a dispositional property it would manifest in any relevant case &mdash; not merely in actual observed cases. This is a modal, not merely temporal, commitment.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This commitment to nomic necessity &mdash; to genuine dispositional properties and natural kinds &mdash; cannot be observed directly and cannot be established by any sequence of particular observations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Hume&rsquo;s characterisation of the inductive assumption as &ldquo;the future resembles the past&rdquo; is therefore too weak; the actual requirement is that the world have a modal structure that no inductive process can certify.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The assumption required for legitimate induction is not temporal uniformity but modal robustness; this stronger assumption is less accessible than the Humean one and makes the justificatory problem correspondingly harder.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Laws generate a regress: meta-laws are themselves inductively justified in the same way</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Induction is legitimate only when projecting law-like regularities; knowing which regularities are law-like requires knowing the laws; knowledge of laws is itself inductive.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>For inductive inference to laws to be legitimate, the meta-level regularities governing laws must be law-like &mdash; must be meta-laws; but knowledge of meta-laws is itself inductive and requires meta-meta-laws; and so on.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The regress has no natural termination; each level faces the same Humean circularity; the modal requirements of induction generate an infinite regress of inductive commitments, each as unjustified as the first.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The modal requirements of legitimate induction generate an infinite regress of inductive commitments; the problem is not a one-level problem (as Hume characterised it) but a multi-level structural problem with no natural stopping point.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Norton&rsquo;s material theory inherits the modal problem at the level of warranting facts</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Norton says induction in physics is warranted by physical laws; but physical laws are modally loaded entities that support counterfactuals and possess natural necessity &mdash; precisely the features that are inductively inaccessible.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When Norton answers &ldquo;why project this regularity?&rdquo; with &ldquo;because it is a law,&rdquo; he has moved the problem into the laws themselves; &ldquo;it is a law&rdquo; encodes the same modal commitments that the material theory was supposed to ground inductively.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The material theory&rsquo;s warranting facts are themselves modally loaded; the theory inherits the justificatory regress at a different level, rather than dissolving it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Norton&rsquo;s material theory relocates rather than dissolves the modal problem: warranting facts are themselves law-like, and their modal character faces the same justificatory regress; the deepened problem of induction is not solved by the material theory.</span></div>
+        </div>
+      </div>
+    </div><!-- end lange -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'strawson',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'hume',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
