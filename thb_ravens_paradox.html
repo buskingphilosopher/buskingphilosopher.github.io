@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THB: The Raven Paradox — Observing a Non-Black Non-Raven Does Confirm "All Ravens Are Black"</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e100c;--bg2:#141810;--bg3:#1a2016;--bg4:#222a1c;
+  --bdr:rgba(255,255,255,.07);--bdr2:rgba(255,255,255,.13);
+  --text:#ccd4c0;--text2:#788870;--text3:#3e4838;
+  --gold:#608040;
+  --prop-col:#508040;--prop-pill:#0c1808;--prop-pill-bdr:#183808;
+  --opp-col:#a08040;--opp-pill:#201808;--opp-pill-bdr:#503808;
+  --a1bg:rgba(80,160,80,.09);--a1brd:rgba(80,160,80,.34);--a1tip:#60c060;
+  --a2bg:rgba(80,160,220,.09);--a2brd:rgba(80,160,220,.34);--a2tip:#58a8e0;
+  --a3bg:rgba(240,190,60,.09);--a3brd:rgba(240,190,60,.34);--a3tip:#d8b030;
+  --a4bg:rgba(200,80,80,.10);--a4brd:rgba(200,80,80,.36);--a4tip:#d86060;
+  --a5bg:rgba(160,80,220,.09);--a5brd:rgba(160,80,220,.34);--a5tip:#a860e0;
+  --a6bg:rgba(240,140,60,.09);--a6brd:rgba(240,140,60,.34);--a6tip:#e09040;
+  --a7bg:rgba(80,200,180,.08);--a7brd:rgba(80,200,180,.32);--a7tip:#50c8b0;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+
+.motion-header{padding:.72rem 1.8rem .58rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.65}
+.motion-eyebrow{font-family:sans-serif;font-size:9.5px;text-transform:uppercase;letter-spacing:.2em;color:var(--gold);margin-bottom:3px;font-weight:500}
+.motion-title{font-size:13.5px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em;line-height:1.55}
+
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:10px;font-weight:500;padding:6px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp  .speaker-btn.active{color:var(--opp-col)}
+
+.col-header{padding:.48rem .95rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.48rem;margin-bottom:.32rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:11.5px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:9.5px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:3px 11px;font-size:11px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+
+.col-body{flex:1;overflow-y:auto;padding:.95rem 1.2rem;font-size:13.5px;line-height:1.97;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+
+.speech-text p{margin-bottom:.75rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{font-style:italic;color:var(--text)}
+.speech-text cite{font-style:italic;color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.15rem 0 .22rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.38rem .78rem;margin:.6rem 0 .65rem;font-size:13px;line-height:1.75;background:rgba(96,128,64,.07)}
+.speech-text .logic{font-family:monospace;font-size:12px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:4px;padding:.28rem .65rem;margin:.4rem 0 .55rem;display:block;color:var(--a3tip);line-height:1.7}
+
+.logic-view{display:flex;flex-direction:column;gap:.72rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .15s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:5px 9px;font-family:sans-serif;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:7px 9px 4px}
+.premise{display:flex;gap:7px;margin-bottom:6px;font-family:sans-serif;font-size:11.5px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:14px;font-size:9.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:7px;padding:5px 9px;font-family:sans-serif;font-size:11.5px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:10.5px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:4px 9px;box-shadow:0 2px 14px rgba(0,0,0,.9);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House · The Raven Paradox</div>
+  <div class="motion-title">"This House Believes That Observing a Non-Black Non-Raven Genuinely Confirms the Hypothesis That All Ravens Are Black —<br>and That Our Intuition to the Contrary is the Error to Be Corrected"</div>
+</div>
+
+<div class="columns">
+
+<!-- ══════════════════════ PROPOSITION ══════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','hempel',this)">Hempel</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','bayesian',this)">Good, Fitelson &amp; Bayesians</button>
+  </div>
+
+  <div class="col-header" id="prop-hempel-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Carl Gustav Hempel</span></div>
+    <div class="col-position">Bite the bullet — accept the conclusion; the equivalence condition and Nicod's criterion jointly entail it; our intuition is a psychologically explicable error</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','hempel','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','hempel','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="prop-bayesian-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">I. J. Good, Fitelson &amp; Bayesian Confirmation</span></div>
+    <div class="col-position">Dissolve via probability — non-black non-ravens confirm only marginally; the paradox confuses binary confirmation with degree of confirmation; background knowledge resolves it</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','bayesian','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','bayesian','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ── HEMPEL ── -->
+    <div class="speaker-panel active" id="prop-hempel-panel">
+      <div id="prop-hempel-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>Let me state the paradox carefully, because its air of absurdity is precisely what needs to be explained rather than assumed to be a refutation. I am concerned with the logical conditions under which observational evidence confirms a universal hypothesis. My question is: what is the general structure of the confirmation relation? And the paradox, properly understood, is not a paradox at all — it is an unsettling but correct result that follows from principles of confirmation that are each, individually, almost impossible to deny.</p>
+        <div class="pull">"I want to distinguish two questions sharply: 'Does this evidence confirm this hypothesis?' and 'Is this evidence the best way to test this hypothesis?' The non-black non-raven confirms the raven hypothesis. It does so negligibly, far less than a black raven does. But the question is whether it confirms at all — and the answer, I maintain, is yes. The paradox is not in the logic. It is in our psychology."</div>
+        <span class="section">i. the argument reconstructed</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The canonical argument — Nicod's criterion + equivalence condition entail the paradox</span>The argument proceeds from two premises that each command near-universal assent. The first is Nicod's criterion: a universal generalisation of the form "all Fs are G" is confirmed by any observation of something that is both F and G. A black raven — something that is both a raven and black — confirms "all ravens are black." This seems trivially correct. The second is the equivalence condition: logically equivalent hypotheses are confirmed by the same evidence. If E confirms H, and H is logically equivalent to H*, then E confirms H*. This also seems inescapable — logical equivalents say exactly the same thing about the world. Now apply them together. "All ravens are black" is logically equivalent to its contrapositive: "Everything that is not black is not a raven." By the equivalence condition, whatever confirms the contrapositive also confirms the original. By Nicod's criterion, the contrapositive is confirmed by anything that is both non-black and a non-raven — a yellow banana, a red shoe, a white handkerchief. Therefore: a yellow banana confirms that all ravens are black. The conclusion seems absurd. But the two premises are individually compelling.</span></p>
+        <span class="section">ii. why the intuition is wrong — the psychological explanation</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Psychological explanation — selective attention; background knowledge of proportions; misleading framing</span>Why does the conclusion seem absurd? I offer a psychological rather than logical explanation. In practice, when we ask whether a banana confirms the raven hypothesis, we already know — from background information — that the world contains vastly many more non-black things than it contains ravens. The set of things that could falsify the contrapositive is enormous: the world is full of non-black things, any one of which might turn out to be a raven. Against this background, the yellow banana eliminates just one candidate from a practically infinite class. Its confirmatory value is infinitesimally small. When we try to imagine gathering evidence for the raven hypothesis by examining non-black objects, we sense — correctly — that this would be an absurdly inefficient procedure. But "absurdly inefficient" is not the same as "not confirmatory at all." We conflate the small magnitude of confirmation with the absence of confirmation. The logic is correct. The intuition is a product of the context in which we typically gather evidence.</span></p>
+        <span class="section">iii. the equivalence condition is not negotiable</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Equivalence condition — logically equivalent hypotheses say the same thing; confirmation cannot be language-dependent</span>The opposition will attempt to reject either Nicod's criterion or the equivalence condition. I want to argue that the equivalence condition is not negotiable. Logical equivalents say exactly the same thing about the world; they have exactly the same models; they are true in exactly the same possible worlds. If confirmation is a relation between evidence and what a hypothesis says about the world, then logically equivalent hypotheses are confirmed by the same evidence — because they say the same thing. A theory of confirmation that allowed E to confirm H but not the logically equivalent H* would make confirmation depend on the syntactic form in which a hypothesis is expressed rather than on its content. This is a form of confirmation theory that no one should want. The paradoxical conclusion is the price of taking the equivalence condition seriously — and it is a price worth paying.</span></p>
+        <span class="section">iv. Nicod's criterion — a partial diagnosis</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Nicod's criterion as sufficient condition — instances confirm universals; not all confirmations are via instances</span>Nicod's criterion, as I employ it, is a claim about sufficient conditions for confirmation, not a complete theory: an F that is G confirms "all Fs are G." This is surely correct as a sufficient condition. The problem arises when it is taken as a necessary condition or as the only route to confirmation — then it generates commitments about which evidence counts that outrun common sense. But as a sufficient condition, it is defensible. A black raven is sufficient evidence for the raven hypothesis. A non-black non-raven is sufficient evidence for the contrapositive, and thereby — by the equivalence condition — for the original. The sufficiency claim is not the same as the claim that instance confirmation is the only or the best method of confirmation. It is merely the claim that this method, when applicable, does yield confirmation.</span></p>
+        <span class="section">v. the raven paradox as an advance in confirmation theory</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Positive lesson — paradox reveals distinction between confirmation and efficient testing; logic of confirmation is not the logic of scientific procedure</span>I want to close by noting what I take to be the positive lesson of the paradox. It reveals a distinction between two questions that the philosophy of science had previously run together: (a) the logical question of what confirms what — whether a given piece of evidence bears on a hypothesis — and (b) the pragmatic question of how best to test a hypothesis given limited resources. The yellow banana does confirm the raven hypothesis. But a scientist who gathered evidence for the raven hypothesis by examining non-black objects would be pursuing a catastrophically inefficient strategy — one that would take longer than the age of the universe to produce significant evidential weight. The paradox demonstrates that confirmation is not a binary all-or-nothing relation: it admits of degrees, and the degree matters for science even when the direction does not matter for logic. This is a genuine philosophical advance, not an embarrassment to be explained away.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-hempel-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The canonical argument: Nicod's criterion + equivalence condition entail the conclusion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Nicod's criterion (NC): a universal "all Fs are G" is confirmed by any object that is both F and G.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Equivalence condition (EC): logically equivalent hypotheses are confirmed by the same evidence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>"All ravens are black" ≡ "All non-black things are non-ravens" (by contraposition). By NC, a non-black non-raven confirms the contrapositive. By EC, it therefore confirms the original.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>A non-black non-raven does confirm "all ravens are black." Both premises are highly plausible; the conclusion follows validly; it must be accepted.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — The intuition is a psychologically explicable error about magnitude, not direction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The world contains vastly more non-black objects than ravens; a single non-black non-raven eliminates one candidate from a practically infinite falsification class — confirming negligibly.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>We conflate "infinitesimally small confirmation" with "no confirmation at all" — a psychological error amplified by the background knowledge that examining non-black things is a catastrophically inefficient test strategy.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>"Absurdly inefficient evidence" is not the same as "zero confirmation"; the logic is correct; the intuition is a product of confusing the magnitude of confirmation with its existence.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Our intuition that non-black non-ravens do not confirm the hypothesis is a psychologically explicable error; it tracks the negligible magnitude of confirmation, not its absence.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — The equivalence condition cannot be rejected without making confirmation language-dependent</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Logically equivalent hypotheses have the same models, the same truth conditions, and say exactly the same thing about the world.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If E confirms H but not the logically equivalent H*, confirmation depends on the syntactic form of the hypothesis rather than its content — an indefensible position for any realistic theory of confirmation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The equivalence condition is therefore a near-logical constraint on confirmation theory that cannot be abandoned without making confirmation a relation to sentences, not propositions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Rejecting the equivalence condition is not an available response to the paradox; the conclusion must be accepted as the price of a content-based (not syntax-based) confirmation theory.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Nicod's criterion is correct as a sufficient condition</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>NC is a sufficient condition for confirmation — an F that is G confirms "all Fs are G" — not a necessary condition or complete theory of confirmation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>As a sufficient condition, NC is hard to deny: a positive instance is sufficient to confirm a universal generalisation, even if weak confirmation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The problems arise only when NC is taken as a necessary condition or as the unique route to confirmation — extensions Hempel does not make.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>NC as a sufficient condition for confirmation is defensible; the paradox follows from NC in this limited role combined with EC — and the conclusion must stand.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — The positive lesson: the paradox distinguishes logical confirmation from efficient testing</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The paradox reveals a distinction between (a) what confirms what — the logical question — and (b) how best to test a hypothesis — the pragmatic question.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Examining non-black objects to confirm the raven hypothesis is a logically valid but catastrophically inefficient testing strategy — these two assessments are compatible.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This distinction — between logical confirmation and efficient testing — is a genuine philosophical advance that the paradox forced upon us; it should be celebrated, not explained away.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The raven paradox advances confirmation theory by forcing the distinction between the direction and the degree of confirmation; accepting the conclusion is the epistemically honest response.</span></div>
+        </div>
+      </div>
+    </div><!-- end hempel -->
+
+    <!-- ── BAYESIAN ── -->
+    <div class="speaker-panel" id="prop-bayesian-panel">
+      <div id="prop-bayesian-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>Professor Hempel has argued that we must bite the bullet and accept the paradoxical conclusion. I agree with his conclusion — a non-black non-raven does confirm the raven hypothesis — but I want to arrive at it more rigorously, through Bayesian confirmation theory, in a way that not only validates the conclusion but also explains precisely why our intuition misleads us, what the relationship is between the confirmation provided by different types of evidence, and why the paradox, once properly dissolved, leaves a landscape of confirmation theory that is richer and more tractable than the binary Nicodian picture Hempel employed.</p>
+        <div class="pull">"The question 'Does a yellow banana confirm that all ravens are black?' has a precise Bayesian answer: it depends on your prior probability distribution. Under virtually any reasonable prior over hypotheses about the colours of ravens and the composition of the world, a yellow banana does confirm the raven hypothesis — but by an amount so small that it is, for practical purposes, negligible. The paradox is not a logical contradiction. It is a quantitative fact dressed up as a qualitative surprise."</div>
+        <span class="section">i. the Bayesian framework — confirmation as probability-raising</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Bayesian confirmation — E confirms H iff P(H|E) &gt; P(H); degree matters; not binary</span>In the Bayesian framework, evidence E confirms hypothesis H if and only if E raises the probability of H — that is, if P(H|E) &gt; P(H). Disconfirmation is probability-lowering; E is evidentially irrelevant to H if P(H|E) = P(H). The crucial advance over Hempel's binary framework is that confirmation comes in degrees: E can confirm H more or less strongly, measured by the difference P(H|E) − P(H) or the ratio P(H|E)/P(H) or other measures that Fitelson, Eells, and others have systematically compared. This framework immediately dissolves the air of paradox: the question is no longer whether a yellow banana confirms the raven hypothesis — it does — but by how much. And the answer is: by a negligible amount that depends predictably on background information about the relative sizes of the raven and non-black populations.</span></p>
+        <span class="section">ii. the quantitative resolution — Good's calculation</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Good's calculation — confirmation from black raven vs. non-black non-raven depends on population sizes; banana confirms less by factor of millions</span>I. J. Good's 1960 calculation provides the quantitative resolution. Let there be M things in the world, of which N are ravens and B are black ravens. A black raven raises the probability of the raven hypothesis by a factor approximately proportional to 1/(N−B): the more ravens there are that have not yet been observed to be black, the more confirmatory each observed black raven is. A non-black non-raven raises the probability of the hypothesis by a factor approximately proportional to 1/(M−B): the more non-black things there are in the world that have not been observed to be non-ravens, the smaller the increment from each yellow banana. Given that the world contains vastly more non-black things than ravens — M is enormous, N is tiny — the increment from a banana is smaller than the increment from a black raven by a factor of approximately N/M: perhaps one in ten million. The banana confirms the raven hypothesis. But it confirms it millions of times less strongly than a black raven does. The paradox dissolves into a quantitative fact.</span></p>
+        <span class="section">iii. Good's counterexample — background knowledge can reverse the direction</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Good's counterexample — under certain priors, non-black non-raven can disconfirm; background determines direction</span>I. J. Good demonstrated an even more striking result: under certain background assumptions, observing a non-black non-raven can <em>disconfirm</em> the raven hypothesis. Consider a scenario in which you know that a special selection procedure was used: if all ravens are black, the procedure would have selected a non-raven for you to examine with probability 0.9; if not all ravens are black, the procedure would have selected a non-raven with probability 0.1. In this scenario, observing a non-raven actually disconfirms the hypothesis because it makes you think the special selection procedure chose a non-raven — which is more consistent with the hypothesis being true than with its being false. This counterexample establishes the crucial point: whether a non-black non-raven confirms or disconfirms the raven hypothesis depends entirely on the background probability distribution. Confirmation is not a purely logical relation between evidence and hypothesis; it is a probabilistic relation that depends irreducibly on prior probabilities. Nicod's criterion ignores this dependence — which is precisely its flaw.</span></p>
+        <span class="section">iv. the selective sampling assumption</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Selective sampling — how evidence is gathered matters; random vs. selected from ravens; Bayesian conditions on evidence</span>A crucial feature of Bayesian confirmation theory that Hempel's framework misses is the role of the sampling procedure. When a scientist says "I observed a black raven," the confirmational significance depends on <em>how</em> the raven was selected. If ravens are selected randomly from the population of all objects, the black raven confirms the hypothesis differently than if ravens are selected randomly from the population of ravens. In the latter case — which is how ornithologists actually work — observing a black raven is far stronger evidence than a randomly selected object from the world that happens to be a black raven. The Bayesian framework can represent this distinction precisely, through the difference between conditioning on "the selected object is a raven" versus "the selected object is any object." Hempel's binary framework cannot make this distinction — which is part of why the paradox appears more puzzling than it is.</span></p>
+        <span class="section">v. against both opposition speakers — the paradox dissolves, it is not dissolved by the opposition</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Against Quine and Goodman — natural kinds response incomplete; equivalence condition preserves correct result; Bayesianism is superior</span>Quine's natural kinds response and Goodman's relevance response — which the opposition will defend — each reject one of the premises of the canonical argument to avoid the conclusion. But each rejection is more costly than the Bayesian dissolution. Quine's rejection of Nicod's criterion for unnatural predicates leaves unexplained why natural-kind predicates ground inductive confirmation in a way that unnatural ones do not — and his story requires a prior theory of natural kinds that is deeply contested. Goodman's rejection of the equivalence condition makes confirmation syntax-dependent in ways that Hempel correctly identifies as indefensible. The Bayesian dissolution preserves both the equivalence condition and the direction of confirmation from the paradox's conclusion, while correcting Hempel's mistake of treating confirmation as binary. This is the minimal, most defensible resolution.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="prop-bayesian-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Bayesian framework: confirmation is probability-raising, not binary</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>E confirms H iff P(H|E) &gt; P(H): confirmation is probability-raising, admitting of degrees measured by difference, ratio, or log-likelihood.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A yellow banana confirms the raven hypothesis — P(all ravens black | banana is non-black non-raven) &gt; P(all ravens black) — but by a negligible amount determined by world population sizes.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The paradox evaporates once the question changes from "does the banana confirm?" (yes) to "by how much?" (negligibly): the qualitative surprise is a quantitative fact in disguise.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Bayesian framework dissolves the paradox: non-black non-ravens confirm the raven hypothesis marginally; the intuitive resistance tracks the small degree, not the direction, of confirmation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Good's calculation: confirmation differential is proportional to population sizes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A black raven's confirmatory increment ∝ 1/(N−B): larger when fewer unobserved ravens remain. A non-black non-raven's increment ∝ 1/(M−B): smaller by a factor of N/M.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Given M (world objects) vastly exceeds N (ravens), the banana's increment is smaller by approximately N/M — perhaps one in ten million in realistic cases.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This quantitative result precisely explains the intuition: we correctly sense the banana's confirmation is negligible; we incorrectly infer it is zero.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Good's calculation is the rigorous resolution: both evidence types confirm, but by amounts proportional to population sizes — the paradox is a quantitative fact, not a logical contradiction.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Good's counterexample: background can make non-black non-ravens disconfirm</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Under special selection procedures, observing a non-raven can disconfirm the raven hypothesis — demonstrating that the direction of confirmation depends on background probability.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Confirmation is not a purely logical relation; it is a probabilistic relation irreducibly dependent on prior distributions and the sampling procedure.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Nicod's criterion ignores this dependence — which is its fundamental flaw; the Bayesian framework incorporates it naturally.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Good's counterexample shows that Nicod's criterion is false as a general claim; Bayesian confirmation theory is required to state the correct, background-sensitive version.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Selective sampling: how evidence is gathered determines its confirmational weight</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A black raven selected randomly from ravens confirms differently from a black raven selected randomly from all objects; Bayesian conditioning captures this distinction precisely.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Hempel's binary framework cannot represent the sampling procedure; this is why the paradox appears more puzzling — it ignores the epistemic context of evidence gathering.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Incorporating sampling procedures into Bayesian confirmation accounts for the otherwise puzzling dependence of confirmational weight on how, not just what, was observed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Selective sampling assumptions are part of confirmation theory; the Bayesian framework correctly incorporates them; Hempel's binary framework cannot and therefore generates the paradox.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — Bayesianism is superior to Quine's and Goodman's responses</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Quine's natural-kinds response requires a prior theory of natural kinds that is deeply contested; Goodman's equivalence-condition rejection makes confirmation syntax-dependent.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Bayesianism preserves both the equivalence condition and the correct direction of confirmation while correcting Hempel's binary error — a minimal, principled revision.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The opposition's responses reject premises; the Bayesian response accepts both premises and the conclusion but provides a quantitative framework that explains why the conclusion is less surprising than it appears.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Bayesian confirmation theory provides the best dissolution of the paradox: it preserves the equivalence condition, validates the conclusion, and explains the intuitive resistance through degrees of confirmation.</span></div>
+        </div>
+      </div>
+    </div><!-- end bayesian -->
+
+  </div>
+</div><!-- end prop col -->
+
+<!-- ══════════════════════ OPPOSITION ══════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','quine',this)">Quine &amp; Natural Kinds</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','goodman',this)">Goodman &amp; Relevance</button>
+  </div>
+
+  <div class="col-header" id="opp-quine-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">W. V. O. Quine &amp; Natural Kinds</span></div>
+    <div class="col-position">Reject Nicod's criterion for unnatural predicates — "non-black" and "non-raven" are not natural kinds; only natural-kind predicates ground genuine inductive confirmation</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','quine','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','quine','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="opp-goodman-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Goodman, Relevance &amp; Projectibility</span></div>
+    <div class="col-position">Reject the equivalence condition — it does not preserve confirmational relationships; background knowledge and projectibility defeat the argument; "grue" generalises the point</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','goodman','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','goodman','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ── QUINE ── -->
+    <div class="speaker-panel active" id="opp-quine-panel">
+      <div id="opp-quine-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The proposition has presented us with a valid argument from two plausible premises. My response is to deny one of those premises — Nicod's criterion — by showing that it holds only for a restricted class of predicates: those that pick out genuine natural kinds. "Non-black" and "non-raven" do not pick out natural kinds. They are the residue of set-complementation applied to natural-kind predicates. And there is no reason — none derived from scientific practice, none from our theory of induction, none from any serious epistemology — to expect that positive instances of the generalisation "all non-black things are non-ravens" confirm that generalisation in the way that positive instances of "all ravens are black" confirm it.</p>
+        <div class="pull">"Inductive confirmation is not a purely formal relation. It depends essentially on what predicates we use. A generalisation is confirmable by its instances only if its predicates pick out natural joints in the world — classes of things that are genuinely similar to one another in the ways that matter for induction. 'Non-black' and 'non-raven' are heterogeneous rubbish bins. They are not the kind of thing over which inductive confirmation can operate."</div>
+        <span class="section">i. natural kinds and the theory of induction</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Natural kinds — induction requires similarity classes; non-black is a heterogeneous rubbish bin; only kinds ground induction</span>In my essay "Natural Kinds," I argued that inductive inference — the generalisation from observed instances to unobserved ones — is only valid when the objects being generalised over form a genuine similarity class: a natural kind. Ravens form a natural kind in the relevant sense: they are a biological species, sharing structural, genetic, behavioural, and ecological properties that explain why observed ravens being black gives us reason to expect unobserved ravens to be black. "Non-black things" do not form a natural kind: the class contains photons, opinions, prime numbers, abstract objects, and the set of everything that is not a raven. These objects are not similar in any respect that would make generalisations about them projectible. Observing that one non-black thing (a banana) is not a raven gives us no reason whatsoever to expect that another non-black thing (a piece of coal, a black hole) is not a raven — because "non-black" does not pick out a genuine similarity class over which inductive inferences can be sustained.</span></p>
+        <span class="section">ii. Nicod's criterion restricted to natural kinds</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Nicod's criterion restricted — instantial confirmation only for natural-kind predicates; non-raven fails the test</span>My response to the paradox is to restrict Nicod's criterion: a universal generalisation "all Fs are G" is confirmed by a positive instance — an F that is G — only if F picks out a natural kind. When F picks out a natural kind, positive instances are confirmatory because the members of the kind are genuinely similar, making generalisation from observed to unobserved members epistemically valid. When F does not pick out a natural kind — as "non-raven" and "non-black" do not — positive instances are not confirmatory, because the class's members are not similar in the relevant respect. A yellow banana that is also not a raven gives us no reason to believe that other non-black things are not ravens, because the class of non-black things is not a natural kind over which inductive inferences can be made. Nicod's criterion, restricted in this way, does not generate the paradox: a non-black non-raven does not confirm "all non-black things are non-ravens" because "non-black" is not a natural-kind predicate.</span></p>
+        <span class="section">iii. the equivalence condition — Quine's acceptance and its consequences</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Equivalence condition preserved — Quine accepts EC; rejects NC for unnatural predicates; contradiction avoided</span>Unlike Goodman, I do not reject the equivalence condition. I accept that logically equivalent hypotheses must be confirmed by the same evidence. What this means, given my restriction of Nicod's criterion, is that the equivalence between "all ravens are black" and "all non-black things are non-ravens" does not generate the paradox — because neither hypothesis is confirmed by instances of the other. A yellow banana does not confirm "all non-black things are non-ravens" — because "non-black" is not a natural-kind predicate — so it does not confirm "all ravens are black" either. The equivalence condition is preserved; it simply does not do the work the proposition thinks it does, because Nicod's criterion has been restricted to prevent non-natural-kind instances from confirming their generalisations.</span></p>
+        <span class="section">iv. against the Bayesian dissolution</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Bayesianism — probability-raising too weak; trivial confirmations are still confirmations; natural kinds track what matters</span>The Bayesian dissolution accepts that a yellow banana confirms the raven hypothesis — by a negligible amount. I want to insist that this is the wrong answer. There is a difference between the banana confirming the hypothesis by a negligible amount and the banana not confirming the hypothesis at all. The Bayesian says the banana is relevantly similar to a black raven as evidence — it is just much weaker. I say they are not relevantly similar as evidence at all. The difference is not quantitative but categorical. The banana fails to confirm the hypothesis not because it is a poor specimen of evidence but because it belongs to the wrong category of potential evidence. Bayesian confirmation theory, by treating all probability-raising as confirmation, cannot make this distinction — and the inability to make this distinction is a defect of Bayesian confirmation theory, not a virtue.</span></p>
+        <span class="section">v. the broader lesson — induction is not purely formal</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Induction is not formal — world's structure constrains valid induction; natural kinds are a metaphysical precondition; Humean problem reappears for formal theories</span>The raven paradox reveals a deeper lesson about induction: it is not a purely formal relation between sentences. The validity of an inductive inference — from observed instances to unobserved ones — depends on the world's structure: specifically, on whether the objects being generalised over form genuine similarity classes that sustain projectible generalisations. Any formal confirmation theory that ignores this — that treats all predicates as equally fit for inductive generalisation — will generate paradoxes, because it applies the machinery of induction to domains where induction has no grip. The natural kinds framework is not a solution to one paradox; it is the correct epistemological framework for understanding what makes inductive inference valid at all. The raven paradox, on this view, is not a quirk but a symptom of the failure of purely formal theories of confirmation.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-quine-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Natural kinds ground induction; "non-black" and "non-raven" are not natural kinds</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Inductive generalisation from observed to unobserved instances is valid only when the objects form a genuine natural kind — a similarity class whose members share the properties that make the generalisation projectible.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>"Non-black things" is a heterogeneous class containing photons, opinions, and abstract objects; its members share no similarity that would make generalisations about them inductively valid.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Observing that one non-black thing is not a raven gives no reason to expect another non-black thing to be non-raven, because "non-black" does not pick out a genuine similarity class.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>"Non-black" and "non-raven" are not natural-kind predicates; positive instances of generalisations involving them do not confirmatorily support those generalisations.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Nicod's criterion restricted to natural-kind predicates dissolves the paradox</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>NC restricted: "all Fs are G" is confirmed by positive instances only when F picks out a natural kind — a genuine similarity class over which induction is valid.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>"Raven" is a natural-kind predicate; "non-raven" and "non-black" are not. A non-black non-raven therefore does not confirm "all non-black things are non-ravens."</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>By the equivalence condition, a non-black non-raven also does not confirm "all ravens are black." The paradox does not arise.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Restricting NC to natural-kind predicates dissolves the paradox without rejecting the equivalence condition: non-black non-ravens fail to confirm either hypothesis because the relevant predicates are not natural kinds.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Equivalence condition preserved; the restriction of NC does the work</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Unlike Goodman, Quine preserves the equivalence condition: equivalent hypotheses are confirmed by the same evidence.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Since a banana does not confirm the contrapositive (NC restricted: "non-black" is not a natural kind), it does not confirm the original by EC — consistently with EC, no confirmation is transferred.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Quine's solution is therefore more conservative than Goodman's: EC is preserved; only NC is restricted, and on independent grounds.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Quine's response is more principled than Goodman's: it preserves EC and restricts NC on independently motivated grounds of natural-kind theory.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Against Bayesianism: probability-raising is too weak a notion of confirmation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Bayesian says a banana confirms the raven hypothesis by a negligible amount; Quine says it does not confirm at all — a categorical, not merely quantitative, difference.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Bayesian confirmation theory cannot distinguish "very weak confirmation" from "not confirmation at all" — it treats all probability-raising as confirmation, which collapses the categorical distinction natural kinds theory preserves.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The failure to distinguish these categories is not a virtue of Bayesian confirmation theory but a defect: it assigns confirmatory relevance to evidence that lacks the right categorical relationship to the hypothesis.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Bayesian confirmation theory is inadequate because it cannot make the categorical distinction between genuine confirmation and irrelevant probability-raising; natural kinds theory makes this distinction.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — Broader lesson: induction is not purely formal; natural kinds are its precondition</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Any formal confirmation theory that treats all predicates as equally fit for inductive generalisation will generate paradoxes, because it applies inductive machinery to domains where induction has no grip.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Valid inductive inference requires the world's structure to sustain it — natural kinds are the metaphysical precondition for projectible generalisations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The raven paradox is a symptom of purely formal confirmation theories' failure to incorporate this metaphysical precondition; natural kinds theory is the correct epistemological framework, not just a fix for this one case.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The raven paradox demonstrates that inductive confirmation is not purely formal; natural kinds are its metaphysical precondition, and any adequate confirmation theory must incorporate this constraint.</span></div>
+        </div>
+      </div>
+    </div><!-- end quine -->
+
+    <!-- ── GOODMAN ── -->
+    <div class="speaker-panel" id="opp-goodman-panel">
+      <div id="opp-goodman-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to approach the paradox from a different angle from my colleague Quine. Quine restricts Nicod's criterion. I want to challenge the equivalence condition itself — and I want to show that the challenges to the equivalence condition are not ad hoc responses to the raven paradox but flow from a deeper problem in the theory of confirmation that I have diagnosed in the new riddle of induction: the problem of projectibility. Furthermore, I want to show that the Bayesian dissolution that the proposition's second speaker offers is not in fact a dissolution — it merely quantifies the paradox rather than resolving the underlying philosophical problem.</p>
+        <div class="pull">"The equivalence condition seems obvious: if H and H* say the same thing, they should be confirmed by the same evidence. But this assumes that what a hypothesis 'says' is exhausted by its truth conditions. I deny this. Hypotheses that are logically equivalent may differ in their projectibility — in their fitness for inductive generalisation — in ways that matter for confirmation. The equivalence condition conflates logical equivalence with confirmational equivalence. These are not the same."</div>
+        <span class="section">i. the new riddle of induction — the general problem</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Grue — projectibility; entrenchment; not all predicates are equally fit for induction; the raven paradox is a special case</span>In <cite>Fact, Fiction, and Forecast</cite>, I introduced the predicate "grue" to expose the deepest problem in inductive logic. An object is grue if it is either (a) green and observed before time T, or (b) blue and not observed before T. The hypothesis "all emeralds are grue" is confirmed by every green emerald observed before T — exactly as much as "all emeralds are green" is confirmed by the same observations. But the two generalisations project onto the future in radically different ways: "all emeralds are green" predicts green unobserved emeralds; "all emeralds are grue" predicts blue ones after T. The problem of induction is not merely Hume's problem of justifying induction at all — it is the problem of identifying which predicates are fit for inductive projection. The raven paradox is a special case of this deeper problem: "non-black" and "non-raven" are ungrue-like predicates that are unfit for inductive projection, and Nicod's criterion should not apply to them.</span></p>
+        <span class="section">ii. entrenchment — why some predicates are projectible and others are not</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Entrenchment — predicates that have been used in successful past projections; historical track record grounds current projectibility</span>My solution to the new riddle invokes the notion of entrenchment: a predicate is projectible to the extent that it has been successfully used in past inductive projections. "Green" is entrenched: it has a long history of successful use in inductive generalisations — emeralds have always been green, copper has always been green with oxidation, chlorophyll is always green. "Grue" is not entrenched: it has never been successfully used in inductive projection, because it is a newly coined predicate defined in terms of an observation cutoff time. "Raven" is entrenched; "non-raven" has no inductive track record. "Black" is entrenched; "non-black" is not. The asymmetry between "all ravens are black" and its contrapositive, on my account, is that the former uses entrenched predicates — "raven" and "black" — while the latter uses unentrenched ones — "non-black" and "non-raven." Only entrenched predicates ground inductive confirmation.</span></p>
+        <span class="section">iii. the equivalence condition and confirmational asymmetry</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">EC failure — logically equivalent hypotheses may differ in projectibility; confirmation is not purely truth-functional</span>The equivalence condition says: if H ≡ H*, then whatever confirms H confirms H*. On my account, this is false when H and H* differ in their projectibility — in the entrenchment of their predicates. "All ravens are black" uses entrenched predicates; it is projectible; its instances confirm it. "All non-black things are non-ravens" uses unentrenched predicates; it is not projectible; its instances do not confirm it. These two hypotheses are logically equivalent — they are true in exactly the same possible worlds — but they differ in their confirmational properties because they differ in projectibility. This shows that confirmation is not purely a function of truth conditions; it depends on the predicates used. The equivalence condition, which assumes otherwise, is false. Hempel's argument fails because one of its premises is mistaken — not Nicod's criterion but the equivalence condition.</span></p>
+        <span class="section">iv. against the Bayesian dissolution</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Bayesianism — quantifying the paradox is not dissolving it; the prior probability distribution encodes the real question</span>The Bayesian dissolution says: the banana does confirm the raven hypothesis, but by a negligible amount. But where does the negligible amount come from? It comes from the prior probability distribution — specifically, from the prior that assigns high probability to there being vastly more non-black things than ravens in the world. But this prior itself reflects background knowledge about natural kinds, entrenchment, and projectibility. The Bayesian dissolution does not explain why the banana's confirmation is negligible; it encodes the explanation in the prior and then reads it back out. The real philosophical question — why is a banana poor evidence for the raven hypothesis? — is answered by the theory of entrenchment and projectibility. Bayesianism is a mathematical framework that can represent the answer; it is not the answer itself. The prior probability distribution must be justified, and justifying it requires the theory of natural kinds or entrenchment that Quine and I have independently developed.</span></p>
+        <span class="section">v. the philosophical lesson — confirmation theory must be non-formal</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Non-formal confirmation — logical form is insufficient; projectibility is extra-logical; induction requires historical and practical embedding</span>The raven paradox, together with the new riddle of induction, demonstrates that no purely formal theory of confirmation can be adequate. Confirmation is not a relation between the logical form of an evidence statement and the logical form of a hypothesis. It is a relation that depends on the predicates used — their entrenchment, their history of successful projection, their connection to natural kinds — in ways that cannot be captured by any purely truth-functional or probabilistic framework that treats all predicates symmetrically. Hempel's confirmation theory is formal and fails. Bayesian confirmation theory is probabilistic and partly succeeds — but only by encoding the extra-formal information in the prior, which it cannot itself justify. A complete theory of confirmation must be non-formal: it must incorporate a theory of which predicates are projectible and why. The raven paradox is one of the clearest illustrations of this necessity.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+
+      <div id="opp-goodman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The new riddle: projectibility is the deeper problem of induction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>"Grue" (green before T or blue after T) is confirmed by every observed green emerald just as "green" is — but projects onto the future differently, predicting blue unobserved emeralds.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The problem of induction is not just Hume's problem of justification but the prior problem of identifying which predicates are fit for inductive projection — the problem of projectibility.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The raven paradox is a special case: "non-black" and "non-raven" are like "grue" — predicates unfit for inductive projection, to which Nicod's criterion should not apply.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The raven paradox is a special case of the new riddle of induction; solving it requires a theory of projectibility, not merely a restriction of one premise in the paradox's argument.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Entrenchment: projectibility depends on predicates' history of successful induction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A predicate is projectible to the extent that it has been successfully used in past inductive projections — "green," "raven," "black" are entrenched; "grue," "non-raven," "non-black" are not.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>"All ravens are black" uses entrenched predicates and is projectible; "all non-black things are non-ravens" uses unentrenched predicates and is not — hence the asymmetry in confirmability.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Entrenchment is the extra-formal property that distinguishes hypotheses that can be inductively confirmed from those that cannot — and it is not captured by any purely truth-functional criterion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Entrenchment explains the confirmational asymmetry between "all ravens are black" and its contrapositive: entrenched predicates are projectible; unentrenched ones are not; the paradox exploits this asymmetry.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — The equivalence condition is false when hypotheses differ in projectibility</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Confirmation depends on the predicates used — their projectibility — not just on the truth conditions of the hypothesis; logically equivalent hypotheses can differ in projectibility.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>"All ravens are black" is projectible (entrenched predicates); "all non-black things are non-ravens" is not (unentrenched predicates); they differ in confirmability despite logical equivalence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Therefore EC is false: logically equivalent hypotheses are not always confirmed by the same evidence when they differ in the projectibility of their predicates.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The equivalence condition fails for hypotheses differing in projectibility; confirmation is not truth-functional but depends on extra-logical properties of predicates — EC must be rejected or restricted.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Bayesianism encodes the answer in the prior without explaining it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Bayesian says the banana confirms negligibly because the prior assigns high probability to vastly more non-black things than ravens — but this prior itself reflects background knowledge about natural kinds and entrenchment.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Bayesianism encodes the real explanation (projectibility, natural kinds) in the prior probability distribution and reads it back out — it does not explain why the banana is negligible evidence; it represents the explanation as a prior.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Justifying the prior requires precisely the theory of natural kinds and entrenchment that Quine and Goodman independently develop; Bayesianism cannot justify its own priors without extra-formal resources.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Bayesianism quantifies the paradox without dissolving it; the philosophical explanation of why the banana is negligible evidence requires entrenchment and projectibility theory, not probability calculus alone.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V — No purely formal confirmation theory can be adequate</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Confirmation is not a relation between logical forms of evidence and hypothesis statements; it depends on predicates' projectibility — an extra-formal, historical, practical property.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Hempel's formal theory fails because it treats all predicates symmetrically; Bayesianism partly succeeds by encoding extra-formal information in priors — but cannot justify those priors from within its own framework.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A complete confirmation theory must incorporate a theory of which predicates are projectible and why — a requirement no purely formal or probabilistic framework satisfies without extra-formal supplementation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The raven paradox demonstrates the inadequacy of all purely formal confirmation theories; a complete account requires the theory of projectibility and entrenchment that Goodman's new riddle forces upon us.</span></div>
+        </div>
+      </div>
+    </div><!-- end goodman -->
+
+  </div>
+</div><!-- end opp col -->
+
+</div>
+</div>
+
+<script>
+var state={
+  prop:{speaker:'hempel',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'quine',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var x=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=x+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
