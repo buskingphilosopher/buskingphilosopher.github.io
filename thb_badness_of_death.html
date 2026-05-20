@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Can Death Be Bad For You? — Proposition and Opposition</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-col:#7a9a6a;--prop-pill:#1e2e1a;--prop-pill-bdr:#3a5a2a;
+  --opp-col:#7a7aaa;--opp-pill:#1e1e2e;--opp-pill-bdr:#3a3a6a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp  .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .fact-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .fact-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.25rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Philosophy of Death Symposium &mdash; Mortality, Value, and the Subject of Harm</div>
+  <div class="motion-title">&ldquo;This House Believes that Death Can Be Bad for the Person Who Dies&rdquo;</div>
+  <div class="motion-sub">Proposition: Nagel (<em>Death</em>, 1970) &middot; Kagan (<em>Death</em>, Yale) &middot; Feldman (<em>Confrontations with the Reaper</em>) &nbsp;&mdash;&nbsp; Opposition: Rosenbaum (Epicurean defence) &middot; Lucretius (symmetry argument) via Bradley &middot; McMahan (time-relative interests, partial Epicurean)</div>
+</div>
+<div class="columns">
+
+<!-- ═══════════════════════════════════════
+     LEFT: PROPOSITION
+     Nagel · Kagan · Feldman
+═══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','nagel',this)">Nagel</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','kagan',this)">Kagan</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','feldman',this)">Feldman</button>
+  </div>
+
+  <!-- NAGEL HEADER -->
+  <div class="col-header" id="prop-nagel-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Thomas Nagel</span></div>
+    <div class="col-position">NYU &middot; &ldquo;Death&rdquo; in <em>No&ucirc;s</em> (1970), repr. <em>Mortal Questions</em> (1979) &middot; The deprivation account: death harms by objective cancellation of goods, not by producing a bad experiential state; first major analytic refutation of Epicureanism</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','nagel','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','nagel','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- KAGAN HEADER -->
+  <div class="col-header hidden" id="prop-kagan-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Shelly Kagan</span></div>
+    <div class="col-position">Yale University &middot; <em>Death</em> (Yale Open Courses, 2012) &middot; Defends the deprivation account against the timing problem and the &ldquo;no subject&rdquo; puzzle; distinguishes what is bad from when it is bad; the rational regret solution</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','kagan','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','kagan','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- FELDMAN HEADER -->
+  <div class="col-header hidden" id="prop-feldman-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Fred Feldman</span></div>
+    <div class="col-position">University of Massachusetts Amherst &middot; <em>Confrontations with the Reaper</em> (1992) &middot; Comparative possible-worlds account: death is bad when the world where you die is worse than the closest world where you do not; the eternal misfortune thesis</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','feldman','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','feldman','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ NAGEL ══ -->
+    <div class="speaker-panel active" id="prop-nagel-panel">
+      <div id="prop-nagel-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The Epicurean argument against the badness of death is superficially compelling: when death has come, there is no one left to be harmed. But I want to suggest that this argument rests on a tacit assumption that is very far from obvious &mdash; the assumption that something can be bad for you only if it produces a bad experiential state. Once we reject that assumption, the argument dissolves. And we have good independent reason to reject it.</p>
+        <div class="pull">&ldquo;If death is an evil, it is the loss of life, rather than the state of being dead, or non-existent, or unconscious, that is objectionable. This asymmetry is important. If it is good to be alive, then it is a misfortune to lose that good &mdash; even if there is no one left to feel the loss.&rdquo;</div>
+        <span class="section">i. the experiential requirement is false</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Experiential requirement — counterexamples show deprivation can harm without experience</span>Consider a man who is betrayed by his closest friend. The betrayal is kept entirely secret; he never learns of it, never feels different, and dies in cheerful ignorance. Has he been harmed? Our intuition says emphatically yes. His trust was exploited, his relationship was counterfeit, his life contained something deeply bad that he was simply unaware of. If this is right &mdash; if the betrayed man is harmed even without any experiential signature of the harm &mdash; then the Epicurean&rsquo;s core premise is false. Harm does not require experience of harm. An objective account of well-being, on which what matters is not just how your life feels from the inside but what it actually contains, makes this result natural. Death is the most extreme instance of a deprivation: the total and permanent elimination of everything good about a life. That it comes without an experiential calling card does not make it less a loss.</span></p>
+        <span class="section">ii. the deprivation account</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Deprivation account — death harms by removing future goods, not by producing a bad state</span>My positive account is this. Death is bad for a person because it deprives them of the goods of life &mdash; the pleasures, relationships, achievements, and experiences they would have had if they had continued to live. The harm of death is not a positive bad that death produces; it is the absence of goods that life would have produced. This is entirely consistent with the fact that the dead feel nothing. Consider the analogy of a man born without the capacity to see or hear. His condition is bad, even though he has never experienced sight or hearing and therefore does not miss them as absences. He is deprived of goods he would otherwise have had. Death is a more radical version of the same structure: the permanent elimination of a subject&rsquo;s capacity to receive any goods whatsoever.</span></p>
+        <span class="section">iii. the no-subject problem and how to meet it</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">No-subject problem — Nagel&apos;s response: the misfortune accrues to the ante-mortem person</span>The opposition&rsquo;s most powerful objection is the no-subject problem: if there is no one left after death, there is no one to be harmed by it. I want to make a careful distinction. The person who is harmed by death is not the post-mortem non-entity. It is the person who existed, who had projects and relationships and a future in prospect, and who was deprived of all of this. The harm accrues to the person who lived, not to a spectral survivor. When we say death is bad for someone, we are saying something about what the world contains for that person &mdash; and the world, after their death, contains nothing for them that life would have contained. The subject of the deprivation is the ante-mortem person: the being who existed and whose future was cancelled. That the cancellation is later than the subject does not mean the subject is not its locus.</span></p>
+        <span class="section">iv. the asymmetry with prenatal non-existence</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Asymmetry — prenatal non-existence differs from posthumous non-existence relevantly</span>Lucretius argued that since we do not lament our prenatal non-existence, we should not lament the posthumous kind either. But there is a relevant asymmetry. The individual who dies had a life, had ongoing projects, relationships, and a future continuous with their past. The prenatal non-existent had no such thing. Death cuts off a life in progress; non-birth never begins one. The relevant comparison is not between two stretches of non-existence but between two conditions of the same existing person: having more of the life that is already in progress versus having it terminated. The person who is deprived of future life is an existing person; there is no existing person who is deprived of prenatal life. The asymmetry is real and the symmetry argument fails.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-nagel-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The experiential requirement is false: betrayal harms the unknowing victim</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A man secretly betrayed by his closest friend, who never learns of it and dies in cheerful ignorance, has nonetheless been harmed: his trust was exploited and his life contained something genuinely bad.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If harm can occur without any experiential signature &mdash; as in the betrayal case &mdash; then the Epicurean premise that harm requires experience of harm is false.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Death is the extreme case of a deprivation that carries no experiential signature; the absence of experience at death is not evidence that death is not a harm, any more than the betrayed man&rsquo;s ignorance shows he was not harmed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Epicurean&rsquo;s foundational premise &mdash; harm requires experience of harm &mdash; is refuted by the betrayal case; once rejected, the inference from &ldquo;death is not experienced&rdquo; to &ldquo;death is not a harm&rdquo; collapses.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Deprivation account: death harms by removing future goods, not by adding a bad state</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Death is bad not because it produces a bad experiential state but because it deprives the person of the goods &mdash; pleasures, relationships, achievements &mdash; they would have had if they had continued to live.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Deprivation of goods can constitute harm without experience: a person born blind is harmed by lacking sight even though they never experience the absence as such; death is the maximal version of this structure.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The absence of an experiential locus for the harm is a feature of this type of harm &mdash; privative harm &mdash; not evidence that no harm has occurred.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The deprivation account provides a coherent explanation of how death harms without producing a bad state; the Epicurean argument fails because it assumes that all harm must be of the experiential type.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The no-subject problem: the subject of harm is the ante-mortem person</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Epicurean objection: there is no subject left after death to be harmed, so death cannot be bad for anyone. But we need not identify the subject of harm with a post-mortem entity.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The subject of the deprivation is the ante-mortem person: the being who existed, who had projects and a future in prospect, and whose future was cancelled. The harm accrues to this person.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>That the cancellation occurs after the person&rsquo;s life does not mean the person was not its subject; misfortunes can be identified with the person whose prospects they eliminate, not with a post-mortem survivor.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The no-subject problem dissolves once we identify the subject of deprivation as the ante-mortem person; there is a subject of harm, and it is the person whose future life was eliminated by death.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The asymmetry with prenatal non-existence: existing persons differ from non-existent ones</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Death cuts off a life already in progress &mdash; a continuous life with established projects, relationships, and a future. Prenatal non-existence never starts such a life.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The relevant comparison for death is between more of an existing life and its termination; the relevant &ldquo;comparison&rdquo; for prenatal non-existence is between an existing person and a merely possible non-existent one &mdash; and no existing person is deprived of prenatal life.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The asymmetry is real: there is an existing subject who is deprived by death and no existing subject who is deprived by non-birth; the Lucretian symmetry argument treats these two cases as equivalent when they are structurally different.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The prenatal/posthumous symmetry argument fails because the two cases are structurally asymmetric: an existing life is curtailed by death; no existing life is delayed by non-birth; this asymmetry defeats Lucretius&rsquo;s argument.</span></div>
+        </div>
+      </div>
+    </div><!-- end nagel -->
+
+    <!-- ══ KAGAN ══ -->
+    <div class="speaker-panel" id="prop-kagan-panel">
+      <div id="prop-kagan-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to press on what I take to be the hardest problem for the deprivation account &mdash; not the no-subject problem, which Nagel has answered, but the timing problem. And I want to show that this problem, though genuinely difficult, does not defeat the deprivation account but rather reveals something important about the category of harm we are dealing with.</p>
+        <div class="fact-box">
+          <strong>The timing problem &mdash; stated precisely</strong>
+          If death is bad for the person who dies, it must be bad at some time. There are four candidates: (i) before death, when the person is alive and has not yet died; (ii) during death, which is at most an instant; (iii) after death, when the person does not exist; (iv) no time at all. (i) seems wrong because the harm hasn&rsquo;t happened yet; (iii) seems wrong because there is no one there to be harmed; (ii) is trivially brief; (iv) seems to commit us to timeless facts that many find metaphysically uncomfortable. This is the puzzle that Kagan addresses with the &ldquo;eternal misfortune&rdquo; and &ldquo;rational regret&rdquo; solutions.
+        </div>
+        <span class="section">i. why the timing problem does not refute the deprivation account</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Timing problem — solution: some facts obtain eternally, not at particular times</span>The timing problem assumes that every genuine fact must be located at a particular time. But this assumption is far less secure than it appears. Consider: it is true that Julius Caesar was stabbed 23 times on the Ides of March 44 BCE. When is this fact true? It was true in 44 BCE, it was true yesterday, it is true now, it will be true in a thousand years. The fact is not located at a time; it obtains eternally, timelessly. The fact that death is bad for you is similarly a fact that obtains eternally &mdash; it was always true, and will always be true, that your death deprived you of goods you would otherwise have had. The timing problem assumes a presentism about facts that we have no good reason to accept. Once we reject it, the problem dissolves: the badness of death is an eternally obtaining fact about the person&rsquo;s life as a whole, not a time-indexed state someone is in.</span></p>
+        <span class="section">ii. what death is bad relative to: the counterfactual comparison</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Counterfactual — death is bad relative to the life that would have continued</span>The deprivation account compares two possibilities: the life you actually had, which was ended by death at a particular time, and the life you would have had if you had not died then. The gap between them &mdash; the goods that the second life would have contained and the first did not &mdash; is the measure of death&rsquo;s badness. This comparison is entirely coherent. We make such comparisons routinely: losing your job is bad because you would have had income, satisfaction, and colleagues if you had kept it. The fact that you do not experience the difference &mdash; after the job loss, you simply do not have those goods &mdash; does not mean the comparison is not real. Death is the job loss writ permanent and total: the elimination of every future good relative to the life you would have had.</span></p>
+        <span class="section">iii. the bill gates problem and what makes death specifically bad</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Bill Gates problem — not all deprivations are harms; death is special because of rational regret</span>Here is a puzzle: Bill Gates did not write you a cheque for a million dollars today. You are thereby deprived of a million dollars you would have had if he had. But it seems silly to say you have been harmed by this. If deprivation alone is sufficient for harm, shouldn&rsquo;t this be a harm too? The answer is that not all deprivations are harms. What distinguishes the harmful ones is not merely the size of the gap but something about the rational structure of the person&rsquo;s situation. A helpful test: it is rational to regret your death in advance, from within your life, even now, because you have an ongoing stake in your future. The goods you will be deprived of are goods you are oriented toward &mdash; goals, relationships, projects &mdash; in a way that makes their elimination a genuine loss from the inside of your life, not merely a cosmic deprivation of something that was never yours to lose. The million dollars you never expected is different in this respect.</span></p>
+        <span class="section">iv. the epicurean cure and why we should resist it</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Epicurean cure — why Epicurean equanimity is the wrong response to death</span>Epicurus offered his argument as a cure for the fear of death: if death is nothing to us, we need not fear it. I want to suggest that even if we should not fear death in all the ways we do, the Epicurean cure is too drastic. The reason death is the supreme misfortune &mdash; as most of us recognise it to be &mdash; is precisely that it eliminates a person who is in the midst of something: a life with ongoing stakes. The appropriate response to this is not Epicurean equanimity but a kind of sober acknowledgement of what is at stake. If we genuinely believed the Epicurean conclusion, we would treat murder as trivially different from robbery, a life-threatening disease as no worse than a minor one, and the premature death of a young person as no more regrettable than the death of one who has lived fully. These consequences are not available to us, and the fact that they follow from the Epicurean view is itself evidence against it.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-kagan-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The timing problem dissolves if we reject presentism about facts</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The timing problem assumes every genuine fact must be located at a particular time. But many facts obtain eternally: that Caesar was stabbed 23 times on the Ides of March is true now, was true then, and will be true always.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The badness of death is similarly an eternally obtaining fact about the person&rsquo;s life as a whole: it was always true that this person&rsquo;s death deprived them of goods they would otherwise have had.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The demand to locate the badness of death at a particular time assumes a presentism about facts that we have no independent reason to accept; once rejected, the timing problem does not arise.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The timing problem assumes presentism about facts; presentism is not well-motivated; once rejected, the badness of death is an eternally true fact about the person&rsquo;s life and the problem dissolves.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The counterfactual comparison is coherent and routinely made</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The deprivation account compares the life actually had with the life that would have continued; the gap &mdash; the goods absent from the shorter life &mdash; measures death&rsquo;s badness. This is a coherent comparison.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>We routinely make such comparisons in other domains: losing a job is bad relative to keeping it; an illness is bad relative to health; these comparisons are neither mysterious nor controversial.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The fact that the person does not experience the gap &mdash; after death they simply do not have the goods &mdash; does not make the comparison incoherent; it is a feature of privative harm, as in the betrayal and blindness cases.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The counterfactual comparison at the heart of the deprivation account is coherent, routinely made in other domains, and not undermined by the absence of experiential awareness of the gap.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Death is a harm, not merely a deprivation: rational regret distinguishes the two</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Not all deprivations are harms: Bill Gates&rsquo;s failure to write me a cheque deprives me of money I would have had if he had, but this is not a harm. Some further condition beyond mere deprivation is needed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Death meets the further condition: it eliminates goods the person is actively oriented toward &mdash; goals, relationships, projects in progress &mdash; making their elimination a rational object of regret from within the ongoing life, not merely a cosmic shortfall of possible goods.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The structure of rational regret &mdash; the fact that anticipating death rationally involves grief at what will be lost, not merely at a possible good that might not materialise &mdash; marks the difference between harmful deprivation and merely missing out.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Death meets the conditions for harmful deprivation that arbitrary non-receipt does not; the rational regret criterion distinguishes them and vindicates the deprivation account against the &ldquo;Bill Gates&rdquo; objection.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; The Epicurean cure has consequences we cannot accept: murder, disease, premature death</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If Epicurus is right that death is nothing to us, murder is only trivially worse than robbery, a life-threatening disease is no worse than a minor one, and the premature death of a young person with decades ahead is no more regrettable than the death of one who has lived fully.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These consequences are not available to us: they conflict with the most deeply held and practically necessary moral judgements we make about the value of life, the wrongness of killing, and the tragedy of early death.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>When a philosophical argument has consequences of this kind, the appropriate response is to reject a premise rather than accept the consequences; the Epicurean premise &mdash; that harm requires experiential badness &mdash; is the premise to reject.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Epicurean conclusion has morally unacceptable consequences that we cannot in practice endorse; this is strong evidence by modus tollens that the Epicurean premise is false and that death can indeed be bad for the one who dies.</span></div>
+        </div>
+      </div>
+    </div><!-- end kagan -->
+
+    <!-- ══ FELDMAN ══ -->
+    <div class="speaker-panel" id="prop-feldman-panel">
+      <div id="prop-feldman-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to sharpen the deprivation account by giving it a precise comparative possible-worlds formulation that I believe answers all four puzzles the opposition will raise: the no-subject problem, the timing problem, the Lucretian symmetry problem, and what I call the &ldquo;Intrinsic Value Problem&rdquo; &mdash; the question of whether death has intrinsic or merely extrinsic badness. On each, the comparative account gives a principled and philosophically defensible answer.</p>
+        <div class="pull">&ldquo;The correct formulation of the deprivation account is this: death is bad for a person at a world if and only if the closest possible world in which that person does not die then is better for that person than the actual world. Puzzles about timing, subjecthood, and comparison are dissolved by this formulation because the comparison is between the actual world and a nearby counterfactual one, assessed from the eternal standpoint of the person&rsquo;s overall welfare.&rdquo;</div>
+        <span class="section">i. the comparative possible-worlds formulation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Possible-worlds account — comparison between actual and closest non-death world</span>Consider two possible worlds. In W1 &mdash; the actual world &mdash; you die at forty-two of a heart attack. In W2 &mdash; the closest world in which you do not die then &mdash; you live to eighty-seven, enjoy decades of further work and relationships, and die peacefully. W1 is worse for you than W2: the total well-being across your life in W1 is lower than the total in W2. Death in W1 is therefore bad for you: it is the event responsible for the fact that you live in a world worse for you than the nearest alternative. Notice that this formulation sidesteps the timing problem entirely. We are not asking when death is bad; we are asking whether it is bad, and the answer is determined by a comparison between worlds, not by locating a time-indexed experiential state in one of them. The comparison is made from a God&rsquo;s-eye perspective on the person&rsquo;s life as a whole.</span></p>
+        <span class="section">ii. the eternal misfortune thesis</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Eternal misfortune — it was always true, and will always be, that this death was bad for this person</span>If the comparative account is correct, then the badness of your early death is an eternal fact. It was true on the day you were born that your death at forty-two would be bad for you. It is true now. It will be true after you die. The fact does not become true at the moment of death; it was always true, in the same way that it was always true that Keats would die before completing the poetry he had the capacity to write. This &ldquo;eternal misfortune thesis&rdquo; strikes some people as strange &mdash; how can something be a misfortune before it has happened? But I submit that the strangeness dissolves when we recognise that we are making a comparison between worlds, not locating an experiential state. The comparison between the world Keats actually inhabited and the nearest world in which he lived longer is always valid, and always yields the verdict that his early death was bad for him.</span></p>
+        <span class="section">iii. answering the lucretian symmetry problem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Lucretian symmetry — the possible-worlds account distinguishes late birth from early death asymmetrically</span>Lucretius argued that late birth (not having been born earlier) should be as bad as early death, if the deprivation account is correct &mdash; since both deprive you of goods you would have had in the relevant counterfactual world. But the possible-worlds account resolves this asymmetry. The closest world in which you are born earlier is not simply a world where you begin slightly sooner; it is a world where a numerically different person is born, because the identity of a person is determined by the specific circumstances of their conception. The sperm and egg that produced you could not have united earlier and produced <em>you</em>; they would have produced someone else. There is no close possible world in which <em>you</em> are born earlier. But there are close possible worlds in which <em>you</em>, the same person, live longer. The asymmetry is principled, not ad hoc.</span></p>
+        <span class="section">iv. the intrinsic value problem and extrinsic badness</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Extrinsic badness — death bad instrumentally by causing absence of goods, not by containing a bad state</span>The opposition sometimes argues that death cannot be bad for you because it does not intrinsically contain anything bad &mdash; no pain, no suffering, no negative experiential state. The possible-worlds account accepts this: death is not intrinsically bad. It is extrinsically bad &mdash; bad because of what it causes, which is the absence of all further goods. This is not a concession; it is a feature. Many things are bad not because of what they positively contain but because of what they prevent. A roadblock on the only route to the hospital is bad not because of any intrinsic feature of the roadblock, but because of what it prevents. Death is the ultimate roadblock: it prevents the person from receiving any further goods whatsoever. Its badness is extrinsic but no less real for that.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-feldman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Possible-worlds formulation: death is bad when the closest non-death world is better for you</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Death is bad for a person at a world if and only if the closest possible world in which that person does not die then is better for that person overall. This formulation is precise and avoids reference to time-indexed experiential states.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The comparison between actual and counterfactual worlds is made from the standpoint of the person&rsquo;s total welfare across their life, not from a time-indexed point of view &mdash; so the timing problem does not arise within this formulation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This formulation is a natural generalisation of comparisons we already make: every misfortune is bad because it puts us in a worse world than the closest world where it did not occur.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The possible-worlds formulation of the deprivation account is precise, free from the timing problem, and a natural generalisation of comparative reasoning we already endorse in other domains.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Eternal misfortune: it was always true that early death was bad for the person who dies early</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The comparison between actual and counterfactual worlds is timelessly valid; it was true on the day of your birth, and will be true after your death, that dying at forty-two is worse for you than the alternative.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This &ldquo;eternal misfortune thesis&rdquo; does not require the badness to be located at a particular time; it is a comparative fact about worlds that obtains atemporally, like mathematical truths.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The apparent strangeness of pre-mortem misfortune dissolves when we recognise that we are comparing world-states, not describing experiential events; the comparison is as valid before the death as after it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The eternal misfortune thesis follows from the possible-worlds formulation; it is neither strange nor paradoxical, but a consequence of treating the badness of death as a comparative fact about worlds rather than a time-indexed experiential state.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Lucretian symmetry resolved: late birth deprives a different person, not you</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The closest world in which you are born earlier is one in which a numerically different person is born, because personal identity is fixed by the specific circumstances of conception &mdash; this is Parfit&rsquo;s non-identity point applied to birth.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>There is no close possible world in which you, the same person, are born earlier. There are close possible worlds in which you, the same person, live longer; the comparison for death is available, the comparison for late birth is not.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The asymmetry is principled and follows from the metaphysics of personal identity: the person deprived by death exists; no existing person is deprived by late birth.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Lucretian symmetry argument fails because the possible-worlds comparison is available for death (there is a nearby world where you live longer) but not for late birth (there is no nearby world where you are born earlier and are still you).</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Extrinsic badness: death bad by causing absence of goods, not by containing a bad state</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Death does not intrinsically contain anything bad; it is not a painful experience, a negative state, or a positive evil. The opposition is right about this. But intrinsic badness is not the only kind.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Death is extrinsically bad: bad because of what it causes, which is the permanent absence of every future good. A roadblock is bad not because of its intrinsic character but because of what it prevents; death is the ultimate roadblock.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Epicurean argument that death is not bad because it contains nothing bad conflates intrinsic with extrinsic badness; the deprivation account is explicitly about extrinsic badness and is not refuted by this conflation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Death&rsquo;s badness is extrinsic &mdash; a function of what it causes rather than what it contains &mdash; and this is not a concession to the Epicurean but the correct account of a type of harm that is real and important.</span></div>
+        </div>
+      </div>
+    </div><!-- end feldman -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════════════════════════
+     RIGHT: OPPOSITION
+     Rosenbaum · Bradley (Lucretius strand) · McMahan
+═══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','rosenbaum',this)">Rosenbaum</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','bradley',this)">Bradley</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','mcmahan',this)">McMahan</button>
+  </div>
+
+  <!-- ROSENBAUM HEADER -->
+  <div class="col-header" id="opp-rosenbaum-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Stephen Rosenbaum</span></div>
+    <div class="col-position">Illinois State University &middot; &ldquo;How to Be Dead and Not Care: A Defence of Epicurus&rdquo; (1986) &middot; &ldquo;The Epicurean Theory of the Afterlife&rdquo; (1989) &middot; The most rigorous contemporary defence of the Epicurean no-harm thesis; the experiential requirement vindicated; the no-subject problem is not dissolved but entrenched</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','rosenbaum','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','rosenbaum','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BRADLEY HEADER -->
+  <div class="col-header hidden" id="opp-bradley-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Ben Bradley</span></div>
+    <div class="col-position">Syracuse University &middot; <em>Well-Being and Death</em> (2009) &middot; Presents internal pressures on the deprivation account: the no-subject problem revived, the problem of death&rsquo;s badness for the very old, and the Lucretian argument reconsidered with additional force</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','bradley','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','bradley','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- McMAHAN HEADER -->
+  <div class="col-header hidden" id="opp-mcmahan-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Jeff McMahan</span></div>
+    <div class="col-position">University of Oxford &middot; <em>The Ethics of Killing</em> (2002) &middot; Time-relative interests account: how bad death is depends on psychological continuity with the future self; complications for the deprivation account that partially vindicate Epicurean concerns</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','mcmahan','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','mcmahan','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ ROSENBAUM ══ -->
+    <div class="speaker-panel active" id="opp-rosenbaum-panel">
+      <div id="opp-rosenbaum-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to make a case for Epicurus that is not the caricature his opponents typically refute. Epicurus did not argue that nothing bad can happen to people. He argued something more specific and more philosophically serious: that the <em>state of being dead</em> &mdash; the state of non-existence &mdash; cannot be a harm for the person who is dead, because being in a state requires existing, and the dead do not exist. This is a claim about the metaphysics of harm, not about whether bad things ever befall mortals.</p>
+        <div class="pull">&ldquo;Death is nothing to us, since when we exist death is not present, and when death is present we do not exist. The argument is not that nothing bad happens to people. It is that the condition of being dead is not one that has a subject who can suffer it. Harming requires a subject to be harmed. Non-existence has no subject. This is not sophistry. It is the minimum that a coherent metaphysics of harm requires.&rdquo; &mdash; Epicurus, <em>Letter to Menoeceus</em></div>
+        <span class="section">i. the subject requirement on harm</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Subject requirement — harm is a relational property requiring an existing subject</span>The core Epicurean argument: harm is a relational property. To say that X is harmed is to say something about X &mdash; a subject that exists and is in a condition that is bad for it. If X does not exist, there is nothing for harm to attach to. The proposition will say that the ante-mortem person is the subject of harm. But this is not coherent as stated. The ante-mortem person existed and then died. After death, there is no subject with properties. You cannot attribute a harm to a person who no longer exists any more than you can attribute a current debt to a company that has been dissolved. The ante-mortem person is gone; you cannot reach across the moment of death and attribute post-mortem conditions to them. The proposition is trading on a grammatical illusion: the fact that we use the same name before and after death to refer to what is in fact two different situations: a person, and then nothing.</span></p>
+        <span class="section">ii. why the betrayal analogy fails</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Betrayal analogy failure — the betrayed man still exists; the dead man does not</span>Nagel&rsquo;s betrayal case &mdash; a man secretly betrayed who never learns of it &mdash; is meant to show that harm does not require experiential awareness. I accept this point in the betrayal case. But notice the crucial disanalogy with death. The betrayed man exists throughout his life. The harm attaches to a subject who is present and living. The trust he exercised, the relationship he valued, the projects he pursued &mdash; all of these were real features of an existing person&rsquo;s actual life. The harm of betrayal is a feature of his actual life even if he never registers it experientially. Death is entirely different. After death, there is no subject. The &ldquo;harm&rdquo; of death has no subject to attach to. The betrayal case shows that harm can be experientially silent; it does not show that harm can be subjectless. These are quite different claims, and conflating them is the proposition&rsquo;s central error.</span></p>
+        <span class="section">iii. the symmetry argument revived</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Symmetry argument — prenatal and posthumous non-existence are metaphysically parallel</span>Lucretius&rsquo;s symmetry argument is more powerful than its critics acknowledge. The proposition&rsquo;s response &mdash; that we cannot be born earlier without being a different person &mdash; proves too much. By the same Parfitian logic, we cannot die later without being a different person: the person who lives to eighty-seven is psychologically distinct from the person who would have died at forty-two, had they different experiences and memories over those additional decades. If the non-identity argument defeats late birth, it equally defeats the claim that the same person would have been better off living longer. The proposition cannot use non-identity to block one symmetry while ignoring it in the other. Either personal identity is robust enough to ground both comparisons, or it is not robust enough to ground either.</span></div>
+        <span class="section">iv. the experiential requirement and its vindication</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Experiential requirement vindicated — welfare is essentially connected to the subject&apos;s perspective</span>The experiential requirement on welfare is not an arbitrary add-on. It reflects a deep truth about what it means for something to be good or bad <em>for</em> a subject. When we say something is good for you, we mean it enriches your life as you live it &mdash; that it connects to your experience, your perspective, your ongoing existence as a subject. An objective account of welfare that is entirely disconnected from the subject&rsquo;s perspective loses the &ldquo;for you&rdquo; in &ldquo;good for you.&rdquo; If the goods you were deprived of by death are goods you will never experience, never be oriented toward, never benefit from in any subjective sense, then in what sense are they goods <em>for you</em> rather than simply good things that will not exist? The &ldquo;for&rdquo; in &ldquo;bad for you&rdquo; requires a subject; and the subject of death is absent.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-rosenbaum-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The subject requirement: harm is relational and requires an existing subject</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Harm is a relational property: for X to be harmed, X must exist as a subject to which the harm attaches. A company dissolved last year cannot currently be in debt; a dissolved subject cannot currently be harmed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The dead do not exist; therefore there is no subject to which post-mortem harm can attach. The proposition&rsquo;s &ldquo;ante-mortem subject&rdquo; move uses the same name for two situations &mdash; a person, then nothing &mdash; without bridging the gap in the subject.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>You cannot attribute a harm to a person who no longer exists by pointing to the person who used to exist; the subject at the time of harm must be present, and at death, no subject is present.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The subject requirement on harm is not met by death: there is no subject at or after the moment of death to whom the deprivation attaches; the proposition&rsquo;s ante-mortem subject move is a grammatical illusion, not a philosophical solution.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The betrayal analogy fails: the betrayed man exists; the dead man does not</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The betrayal case shows that harm can be experientially silent: the harmed person exists and is in a bad condition even without knowing it. This is accepted.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the betrayed man exists throughout his life as a subject; the harm attaches to a present, living subject. After death, the subject no longer exists. This is the critical disanalogy.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The betrayal case shows harm can be experientially silent; it does not show harm can be subjectless. Death is subjectless; the analogy therefore fails to license the inference from the betrayal case to the death case.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The betrayal analogy is disanalogy: it shows harm can be experientially silent in a living subject, but death is not merely experientially silent &mdash; it is subjectless; the proposition needs an analogy where there is no subject, not merely no awareness.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Non-identity cuts both ways: you are not the same person who would have lived longer</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The proposition uses non-identity to defeat Lucretius: you cannot be born earlier and be the same person. But the person who lives to eighty-seven is psychologically distinct from the person who dies at forty-two &mdash; they have different experiences, memories, and character over those additional decades.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If non-identity defeats the prenatal comparison, it equally destabilises the post-mortem comparison: the proposition cannot use non-identity selectively to block one direction of the symmetry while ignoring it in the other.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Either personal identity is robust enough to ground both comparisons &mdash; and then the symmetry argument re-applies &mdash; or it is not robust enough to ground either &mdash; and then the deprivation account loses its subject.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The non-identity response to Lucretius is self-defeating: it relies on a thin notion of personal identity that equally undermines the proposition&rsquo;s claim that the same person would have been better off living longer.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The experiential requirement is vindicated by what &ldquo;for you&rdquo; means</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>&ldquo;Good for you&rdquo; and &ldquo;bad for you&rdquo; are not impersonal value claims; they are claims about how things stand for a subject &mdash; how a thing connects to the perspective, experience, and ongoing existence of a particular being.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Goods the dead person will never experience, be oriented toward, or benefit from in any subjective sense are not goods &ldquo;for&rdquo; that person; they are simply good things that will not exist. The &ldquo;for&rdquo; requires a subject.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An objective welfare account that divorces welfare from the subject&rsquo;s perspective loses the distinctive meaning of &ldquo;for you&rdquo;; without that, the deprivation account is not an account of harm to you but of objective value that is absent &mdash; a different claim.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The experiential requirement reflects what &ldquo;for you&rdquo; means in &ldquo;bad for you&rdquo;; an account of welfare entirely divorced from the subject&rsquo;s perspective has changed the subject from personal harm to impersonal value-absence, which is a different claim than the motion asserts.</span></div>
+        </div>
+      </div>
+    </div><!-- end rosenbaum -->
+
+    <!-- ══ BRADLEY ══ -->
+    <div class="speaker-panel" id="opp-bradley-panel">
+      <div id="opp-bradley-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to press on the internal pressures within the proposition&rsquo;s own account. I am not a simple Epicurean. I think death can be bad for the person who dies in some cases, and not bad in others. My contribution is to show that the deprivation account &mdash; as defended by Nagel, Kagan, and Feldman &mdash; is over-inclusive: it counts as bad many deaths that we have no reason to consider bad, and it struggles to explain why some deaths are more bad than others in a way that matches our settled moral intuitions. These are internal difficulties that the proposition must address.</p>
+        <div class="fact-box">
+          <strong>The over-inclusion problem &mdash; stated</strong>
+          The deprivation account, applied consistently, implies: (a) deaths of very elderly people who have lived fully are still bad for them, since there were future goods they could have had; (b) deaths of people in permanent vegetative states are bad for them, since they had potential future goods; (c) deaths of people whose remaining life would have been pure suffering are bad for them, since they were &ldquo;deprived&rdquo; of that suffering. These implications sit uneasily with the account&rsquo;s intent.
+        </div>
+        <span class="section">i. the problem of death for the very old</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Very old — deprivation account struggles to explain why old people&apos;s deaths are not bad</span>The deprivation account implies that the death of a ninety-seven-year-old who has lived a rich and full life is still bad for her, since in the nearest possible world where she does not die then, she lives a few more months and thereby receives some additional goods. But our moral intuitions say that such a death &mdash; peaceful, late, after a completed life &mdash; is not a misfortune in the way that the death of a forty-two-year-old is. There is a genuine moral difference between an untimely death and a timely one. The deprivation account, applied uniformly, cannot explain this difference because it evaluates deaths solely by the quantity of future goods lost, regardless of whether the life was already complete. If the gap between the actual and counterfactual world is smaller, the death is less bad &mdash; but the account gives us no principled way to say that any death, no matter how late and peaceful, is not bad at all.</span></p>
+        <span class="section">ii. the desire account and what death frustrates</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Desire account — death bad when it frustrates actual desires, not merely possible future ones</span>A more refined account of when death is bad focuses not on possible future goods in the abstract but on the specific desires, plans, and projects that are frustrated by death. Death is bad for you when it cuts off things you were actually pursuing, relationships you were actually in, goals you were actually working toward. This desire-based refinement handles the case of the very old differently: if she had no further projects in prospect, no desires oriented toward the future, and had genuinely completed her life, then her death does not frustrate an actual desire. The ninety-seven-year-old and the forty-two-year-old differ in what death takes from them not merely in quantity of possible goods but in the density of their actual engagement with a future that is now cut off.</span></div>
+        <span class="section">iii. the problem of welfare and the subject</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Welfare problem — possible-worlds account loses contact with the subject&apos;s actual welfare</span>Feldman&rsquo;s possible-worlds account compares the actual world with the nearest alternative and reads off the badness of death from the welfare difference. But welfare is not a property of worlds; it is a property of subjects-in-worlds. A world in which you live longer and receive additional goods is only better for you if those goods connect to you in the right way &mdash; if there is a subject, continuous with you, who is actually the recipient of those goods. Feldman&rsquo;s &ldquo;God&rsquo;s eye view&rdquo; comparison aggregates welfare across the whole life and attributes the difference to death. But this is not obviously the right framework: it can imply that a death which relieves a person of a period of terrible suffering is bad for them &mdash; because the aggregate welfare across the actual world is lower than the counterfactual one even when that counterfactual included suffering. This seems like a deficiency in the framework, not a discovery about death.</span></p>
+        <span class="section">iv. what this debate actually shows</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Conclusion — death is bad in some cases but the deprivation account is incomplete</span>I am inclined to say that death can be bad for the person who dies &mdash; but only in specific conditions: when the life was in the midst of something, when projects were active and relationships were live, when the person was psychologically oriented toward a future that is now eliminated. For elderly deaths, deaths of people with no remaining desires, and deaths that relieve suffering, the deprivation account either gives wrong verdicts or gives the right verdict for the wrong reasons. The motion, strictly read &mdash; &ldquo;death can be bad for the person who dies&rdquo; &mdash; is likely true. But the mechanism the proposition offers is over-inclusive, and the Epicurean residue &mdash; that the subject requirement is not as easily met as Nagel suggests &mdash; remains a genuine problem that the proposition has not fully dissolved.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-bradley-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Over-inclusion: deprivation account cannot explain why timely deaths are not misfortunes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The deprivation account implies the death of a ninety-seven-year-old is still bad, since in the nearest alternative world she lives slightly longer and receives additional goods. But our moral intuitions say timely, peaceful, post-completive deaths are not misfortunes in the way premature deaths are.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The deprivation account evaluates deaths solely by the quantity of future goods lost, regardless of whether the life was already complete; it gives no principled basis for saying any late-life death is not a misfortune.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A theory that cannot distinguish the death of a twenty-five-year-old from a ninety-seven-year-old except in the quantity of goods lost, without reference to whether the life was completed, has missed something morally important.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The deprivation account is over-inclusive: it implies that every death, no matter how timely and peaceful, is a misfortune; this conflicts with deeply held and morally important intuitions about the difference between untimely and completed deaths.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Desire account: death is bad when it frustrates actual desires, not merely possible future goods</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A refined account: death is bad for you when it frustrates things you were actually pursuing &mdash; active projects, live relationships, goals you were working toward &mdash; not merely possible future goods in the abstract.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This handles the very old case differently: if she had genuinely completed her life with no further desires oriented toward a future, her death frustrates no actual desire, and is thus not bad for her in the morally relevant sense.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The desire-based refinement is more discriminating than the pure deprivation account; it matches our intuitions about the difference between untimely and timely deaths by grounding the badness of death in the actual structure of the person&rsquo;s engagement with their future.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The desire-based account is more accurate than the pure deprivation account; death is bad when it frustrates actual desires, not merely because it removes possible future goods; this refinement is itself an internal challenge to the proposition&rsquo;s formulation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Possible-worlds welfare: the God&rsquo;s-eye comparison loses contact with actual subjective welfare</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Welfare is a property of subjects-in-worlds, not of worlds as such; the possible-worlds comparison is only a measure of the badness of death if the additional goods in the alternative world are genuinely connected to a continuous subject who receives them.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Feldman&rsquo;s account can imply that a death which relieves terrible suffering is bad for the person who dies, because the aggregate welfare of the actual world is lower than the alternative world even when that alternative included the suffering. This is a counterintuitive result.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A welfare account that aggregates across the whole life and attributes differences to death without distinguishing relief from deprivation has lost contact with the subjective character of welfare that the &ldquo;for you&rdquo; in &ldquo;bad for you&rdquo; requires.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Feldman&rsquo;s possible-worlds account loses contact with subjective welfare at the margins; it can give counterintuitive verdicts in cases of relief from suffering, which suggests the framework needs refinement beyond what the proposition has provided.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; Death is sometimes bad but the deprivation account is incomplete; Epicurean residue remains</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Death is plausibly bad when a life is in progress &mdash; when projects are active, relationships live, and the person is oriented toward a future now eliminated. This much of the proposition is likely correct.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the mechanism offered &mdash; pure deprivation of future goods &mdash; is over-inclusive, gives wrong verdicts in some cases, and has not fully answered the subject requirement or the symmetry argument.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A complete account of when death is bad requires refinements beyond the basic deprivation account; the Epicurean challenge has been partially answered but not dissolved; the proposition as stated is too strong a claim for the arguments offered to support.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Death is sometimes bad, but the deprivation account as stated is over-inclusive and incompletely answers the Epicurean challenge; the proposition wins a partial victory at best, and the residue of the Epicurean problem remains philosophically alive.</span></div>
+        </div>
+      </div>
+    </div><!-- end bradley -->
+
+    <!-- ══ McMAHAN ══ -->
+    <div class="speaker-panel" id="opp-mcmahan-panel">
+      <div id="opp-mcmahan-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My position is the most nuanced on this panel: I believe death is sometimes bad for the person who dies, sometimes not, and that how bad it is varies in ways the proposition&rsquo;s crude deprivation account cannot explain. My time-relative interests account holds that the badness of death is a function of two things: the future goods the death prevents, and the degree of psychological unity that the person who dies has with the future self who would have received those goods. This formulation has consequences that are simultaneously counterintuitive, illuminating, and, I believe, correct.</p>
+        <div class="pull">&ldquo;The reason a person has a strong egoistic interest in their own future is that they are psychologically continuous with their future self &mdash; they share memories, plans, values, and projects. If that continuity is weak or absent, the future self is, in a morally relevant sense, not quite the same person. A newborn infant has almost no psychological connections to the adult it will become. Its death is therefore less bad for it than the death of that adult would be for the adult &mdash; not because infant life matters less, but because the degree of self-regarding interest in one&rsquo;s own future is a function of the psychological connections one has with it.&rdquo;</div>
+        <span class="section">i. time-relative interests: why psychological continuity matters</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Time-relative interests — badness of death depends on psychological unity with future self</span>Consider why I care more about my welfare next year than about the welfare of a numerically distinct person who happens to be similar to me. The answer is psychological continuity: I will remember being me, my plans and values will persist, my relationships will continue. There is a robust web of psychological connections between present me and future me that grounds a distinctive kind of self-concern. Now, the degree of this self-concern varies with the strength of psychological continuity. An infant has almost no psychological connections to the adult it will become: no memories, no plans, no shared values. A person with advanced Alzheimer&rsquo;s disease has few connections to the self they were. If the badness of death for me is partly a function of the degree to which I have a self-regarding interest in my future &mdash; and it must be, if psychological continuity is what grounds self-concern &mdash; then the badness of death is not uniform. It varies with the psychological architecture of the dying subject.</span></p>
+        <span class="section">ii. the implications for the proposition</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Implications — death of an infant is less bad than death of adult; deprivation account gets this wrong</span>The standard deprivation account implies that the death of a healthy infant is the worst possible death: the infant has a potential full human life ahead of it, so the gap between the actual world and the nearest alternative is maximal. But our moral intuitions say otherwise: though the death of an infant is certainly a tragedy, most of us feel that the death of a twenty-five-year-old with established projects, relationships, and a formed personality is worse. The deprivation account, applied to purely possible future goods, cannot explain this difference because it is indifferent to the strength of the dying subject&rsquo;s psychological connections to the future it is being deprived of. The time-relative interests account explains the difference: the twenty-five-year-old has robust psychological continuity with the future from which they are deprived; the infant has almost none.</span></p>
+        <span class="section">iii. the Epicurean residue in the time-relative account</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Epicurean residue — time-relative interests partially vindicates Epicurean intuitions about non-persons</span>My account partially vindicates the Epicurean intuition, though not the Epicurean argument. Epicurus held that death is nothing to us. I hold that death is very little to beings who have very weak psychological connections to their future selves. For creatures with no psychological continuity &mdash; those who live entirely in the present, with no memories and no future-directed concerns &mdash; death is barely bad at all. This is not because their lives have no value, but because they have no time-relative interest in their own future to be frustrated. The Epicurean who holds that death is nothing to a being entirely without self-concern &mdash; a fully present-tense creature &mdash; has identified something real, even if the argument for applying this to all mortals fails. Humans with robust psychological continuity are not such creatures; but the intuition that grounded Epicureanism is not without foundation.</span></p>
+        <span class="section">iv. what the correct account of the badness of death looks like</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Correct account — badness of death = future goods lost × degree of psychological unity</span>The correct account of when and how much death is bad for the person who dies is a product of two factors: the goods the death prevents (as the deprivation account correctly identifies) and the strength of the psychological connections between the dying person and the future self who would have received those goods (which the pure deprivation account ignores). Death is worst when both factors are high: a young adult in the midst of an engaged and forward-looking life has the most to lose and the strongest psychological connections to the future from which they are being deprived. Death is least bad when either factor is low: in the very old with no remaining forward-looking projects, or in beings with weak psychological continuity. This is a more discriminating and more accurate account than the proposition has offered, and it partially explains why the Epicurean challenge has been so persistent: the pure deprivation account misses an essential dimension of the phenomenon.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-mcmahan-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Time-relative interests: badness of death varies with psychological unity to future self</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Self-concern is grounded in psychological continuity: I care distinctively about my future because I am psychologically continuous with my future self &mdash; memories, plans, values, and relationships persist between present and future me.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The degree of psychological continuity between a person now and their future self varies: infants have almost none; young adults have robust connections; those with advanced dementia have few. Therefore the degree of self-regarding interest in one&rsquo;s future varies accordingly.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the badness of death is partly a function of the degree of self-regarding interest in the future that death eliminates, then the badness of death is not uniform but varies with the psychological architecture of the dying subject.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The time-relative interests account implies that the badness of death varies with psychological continuity; this is a more discriminating account than the pure deprivation account and explains otherwise puzzling intuitive differences between cases.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The deprivation account wrongly implies infant death is worst; TRI account explains why adult death is worse</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Pure deprivation account implies the death of a healthy infant is the worst possible death, since the gap between actual life and counterfactual life is maximal. But our intuitions say the death of a twenty-five-year-old with formed projects and relationships is worse.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The deprivation account cannot explain this intuitive difference because it is indifferent to the strength of the dying subject&rsquo;s psychological connections to the future they are deprived of.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The time-relative interests account explains the intuitive ranking: the twenty-five-year-old has robust psychological continuity with the future from which they are deprived; the infant has almost none; therefore the former&rsquo;s death is worse by the correct account.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The time-relative interests account explains an intuitive ranking that the pure deprivation account cannot; this is evidence that the badness of death depends on psychological continuity as well as the quantity of future goods lost.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Epicurean residue: death is very little bad for beings with no psychological continuity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>For creatures with no psychological continuity &mdash; entirely present-tense beings with no memories or future-directed concerns &mdash; death frustrates no time-relative interest and is barely bad for the dying creature, though it may still matter morally for other reasons.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This partially vindicates the Epicurean intuition: the idea that death is nothing to a being without self-concern in one&rsquo;s future is not absurd; it is correct for such beings. The error is applying it to humans with robust psychological continuity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Epicurean argument is thus not entirely wrong; it correctly identifies that self-concern is a precondition for the badness of death, and errs only in concluding that no subject has self-concern in their future because death eliminates it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Epicurean intuition is partially vindicated by the time-relative interests account; the Epicurean argument fails but contains a kernel that the proposition&rsquo;s blunt deprivation account misses: self-concern in one&rsquo;s future is a precondition for the badness of one&rsquo;s death.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Correct account: badness of death = future goods lost × degree of psychological unity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Death is worst when two factors are both high: the goods prevented are large and the psychological connections between the dying person and the future self who would have received them are strong.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Death is least bad when either factor is low: very old with no forward-looking projects (few goods prevented), or beings with weak psychological continuity (little time-relative interest in the future). This explains intuitive rankings the deprivation account cannot.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The pure deprivation account, by attending only to the quantity of future goods lost, misses an essential dimension of the phenomenon; the Epicurean challenge has been persistent precisely because this dimension &mdash; self-concern in one&rsquo;s future &mdash; is what Epicurus was tracking.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The correct account of the badness of death is the time-relative interests account, not the pure deprivation account; the proposition&rsquo;s arguments establish that death can be bad but misidentify the mechanism, leaving the Epicurean challenge partially unanswered.</span></div>
+        </div>
+      </div>
+    </div><!-- end mcmahan -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'nagel',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'rosenbaum',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
