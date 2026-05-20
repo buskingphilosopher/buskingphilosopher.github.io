@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ex Ante vs Ex Post — The Debate Around Frick's Distinction</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-col:#5890a8;--prop-pill:#162430;--prop-pill-bdr:#265070;
+  --opp-col:#a06838;--opp-pill:#2a1a0a;--opp-pill-bdr:#704020;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp  .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .fact-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .fact-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.25rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Political Philosophy &amp; Bioethics Symposium &mdash; Risk, Fairness, and the Limits of Contractualism</div>
+  <div class="motion-title">&ldquo;This House Believes that the Ex Ante Perspective Is the Correct Basis for Evaluating Policies under Social Risk&rdquo;</div>
+  <div class="motion-sub">Pro-Ex-Ante: Frick (<em>Contractualism &amp; Social Risk</em>, 2015) &middot; Bradley &amp; Stef&aacute;nsson (&ldquo;Fairness, Ambiguity &amp; Dynamic Consistency&rdquo;, 2025) &middot; Kumar (&ldquo;Risking and Wronging&rdquo;, 2015) &nbsp;&mdash;&nbsp; Pro-Ex-Post: Fleurbaey &amp; Voorhoeve (&ldquo;Decide As You Would With Full Information&rdquo;, 2013) &middot; Horton (&ldquo;Aggregation, Complaints &amp; Risk&rdquo;, 2017) &middot; Otsuka (&ldquo;Risking Life and Limb&rdquo;)</div>
+</div>
+<div class="columns">
+
+<!-- ═══════════════════════════════════════
+     LEFT: PRO-EX-ANTE
+     Frick · Bradley & Stefánsson · Kumar
+═══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','frick',this)">Frick</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','bradley',this)">Bradley &amp; Stef&aacute;nsson</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','kumar',this)">Kumar</button>
+  </div>
+
+  <!-- FRICK HEADER -->
+  <div class="col-header" id="prop-frick-header">
+    <div class="col-header-top"><span class="pill prop">Pro&ndash;Ex Ante</span><span class="col-subtitle">Johann Frick</span></div>
+    <div class="col-position">Princeton University &middot; &ldquo;Contractualism and Social Risk&rdquo; <em>Philosophy &amp; Public Affairs</em> 43:3 (2015) &middot; &ldquo;Uncertainty and Justifiability to Each Person&rdquo; in <em>Inequalities in Health</em> (OUP, 2013) &middot; Stage-wise ex ante contractualism; the pro-identified-lives argument; reply to Fleurbaey &amp; Voorhoeve</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','frick','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','frick','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BRADLEY HEADER -->
+  <div class="col-header hidden" id="prop-bradley-header">
+    <div class="col-header-top"><span class="pill prop">Pro&ndash;Ex Ante</span><span class="col-subtitle">Richard Bradley &amp; H. Orri Stef&aacute;nsson</span></div>
+    <div class="col-position">LSE / Stockholm &middot; &ldquo;Fairness, Ambiguity and Dynamic Consistency&rdquo; <em>Theory and Decision</em> (2025) &middot; Ex ante fairness preferences grounded in chance-attitudes need not produce dynamic inconsistency; a formal defence of the ex ante fairness position against the strongest technical objection</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','bradley','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','bradley','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- KUMAR HEADER -->
+  <div class="col-header hidden" id="prop-kumar-header">
+    <div class="col-header-top"><span class="pill prop">Relational Account</span><span class="col-subtitle">Rahul Kumar</span></div>
+    <div class="col-position">Queen&rsquo;s University &middot; &ldquo;Risking and Wronging&rdquo; <em>Philosophy &amp; Public Affairs</em> 43:1 (2015) &middot; The wrongness of risk-imposition is constitutively relational, not outcome-dependent; a third way between ex ante and ex post that begins with the agent&ndash;victim relationship rather than with prospect or result</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','kumar','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','kumar','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ FRICK ══ -->
+    <div class="speaker-panel active" id="prop-frick-panel">
+      <div id="prop-frick-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The problem I want to address is one that sits at the intersection of contractualist moral theory and the philosophy of risk. It is a genuine dilemma, and I want to be honest from the outset that no solution is entirely cost-free. The question is: from which temporal perspective should we assess whether a policy that imposes social risk is morally justifiable to each person affected?</p>
+        <div class="fact-box">
+          <strong>The mammography case &mdash; the structure of the dilemma</strong>
+          Two breast cancer screening policies differ in their detection threshold. Policy A (more aggressive): saves more lives from cancer, but imposes false positives &mdash; years of follow-up testing, biopsies, and anxiety &mdash; on the many women who screen positive but are healthy. Policy B (less aggressive): frees most women from that burden, but condemns a statistically predictable number to deaths preventable under A. Ex ante: every woman has slightly higher expected utility under A. Ex post: some specific women will have died who could have been saved, and they have the strongest imaginable complaint. Fleurbaey and Voorhoeve use this to argue against ex ante Pareto. Frick defends a refined ex ante view that handles the case differently.
+        </div>
+        <span class="section">i. why the ex post view makes most public policy unjustifiable</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Ex post — makes social risk unjustifiable; Scanlon&apos;s own view leads to this; Frick diagnoses this as the problem</span>Scanlon explicitly endorses the ex post view in <em>What We Owe to Each Other</em>: what matters morally is not the prospect a policy gives each person, but the outcomes it produces. On this view, the women who die under Policy B have a valid complaint against that policy: they were made worse off than they would have been under A, and no compensating benefit to others can discharge this complaint without interpersonal aggregation. But this structure applies to almost every instance of large-scale public policy. Any policy that imposes a small risk of serious harm on a large population in order to produce a general benefit will, ex post, have identifiable victims with very strong complaints. On the pure ex post view, the mere existence of such victims is sufficient to make the policy unjustifiable. This is not a merely theoretical problem. Speed limits, drug safety approvals, vaccine programmes, environmental regulations &mdash; all are of this form. The ex post contractualist cannot say any of them are justifiable. This is a reductio of the pure ex post view.</span></p>
+        <span class="section">ii. stage-wise ex ante contractualism</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Stage-wise ex ante — complaints assessed prospect-by-prospect at each decision stage; strongest complaint minimised; no interpersonal aggregation</span>My resolution is what I call stage-wise ex ante contractualism. At each stage of a decision, we assess justifiability to each person on the basis of the prospects the policy gives them at that stage &mdash; not on the basis of actual outcomes, which are not yet known. We minimise the strongest individual ex ante complaint. In the mammography case, we ask: before anyone knows who will get cancer, which policy gives the strongest individual complaint? Policy B may give a small number of women who will turn out to have cancer a prospect of dying that they could have avoided; Policy A gives a large number of women a modest prospect of false positives. The question is which prospect generates the stronger claim against the policy. By attending to this carefully &mdash; specifically, by noting that the women who will die under B face a <em>certain</em> disadvantage relative to A once we identify who they are &mdash; we can explain why the pro-identified-lives intuition is correct without invoking ex post outcomes. The relevant comparison is between the ex ante prospects of specific individuals, assessed at the stage at which they can be identified.</span></p>
+        <span class="section">iii. the pro-identified-lives argument</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Pro-identified lives — people have stronger claims against certain harm than against equivalent expected harm; this is an ex ante, not ex post, distinction</span>My pro-identified-lives argument shows that the intuition favouring identified over statistical lives &mdash; which the opposition treats as evidence for the ex post view &mdash; is actually explained by ex ante considerations. Consider a case where we can save one person who is certain to die without intervention, or save five people each of whom has a one-in-five chance of dying. The identified person and the five statistical lives face equal expected deaths (one each). Yet we feel the identified person has a stronger claim. Why? Not because of their ex post outcomes &mdash; we don&rsquo;t know yet who among the five will die. Rather, because the identified person faces certain harm: her prospect, at this stage, is one of certain death. The five each face an uncertain prospect. The ex ante distinction between certain and uncertain harm &mdash; fully captured within an ex ante framework &mdash; explains our preference without any appeal to ex post outcomes.</span></p>
+        <span class="section">iv. reply to fleurbaey and voorhoeve on the principle of full information</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Fleurbaey-Voorhoeve — their Principle of Full Information is either unsound or cannot settle the debate; the contractualist has no obligation to decide as if with full information</span>Fleurbaey and Voorhoeve argue that we ought to decide as we would with full information: if we <em>could</em> know who will be harmed, we should decide as if we do. Applied to mammography, this means attending to the identified women who will die under B, even though at the time of policy choice we do not know who they are. I have two objections. First, the Principle of Full Information is not a contractualist principle &mdash; it is not derivable from the requirement of justifiability to each person. An agent can be fully justifiable to each person under uncertainty without knowing which person will be harmed, provided the prospect offered to each person is one each could not reasonably reject. Second, the principle is either too strong &mdash; requiring us to imagine knowing all future outcomes before any decision, which would collapse decision theory entirely &mdash; or too weak to settle the debate, since it does not tell us which actual outcomes we must treat as if known. The appeal to what we &ldquo;could&rdquo; know is doing hidden normative work that the principle does not supply.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-frick-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The pure ex post view makes virtually all social risk policy unjustifiable: a reductio</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Scanlon&rsquo;s ex post contractualism holds that victims&rsquo; post-outcome complaints determine justifiability; any policy that ex post harms identifiable individuals generates valid complaints that cannot be discharged without interpersonal aggregation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Virtually all large-scale public policies &mdash; speed limits, vaccine programmes, drug approvals, environmental regulations &mdash; impose small risks on large populations that, ex post, will have identifiable victims with strong complaints.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the ex post view entails that all such policies are unjustifiable, this is a reductio of the pure ex post view: a theory of permissibility that condemns nearly all public health policy cannot be correct.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The pure ex post view generates a reductio in social risk cases; the contractualist must accommodate a role for ex ante assessment or abandon most of public policy as unjustifiable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Stage-wise ex ante contractualism: complaints assessed by prospect at each decision stage</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Justifiability is assessed at each decision stage by the prospects the policy gives each person at that stage, not by actual outcomes; we minimise the strongest individual ex ante complaint.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In the mammography case: before anyone knows who has cancer, the prospects of women who will die under B are compared with those who face false positives under A; the comparison is between types of prospect, not types of outcome.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This allows public health policies to be justified without interpersonal aggregation of outcomes: we ask whether any person&rsquo;s ex ante complaint against the policy is one they could not reasonably reject, given what the alternative prospects would be.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Stage-wise ex ante contractualism provides a coherent account of social risk policy: justifiability is determined by prospects, not outcomes, while still being sensitive to individual complaints rather than aggregate benefit.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Pro-identified-lives: the intuition is explained ex ante, not ex post</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The intuition that identified lives have stronger claims than statistical lives is treated by the opposition as evidence for the ex post view. But the intuition tracks certainty, not identity: the identified person faces a certain prospect of death; the statistical lives face an uncertain one.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This distinction &mdash; between certain and uncertain harm &mdash; is fully capturable within an ex ante framework comparing prospects; it does not require appeal to ex post outcomes or to the identity of the actual victim.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the intuition is explained ex ante, then the opposition cannot use it as evidence against the ex ante view; the pro-identified-lives argument is an ex ante argument that the opposition has misread as ex post.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The pro-identified-lives intuition supports, not undermines, the ex ante view: it tracks the ex ante certainty of harm, which is a prospect-level feature, not an outcome-level one.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Fleurbaey &amp; Voorhoeve&rsquo;s Principle of Full Information is either unsound or question-begging</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Principle of Full Information holds: decide as you would with full information. Applied to mammography, this means treating the identifiable future victims as already identified. But this is not a contractualist principle: contractualism requires justifiability to each person under actual epistemic conditions, not under counterfactual full information.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The principle is either too strong (requiring full knowledge of all future outcomes before any policy choice, which collapses deliberation) or it selectively requires some future information but not all &mdash; in which case it smuggles in a normative choice about which information to treat as known.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>It therefore cannot settle the ex ante/ex post debate without assuming the answer: it requires treating future victims as identified, which is precisely the ex post move the principle was supposed to justify.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Principle of Full Information begs the question against the ex ante view; it does not provide a contractualist basis for ex post evaluation but assumes ex post identification is required, which is exactly what is at issue.</span></div>
+        </div>
+      </div>
+    </div><!-- end frick -->
+
+    <!-- ══ BRADLEY & STEFÁNSSON ══ -->
+    <div class="speaker-panel" id="prop-bradley-panel">
+      <div id="prop-bradley-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to make a contribution that is primarily technical but with deep normative implications. One of the strongest objections to the ex ante view of fairness &mdash; and by extension to Frick&rsquo;s stage-wise contractualism and to any theory that evaluates social risk policies by the prospects they offer ex ante &mdash; is that it generates dynamically inconsistent behaviour. If you form your preferences over policies on an ex ante basis, the argument goes, you will find yourself at later decision nodes choosing in ways that are incompatible with what you chose earlier: you will be committed to revising plans you had rationally committed to, or to acting against your own earlier best judgement. This is taken to be a decisive mark of irrationality.</p>
+        <div class="pull">&ldquo;The violation of separability that underlies ex ante fairness preferences need not produce dynamic inconsistency when those preferences are explained by non-instrumental attitudes toward the <em>chances</em> of goods. An agent who values fair distributions of chances &mdash; not just fair distributions of outcomes &mdash; can be shown to behave consistently across a decision tree without any incoherence in her sequential choices.&rdquo; &mdash; Bradley &amp; Stef&aacute;nsson, <em>Theory and Decision</em> (2025)</div>
+        <span class="section">i. the separability objection to ex ante fairness</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Separability objection — ex ante fairness violates expected utility separability; this is held to generate dynamic inconsistency</span>The expected utility framework requires that the value of a prospect be separable across possible states: how good option A is in state S should be independent of how good the alternatives are in other states. Ex ante fairness preferences violate this. An agent who cares about the equality of chances &mdash; who values giving each person a fair ex ante prospect &mdash; will evaluate a lottery not just by the outcome in each state but by whether the chances were fairly distributed. This generates non-separable preferences. Critics argue that non-separable preferences produce dynamically inconsistent behaviour: an agent who enters a decision tree with such preferences will, at later nodes, find that the local choice that is best given the subsequent tree is not the choice that was best from the standpoint of the overall plan she had rationally committed to. She is committed to revising or regretting her earlier choices without having received any new information. This is the dynamic inconsistency objection that proponents of the ex post view deploy against ex ante fairness.</span></p>
+        <span class="section">ii. the chance-attitude response</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Chance-attitudes — when fairness preferences are grounded in valuing fair distributions of chances, not just fair outcomes, dynamic inconsistency does not follow</span>My paper with Stef&aacute;nsson argues that the dynamic inconsistency objection rests on a misidentification of what drives ex ante fairness preferences. The standard dynamic inconsistency result is derived for preferences that violate separability because the agent assigns a special premium to some combination of outcomes across states. But ex ante fairness preferences can be differently grounded: in non-instrumental attitudes toward the chances themselves, not toward the outcome combinations those chances produce. An agent who values fair <em>chances</em> &mdash; who cares that each person has an equal probability of receiving a good, independently of what that good is &mdash; is not valuing an outcome combination across states. She is valuing the probabilistic structure of the allocation procedure. When preferences are grounded in this way, they do not need to violate separability in the dynamically problematic form; the chance-distribution she values is fixed at the time of the choice, not revised at later nodes. Her behaviour can therefore be consistent across the decision tree.</span></p>
+        <span class="section">iii. the implication for the ex ante/ex post debate</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Implication — the technical objection to ex ante fairness fails when preferences are chance-grounded; the ex ante view survives its strongest formal challenge</span>The implications for the broader debate are significant. The dynamic inconsistency objection is the strongest <em>formal</em> argument against ex ante approaches to fairness in social risk policy. If it fails &mdash; as we argue it does, for preferences grounded in chance-attitudes &mdash; then the ex ante view retains its formal respectability. Importantly, the chance-attitude framework also illuminates what the Fleurbaey-Voorhoeve argument is missing. They argue that ex ante fairness conflicts with ex post equity: knowing who will end up worse off, we should choose accordingly. But if what matters morally is the distribution of chances &mdash; not just the distribution of outcomes &mdash; then knowing ex post who was harmed does not automatically override the prior moral significance of how the chances were distributed. The ex post outcome does not cancel the moral value of the ex ante fair procedure, any more than a lottery winner&rsquo;s good outcome cancels the fairness of the draw.</span></p>
+        <span class="section">iv. ambiguity and fairness under uncertainty</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Ambiguity — extension to decision under severe uncertainty; fairness preferences survive ambiguity and still avoid dynamic inconsistency</span>One further contribution of our paper is to extend the analysis to cases of ambiguity &mdash; genuine uncertainty where not even probabilities are known. This matters for real-world social risk policy, where the probability that a given woman will develop breast cancer, or that a given vaccine will produce a serious adverse reaction, is often known only imprecisely. Under ambiguity, the separability violations associated with fairness preferences become even harder to avoid, and the dynamic inconsistency objection appears to sharpen. We argue that the chance-attitude framework handles ambiguity cases as well: an agent who cares about fair distributions of chances, under ambiguity, can maintain behavioural consistency across a decision tree. This further extends the formal defence of the ex ante view into the domain most relevant to public health policy, where probabilities are rarely known with precision.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-bradley-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The separability objection: ex ante fairness violates EU separability, apparently generating dynamic inconsistency</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Ex ante fairness preferences value the equality of chances across persons; this violates the separability conditions of expected utility theory, since the value of a prospect depends on the chance distribution, not just the outcome in each state.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Non-separable preferences are standardly held to generate dynamically inconsistent behaviour: at later decision nodes, the locally optimal choice may conflict with the globally optimal plan committed to earlier, without any new information arriving.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is the main formal argument that opponents of ex ante approaches deploy: the dynamic inconsistency objection purports to show that ex ante fairness preferences are not just counterintuitive but formally irrational.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The separability objection is the strongest formal argument against ex ante fairness; it requires a response that shows either that the inconsistency does not arise, or that it does not constitute irrationality in the relevant sense.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The chance-attitude response: fairness grounded in chance-valuation need not produce dynamic inconsistency</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When ex ante fairness preferences are grounded in non-instrumental valuation of the chances themselves &mdash; caring that each person has a fair probability of receiving a good, not just caring about outcome distributions &mdash; the violation of separability takes a different form.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Chance-attitudes are fixed at the time of the initial choice; they do not require revision at later decision nodes in response to how the gamble resolves. The agent values the probabilistic structure at the time of allocation, not the outcome realisation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Consequently, chance-grounded fairness preferences do not generate the dynamically inconsistent sequential choices that the separability objection predicts; the agent can be behaviourally consistent across the decision tree.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>When ex ante fairness preferences are explained by chance-attitudes, they need not result in dynamic inconsistency; the formal objection to ex ante fairness fails for this class of preferences.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Implication: ex post outcomes do not automatically override the moral value of ex ante fair procedures</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Fleurbaey and Voorhoeve argue that knowing ex post who was harmed requires us to evaluate the policy from that standpoint; the ex post outcome takes precedence over the ex ante procedure.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But if what matters morally is the distribution of chances &mdash; which is fixed at the time of the policy choice &mdash; then knowing who was harmed ex post does not automatically override the prior moral significance of the fair ex ante procedure.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Just as a lottery winner&rsquo;s good outcome does not retroactively make the lottery unfair, a loser&rsquo;s bad outcome does not retroactively make the procedure unjust, if the chances were fairly distributed. Ex post outcomes are morally significant but do not cancel ex ante procedural fairness.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The chance-attitude framework shows that ex post outcomes and ex ante procedural fairness are both morally relevant; ex post information does not automatically override the moral value of a fair ex ante distribution of chances.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Extension to ambiguity: chance-attitude fairness survives severe uncertainty</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In real-world policy, including breast cancer screening, probabilities are often imprecise; the policy must be evaluated under genuine ambiguity, not merely risk. Separability violations worsen under ambiguity, apparently sharpening the dynamic inconsistency objection.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The chance-attitude framework extends to ambiguity cases: an agent who values fair distributions of chances can maintain behavioural consistency even when those chances are imprecisely known.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is directly relevant to public health policy, where probabilities are rarely known with precision; the formal defence of ex ante fairness into the ambiguity domain strengthens its applicability to the social risk cases the debate is primarily about.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The chance-attitude framework extends to ambiguity, the realistic epistemic condition for policy decisions; the dynamic inconsistency objection to ex ante fairness fails even under severe uncertainty.</span></div>
+        </div>
+      </div>
+    </div><!-- end bradley -->
+
+    <!-- ══ KUMAR ══ -->
+    <div class="speaker-panel" id="prop-kumar-panel">
+      <div id="prop-kumar-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to suggest that both the ex ante and ex post frameworks share a common error: they both treat the wrongness of risk-imposition as fundamentally a function of how well or badly things turn out for the affected parties &mdash; the one prospectively, the other actually. I argue that the wrongness of imposing risk on another person is not primarily about outcomes, whether assessed before or after the fact. It is about the relationship between the agent who imposes the risk and the person who bears it, and whether that imposition is compatible with a proper regard for the victim as a person whose interests have independent moral standing.</p>
+        <div class="pull">&ldquo;What makes an act of risk imposition wrongful is not primarily that it makes the victim worse off in expectation, or that it actually harms them. It is that in imposing the risk, the agent treats the victim&rsquo;s interests as something to be weighed against, and potentially outweighed by, benefits to others or to herself. Whether this is permissible depends on the relational structure of the situation: who the agent is, who the victim is, and what kind of reason the agent has for exposing the victim to this risk.&rdquo; &mdash; Kumar, <em>Philosophy &amp; Public Affairs</em> (2015)</div>
+        <span class="section">i. what is wrong with risk imposition: the relational account</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Relational account — wrongness of risk-imposition is constitutively relational; neither ex ante nor ex post captures this</span>Consider a case where a factory discharges chemicals that give each resident of a nearby town a 1-in-10,000 chance of developing cancer. This risk imposition may be wrong even if the expected harm is small and even if, ex post, no one actually develops cancer. Why? Because the factory owner has treated the residents&rsquo; health as a tradeable commodity: her interest in lower production costs is permitted to place a small but non-trivial risk of cancer on people who did not consent to bear that risk and whose interests in their own health have a standing that should not simply be discounted by probability. The wrongness is not in the prospect (ex ante) or in the outcome (ex post); it is in the structure of the relationship &mdash; in the fact that one party&rsquo;s interest in profit was permitted to override another party&rsquo;s standing not to be put at risk of serious harm.</span></p>
+        <span class="section">ii. why the ex ante view misses the relational dimension</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Against ex ante — ex ante approach loses the relational dimension; reduces wrong to prospect-comparison; can justify wrongful risk impositions if expected utility favours them</span>The ex ante view assesses risk imposition by the prospects it gives each person. If a policy gives each person a better expected outcome than the alternative, the ex ante view tends to permit it. But this misses something important: whether a risk imposition is permissible cannot depend only on how good the prospects are for the affected parties, because the question of whether one party&rsquo;s interests justify imposing a risk on another party&rsquo;s interests is not settled by expected utility comparisons. The factory example illustrates this: even if each resident gains slightly in expected welfare from the factory&rsquo;s presence (jobs, tax revenues, cheaper goods), this does not straightforwardly make the cancer risk acceptable. There is a further question: is it permissible to impose a risk of cancer on a person for these reasons, given the nature of the interests at stake and the relationship between the parties? The ex ante view, focussed on prospects, cannot easily capture this.</span></p>
+        <span class="section">iii. why the ex post view also misses it</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against ex post — ex post view makes wrongness depend on actual outcome; but risk imposition can be wrong when no harm occurs; and permissible when harm does occur</span>The ex post view has the converse problem. On a pure ex post view, whether risk imposition was wrong depends on what actually happens. If the factory&rsquo;s residents are lucky and no one gets cancer, the factory&rsquo;s discharge was not wrong. But this seems plainly incorrect: the wrongness of imposing the risk does not depend on whether it happens to materialise into harm. The drunk driver who makes it home without hitting anyone was still driving wrongly. More generally, there are cases where an agent permissibly imposes a risk &mdash; the surgeon who performs a necessary operation with a known failure rate &mdash; but the outcome is harm. The harm is not evidence of wrongdoing; it is a bad outcome of a permissible action. Both the permissibility and the wrongness of risk imposition are determined at the time of action, by the relational structure of the situation, not by what ex post transpires.</span></p>
+        <span class="section">iv. applying the relational account to the mammography case</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Mammography — relational account asks about the policy structure, not just prospects or outcomes; false positive burden is a distinct relational wrong, not merely a cost</span>The mammography case, on my view, raises a relational question: does the more aggressive screening policy treat the healthy women who will bear false positives in a way that is compatible with proper regard for their interests? The false positive burden is not merely a probabilistic cost to be discounted against the cancer-prevention benefit. It is a specific imposition on specific women: years of medical follow-up, biopsies, anxiety, and time. Whether this imposition is permissible depends on the reasons for it, the alternatives available, and whether the burdens are distributed in a way that reflects appropriate regard for those who bear them. This relational question is prior to the ex ante/ex post question. Both frameworks then need to be calibrated by asking what pattern of relational propriety a policy exhibits &mdash; not merely what prospects or outcomes it produces.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-kumar-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Wrongful risk imposition is constitutively relational, not outcome-dependent</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A factory imposing a 1-in-10,000 cancer risk on residents may be wrong even if expected harm is small and even if ex post no one is harmed, because it treats residents&rsquo; health interests as tradeable against production costs without their consent.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The wrongness resides in the relational structure: one party&rsquo;s interest in profit is permitted to override another party&rsquo;s standing not to be placed at non-trivial cancer risk; this standing is a relational, not merely prospective or actual, moral fact.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Neither ex ante nor ex post frameworks directly capture this: the ex ante view focusses on prospects, the ex post view on actual outcomes; both miss the relational character of why the imposition was wrong in the first place.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The wrongness of risk imposition is grounded in the relational structure of the agent-victim situation; both ex ante and ex post frameworks are missing a prior moral question about whether the imposition is relationally permissible at all.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The ex ante view misses relational permissibility: good prospects cannot straightforwardly justify risk imposition</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If a policy gives each affected person a better expected outcome than the alternative, the ex ante view tends to permit it; but this misses whether one party&rsquo;s interests can justify imposing a risk of serious harm on another party&rsquo;s interests.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Expected utility comparisons do not settle relational permissibility: even if residents gain in expected welfare from the factory&rsquo;s presence, there is a prior question whether it is permissible to impose a cancer risk on them for these reasons.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The ex ante view, focussed on prospect comparison, cannot capture this prior question; it treats the permissibility of risk imposition as settled by the expected utility of the outcome for each person, which is not the same as whether the imposition was relationally justified.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ex ante view is insufficient because it reduces relational permissibility to prospect-comparison; this cannot determine whether one party&rsquo;s interests can justify placing another at risk of serious harm.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The ex post view also misses it: permissibility is determined at the time of action, not by outcome</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>On a pure ex post view, whether risk imposition was wrong depends on what actually happens; if no one is harmed, the imposition was not wrong. But this is clearly incorrect: the drunk driver who reaches home safely was still driving wrongly.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Conversely, a surgeon who permissibly operates with a known failure rate may cause harm; the harm is not evidence of wrongdoing but a bad outcome of a permissible relational action.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Permissibility is determined at the time of action by the relational structure: who the agent is, who the victim is, what interests are at stake, and what reasons the agent has. Ex post outcomes are not constitutive of permissibility, even if they are morally significant.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ex post view misconstrues permissibility as outcome-dependent; but permissibility is determined relationally at the time of action; ex post outcomes provide evidence but are not constitutive of whether the imposition was wrongful.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Mammography: the false positive burden is a relational wrong, not merely a cost to aggregate</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The false positive burden in aggressive mammography screening is not merely a probabilistic cost to offset against cancer-prevention benefit; it is a specific imposition on specific women: years of follow-up, biopsies, and anxiety without clinical cause.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Whether this imposition is permissible depends on the relational structure: the reasons for it, the alternatives available, and whether the distribution of burdens reflects appropriate regard for those who bear them.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This relational question is prior to the ex ante/ex post debate; both frameworks require calibration by the relational question of whether the policy&rsquo;s pattern of burden-imposition is one that properly respects those who bear its costs.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The mammography case cannot be resolved by ex ante/ex post comparison alone; both frameworks require supplementation by a prior relational account of when one party&rsquo;s interests can justify imposing burdens on others.</span></div>
+        </div>
+      </div>
+    </div><!-- end kumar -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════════════════════════
+     RIGHT: PRO-EX-POST
+     Fleurbaey & Voorhoeve · Horton · Otsuka
+═══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','voorhoeve',this)">Fleurbaey &amp; Voorhoeve</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','horton',this)">Horton</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','otsuka',this)">Otsuka</button>
+  </div>
+
+  <!-- VOORHOEVE HEADER -->
+  <div class="col-header" id="opp-voorhoeve-header">
+    <div class="col-header-top"><span class="pill opp">Pro&ndash;Ex Post</span><span class="col-subtitle">Marc Fleurbaey &amp; Alex Voorhoeve</span></div>
+    <div class="col-position">Princeton / LSE &middot; &ldquo;Decide As You Would With Full Information! An Argument Against Ex Ante Pareto&rdquo; in <em>Inequalities in Health</em> (OUP, 2013) &middot; Applied directly to US breast cancer screening policy &middot; The Principle of Full Information; ex ante Pareto rejected; ex post equity demanded</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','voorhoeve','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','voorhoeve','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- HORTON HEADER -->
+  <div class="col-header hidden" id="opp-horton-header">
+    <div class="col-header-top"><span class="pill opp">Critical</span><span class="col-subtitle">Joe Horton</span></div>
+    <div class="col-position">UCL &middot; &ldquo;Aggregation, Complaints, and Risk&rdquo; <em>Philosophy &amp; Public Affairs</em> 45:1 (2017) &middot; Both ex ante and ex post versions of Minimax Complaint have implausible implications; the correct view aggregates complaints; Frick&rsquo;s stage-wise approach smuggles in aggregation</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','horton','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','horton','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- OTSUKA HEADER -->
+  <div class="col-header hidden" id="opp-otsuka-header">
+    <div class="col-header-top"><span class="pill opp">Pro&ndash;Ex Post</span><span class="col-subtitle">Michael Otsuka</span></div>
+    <div class="col-position">Rutgers University &middot; &ldquo;Risking Life and Limb&rdquo; in <em>Identified vs. Statistical Lives</em> (OUP, 2015) &middot; The separateness of persons demands ex post evaluation; ex ante approaches violate the separateness of persons by merging the prospects of distinct individuals; Suikkanen&rsquo;s synthesis considered</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','otsuka','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','otsuka','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ FLEURBAEY & VOORHOEVE ══ -->
+    <div class="speaker-panel active" id="opp-voorhoeve-panel">
+      <div id="opp-voorhoeve-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to open with the case that gave rise to the most direct engagement between Frick&rsquo;s position and ours: the US Preventive Services Task Force&rsquo;s 2009 decision to revise its recommendation on breast cancer screening. The task force recommended that routine mammography screening begin at fifty rather than forty, and that biennial rather than annual screening be adopted. The stated justification was an expected-utility calculation: women in their forties gain relatively little in cancer mortality reduction from screening, while bearing a substantial burden of false positives. On an expected-utility basis, the revised policy seemed preferable for every woman.</p>
+        <div class="fact-box">
+          <strong>The breast cancer screening case &mdash; the ex ante/ex post divergence</strong>
+          Policy A (aggressive, from age 40): saves approximately 3 additional lives per 1,000 women screened over ten years, but produces around 610 false positives per 1,000 women &mdash; leading to additional imaging, biopsies, and 10 years of anxiety for the false positive recipients. Policy B (less aggressive, from age 50): eliminates most false positive burden but predictably fails to detect the 3 cancers per 1,000 that Policy A would have caught. Ex ante: every woman has slightly higher expected utility under B (the false positive burden outweighs the marginal cancer benefit in expectation). Ex post: 3 in 1,000 women die who would have lived. The ex ante principle endorses B; the ex post principle must attend to those 3 women.
+        </div>
+        <span class="section">i. the principle of full information</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Full information principle — when you could know who will be harmed, decide as you would knowing it; this breaks ex ante Pareto in the mammography case</span>Our Principle of Full Information says: when possible, one ought to decide as one would with full information about who will be harmed. In the mammography case, we know with certainty that some women will develop cancer that screening would have caught. We do not know which women, but we know that there are such women, and we know the structure of the harm they will suffer: a preventable death. Our principle says that the mere fact of uncertainty about their identity should not affect our decision, because the decision affects them regardless of whether we know who they are. The 3 women per 1,000 who will die under Policy B are not statistical abstractions; they are specific people with specific futures that the policy will eliminate. A policymaker who attends only to the expected utility calculation &mdash; which favours B for every woman &mdash; is choosing to be ignorant in a way that systematically disadvantages those with the strongest claims against that ignorance.</span></p>
+        <span class="section">ii. why ex ante pareto should be rejected</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Ex ante Pareto — requires choosing the option with higher expected utility for each person; we argue this conflicts with what would be chosen with full information</span>The ex ante Pareto principle holds: if one alternative gives higher expected utility to every person than every other alternative, it should be chosen. In the mammography case, Policy B appears to satisfy this: each woman gains more in expectation (false positive reduction outweighs marginal cancer benefit for the average woman). But this is precisely where the principle fails. The women who will develop cancer between forty and fifty &mdash; those 3 in 1,000 &mdash; have a specific interest that is not well-represented by the expectational average across all women. When we know, with certainty, that some women will be in this position, the expectational average systematically disadvantages them by weighting their interests against the many. If we had full information and could identify these women, we would not choose B: we would prefer A, which saves their lives at the cost of false positives for others. Ex ante Pareto licenses a choice we would not make if we could see its actual victims.</span></p>
+        <span class="section">iii. frick&rsquo;s reply and why it fails</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Frick&apos;s reply fails — his Principle of Full Information objection misreads our claim; we are not demanding full information in the degenerate sense; we are demanding attention to foreseeable harm</span>Frick objects that our Principle of Full Information is either too strong &mdash; requiring full knowledge of all future outcomes &mdash; or too weak to settle the debate. But this misreads our claim. We are not demanding that policymakers know which specific woman will develop cancer. We are demanding that policymakers attend to the foreseeable, certain fact that some women will develop cancer that screening would have caught, and that these women have a claim against the policy that cannot be discharged by pointing to the expected utility gain for the average woman. This is not full information in any degenerate sense; it is what any competent public health official knows about breast cancer epidemiology before choosing between the two policies. The claim is not metaphysical but normative: foreseeable certain harm to some people cannot be dismissed by pointing to expected benefits for all, because the people who bear the harm are not fungible with those who receive the benefit.</span></p>
+        <span class="section">iv. the contractualist basis for the ex post view</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Contractualist basis — justifiability to each person requires attending to the person who will actually bear the harm; the ex ante view substitutes the statistical average for the actual individual</span>The Scanlonian requirement of justifiability to each person is most naturally read as requiring that we consider the situation of each specific person affected &mdash; not the expected situation of a statistical representative. Frick&rsquo;s stage-wise ex ante approach substitutes the prospect of the average woman for the situation of the woman who will actually die. This is precisely the substitution that contractualism was designed to prevent: replacing the specific claim of the person who bears the harm with the statistical expectation across all those who might bear it. A contractualist who has truly abandoned aggregation should find this substitution more troubling than the aggregation it purports to avoid. The woman who dies under Policy B is not the woman whose expected utility was slightly lower; she is a specific person whose death was avoidable and whose claim against the policy cannot be met by pointing to how the policy treated everyone in expectation.</span></div>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-voorhoeve-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Principle of Full Information: foreseeable certain harm cannot be dismissed by expected utility calculation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>We know with certainty that some women will develop cancer that screening would have caught; we know the structure of the harm (preventable death) even if not the identity of the victims. This is foreseeable certain harm.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A policymaker who attends only to the expected utility calculation favourable to B is choosing to be ignorant in a way that systematically disadvantages those with the strongest claims: the women who will actually die.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Our Principle of Full Information demands: when one could know that some people will certainly be harmed, decide as one would knowing this. Identity uncertainty does not discharge the moral obligation to attend to foreseeable certain harm.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Foreseeable certain harm to some people cannot be dismissed by pointing to expected utility gains for all; the Principle of Full Information requires attending to the women who will certainly die, not to the statistical average.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Ex ante Pareto should be rejected: it licenses choices we would not make with full information</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Ex ante Pareto requires choosing Policy B if every woman has higher expected utility under B; but the women who will develop cancer between 40-50 have a specific interest not well-represented by the expectational average.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If we could identify these women, we would not choose B; we would prefer A, saving their lives at the cost of false positives for others. Ex ante Pareto licenses a choice we would not make if we could see its actual victims.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A principle that licenses choices we would not make with full knowledge of their victims &mdash; when that knowledge is available in principle &mdash; is not a satisfactory principle of fairness.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Ex ante Pareto should be rejected because it licenses choices that disadvantage those with the strongest claims in favour of expectations that benefit the statistical average; this conflicts with the requirement to attend to each person&rsquo;s actual situation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Frick&rsquo;s misreading: our principle demands attention to foreseeable harm, not metaphysical omniscience</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Frick objects that the Principle of Full Information is either too strong (requiring omniscience) or too weak to settle the debate. But we are not demanding knowledge of which specific woman will develop cancer; we are demanding attention to the foreseeable, certain fact that some women will.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Any competent public health official knows before policy choice that 3 in 1,000 women will develop preventable cancer under B; this is not metaphysical full information but epidemiological knowledge that is standard in policy deliberation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The normative claim is that foreseeable certain harm to some people cannot be dismissed by pointing to expected benefits for all, because the people who bear the harm are not fungible with those who receive the benefit.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Frick misreads the Principle of Full Information as demanding omniscience; it demands only that foreseeable certain harm receive appropriate moral weight, which is a standard requirement of responsible policy deliberation, not an impossible epistemic demand.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Contractualist basis: justifiability to each person requires attending to the actual victim, not the statistical average</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Scanlonian contractualism requires justifiability to each specific person, not to the expected representative; but Frick&rsquo;s stage-wise approach substitutes the prospect of the average woman for the situation of the woman who will actually die.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This substitution &mdash; of the statistical expectation for the specific person&rsquo;s claim &mdash; is precisely what contractualism was designed to prevent; a contractualist who has truly abandoned aggregation should find this more troubling than the aggregation it purports to avoid.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The woman who dies under Policy B has a specific claim against the policy that cannot be met by pointing to how the policy treated everyone in expectation; that claim must be addressed on its own terms.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Genuinely non-aggregative contractualism requires attending to the specific claim of the woman who actually dies, not the expectational average; Frick&rsquo;s ex ante approach substitutes the statistical representative for the actual victim, which is a form of aggregation he purports to avoid.</span></div>
+        </div>
+      </div>
+    </div><!-- end voorhoeve -->
+
+    <!-- ══ HORTON ══ -->
+    <div class="speaker-panel" id="opp-horton-panel">
+      <div id="opp-horton-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My contribution is a challenge to both sides of this debate. I want to show that Minimax Complaint &mdash; the view that we should act so as to minimise the strongest individual complaint &mdash; fails whether applied ex ante or ex post. Both Frick&rsquo;s stage-wise ex ante version and Scanlon&rsquo;s preferred ex post version generate implications that contractualists will find hard to stomach. My conclusion is that the correct response to cases of social risk is not a purer or more refined version of Minimax Complaint, but a limited form of aggregation that both sides have been unwilling to accept.</p>
+        <div class="pull">&ldquo;Minimax Complaint must be rejected. When we can apply it either ex ante or ex post, it has implausible implications either way. In these cases, the correct view is that &mdash; other things equal &mdash; we should minimise the <em>sum</em> of complaints. Frick has found a clever way of making ex ante contractualism look non-aggregative. But looking at prospects rather than outcomes does not avoid aggregation; it just relocates it.&rdquo; &mdash; Horton, <em>Philosophy &amp; Public Affairs</em> (2017)</div>
+        <span class="section">i. the glass box villain case: ex ante minimax complaint aggregates</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Glass Box Villain — ex ante minimax complaint commits us to sacrificing one person to spare 25 from minor harm; this is aggregation the contractualist sought to avoid</span>Consider a case I call Glass Box Villain. A villain will either kill one identified person or give each of twenty-five people a minor harm &mdash; say, a broken finger. We can stop the villain from killing the one person at the cost of allowing the minor harms to the twenty-five. Frick&rsquo;s ex ante Minimax Complaint holds that we should minimise the strongest individual complaint. The twenty-five each have a complaint against having a broken finger; the one has a complaint against being killed. The one&rsquo;s complaint is stronger, so we should stop the killing &mdash; even though this means allowing twenty-five minor harms. But now vary the case: suppose the twenty-five are facing a minor harm each and the one is facing a chance of death. The ex ante complaints of each of the twenty-five are individually small; the one&rsquo;s is large. Frick must protect the one. But in cases where the number is very large &mdash; say, 10,000 people each facing a very small risk &mdash; Frick&rsquo;s approach is committed to sacrificing one person to spare the 10,000 from a minor harm each, if the aggregate probability of death among the 10,000 is high enough. This is interpersonal aggregation of exactly the kind contractualism sought to avoid.</span></p>
+        <span class="section">ii. ex post minimax complaint also fails</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Ex post minimax also fails — generates different perverse cases; different harm cases and social risk imposition cases go wrong</span>The ex post version fares no better. On the ex post view, complaints are assessed after outcomes are known. In cases of social risk, the ex post view generates perverse verdicts in what I call &ldquo;different harm cases.&rdquo; Suppose a policy must choose between two distributions: one in which person A suffers a moderate harm, and one in which person B suffers a minor harm but person C suffers a major harm. The ex post view says we should compare the strongest individual complaints. C&rsquo;s complaint (major harm) beats A&rsquo;s complaint (moderate harm), so we should choose the distribution that benefits C &mdash; even though this makes B worse off than she would have been under the first option. But this result changes if we vary the number of B&rsquo;s: at some point, accommodating C&rsquo;s major harm complaint at the cost of many minor harms to B-type people must be wrong. The ex post Minimax Complaint cannot accommodate this, because it always focusses only on the strongest complaint, regardless of how many others have lesser complaints.</span></p>
+        <span class="section">iii. the aggregation conclusion</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Aggregation — the correct view minimises the sum of complaints; both sides must accept limited aggregation to avoid perverse results</span>My conclusion is uncomfortable for all parties. The only view that avoids the perverse implications of both ex ante and ex post Minimax Complaint is one that minimises the sum of complaints: a limited aggregationist view. This view says that, other things equal, we should act so as to produce the smallest total of complaints, where complaints are bounded so that very many minor complaints cannot outweigh a very strong one (thus preserving the anti-aggregationist intuition to a degree) but can, when sufficiently numerous, outweigh a strong complaint (thus permitting limited aggregation when the numbers are very large). The implication for the mammography case is that we must aggregate: the complaints of the many women burdened by false positives must be weighed against the complaints of the few who will die from undetected cancer. Neither the ex ante view (which focuses on prospects) nor the ex post view (which focuses on actual outcomes) can avoid making this comparison; the question is whether we make it honestly or pretend we are not making it.</span></p>
+        <span class="section">iv. what this means for frick&rsquo;s stage-wise approach</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Frick's stage-wise approach — disguised aggregation; counting up prospects is aggregation under a different name</span>Frick&rsquo;s stage-wise ex ante approach claims to avoid interpersonal aggregation by focussing on prospects rather than outcomes. But this distinction is thinner than it appears. When Frick argues that we should minimise the strongest ex ante complaint &mdash; comparing the prospect of certain death against the prospect of false positives &mdash; he is comparing the magnitude of individual claims assessed ex ante. When many people each have a small ex ante claim, and he determines that together they do not override one person&rsquo;s stronger claim, he is implicitly counting the weaker claims and concluding they do not sum to enough. This is aggregation performed at the level of prospects rather than outcomes. Frick has relocated aggregation into the ex ante domain without eliminating it. And if we must aggregate in any case &mdash; and I have argued we must &mdash; we should do it honestly, summing complaints rather than disguising the summation as &ldquo;comparing the strength of individual prospects.&rdquo;</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-horton-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Ex ante Minimax Complaint aggregates: the Glass Box Villain case</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In cases where 10,000 people each face a small but individually non-trivial ex ante risk, Frick&rsquo;s approach is committed to sacrificing one person to spare the 10,000, if the aggregate probability of death among them is high enough relative to the one&rsquo;s individual claim.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is interpersonal aggregation of exactly the kind contractualism sought to avoid: many individual small claims are being weighed against one strong claim, and the one is sacrificed because the many add up to more.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Frick&rsquo;s relocation of the comparison to the ex ante domain does not avoid aggregation; it performs it at the level of prospects rather than outcomes, which is the same operation under a different name.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Ex ante Minimax Complaint is committed to interpersonal aggregation in Glass Box Villain-type cases; it does not escape aggregation by relocating to prospects; the structural problem is the same as for the ex post view.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Ex post Minimax Complaint also fails: different harm cases and social risk</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In different harm cases, ex post Minimax Complaint always focuses only on the strongest individual complaint, regardless of how many others have lesser complaints; at some point, accommodating the strongest complaint at the cost of many minor harms to others must be wrong.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In social risk cases, ex post Minimax Complaint makes almost all policies with identifiable victims unjustifiable, since the victims always have the strongest complaint and no number of beneficiaries can override this without aggregation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Both implications are ones that contractualists should find unacceptable: the first is clearly perverse, and the second condemns virtually all public health policy as unjustifiable.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Ex post Minimax Complaint fails in different harm cases and social risk cases; it has implications that contractualists will find unacceptable; neither the ex ante nor the ex post version of Minimax Complaint can be correct.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The correct view is limited aggregation: minimise the sum of complaints</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The only view that avoids perverse implications of both versions of Minimax Complaint minimises the sum of complaints, with complaints bounded so that very many minor ones cannot outweigh a very strong one but can outweigh one when sufficiently numerous.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In the mammography case, this means honestly aggregating: the complaints of the many women burdened by false positives are weighed against the complaints of the few who will die from undetected cancer; neither ex ante nor ex post framing avoids this comparison.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Both Frick and the ex post contractualist are implicitly making this aggregative comparison; the question is whether they make it honestly or disguise it as non-aggregative.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Limited aggregation &mdash; minimising the sum of bounded complaints &mdash; is the correct view; it avoids the perverse implications of both ex ante and ex post Minimax Complaint and honestly represents the comparison that both sides are implicitly making anyway.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Frick&rsquo;s stage-wise approach is aggregation in disguise</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Frick claims to avoid aggregation by focusing on prospects rather than outcomes; but comparing the magnitude of ex ante claims and determining when many weak ones can or cannot override a strong one is aggregation performed at the level of prospects.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When Frick determines that many small ex ante complaints do not sum to enough to override one person&rsquo;s strong claim, he is implicitly counting the weaker claims and summing them; this is aggregation under a different name.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If aggregation is unavoidable &mdash; and I have argued it is &mdash; the honest course is to aggregate explicitly, using a principled account of how complaints sum, rather than to disguise the summation as &ldquo;comparing the strength of individual prospects.&rdquo;</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Frick&rsquo;s stage-wise approach does not avoid aggregation; it relocates it to the ex ante domain; this relocation does not justify the approach, and the honest alternative is explicit limited aggregation.</span></div>
+        </div>
+      </div>
+    </div><!-- end horton -->
+
+    <!-- ══ OTSUKA ══ -->
+    <div class="speaker-panel" id="opp-otsuka-panel">
+      <div id="opp-otsuka-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My argument is that the ex ante view, however refined, violates the separateness of persons &mdash; the very principle that animates contractualism&rsquo;s break from consequentialism. The separateness of persons demands that each individual&rsquo;s claim be addressed on its own terms, not merged with others into an expected-value calculation, even a per-person one. Frick&rsquo;s stage-wise ex ante approach claims to honour this by assessing each person&rsquo;s prospect individually. But I will show that what the ex ante framework does to the prospects of distinct individuals is precisely what the separateness of persons prohibits: it renders commensurable, and ultimately tradeable, the claims of people who will, ex post, have had entirely different experiences of the policy.</p>
+        <div class="pull">&ldquo;When we evaluate policies by their ex ante prospects for each individual, we are evaluating each person&rsquo;s position by a probability-weighted average across possible states. But this average is not the experience of any particular person. The woman who dies under Policy B did not experience the weighted average of cancer and false-positive; she experienced cancer and death. The separateness of persons requires attending to what policies do to each specific person, not to each person&rsquo;s probabilistic representative.&rdquo;</div>
+        <span class="section">i. the separateness of persons and ex ante evaluation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Separateness of persons — ex ante evaluation merges distinct persons&apos; experiences into probabilistic averages; this violates separateness</span>Parfit argued that utilitarianism violates the separateness of persons by treating the distribution of welfare across persons as if it were a distribution of welfare within a single person&rsquo;s life. The correct account must take seriously that the welfare of different persons is not addable in the way that the welfare of a single person across time is. Now consider the ex ante view of social risk evaluation. It assesses each person&rsquo;s position by the expected value of the prospect that person faces: a probability-weighted average across possible states. But the woman who will die under Policy B does not experience the probability-weighted average of her possible outcomes; she experiences a specific outcome &mdash; death &mdash; in the actual world. The ex ante view treats her as if she were a probabilistic composite of the woman-who-might-die and the woman-who-might-not. But these are not the same person; in the actual world, one specific person dies. Treating her as the probabilistic average is precisely what the separateness of persons prohibits: replacing the specific individual with a representative.</span></p>
+        <span class="section">ii. frick&rsquo;s pro-identified-lives argument reconsidered</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Pro-identified lives — Frick says the intuition tracks certainty, not identity; Otsuka argues it tracks actual identity and the actual harm</span>Frick argues that the intuition favouring identified over statistical lives tracks certainty (the identified person faces a certain prospect of harm) rather than actual identity (she is the specific person who will in fact be harmed). I want to challenge this. The reason we respond more strongly to the identified person is not merely that her prospect is certain; it is that she is there in front of us, suffering a specific harm, and the harm is real. When we pull her from the pond, we are not responding to a probabilistic structure; we are responding to a specific person in actual distress. The ex ante framework, which represents everyone as a probabilistic composite of possible outcomes, cannot capture this: it replaces the specific person with a probability distribution, which is a different entity altogether. My claim is that the separateness of persons demands attending to the actual person in the actual situation, not to the probabilistic representative of that person across possible situations.</span></p>
+        <span class="section">iii. suikkanen&rsquo;s synthesis: risk-acknowledging ex post contractualism</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Suikkanen synthesis — take into account both realised harms and the risks under which decisions were made; neither pure ex ante nor pure ex post is correct</span>The most promising attempt to find a middle ground is Jussi Suikkanen&rsquo;s risk-acknowledging ex post contractualism. He argues that the pure ex ante view makes irrelevant information about personal identity morally significant, while the pure ex post view leads to counterintuitive results in social risk cases. His synthesis: when comparing individual complaints, take into account both the realised harms and the risks under which the decisions were made. This means: the woman who dies under Policy B has the strongest complaint, but her complaint must be assessed in light of the fact that the policymaker made the decision under uncertainty, with good epistemic reasons. The ex post outcome is primary, but the ex ante epistemic conditions are morally relevant in assessing how strong a complaint the outcome generates. This hybrid preserves what is correct in both views: the primacy of ex post outcomes for determining whose complaint is strongest, and the moral relevance of ex ante uncertainty for calibrating the strength of that complaint.</span></p>
+        <span class="section">iv. the implication for the mammography case</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Mammography — ex post primary; the deaths are the strongest complaints; the policy should attend to them as primary; ex ante probabilities calibrate but do not displace</span>On my preferred view &mdash; broadly aligned with the ex post contractualist tradition but informed by Suikkanen&rsquo;s synthesis &mdash; the mammography case should be decided by attending primarily to the ex post situation. The women who will die under Policy B have the strongest complaints. Their deaths are not offset by the false positive burdens borne by others; those are distinct complaints by distinct persons. The policy must be assessed primarily by whether it can be justified to those who bear the worst ex post outcomes. This does not make every risk-imposing policy unjustifiable: what matters is whether the policy was chosen with appropriate epistemic care, and whether the ex post distribution of harms reflects that care. But it does mean that the ex ante calculation &mdash; that B is marginally better in expectation for each woman &mdash; cannot on its own justify a policy that we know will result in preventable deaths. The deaths are real; the expectations were abstractions.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-otsuka-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Ex ante evaluation violates the separateness of persons: replacing specific persons with probabilistic composites</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The ex ante view assesses each person&rsquo;s position by the probability-weighted average of their possible outcomes; but the woman who dies under Policy B does not experience this average; she experiences a specific outcome &mdash; death &mdash; in the actual world.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Treating her as the probabilistic composite of the woman-who-might-die and the woman-who-might-not replaces the specific individual with a representative; this is precisely what the separateness of persons prohibits.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Parfit&rsquo;s separateness objection to utilitarianism applies equally here: the ex ante view merges a person&rsquo;s possible states in the same way utilitarianism merges different persons&rsquo; welfare; the structure of the violation is identical.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Ex ante evaluation violates the separateness of persons by replacing specific individuals with probabilistic composites; the contractualist requirement to assess each person&rsquo;s claim individually demands attention to actual outcomes, not expected values.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The pro-identified-lives intuition tracks actual identity and actual harm, not merely certainty of prospect</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Frick argues the intuition tracks certainty (certain prospect of harm); but the reason we respond more strongly to identified lives is not the probabilistic structure of their prospect but the reality of their actual situation: a specific person in specific distress.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When we pull someone from a pond, we are responding to a specific person in actual distress, not to a probabilistic structure; the response is to the actuality of the harm, not to the certainty of the prospect.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The ex ante framework, representing everyone as a probabilistic composite, cannot capture this; it replaces the specific person with a probability distribution, which is a different entity that lacks the moral salience of the actual victim.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The pro-identified-lives intuition supports the ex post view, not the ex ante view: it tracks the actuality of the specific person&rsquo;s harm, not the certainty of a probabilistic prospect; Frick&rsquo;s interpretation misidentifies what the intuition tracks.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Suikkanen&rsquo;s synthesis: risk-acknowledging ex post contractualism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The pure ex ante view makes irrelevant personal identity information morally significant; the pure ex post view generates counterintuitive results in social risk cases. A synthesis is needed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Suikkanen&rsquo;s risk-acknowledging ex post contractualism: the strongest complaint is determined by ex post outcomes (who actually suffered the worst harm) but calibrated by ex ante epistemic conditions (whether the decision was made with appropriate epistemic care under genuine uncertainty).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This preserves ex post primacy while avoiding the reductio that all social risk policy is unjustifiable; a policy chosen under genuine uncertainty with appropriate care can be justified even if it produces bad outcomes, because the ex ante epistemic conditions reduce the strength of the ex post complaint.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Suikkanen&rsquo;s synthesis &mdash; ex post primary, ex ante epistemic conditions morally relevant in calibrating complaint strength &mdash; preserves what is correct in both views while avoiding their respective reductios.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; Mammography: ex post deaths are the primary complaints; ex ante expectations cannot displace them</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The women who die under Policy B have the strongest ex post complaints; their deaths are not offset by false positive burdens borne by distinct others; the policy must be assessed primarily by whether it can be justified to those who bear the worst ex post outcomes.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Ex ante epistemic conditions matter: whether the policymaker acted with appropriate care, using the best available evidence, is morally relevant to the strength of the complaint the dead women can make. But these conditions calibrate the complaint; they do not eliminate it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The ex ante calculation that B is marginally better in expectation for each woman cannot on its own justify a policy known to result in preventable deaths; the deaths are real; the expectations were abstractions across possible states that only one person will actually inhabit.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The mammography policy should be assessed primarily by what it does to those who bear the worst ex post outcomes; ex ante expectations are morally relevant context but cannot displace the primary claim of the women who actually die under the policy.</span></div>
+        </div>
+      </div>
+    </div><!-- end otsuka -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'frick',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'voorhoeve',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
