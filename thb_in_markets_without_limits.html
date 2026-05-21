@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Markets Without Limits — The Commodification Debate</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-col:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-col:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp  .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .fact-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .fact-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.25rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Political Economy &amp; Ethics Symposium &mdash; The Moral Limits of Markets</div>
+  <div class="motion-title">&ldquo;This House Believes that If an Activity Is Permissible, It Is Permissible to Buy and Sell It &mdash; the Wrongness of a Market, If Any, Must Come from the Wrongness of the Underlying Act, Not from Commercialisation Itself&rdquo;</div>
+  <div class="motion-sub">Proposition: Brennan &amp; Jaworski (<em>Markets Without Limits</em>, 2015) &middot; Nozick (self-ownership &amp; entitlement) &middot; Zwolinski (the argument from the poor) &nbsp;&mdash;&nbsp; Opposition: Sandel (<em>What Money Can&rsquo;t Buy</em>, 2012) &middot; Anderson (<em>Value in Ethics and Economics</em>, 1993) &middot; Satz (<em>Why Some Things Should Not Be for Sale</em>, 2010)</div>
+</div>
+<div class="columns">
+
+<!-- ═══════════════════════════════════════
+     LEFT: PROPOSITION — Markets Without Limits
+     Brennan & Jaworski · Nozick · Zwolinski
+═══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','bj',this)">Brennan &amp; Jaworski</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','nozick',this)">Nozick</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','zwolinski',this)">Zwolinski</button>
+  </div>
+
+  <!-- BRENNAN & JAWORSKI HEADER -->
+  <div class="col-header" id="prop-bj-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Jason Brennan &amp; Peter Jaworski</span></div>
+    <div class="col-position">Georgetown University &middot; <em>Markets Without Limits: Moral Virtues and Commercial Interests</em> (Routledge, 2015; 2nd ed. 2022) &middot; The universality thesis; the wrongness-of-the-act principle; the semiotic objection is an objection to culturally contingent attitudes, not to markets; organs, surrogacy, sex work, votes</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','bj','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','bj','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- NOZICK HEADER -->
+  <div class="col-header hidden" id="prop-nozick-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Robert Nozick</span></div>
+    <div class="col-position">Harvard University &middot; <em>Anarchy, State, and Utopia</em> (1974) &middot; Self-ownership; the entitlement theory of justice; the Wilt Chamberlain argument; the wrongness-of-the-act principle is entailed by the theory of rights; paternalism and the moral arrogance of anti-commodification</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','nozick','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','nozick','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- ZWOLINSKI HEADER -->
+  <div class="col-header hidden" id="prop-zwolinski-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Matt Zwolinski</span></div>
+    <div class="col-position">University of San Diego &middot; &ldquo;Sweatshops, Choice, and Exploitation&rdquo; <em>Business Ethics Quarterly</em> 17 (2007) &middot; &ldquo;The Case for Paying Organ Donors&rdquo; &middot; Prohibition makes the vulnerable worse off; the paternalism of wealthy elites; the argument from the poor; exploitation and the case for markets</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','zwolinski','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','zwolinski','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ BRENNAN & JAWORSKI ══ -->
+    <div class="speaker-panel active" id="prop-bj-panel">
+      <div id="prop-bj-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>Our central thesis is simple enough to fit on a bumper sticker &mdash; and simple enough that people immediately assume it must be wrong. If you may do something for free, you may do it for money. The market does not introduce wrongness where there was not any previously. This is not a defence of every market that happens to exist; it is a claim about the logic of anti-commodification arguments.</p>
+        <div class="fact-box">
+          <strong>The universality thesis &mdash; stated precisely</strong>
+          &ldquo;Anything you may do for free, you may do for money.&rdquo; There are things you may not sell &mdash; child pornography, nuclear weapons, human slaves &mdash; but only because you may not have them in the first place. The market does not transform what were permissible acts into impermissible acts. It does not introduce wrongness where there was not any already. Therefore, to produce a successful argument for a limit on markets, the fact that something is on the market must cause or contribute to the wrongness &mdash; it must feature in an explanation for why it is wrong. No anti-commodification argument we have examined achieves this.
+        </div>
+        <span class="section">i. the wrongness-of-the-act principle</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Wrongness-of-act — if the underlying act is permissible, adding money cannot make it wrong; the market is not a moral transformer</span>Consider the structure of anti-commodification arguments. They say: it is fine to donate a kidney, but wrong to sell one. It is fine to have sex, but wrong to sell it. It is fine to carry a child for a friend, but wrong to be paid for gestational services. In each case, the act itself is held to be permissible &mdash; but its commercialisation is held to be wrong. But this structure requires explaining why money transforms a permissible act into an impermissible one. What exactly does adding a price tag do that changes the moral character of what is happening? The opposition cannot say it changes the nature of the underlying activity &mdash; a kidney transplant is a kidney transplant; a sexual act is a sexual act; gestation is gestation. The only candidate transformation is at the level of meaning or expression &mdash; what the transaction communicates. We call these semiotic objections, and we address them directly.</span></p>
+        <span class="section">ii. the semiotic objection and its failure</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Semiotic objection — markets supposedly corrupt meaning; Brennan-Jaworski reply: meaning is culturally contingent and changeable; the objection indicts attitudes, not markets</span>Sandel argues that markets corrupt goods by changing what they express. Paying for friendship destroys what friendship means. Selling sex degrades what sex is. We have two replies. First, the meanings Sandel invokes are culturally contingent. In nineteenth-century America, paying teachers was considered a debasement of knowledge. Parking meters were condemned as &ldquo;un-American.&rdquo; Life insurance on children was called a moral outrage. These reactions were as powerful as today&rsquo;s repugnance at kidney markets &mdash; and they were wrong. The history of market expansion is a history of repugnance that turned out to be based on contingent cultural attitudes rather than principled moral insight. Second, and more fundamentally: even if markets change what some people think a good means, this is an objection to those people&rsquo;s attitudes, not to the market. If your culture has taught you to regard commercial surrogacy as degrading, the problem is your culture&rsquo;s misvaluation of surrogacy, not the market that happens to trigger that misvaluation.</span></p>
+        <span class="section">iii. votes, kidneys, and babies: the hardest cases</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Hard cases — organs, surrogacy, votes addressed individually; each passes the wrongness-of-act test; vote-selling wrong not because of markets but because of wrong reasons for voting</span>Our critics say: fine for easy cases, but what about votes, kidneys, and babies? On organ markets: you may permissibly donate a kidney; therefore you may sell one. The wrongness alleged in organ markets &mdash; exploitation of the poor, bodily commodification &mdash; we address in our discussion of how markets should be regulated, not whether they may exist. A well-regulated kidney market with price floors, health protections, and donor support would eliminate these concerns while saving the thirty thousand Americans who die each year on transplant waiting lists. On surrogacy: you may permissibly carry a child for a friend; therefore commercial gestational services are permissible in principle. On votes: here we accept a limit, but note that it is not a semiotic limit. Vote-selling is wrong because voting for pay involves voting for the wrong reasons &mdash; self-interest rather than civic judgement. The wrongness is in the act, not the payment.</span></p>
+        <span class="section">iv. the burden of proof</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Burden of proof — anti-commodification must show markets cause the wrongness; repugnance is not an argument; the burden has not been discharged</span>We want to be precise about what our opponents need to show. To successfully argue for a market prohibition, the anti-commodificationist must show that the fact of commercialisation itself causes or contributes to the wrongness &mdash; that having a market in X (rather than merely permitting X) is what makes the situation morally objectionable. Gut reactions of repugnance are not arguments. Leon Kass argued that repugnance is &ldquo;the wisdom of the organism&rdquo; &mdash; a deep moral intuition that should guide us even when we cannot articulate its basis. We deny this. Repugnance was once the dominant reaction to interracial marriage, to gay relationships, to women working as doctors. Repugnance is a data point, not a conclusion. The opposition has not discharged the burden of showing that markets cause the wrongness rather than merely triggering cultural attitudes that are themselves morally questionable.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-bj-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The wrongness-of-the-act principle: money cannot transform a permissible act into an impermissible one</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Anti-commodification arguments claim X is permissible to do for free but impermissible to sell. This requires that adding payment transforms the moral character of X.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The underlying activity &mdash; donating a kidney, having sex, gestating a child &mdash; is the same whether or not money changes hands; the physical and relational facts are identical.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the activity is the same, its permissibility cannot change from the mere addition of payment; the transformation must come from elsewhere, and candidate transformations (semiotic objections) fail under scrutiny.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The wrongness-of-the-act principle holds: if you may do X for free, you may do X for money; the market does not introduce wrongness where there was none; anti-commodification arguments that rely solely on the fact of commercialisation fail.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Semiotic objections indict culturally contingent attitudes, not markets themselves</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Semiotic objections claim markets corrupt meaning: paying for sex degrades it; paying for surrogacy commodifies children; paying for organs treats bodies as merchandise. The corruption is in the expressive meaning attached to the market transaction.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These meanings are culturally contingent: paying teachers, insuring children, and metering parking were all condemned as degrading in earlier eras; these reactions were wrong, not vindicated by subsequent reflection.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Even if markets trigger culturally contingent negative meanings, this shows those cultural attitudes are mistaken, not that the market is wrong; the semiotic objection, at best, indicts the attitudes that generate the repugnance, not the markets that trigger them.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Semiotic objections fail because the meanings they invoke are culturally contingent and revisable; the objection, if successful, is an objection to cultural attitudes rather than to markets; no principled, non-contingent objection to commodification has been identified.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Organ markets, surrogacy, and vote-selling pass the wrongness-of-act test</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Kidney donation is permissible; therefore kidney selling is permissible in principle. Regulatory objections (exploitation, coercion) concern market design, not market existence; a well-designed market eliminates them while saving 30,000 lives per year on US waiting lists.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Gestational surrogacy for a friend is permissible; therefore commercial gestational services are permissible in principle; arguments against commercial surrogacy rest on the same culturally contingent attitudes that previously condemned paid teaching.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Vote-selling is wrong, but the wrongness comes from the act (voting for self-interest rather than civic judgement) not the payment; this vindicates the wrongness-of-the-act principle rather than refuting it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The hardest cases &mdash; organs, surrogacy, votes &mdash; each pass the wrongness-of-act test or, in the vote case, show wrongness traceable to the act not the market; the thesis survives its most challenging applications.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The burden of proof: repugnance is not an argument; anti-commodification has not discharged the burden</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Successful anti-commodification arguments must show that commercialisation itself causes or contributes to the wrongness &mdash; not merely that people find markets repugnant or that cultural attitudes attach negative meanings to them.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Repugnance was the dominant reaction to interracial marriage, gay relationships, women physicians, and contraception; history shows repugnance tracks cultural contingency not moral truth.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No anti-commodification argument in the literature successfully shows that the market itself (rather than background social conditions or the underlying act) causes the harm or wrongness alleged.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The burden of proof lies with anti-commodificationists to show markets cause the wrongness; they have not discharged this burden; repugnance and culturally contingent meanings are insufficient; the thesis stands undefeated.</span></div>
+        </div>
+      </div>
+    </div><!-- end bj -->
+
+    <!-- ══ NOZICK ══ -->
+    <div class="speaker-panel" id="prop-nozick-panel">
+      <div id="prop-nozick-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My argument for the motion is foundational rather than applied. Brennan and Jaworski have shown that anti-commodification arguments fail at the level of applied ethics. I want to show something stronger: that self-ownership &mdash; the bedrock of liberal political philosophy &mdash; entails the wrongness-of-the-act principle almost definitionally, and that prohibiting consensual market transactions on anti-commodification grounds is a form of moral arrogance that violates the separateness and dignity of the persons it purports to protect.</p>
+        <div class="pull">&ldquo;Individuals have rights, and there are things no person or group may do to them without violating their rights. So strong and far-reaching are these rights that they raise the question of what, if anything, the state and its officials may do. How much room do individual rights leave for the state?&rdquo; &mdash; Nozick, <em>Anarchy, State, and Utopia</em> (1974)</div>
+        <span class="section">i. self-ownership and the entitlement to transact</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Self-ownership — you own yourself; therefore you own your labour, body, and products; therefore you may sell them; anti-commodification requires denying self-ownership</span>The self-ownership thesis holds that each person is the morally rightful owner of their own person: their body, their talents, their labour. If you own yourself, you own what you produce with yourself &mdash; your labour, the fruits of your effort, the services you provide. And if you own these things, you may do with them what you will, subject only to the constraint that you not violate others&rsquo; equally sovereign rights. Selling your labour, your bodily services, your gestational capacity, or &mdash; on appropriate conditions &mdash; your kidney, is simply exercising the ownership rights you have over yourself. The anti-commodificationist who says you may give these things but not sell them is saying you own yourself sufficiently to give yourself away but not sufficiently to receive compensation. This is not a principled limit on self-ownership; it is an incoherent restriction that makes gifts permitted while trade is not, for no reason that can be grounded in the structure of rights.</span></p>
+        <span class="section">ii. the wilt chamberlain argument extended to commodification</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Wilt Chamberlain — voluntary transactions between competent adults cannot be unjust; blocking them requires continuous violation of rights; applies to all commodification</span>My Wilt Chamberlain argument showed that any pattern of holdings that would be just if it arose can be maintained as just only by continuously interfering with the voluntary transactions of free agents. Applied to commodification: if A may donate a kidney to B, and they later arrange that B will compensate A, this is a voluntary transaction between competent adults that leaves each better off by their own assessment. To prohibit this arrangement, the state must interfere with a sequence of transactions no step of which is itself unjust. What principle justifies this interference? The anti-commodificationist says: the transaction changes the meaning of what is being exchanged. But whose meaning? The meaning to the participants? They have endorsed the transaction. The meaning to third-party observers? Their discomfort at watching free adults exchange does not give them a veto over those adults&rsquo; choices.</span></p>
+        <span class="section">iii. the paternalism objection to anti-commodification</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Paternalism — prohibiting markets in things that people may do for free is paternalistic; it treats adults as incapable of valuing their own activities correctly</span>Anti-commodification arguments are, at their core, paternalistic. They say to the poor person who wants to sell a kidney: &ldquo;you may not, because your doing so would express a degraded view of the human body.&rdquo; To the sex worker who freely chooses their profession: &ldquo;you may not sell what you give freely because doing so degrades sexuality.&rdquo; To the surrogate who wants compensation: &ldquo;your commercial arrangement corrupts the meaning of maternity.&rdquo; In each case, a third party &mdash; typically a philosopher or regulator with no stake in the transaction &mdash; claims to know better than the participants what their activities mean and what they should value. This is the moral arrogance of the well-fed telling the hungry that they may not sell what the well-fed would not need to sell. John Stuart Mill was right: over their own mind and body, the individual is sovereign. Sovereignty is not conditional on transacting in the approved manner.</span></p>
+        <span class="section">iv. the side-constraint theory and commodification</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Side-constraints — rights are side-constraints not goals to be maximised; violating them requires specific justification; repugnance does not justify violating rights to transact</span>On my view, rights are side-constraints on the pursuit of goals, not goals to be maximised. This means that violating someone&rsquo;s right to transact requires specific justification grounded in their rights &mdash; not in aggregate welfare calculations, not in the cultural meanings others attach to their activities, not in the repugnance of observers. The anti-commodificationist cannot justify prohibitions on kidney sales by pointing to the symbolic significance of the kidney to those who are not selling it, any more than a prudish majority can justify prohibiting consensual sexuality by pointing to their sense of its degradation. Rights to transact in what one owns are not subject to override by the cultural meanings that non-transacting observers attach to the transaction. The moral authority of cultural consensus does not extend that far.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-nozick-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Self-ownership entails the right to sell: the anti-commodificationist incoherently permits gifting but not trade</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Self-ownership: each person is the rightful owner of their own body, labour, and the fruits of their effort. Ownership includes the right to sell, not merely to give.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The anti-commodificationist permits gifting (donating a kidney, having free sex, free gestational service) but prohibits selling the same. This implies you own yourself sufficiently to give but not to receive compensation &mdash; a logically unstable position.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No principled distinction between giving and selling can be derived from self-ownership; the limit must come from elsewhere, and no non-paternalistic elsewhere is available.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Self-ownership entails the right to sell what one owns; permitting gifting while prohibiting sale is incoherent without a principled ground for the distinction; anti-commodification violates the logic of self-ownership.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Wilt Chamberlain extended: voluntary transactions between competent adults cannot be unjust by virtue of being commercial</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Any transaction that would be just if it arose from a just starting position remains just; a sequence of voluntary transactions, each individually just, cannot become unjust merely by being commercial rather than gratuitous.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If A may donate a kidney to B, and they later arrange payment, no step in this sequence is individually unjust; prohibiting the commercial arrangement requires interfering with a series of individually just acts.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Third-party discomfort at watching free adults transact commercially does not generate a veto over those transactions; their meaning-attribution is not grounds for rights-violation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Voluntary commercial transactions between competent adults cannot be rendered unjust by the commercial element alone; the Wilt Chamberlain logic applies to commodification: blocking just voluntary transactions requires an independent rights-based justification not available to anti-commodificationists.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Anti-commodification is paternalistic: third parties imposing their meanings on transacting adults</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Anti-commodification arguments tell transacting adults they may not sell because their transaction degrades what they are exchanging &mdash; typically a judgement made by observers who are not party to the transaction.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is straightforward paternalism: third parties claiming to know better than participants what their activities mean and what they should value, typically from positions of material comfort that remove them from the considerations that motivate the transaction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Mill&rsquo;s harm principle: over their own mind and body, the individual is sovereign; this sovereignty is not conditional on transacting in the mode preferred by observers; paternalistic override requires a much stronger justification than repugnance or meaning-attribution.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Anti-commodification arguments are paternalistic in structure: well-positioned observers imposing their meaning-attributions on adults transacting in goods they own; this cannot be justified within a liberal framework that takes individual sovereignty seriously.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Rights as side-constraints: repugnance does not justify violating the right to transact</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Rights are side-constraints: violating them requires specific justification grounded in the rights of the party whose rights are violated, not in aggregate welfare, cultural meanings, or observer repugnance.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The anti-commodificationist cannot justify prohibiting kidney sales by pointing to what kidneys symbolise to non-sellers, any more than prudish majorities can justify prohibiting consensual sexuality by invoking their sense of degradation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Cultural consensus about the meaning of transactions does not generate rights to prohibit those transactions; the moral authority of meaning-attribution does not extend to override the rights of transacting parties.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The right to transact in what one owns is a side-constraint that cannot be overridden by cultural meanings or repugnance; the anti-commodificationist&rsquo;s grounds are insufficient to justify the rights-violation that prohibition entails.</span></div>
+        </div>
+      </div>
+    </div><!-- end nozick -->
+
+    <!-- ══ ZWOLINSKI ══ -->
+    <div class="speaker-panel" id="prop-zwolinski-panel">
+      <div id="prop-zwolinski-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to make a different kind of argument for the motion &mdash; not from the libertarian theory of rights but from what I consider the most devastating practical objection to anti-commodification positions: they systematically harm the poorest and most vulnerable people in the name of protecting them. This is not a side effect of anti-commodification arguments; it is structural to them. And it is a consequence that should give everyone who considers themselves a friend of the poor serious pause.</p>
+        <div class="pull">&ldquo;The real question about markets in organs, labour, and sexual services is not whether they are repugnant to comfortable philosophers in well-furnished offices. It is whether banning them makes the people who would participate in them better or worse off. And the evidence is clear: prohibition makes the vulnerable worse off, not better.&rdquo; &mdash; Zwolinski, paraphrasing his position</div>
+        <span class="section">i. the argument from the poor: who bears the costs of prohibition</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Argument from the poor — anti-commodification bans harm the poor by eliminating options; the wealthy bear no comparable cost; prohibition is regressive</span>Consider who bears the cost of prohibiting organ markets. Not those who are comfortable, healthy, and well-insured: they will never be tempted to sell a kidney. The people who would sell kidneys in a market are people who face financial desperation and have calculated that the compensation is worth the medical risk to them. When we ban the market, we take away this option. We do not take away their poverty, their medical debt, their desperation. We simply remove one means by which they could address it. Meanwhile, the wealthy person who could have bought the kidney continues to have the advantages that make kidney transplant possible through other channels. And the person dying on the waiting list continues to die. The prohibition costs the poor an option and costs the sick their lives. It costs the comfortable nothing except their sense of moral cleanness.</span></p>
+        <span class="section">ii. sweatshops, choice, and the morality of withdrawal</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Sweatshops — workers choose sweatshops because it is their best available option; prohibition eliminates their best option; this is not protection</span>My analysis of sweatshop labour applies the same structure. Sweatshop workers in low-income countries choose sweatshop employment &mdash; genuinely choose it, from a menu of available options that typically includes worse alternatives. The fact that we find those conditions appalling from our vantage point does not show that the workers share our assessment. What would it mean to protect sweatshop workers from their own choices? It would mean eliminating the employment option they selected as their best available. Western consumers who boycott sweatshop-produced goods, NGOs that campaign for factory closure, and regulators who impose labour standards that eliminate sweatshop viability are not helping workers &mdash; they are imposing their preferences on workers who have not asked to be helped in this way and who will be made worse off by the help. The same logic applies to every allegedly noxious market: removing the worst option from a bad menu does not make the menu better.</span></p>
+        <span class="section">iii. exploitation and the case for markets</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Exploitation — the charge of exploitation is used to condemn markets that benefit the poor; but mutually beneficial trades cannot be exploitative in the morally significant sense</span>The exploitation objection to markets like organ sales and sex work runs: these markets exploit desperation, treating people as means to the ends of wealthier buyers. I want to press on this. Exploitation, in the morally significant sense, involves making someone worse off through a transaction or taking unfair advantage of a power imbalance to extract a disproportionate surplus. But organ markets, sex work, and sweatshop labour, when genuinely voluntary, make participants better off &mdash; by their own assessment, in comparison with their available alternatives. A transaction that leaves both parties better off by their own lights is not exploitative in the morally significant sense, even if the background conditions that produced the desperation are themselves unjust. The injustice of background conditions is a reason to address those conditions &mdash; not to eliminate the one market that gives the desperate a valuable option.</span></p>
+        <span class="section">iv. the justice objection to anti-commodification</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Justice objection — prohibiting markets in things the poor would sell is distributional injustice; it preserves the privileges of those who don&apos;t need to sell</span>There is a deep irony in the anti-commodification position: it presents itself as protecting the vulnerable while actually entrenching the privileges of those who never needed the market in question. The ban on kidney sales does not equalise the position of the rich and poor with kidney disease. It ensures that the rich continue to access transplants through their networks of institutional privilege &mdash; connections to better hospitals, longer waiting lists, living-donor networks among family members who can afford to take time off for recovery &mdash; while the poor continue to die waiting. Anti-commodification in the name of dignity produces, in practice, a dignity that is affordable only to the affluent. This is not justice. It is the moral aesthetics of the comfortable dressed up as concern for the poor.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-zwolinski-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The argument from the poor: prohibition removes options from those who need them most</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Those who would sell kidneys, sexual services, or labour under adverse conditions are people who have calculated these transactions are their best available option; prohibition eliminates this option while leaving their poverty and desperation intact.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The wealthy bear no comparable cost from prohibition: they are never tempted to sell organs and can access alternatives through institutional privilege; prohibition is therefore regressive in its distributional impact.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A policy that takes options away from the poor while costing the rich nothing, justified by the moral comfort of the latter, is distributional injustice disguised as protection.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Market prohibition in organs, sexual services, and desperate labour is regressive: it costs the poor their best available option while costing the comfortable nothing; the argument from the poor is a decisive practical objection to anti-commodification.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Sweatshops and withdrawal: eliminating workers&rsquo; best option is not protection</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Sweatshop workers choose sweatshop employment from a menu of available options; the choice is genuine and reflects their assessment that sweatshop employment is better than alternatives (subsistence farming, informal labour, unemployment).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Boycotts, factory closures, and prohibitive labour standards that eliminate sweatshop viability take away workers&rsquo; best available option without improving the menu from which they choose.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Removing the best option from a bad menu makes the menu worse, not better; protecting workers by eliminating their chosen employment is not protection but paternalistic substitution of the protectors&rsquo; preferences for those of the protected.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Anti-sweatshop measures and similar market prohibitions harm workers by removing their best available option; the logic applies to every allegedly noxious market; prohibition consistently makes vulnerable participants worse off.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Exploitation in the morally significant sense requires making participants worse off; voluntary beneficial trades are not exploitative</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Exploitation in the morally significant sense involves making someone worse off through a transaction or extracting disproportionate surplus from a power imbalance; it is not merely profiting from another&rsquo;s difficult circumstances.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Voluntary organ sales, sex work, and sweatshop labour leave participants better off by their own assessment relative to available alternatives; they are mutually beneficial transactions under background conditions that are themselves unjust.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The injustice of background conditions that produce desperation is a reason to address those conditions &mdash; not to eliminate the one market that gives the desperate a valuable option within those unjust conditions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The exploitation objection fails: mutually beneficial voluntary trades are not exploitative in the morally significant sense; the injustice of background conditions requires attacking those conditions, not the markets that ameliorate them.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Justice objection to anti-commodification: prohibition entrenches inequality rather than addressing it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Kidney market prohibition does not equalise access to transplants: the wealthy continue to access transplants through institutional privilege (better hospitals, living-donor networks); the poor continue to die on waiting lists.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Anti-commodification in the name of dignity produces dignity that is affordable only to the affluent: those who can survive without selling have their moral sensibilities protected; those who cannot are left with fewer options.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A position that presents itself as concern for the vulnerable while producing outcomes that entrench inequality is not justice; it is the moral aesthetics of the comfortable class masquerading as protection of the poor.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Anti-commodification is a justice objection in reverse: prohibition entrenches the privileges of those who never needed the market while eliminating options for those who do; this is distributional injustice dressed as moral protection.</span></div>
+        </div>
+      </div>
+    </div><!-- end zwolinski -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════════════════════════
+     RIGHT: OPPOSITION — Moral Limits of Markets
+     Sandel · Anderson · Satz
+═══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','sandel',this)">Sandel</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','anderson',this)">Anderson</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','satz',this)">Satz</button>
+  </div>
+
+  <!-- SANDEL HEADER -->
+  <div class="col-header" id="opp-sandel-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Michael Sandel</span></div>
+    <div class="col-position">Harvard University &middot; <em>What Money Can&rsquo;t Buy: The Moral Limits of Markets</em> (2012) &middot; The corruption and fairness arguments; markets don&rsquo;t merely allocate goods, they express attitudes toward them; civic goods are constitutively corrupted by marketisation; the birthday-card case and the limits of the wrongness-of-act principle</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','sandel','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','sandel','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- ANDERSON HEADER -->
+  <div class="col-header hidden" id="opp-anderson-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Elizabeth Anderson</span></div>
+    <div class="col-position">University of Michigan &middot; <em>Value in Ethics and Economics</em> (Harvard UP, 1993) &middot; Value pluralism and expressive rationality; different goods have different appropriate norms of exchange; love, friendship, and civic participation require norms of sharing incompatible with market norms; commodification changes what goods are, not just what people think of them</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','anderson','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','anderson','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- SATZ HEADER -->
+  <div class="col-header hidden" id="opp-satz-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Debra Satz</span></div>
+    <div class="col-position">Stanford University &middot; <em>Why Some Things Should Not Be for Sale: The Moral Limits of Markets</em> (Oxford UP, 2010) &middot; The noxious markets argument; four parameters: vulnerability, weak agency, extreme individual harm, extreme social harm; equal citizenship as the relational egalitarian criterion; organ and sex-work markets fail all four</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','satz','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','satz','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ SANDEL ══ -->
+    <div class="speaker-panel active" id="opp-sandel-panel">
+      <div id="opp-sandel-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The proposition rests on a deceptively simple syllogism: if you may do X for free, you may do X for money. I want to show that this principle, however clean it looks, fails to capture what markets actually do to goods &mdash; and that once we understand this, we see that the wrongness-of-the-act principle systematically misidentifies the relevant moral question.</p>
+        <div class="pull">&ldquo;Markets leave their mark. When we decide that certain goods may be bought and sold, we decide, at least implicitly, that it is appropriate to treat them as commodities, as instruments of profit and use. Sometimes this is fine. Other times, commodifying a good changes its character in ways that matter &mdash; morally.&rdquo; &mdash; Sandel, <em>What Money Can&rsquo;t Buy</em> (2012)</div>
+        <span class="section">i. the birthday-card case: what money destroys</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Birthday card — paying someone to write a birthday card destroys what makes the gesture meaningful; the commercial version is a different thing from the personal one</span>Consider a simple case. Your friend writes you a thoughtful birthday card. It is meaningful precisely because it comes from them, expressing their care and attention. Now suppose you discovered that your friend had paid someone to write the card &mdash; to choose the words, compose the message, and sign their name. The card still says the same things. The physical object is unchanged. Yet something has been destroyed &mdash; something that was entirely constituted by the card&rsquo;s being a genuine expression of your friend&rsquo;s feelings. The proposition would say: writing a birthday card is permissible for free; therefore it is permissible to pay someone to write one. But what you paid for is not the same good as what your friend would have given. The good &mdash; a personal expression of care &mdash; is constituted by not being commercially mediated. You cannot buy it, because the act of buying destroys it. This is the corruption objection: markets do not merely allocate goods, they change what the goods are.</span></p>
+        <span class="section">ii. the two arguments: corruption and fairness</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Two arguments — corruption (markets change what goods are) and fairness (market choices reflect background inequalities, not just preferences); both apply to civic and intimate goods</span>I advance two distinct arguments against the proposition. The corruption argument: market valuation is appropriate for some goods and degrades others. Paying for friendship, for civic participation, for love, or for authentic religious observance corrupts these goods by treating them according to a lower mode of valuation than they deserve. To degrade something is to treat it as worth less than it is. The fairness argument: market choices are not purely voluntary; they reflect the background distribution of wealth and power. When the poor sell kidneys, organs, or gestational services, these transactions reflect not their considered preferences but their financial desperation. A market that is formally free but substantively coercive &mdash; where the range of meaningful choice is shaped by extreme inequality &mdash; is not the kind of market that the proposition can defend on grounds of consent and autonomy.</span></p>
+        <span class="section">iii. civic goods and the constitutive argument</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Civic goods — voting, jury duty, military service have their value constituted by being expressions of civic commitment; commercialisation destroys what makes them valuable</span>The proposition concedes, rightly, that vote-selling is wrong. But its explanation &mdash; that voting for pay involves voting for the wrong reasons &mdash; does not go far enough. The problem with vote markets is not merely that individual voters vote for selfish reasons when paid. It is that a market in votes transforms voting from a civic act &mdash; an expression of judgement about the common good &mdash; into a private transaction. A society that buys and sells votes has not merely introduced some bad incentives into a pre-existing civic practice. It has replaced the civic practice with something that looks the same from the outside but is constitutively different. The same applies to paid jury duty, conscript armies versus mercenary armies, and the privatisation of public services: each involves replacing a civic or communal good with a market transaction that cannot perform the same social function, however efficiently it performs the underlying task.</span></p>
+        <span class="section">iv. responding to the cultural-contingency reply</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Cultural contingency reply — Brennan-Jaworski say meanings are contingent; Sandel replies: some meanings are not contingent but constitutive; repugnance sometimes tracks genuine moral insight</span>Brennan and Jaworski argue that the meanings I invoke are culturally contingent &mdash; that the repugnance at kidney markets is like the repugnance at parking meters, destined to fade as markets normalise. I reject this analogy. The repugnance at parking meters was, indeed, morally groundless; there is nothing about parking that requires non-commercial norms of exchange. But the goods I am discussing &mdash; friendship, civic participation, love, gestational service &mdash; have their value constituted by the norms that govern their exchange. They are not goods that happen to be accompanied by sentimental cultural meanings; they are goods whose very character depends on being exchanged according to non-market norms. This is not cultural contingency that can be revised away; it is a conceptual truth about what these goods are. Repugnance sometimes tracks genuine moral insight, and the philosophical task is to distinguish the cases where it does from those where it does not.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-sandel-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The birthday-card case: markets change what goods are, not just how they are distributed</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A birthday card written by a friend as a personal expression of care is a different good from the same card produced commercially; the meaningful gesture is constituted by not being commercially mediated.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The proposition&rsquo;s principle &mdash; if permissible for free, permissible for money &mdash; fails here because the market version of the good is not the same good; the act of purchasing destroys the very thing that made the gift valuable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is the corruption objection: markets do not merely allocate pre-existing goods, they change the character of what is being exchanged; the wrongness-of-the-act principle misidentifies what good is in question.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The birthday-card case shows that the wrongness-of-the-act principle fails for goods whose character is constituted by non-market norms; the market does not allocate the same good as the non-market version &mdash; it produces a degraded substitute.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Two arguments: corruption (market changes what goods are) and fairness (markets reflect unequal background conditions)</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Corruption argument: market valuation is appropriate for some goods and degrades others; paying for friendship, love, or civic participation treats them according to a lower mode of valuation than they deserve, changing their character.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Fairness argument: markets in goods like organs and sexual services, operating against a background of extreme inequality, are not exercises of free preference but responses to financial desperation; they are formally free but substantively coercive.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Both arguments are independent; the corruption argument applies even where background conditions are fair; the fairness argument applies even where corruption is not the primary concern; together they cover the full range of cases the proposition addresses.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The dual arguments from corruption and fairness provide independent grounds for market limits: corruption shows markets change what goods are; fairness shows market consent is often not genuine; both defeat the proposition&rsquo;s principle in different cases.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Civic goods are constitutively corrupted by markets: voting, jury duty, military service</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Civic goods like voting, jury duty, and military service have their value constituted by being expressions of civic commitment; they are not merely efficient performances of a task but enactments of membership in a political community.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Commercialising these goods does not introduce bad incentives into a pre-existing practice; it replaces the civic practice with a market transaction that is constitutively different, even when the underlying task is performed equally efficiently.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition concedes vote-selling is wrong but misidentifies the reason as individual motivation; the real reason is constitutive: a market in votes is not a voting system with bad incentives but the replacement of voting with something else.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Civic goods are constitutively corrupted by markets: commercialising them does not produce the same good under a commercial label but a different, lesser thing; the proposition concedes the civic case and thereby concedes the principle.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Cultural contingency reply fails: some goods have constitutive, not merely contingent, norms of exchange</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Brennan and Jaworski argue that repugnance at commodification is culturally contingent and morally groundless, like repugnance at parking meters. But parking has no constitutive norms of exchange; friendship, civic participation, and love do.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Goods whose value is constituted by non-market norms of exchange cannot be marketised without ceasing to be that good; this is not cultural contingency but a conceptual truth about what these goods are.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Repugnance sometimes tracks genuine moral insight; the philosophical task is to distinguish cases where it does (goods with constitutive norms) from cases where it does not (parking); Brennan and Jaworski flatten this distinction.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The cultural-contingency reply fails for goods with constitutive norms of exchange; the wrongness of commodifying friendship or civic participation is not a contingent cultural attitude but a conceptual truth about what those goods are; Brennan and Jaworski&rsquo;s parallel to parking meters is a false analogy.</span></div>
+        </div>
+      </div>
+    </div><!-- end sandel -->
+
+    <!-- ══ ANDERSON ══ -->
+    <div class="speaker-panel" id="opp-anderson-panel">
+      <div id="opp-anderson-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My argument operates at the level of moral theory before it reaches applied cases. I want to show that the wrongness-of-the-act principle rests on a monistic theory of value &mdash; the view that all goods are commensurable along a single scale, and that price is merely a way of reflecting that scale. Once we accept value pluralism &mdash; the view that different goods have genuinely different kinds of value and are appropriately exchanged under different norms &mdash; the proposition&rsquo;s principle fails not because of cultural contingency but because it misrepresents the structure of practical rationality.</p>
+        <div class="pull">&ldquo;Not all goods are appropriately governed by market norms. To know that something is worth buying is already to know something about what kind of thing it is. The error of the commodification thesis is to suppose that all goods can be evaluated on a single scale and that the only question is price. But values are plural, and the norms appropriate to different kinds of goods are constitutive of those goods.&rdquo; &mdash; Anderson, <em>Value in Ethics and Economics</em> (1993)</div>
+        <span class="section">i. value pluralism and appropriate norms of exchange</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Value pluralism — different goods have genuinely different kinds of value; market norms are appropriate for some goods and destructive of others; this is not cultural contingency but a structural feature of value</span>Different kinds of goods are appropriately valued in different modes. Friendship is valued by loving it, by sharing in it, by being loyal &mdash; not by calculating its price. A beautiful landscape is valued by appreciating it, by preserving it, by experiencing it as sublime &mdash; not by adding up the willingness-to-pay of potential visitors. Civic participation is valued by engaging in it as a shared project of self-governance &mdash; not by calculating the opportunity cost of voting. These are not cultural preferences about how we happen to value things; they are constitutive of what it is to value them rightly. To love a friend is partly constituted by not calculating what their friendship is worth in dollar terms. The market norm &mdash; evaluate according to price, exchange according to willingness-to-pay &mdash; is appropriate for some goods and destructive of others precisely because it imposes a mode of valuation that is incompatible with the kind of value those goods have.</span></p>
+        <span class="section">ii. expressive rationality and the limits of the wrongness-of-act principle</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Expressive rationality — rational action must express appropriate attitudes toward the goods involved; commercial surrogacy expresses inappropriate attitudes toward children and mothers regardless of outcome</span>My theory of expressive rationality holds that rational action must express attitudes toward the goods involved that are appropriate to the kind of value those goods have. Action is not merely instrumentally rational or irrational; it expresses attitudes, and attitudes can be appropriate or inappropriate to their objects. Consider commercial surrogacy. The proposition says: you may carry a child for a friend; therefore you may sell gestational services. But the norms appropriate to pregnancy &mdash; even pregnancy that involves third parties &mdash; are norms of care, relatedness, and parental commitment, not norms of commercial service provision. Commercial surrogacy, governed by contract terms, payment schedules, and performance obligations, expresses attitudes toward the pregnant woman&rsquo;s body and the child&rsquo;s origins that are incompatible with the norms of parental care those relationships require. This is not a contingent cultural attitude; it is a claim about what attitudes the relationships themselves require.</span></p>
+        <span class="section">iii. social relations of realisation: markets change what goods are</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Social relations of realisation — some goods are constituted by the social relations through which they are produced; commercialisation changes those relations and therefore changes the goods</span>My most important contribution to this debate is the concept of social relations of realisation. Some goods are not independent of the relations through which they are produced and exchanged; they are partly constituted by those relations. Friendship is not a feeling that happens to be produced through shared activities; it is partly constituted by the mutual commitment, reciprocity, and non-calculation that characterise the friendship relationship. Care is not a service that happens to be provided by parents; it is partly constituted by the parental commitment from which it flows. When these goods are commercialised &mdash; when care is provided as a paid service, when friendship is managed like a business relationship &mdash; the social relations through which they are realised are changed, and with them the goods themselves. The proposition&rsquo;s wrongness-of-act principle cannot capture this because it treats goods as independent of the mode of their production; they are not.</span></p>
+        <span class="section">iv. the failure of monistic value theory</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Monism — the proposition assumes all values are commensurable; value pluralism shows they are not; this is the deepest error of the commodification thesis</span>The deepest error of the proposition is its implicit commitment to monistic value theory: the view that all goods can be evaluated along a single dimension and that market prices are a permissible way of representing that dimension. But values are genuinely plural and incommensurable. The value of friendship is not a lower-grade version of the value of a consumer product; it is a different kind of value that cannot be placed on the same scale. Economists call everything that is traded a &ldquo;good&rdquo; &mdash; a kidney, a vote, a sexual service, a friend&rsquo;s time. But this is a grammatical convenience, not a philosophical truth. These things differ not in degree of value but in kind. A theory that cannot distinguish kinds of value cannot tell us which exchange norms are appropriate to which goods, and therefore cannot adjudicate the commodification debate. The wrongness-of-the-act principle is a principle generated by, and valid only within, a monistic value theory that we should reject.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-anderson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Value pluralism: different goods have genuinely different kinds of value requiring different norms of exchange</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Friendship, civic participation, aesthetic appreciation, and love are valued in modes &mdash; sharing, loyalty, appreciation, commitment &mdash; that are constitutive of valuing them rightly; pricing them is not merely a different way of valuing them but the wrong way.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Market norms (evaluate by price, exchange by willingness-to-pay) are appropriate for some goods and destructive of others, not because of cultural contingency but because of the structural features of the values at stake.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The wrongness-of-the-act principle assumes all goods can be appropriately governed by market norms; value pluralism shows this is false; the principle fails at the level of value theory before reaching applied cases.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Value pluralism defeats the wrongness-of-the-act principle at its foundations: goods differ in kind of value, and different kinds of value require different appropriate exchange norms; market norms are appropriate for some goods and destructive of others as a matter of value structure, not cultural contingency.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Expressive rationality: rational action must express attitudes appropriate to the goods involved</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Rational action is not merely instrumentally rational; it must express attitudes toward the goods involved that are appropriate to those goods&rsquo; kind of value.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Commercial surrogacy, governed by contract terms and payment schedules, expresses attitudes of commercial service provision toward pregnancy and childbirth that are incompatible with the norms of parental care those relationships require.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is not a contingent cultural claim; it is a claim about what attitudes pregnancy, birth, and parental commitment themselves require; commercialisation is therefore expressive irrationality regardless of the parties&rsquo; preferences.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Expressive rationality shows that commercial surrogacy, and analogous transactions, are irrational in the expressive sense regardless of the parties&rsquo; preferences: they express attitudes incompatible with the value of the goods being exchanged.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Social relations of realisation: goods constituted by their exchange relations are transformed by commercialisation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Some goods are partly constituted by the social relations through which they are produced and exchanged; friendship is partly constituted by mutual commitment and non-calculation; care is partly constituted by the parental commitment from which it flows.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Commercialising these goods changes the social relations through which they are realised; care provided as a paid service is governed by different norms than care provided by parental commitment; friendship managed as a business relationship is partly constituted by different relations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Because the goods are partly constituted by their exchange relations, commercialisation changes not merely the distribution of the good but the good itself; the proposition&rsquo;s principle, which treats goods as independent of exchange mode, therefore misidentifies what is at stake.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Social relations of realisation show that commodifying constitutively relational goods changes what those goods are; the wrongness-of-the-act principle, which treats goods as exchange-mode-independent, systematically misidentifies the relevant moral question.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; The failure of monistic value theory: the proposition&rsquo;s deepest error</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The wrongness-of-the-act principle implicitly assumes that all goods are commensurable along a single value dimension and that price is a permissible representation of that dimension; this is monistic value theory.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Values are genuinely plural and incommensurable: friendship, kidney function, sexual service, and a consumer product differ not in degree of value but in kind; a theory that cannot distinguish kinds of value cannot adjudicate exchange norms.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The wrongness-of-the-act principle is valid only within monistic value theory; once we reject that theory in favour of value pluralism, the principle loses its foundation and the case for market limits becomes available.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proposition&rsquo;s principle presupposes monistic value theory; value pluralism, which is independently well-motivated, defeats this presupposition; the wrongness-of-the-act principle fails at its theoretical foundations before any applied case is reached.</span></div>
+        </div>
+      </div>
+    </div><!-- end anderson -->
+
+    <!-- ══ SATZ ══ -->
+    <div class="speaker-panel" id="opp-satz-panel">
+      <div id="opp-satz-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My approach is different from both Sandel&rsquo;s and Anderson&rsquo;s, and I believe it is the most practically useful for resolving actual policy debates. I am not primarily a theorist of meaning or value. I am interested in the conditions under which markets produce outcomes that are acceptable, and the conditions under which they do not. My noxious markets framework identifies those conditions systematically, without relying on claims about constitutive meaning or expressive rationality that the proposition can plausibly characterise as culturally contingent.</p>
+        <div class="fact-box">
+          <strong>The four parameters of noxious markets &mdash; Satz&rsquo;s framework</strong>
+          A market is noxious when it scores high on one or more of four parameters: (1) <strong>Underlying vulnerability:</strong> the market exploits extreme desperation in one party; (2) <strong>Weak agency:</strong> the market targets or creates incapacity for rational deliberation; (3) <strong>Extremely harmful individual outcomes:</strong> the market produces severe harms to participants; (4) <strong>Extremely harmful social outcomes:</strong> the market undermines the conditions for equal democratic citizenship. Markets scoring high on any parameter require significant regulation or prohibition. Many allegedly unproblematic markets score low on all four. Kidney markets, sex work markets, and child labour markets score high on multiple parameters.
+        </div>
+        <span class="section">i. what makes markets noxious: the four parameters</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Four parameters — vulnerability, weak agency, individual harm, social harm; markets scoring high on any require regulation or prohibition; this is consequentialist-egalitarian not expressivist</span>The proposition dismisses anti-commodification arguments as resting on cultural attitudes or monistic value theory. My argument rests on neither. I ask a straightforward empirical-normative question: under what conditions do particular markets produce outcomes that are unacceptable from the standpoint of justice? The answer involves four parameters. When markets exploit extreme vulnerability &mdash; when someone sells a kidney because starvation is the alternative &mdash; the voluntariness of the transaction is compromised in a way that should concern us. When markets target those with weak agency &mdash; children, those with severe addiction, those cognitively compromised by desperation &mdash; the market mechanism fails to respect their capacity for rational self-direction. When markets produce severe individual harms &mdash; not merely risks the participant accepts but outcomes they would not have accepted with full information &mdash; they are noxious. And when markets undermine the conditions for equal democratic citizenship, they produce harms that are collective and often irreversible.</span></p>
+        <span class="section">ii. organ markets and the vulnerability parameter</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Organ markets — fail on vulnerability; the poor sell to the rich; the market entrenches inequality rather than alleviating it; Iran shows regulated markets reproduce the problem</span>Zwolinski argues that organ markets help the poor by giving them an option they currently lack. This is the most sophisticated pro-market argument I need to address. Three responses. First, the option the poor lack is not the option to sell their kidney; it is the option to receive adequate healthcare without selling their body. A regulated kidney market takes the second option off the table &mdash; politically, morally, and practically &mdash; by providing an alternative that appears to solve the problem without addressing its roots. Second, the empirical evidence from existing kidney markets (Iran, where regulated trade exists) shows that sellers are systematically poor, buyers are systematically rich, and the market neither alleviates the sellers&rsquo; underlying poverty nor improves their health outcomes. Third, the extreme vulnerability of the seller undermines the voluntariness of the transaction: a person who sells their kidney to pay a medical bill is not exercising free preference; they are responding to a system that has placed them in an impossible position.</span></p>
+        <span class="section">iii. sex work markets and the equal citizenship criterion</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Sex work — fails on social harm; reproduces gender inequality; undermines conditions for equal citizenship; not arguing prohibition but heavy regulation</span>Sex work markets score high on multiple parameters: they often exploit vulnerability, they involve weak agency in many cases, they produce significant individual harms (physical risk, psychological harm, social stigma), and they produce social harms by reproducing and entrenching gender inequality. I am not arguing for simple prohibition &mdash; as Satz notes, the evidence suggests that in some contexts, prohibition drives sex work underground and makes workers worse off. I am arguing for regulation that addresses the parameters that make these markets noxious: policies that reduce vulnerability (by providing economic alternatives), strengthen agency (by decriminalising workers while criminalising buyers), reduce individual harm (through health protections), and address social harm (by refusing to normalise commodification of sexuality in ways that entench gender subordination).</span></p>
+        <span class="section">iv. responding to zwolinski: the background justice objection</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Zwolinski — the argument from the poor establishes the injustice of background conditions, not the permissibility of markets that exploit them; markets can be both beneficial given unjust conditions and unjust</span>Zwolinski&rsquo;s most powerful argument is that prohibition makes the poor worse off. I accept this in many cases. But notice what this establishes. It establishes that under unjust background conditions &mdash; extreme inequality, inadequate healthcare, absent alternatives &mdash; markets in organs and sexual services may be the best available option for the poor. This is a reason to maintain those markets under such conditions, perhaps. But it is not a reason to regard those markets as just, or to remove pressure to reform the conditions that make them the best available option. A market can be both the best available option given unjust background conditions and unjust as a market. These are not mutually exclusive. My noxious markets framework captures this: it identifies what makes a market noxious (including the underlying vulnerabilities that produce it) and distinguishes the question of whether to prohibit from the question of whether the market is morally acceptable. They are different questions with different answers.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-satz-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The noxious markets framework: four parameters identify when markets produce unacceptable outcomes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Markets are noxious when they score high on: (1) underlying vulnerability (exploiting extreme desperation), (2) weak agency (targeting those with compromised rational deliberation), (3) extreme individual harm, or (4) extreme social harm (undermining equal citizenship).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This framework is consequentialist-egalitarian, not expressivist; it does not rely on claims about constitutive meaning or cultural attitudes, and is therefore not vulnerable to Brennan and Jaworski&rsquo;s cultural contingency reply.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Kidney markets, sex work markets, and child labour markets score high on multiple parameters; this provides principled, empirically tractable grounds for market limits that the proposition must engage.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The noxious markets framework provides principled, non-expressivist grounds for market limits; it identifies when markets produce unjust outcomes independently of cultural meaning-attribution; the proposition must engage with these empirical-normative parameters.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Organ markets fail on vulnerability: Iran&rsquo;s regulated market shows sellers are poor, buyers are rich, underlying poverty persists</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Iran&rsquo;s regulated kidney market &mdash; the world&rsquo;s only legal one &mdash; shows systematically that sellers are poor and buyers are rich; the market neither alleviates sellers&rsquo; poverty nor improves their health outcomes; it is an efficient mechanism for transferring organs from the desperate to the wealthy.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The option the poor lack is not the option to sell a kidney but the option to receive healthcare without self-commodification; organ markets take the latter option off the political agenda by providing an appearance of a market solution.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Extreme vulnerability (selling to avoid starvation or medical debt) compromises the voluntariness of the transaction; a sale made under conditions of that kind does not exercise free preference but responds to systemic injustice.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Organ markets fail the vulnerability parameter: they exploit extreme desperation, systematically transfer organs from poor to rich, do not alleviate underlying poverty, and take universal healthcare off the political agenda; they are noxious by Satz&rsquo;s framework.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Sex work markets fail on social harm: they reproduce gender inequality and undermine equal citizenship</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Sex work markets score high on multiple parameters: vulnerability (often exploitation of economic desperation), individual harm (physical risk, stigma, psychological harm), and social harm (reproducing and entrenching gender subordination).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The social harm of normalising commodified sexuality in conditions of gender inequality is a harm to the conditions for equal democratic citizenship, not merely to individual participants; it undermines the equal standing of women as co-deliberants in democratic life.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This does not automatically justify prohibition; it justifies regulation targeting the parameters (reducing vulnerability, strengthening agency, reducing individual harm) that make the market noxious; Satz&rsquo;s framework distinguishes the question of noxiousness from the question of appropriate remedy.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Sex work markets are noxious by multiple parameters; the appropriate response is regulation targeting those parameters, not necessarily prohibition; the noxious markets framework is more nuanced than simple anti-commodification and more principled than simple market permissibility.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Against Zwolinski: markets can be the best option under unjust conditions and unjust; these are different questions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Zwolinski establishes that under unjust background conditions, markets in organs and sexual services may be the best available option for the poor. This may be true. But it does not establish that those markets are just.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A market can be both the best available option given unjust conditions and unjust as a market; the noxious markets framework captures this by distinguishing the question of permissibility under unjust conditions from the question of the market&rsquo;s moral acceptability.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Markets that are best-available-under-injustice should be maintained while the underlying injustice is addressed; but they should not be declared just, should not be expanded, and should not be used to take universal alternatives off the political agenda.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Zwolinski&rsquo;s argument from the poor establishes that noxious markets should sometimes be tolerated under unjust conditions, not that they are permissible or just; the noxious markets framework distinguishes these questions and provides more nuanced policy guidance than either simple prohibition or simple market permissibility.</span></div>
+        </div>
+      </div>
+    </div><!-- end satz -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'bj',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'sandel',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
