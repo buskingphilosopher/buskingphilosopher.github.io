@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Discounting — House Debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0ede4;--bg2:#e8e4d8;--bg3:#ddd9cc;--bg4:#d0cbbf;
+  --bdr:rgba(35,30,15,.1);--bdr2:rgba(35,30,15,.2);
+  --text:#1a1710;--text2:#423e2c;--text3:#8a8268;--ink:#141210;--rule:rgba(35,30,15,.11);
+  --prop-col:#1a4a2a;--prop-pill-bg:#e2f0e6;--prop-pill-bdr:#93bfa1;
+  --opp-col:#2a1a4a;--opp-pill-bg:#ebe5f4;--opp-pill-bdr:#b09fd1;
+  --a1bg:rgba(15,80,40,.07);--a1brd:rgba(15,80,40,.32);--a1tip:#0c5228;
+  --a2bg:rgba(15,60,110,.07);--a2brd:rgba(15,60,110,.30);--a2tip:#0c3c72;
+  --a3bg:rgba(140,80,10,.08);--a3brd:rgba(140,80,10,.32);--a3tip:#8a4e08;
+  --a4bg:rgba(130,20,20,.07);--a4brd:rgba(130,20,20,.30);--a4tip:#7c1010;
+  --a5bg:rgba(60,20,120,.07);--a5brd:rgba(60,20,120,.29);--a5tip:#3c147c;
+  --a6bg:rgba(15,95,100,.07);--a6brd:rgba(15,95,100,.29);--a6tip:#0a5c60;
+  --a7bg:rgba(90,60,10,.07);--a7brd:rgba(90,60,10,.28);--a7tip:#543808;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Cormorant Garamond',Georgia,serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;font-size:16px}
+.motion-header{padding:.8rem 2rem .65rem;border-bottom:1px solid var(--rule);text-align:center;background:var(--bg2);flex-shrink:0;position:relative}
+.motion-header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(35,30,15,.15),transparent)}
+.motion-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--text3);font-weight:300;margin-bottom:5px}
+.motion-title{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:400;font-style:italic;color:var(--ink);letter-spacing:.01em;line-height:1.45}
+.motion-title em{font-style:normal;font-weight:600}
+.motion-sub{font-family:'Cormorant',serif;font-size:11px;font-style:italic;color:var(--text3);margin-top:4px;letter-spacing:.02em}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden}
+.col.prop{border-right:1px solid var(--rule)}
+.speaker-bar{display:flex;align-items:stretch;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:300;padding:8px 14px;cursor:pointer;border:none;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;transition:color .15s,background .15s;flex-shrink:0;white-space:nowrap;letter-spacing:.05em}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.55rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:baseline;gap:.6rem;margin-bottom:2px;flex-wrap:wrap}
+.pill{font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:300;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;border-radius:2px;flex-shrink:0}
+.pill.prop{background:var(--prop-pill-bg);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill-bg);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;font-style:italic;color:var(--ink)}
+.col-position{font-family:'Cormorant',serif;font-size:12px;font-style:italic;color:var(--text3);margin-top:1px;line-height:1.5}
+.tabs{display:flex;gap:0;margin-top:5px}
+.tab{font-family:'IBM Plex Mono',monospace;padding:4px 12px;font-size:9.5px;letter-spacing:.05em;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:3px 3px 0 0;background:var(--bg3);margin-right:3px;user-select:none;transition:color .15s,background .15s;font-weight:300}
+.tab.active{background:var(--bg2)}
+.prop .tab.active{color:var(--prop-col)}
+.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem 3rem;font-size:15.5px;line-height:1.9;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:2px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2)}
+.speaker-panel{display:none}
+.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.8rem}
+.speech-text .salut{color:var(--text3);font-style:italic;font-size:14px}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:'IBM Plex Mono',monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.16em;color:var(--text3);margin:1.3rem 0 .3rem;display:block;font-weight:300}
+.logic-view{display:flex;flex-direction:column;gap:.8rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .12s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:400;text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:'Cormorant Garamond',serif;font-size:14.5px;line-height:1.65;color:var(--text2)}
+.plabel{font-family:'IBM Plex Mono',monospace;font-weight:300;min-width:16px;font-size:9.5px;color:var(--text3);padding-top:2px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:'Cormorant Garamond',serif;font-size:14.5px;line-height:1.65;border-top:1px solid var(--bdr);background:var(--bg3);font-style:italic}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:1px;padding:1px 1px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:300;font-style:normal;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:2px;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.13);color:var(--ink);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+.modal-wrap{display:none;position:fixed;inset:0;background:rgba(14,11,6,.75);z-index:100;align-items:center;justify-content:center}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:3px;border:1px solid var(--bdr2);width:380px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.55rem .9rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--text);letter-spacing:.04em;font-weight:300}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:13px;line-height:1;padding:3px 7px;border-radius:2px}
+.modal-close:hover{background:var(--bg3)}
+.modal-bd{padding:.8rem}
+.modal-img-wrap{min-height:80px;display:flex;align-items:center;justify-content:center;border:1px solid var(--bdr);border-radius:2px;background:var(--bg3)}
+.modal-ph{text-align:center;padding:1.5rem;color:var(--text3);font-family:'IBM Plex Mono',monospace;font-size:9.5px;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.modal-ph code{font-size:8.5px;background:var(--bg4);padding:2px 6px;border-radius:2px}
+.modal-cap{margin-top:.4rem;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--text3);letter-spacing:.03em;font-weight:300}
+</style>
+</head>
+<body>
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House · Economics of Welfare · Population Ethics · Climate Policy · Intergenerational Justice</div>
+  <div class="motion-title">"Pure time preference — discounting future welfare <em>merely because it is future</em> — is ethically indefensible, and the prescriptive discount rate should approach zero"</div>
+  <div class="motion-sub">Ramsey's 1928 conjecture · Stern's <em>Review on the Economics of Climate Change</em> · Nordhaus's <em>A Question of Balance</em> &nbsp;vs&nbsp; Parfit's <em>Reasons and Persons</em> · Weitzman on uncertainty</div>
+</div>
+
+<div class="columns">
+
+<!-- ══════════════════════ PROPOSITION ══════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','ramsey',this)">Ramsey</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','stern',this)">Stern</button>
+  </div>
+
+  <div class="col-header" id="prop-ramsey-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Frank P. Ramsey</span></div>
+    <div class="col-position"><em>A Mathematical Theory of Saving</em> (1928) — pure time preference as ethically indefensible; the optimal savings problem; impatience as a defect of imagination; the telescopic faculty and its failures</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','ramsey','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','ramsey','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="prop-stern-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Nicholas Stern</span></div>
+    <div class="col-position"><em>The Stern Review</em> (2006) and subsequent work — the Ramsey formula for social discount rates; near-zero pure time preference in climate economics; the asymmetry of catastrophic risk; why Nordhaus discounts too much</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','stern','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','stern','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- RAMSEY -->
+    <div class="speaker-panel active" id="prop-ramsey-panel">
+      <div id="prop-ramsey-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The question before this House is deceptively technical. It is posed in the language of rates and parameters. But underneath the mathematics lies one of the simplest and most consequential moral questions one can ask: ought we to care less about the welfare of people who happen to live in the future than about the welfare of people who happen to live now? I shall argue that the answer is no — and that the contrary view is not merely wrong but represents a failure of reason itself.</p>
+
+        <span class="section">On the meaning of pure time preference</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Pure time preference: discounting welfare by mere temporal distance, not by any morally relevant difference</span>Let us be precise about what pure time preference means. It is the practice of discounting future utility — future welfare, future pleasure and pain, future flourishing — solely on account of its temporal distance from the present. It says that a unit of welfare experienced in fifty years is worth less than a unit experienced today, not because the future person is less real, not because the future welfare is less certain, not because the world will be richer and a marginal unit of welfare thus less valuable — but simply because fifty years have passed. The bare lapse of time, on this view, diminishes moral weight. I stated in my 1928 paper that this is "ethically indefensible." I do not retract a syllable of that claim. The mere passage of time is not a morally relevant difference between persons. To discount on account of it alone is to treat future persons as less important than present persons, for no reason that survives scrutiny.</span></p>
+
+        <span class="section">On the defect of imagination</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Telescopic defect: pure time preference reflects a psychological failing, not a genuine moral principle</span>Why do people discount the future? Not, I think, because they have a considered view that future welfare matters less. They discount because they have what Pigou called a defective telescopic faculty — they simply cannot see the future as vividly as the present. A toothache tomorrow is feared less than a toothache now, not because tomorrow's pain matters less, but because the imagination does not project it with equal force. This is a psychological fact about human cognition, not a moral insight. We do not, in our considered moments, endorse the view that the pain of another person matters less because that person is further away in space — we recognise that spatial distance is morally irrelevant. Temporal distance stands in exactly the same position. A future person's suffering is not less real because it has not yet occurred. To build a defect of imagination into our social welfare functions is not to discover a deep truth about value; it is to launder a cognitive bias into an ethical principle.</span></p>
+
+        <span class="section">On the mathematics of the optimal savings rate</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Ramsey formula: the discount rate should reflect growth and elasticity — not include a pure time preference term</span>My 1928 paper derived what is now called the Ramsey rule: in an optimally saving economy, the social rate of return on investment equals the rate of growth of consumption multiplied by the elasticity of marginal utility of consumption. This gives us a principled basis for the social discount rate that makes no reference to pure time preference whatsoever. The discount rate that governs intertemporal choices need not include a "pure" impatience term. The relevant considerations are: how fast will consumption grow (affecting the marginal utility of a future unit of wealth), and how strongly does marginal utility decline with rising income. Both of these are empirically tractable and morally relevant — they measure real differences in the value of a unit of welfare, not mere temporal distance. The opposition's preference for a positive pure time preference rate adds an unjustified term to the formula — one whose only function is to make future welfare count for less.</span></p>
+
+        <span class="section">On the separateness of persons across time</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Intertemporal separateness: future persons are as real and as separate as present persons; temporal location is morally arbitrary</span>The opposition sometimes argues that pure time preference is justified by an analogy with prudential discounting — the fact that individuals rationally weight their own future welfare at a discount because they may not survive to enjoy it. But this analogy fails when we move from individual to social decision-making. When I discount my own future welfare, I am at least discounting welfare that belongs to the same person across time. When the state discounts future welfare, it is discounting the welfare of future persons — persons as real and as separate as present persons, who happen to occupy a different temporal position. The social discount rate is not a prudential calculation; it is an ethical weighting of different persons' welfare. And persons do not become less morally significant merely because they have not yet been born. Temporal location is as morally arbitrary as spatial location or nationality.</span></p>
+
+        <span class="section">On the catastrophic implications of high discount rates</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Catastrophic discounting: high discount rates render any harm occurring beyond fifty years practically weightless</span>A practical observation that deserves the force of a philosophical argument: at conventional discount rates of five or six percent per year, the welfare of people living a century hence is worth, in present value terms, less than one percent of the same welfare today. At such rates, a catastrophe that kills a billion people in two hundred years has negligible present value. The present value of all human welfare for the next millennium — all the people who will ever live — is dominated by the welfare of people alive today and in the next few decades. This is not a technical quirk. It is a moral monstrosity. It means that our decisions about long-run investment, about climate change, about the preservation of conditions for human life, are made on the implicit assumption that the billions of people who will live after us barely exist. This is what pure time preference, in practice, recommends. I do not see how anyone who has followed the argument to this point can regard it as ethically defensible.</span></p>
+
+        <span class="section">On growth and the ethics of diminishing marginal utility</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Growth discount: richer future generations need less help per unit; this justifies some discounting but not pure time preference</span>I want to be careful about one thing. There is a form of discounting that is entirely defensible — indeed, required. If we expect future generations to be richer than present generations, then a marginal unit of wealth will be worth less to them — their marginal utility of consumption will be lower. This is the growth-based component of the discount rate, and it has a firm ethical foundation in the declining marginal utility of income. I do not dispute it. But this growth discount is entirely separate from pure time preference. It says: future welfare counts equally, but future people may need less of certain resources because they are better off. It does not say: future welfare counts for less. The two components must not be conflated. When they are, the morally arbitrary component — pure time preference — smuggles itself into the formula under cover of the legitimate growth component.</span></p>
+
+        <span class="section">On the extinction of civilisation as the limit case</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Extinction: the destruction of all future life has near-zero present value under high discount rates — a decisive reductio</span>Let me close with the limit case. Suppose an action today would, with certainty, prevent all human civilisation after the year 2200. Trillions of people who might otherwise have lived would not exist; all future culture, science, love, and achievement would be extinguished. Under a discount rate of five percent, this catastrophe has a present value of roughly zero. The entire future of humanity is worth less, in present-discounted terms, than a modest GDP increase in the near term. If this does not constitute a reductio ad absurdum of high discount rates — if the destruction of all future humanity is a price worth paying for present convenience — then I do not know what an absurdity looks like. Pure time preference, pursued to its logical conclusion, makes the long-run future of civilisation invisible to our moral calculus. This is not a technical problem with the discount rate. It is a moral catastrophe embedded in our decision procedures.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-ramsey-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">I — Pure time preference: mere temporal distance is not a morally relevant difference</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Pure time preference discounts future welfare solely on account of its temporal distance — not because of uncertainty, growth, or any other morally relevant factor.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Temporal distance, like spatial distance, is not itself a morally relevant difference between persons — it does not affect the reality or significance of their welfare.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A principle that assigns different moral weight to welfare solely on the basis of morally irrelevant differences is arbitrary and indefensible.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Pure time preference is ethically indefensible — it discriminates against future persons on the basis of a morally arbitrary feature, temporal location, exactly as spatial discrimination would.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">II — Telescopic defect: discounting reflects cognitive bias, not moral principle</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Empirical psychology shows that agents discount the future partly because they cannot vividly imagine distant future welfare — Pigou's "defective telescopic faculty."</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Cognitive biases — failures of imagination — do not generate moral principles; describing how people do reason is not prescribing how they should reason.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A prescriptive social welfare function that encodes cognitive biases launders psychological failings into ethical principles.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The observed preference for present over future welfare reflects a failure of moral imagination — building pure time preference into social welfare functions converts a bias into a norm, which is methodologically and ethically impermissible.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">III — The Ramsey formula: a principled discount rate with no pure time preference term</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Ramsey rule states that the socially optimal discount rate equals the elasticity of marginal utility times the growth rate of consumption.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Both components — elasticity of marginal utility and consumption growth — are morally and empirically grounded: they measure real differences in the value of a unit of welfare.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A pure time preference term adds nothing to this formula except a discount for temporal distance — which we have established is not morally relevant.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Ramsey formula provides a fully principled social discount rate without pure time preference — the opposition's insistence on a positive impatience term adds an unjustified, morally arbitrary component.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">IV — Intertemporal separateness: social discounting cannot borrow from individual prudence</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Individual prudential discounting may have some justification as a response to mortality and the uncertainty of personal continuity.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Social discount rates weight the welfare of different persons — future people who are as real and morally significant as present people, just temporally displaced.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Justifications for individual impatience — mortality, personal identity uncertainty — do not transfer to the social case, where we are comparing welfare across distinct persons.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The prudential analogy fails — social discounting is an inter-personal, not intra-personal, comparison; pure time preference in the social case amounts to valuing some persons' welfare less than others' without moral justification.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">V — Catastrophic discounting: high discount rates render distant harm invisible</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>At a five percent annual discount rate, welfare one hundred years hence has a present value of less than one percent of the same welfare today.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This renders catastrophes affecting people beyond a few generations practically weightless in cost-benefit analysis — the destruction of civilisation in two centuries is of negligible present value.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Any decision procedure that assigns near-zero weight to the destruction of all future humanity is morally catastrophic, whatever its technical properties.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>High discount rates incorporating pure time preference lead to a moral reductio — they make the long-run future of civilisation invisible to our decision procedures; this is not a technical inconvenience but a fundamental ethical failure.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">VI — Growth discount vs pure time preference: the two must not be conflated</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Growth-based discounting is justified: if future generations are richer, the marginal utility of a unit of wealth to them is lower, so we should invest less in their welfare per unit now.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This growth discount says future welfare counts equally, but that future people may need less; it does not say future welfare counts for less per se.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Pure time preference adds an additional, morally unjustified discount on top: it says future welfare counts for less just because it is future — which no growth consideration can justify.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Conflating the two components allows pure time preference to smuggle itself into the discount rate under cover of the defensible growth component — they must be disaggregated, and only the growth component is morally justified.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">VII — Extinction reductio: pure time preference at scale implies all future humanity is worthless</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>An action permanently destroying all human civilisation after 2200 would, under a five percent discount rate, have present cost approaching zero — dwarfed by any modest near-term benefit.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The conclusion that it would be rational to trade all future humanity for near-term convenience is a decisive moral reductio of any decision procedure that generates it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The only way to avoid this reductio is to set the pure time preference component to zero or near zero — as Ramsey originally proposed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The extinction reductio is a decisive argument against any significant pure time preference in social welfare functions — the near-zero discount rate is not a contestable political choice but a requirement of coherent moral reasoning.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STERN -->
+    <div class="speaker-panel" id="prop-stern-panel">
+      <div id="prop-stern-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleague Ramsey has established the philosophical foundations. I want to press those foundations into the field where they do their most urgent work — the economics of climate change — and to meet head-on the arguments of those who insist that standard market discount rates should govern our response to a warming planet.</p>
+
+        <span class="section">On the Stern Review and the discount rate controversy</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Stern Review: near-zero pure time preference implies urgent, costly climate action; Nordhaus's higher rate implies delay</span>The central controversy about the 2006 Stern Review was not, in the end, primarily about climate science. It was about discount rates. I used a pure time preference rate of just 0.1 percent per year — close to Ramsey's zero — combined with a standard estimate of the elasticity of marginal utility. Nordhaus, using a pure time preference rate of around 1.5 percent and a lower elasticity, arrived at a social discount rate of roughly five percent. The difference in recommended policy was dramatic: my analysis suggested that the costs of unmitigated climate change could amount to the equivalent of losing between five and twenty percent of global GDP, permanently, and that aggressive early action was warranted. Nordhaus's analysis suggested a slower, more modest response. The same physical science; the same economic models; radically different policy conclusions — all downstream of a single ethical parameter: how much do we care about people in the future?</span></p>
+
+        <span class="section">On the asymmetry of catastrophic risk</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Catastrophic risk asymmetry: the risk of severe, irreversible climate damage is not well-handled by standard discounting</span>The case for near-zero pure time preference becomes even stronger when we attend to the specific character of climate risks. Climate change does not merely threaten a steady deterioration in welfare that can be smoothly discounted back to the present. It threatens tail risks — low-probability, high-consequence events that could be catastrophic and irreversible. Weitzman has shown that the standard expected-value framework for cost-benefit analysis breaks down when probability distributions have fat tails: the expected present discounted cost of low-probability catastrophes can be infinite, or at least dominated by scenarios that standard models marginalise. The appropriate response to this uncertainty is not to discount more aggressively — that would make the catastrophe even less visible — but to treat the possibility of irreversible catastrophic harm as a dominant consideration, which requires discounting future welfare much less than market rates imply.</span></p>
+
+        <span class="section">On why market discount rates are the wrong guide for social decisions</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Market rates are descriptive, not prescriptive: they reflect observed behaviour, including the cognitive biases Ramsey identified</span>The opposition will argue that we should use market discount rates — observed rates of return on capital — rather than philosophically derived prescriptive rates. This argument confuses two questions: the question of how people do behave, and the question of how policy should be made on behalf of present and future generations. Market rates reflect the revealed preferences of present consumers and investors. But those revealed preferences embody exactly the cognitive biases and failures of imagination that Ramsey identified — they reflect present impatience, not considered moral judgement about the equal standing of future persons. Market rates also fail to account for intergenerational externalities: transactions between present people cannot price in the welfare of future people who are not party to those transactions. The proposition is not that people should be forced to save at the socially optimal rate in their private lives; it is that social decisions — about public investment, about climate policy, about infrastructure — should be governed by a rate that takes future welfare seriously.</span></p>
+
+        <span class="section">On the ethics of growth assumptions</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Growth assumptions: if climate change damages growth, discounting on growth grounds becomes circular and self-defeating</span>Nordhaus's defence of higher discount rates depends in part on the assumption that future generations will be substantially richer than present ones — making a marginal unit of welfare worth less to them. But this assumption is not exogenous to the decision at hand. Climate change, at the severe end of the probability distribution, threatens to substantially damage economic growth. If we use growth-based discounting to justify doing less about climate change, and less action about climate change damages the very growth we were counting on, we have embedded a circularity into our decision procedure. The growth discount is defensible when growth is not threatened by the decision being made. When the decision is precisely about whether to protect the conditions for growth, the discount rate cannot presuppose that growth will occur.</span></p>
+
+        <span class="section">On equity weighting across generations</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Equity weighting: transferring resources from poorer present people to richer future people requires justification that pure time preference cannot provide</span>There is a further dimension that the opposition's approach handles badly. Climate change mitigation transfers real resources from present generations — including the world's poor — to future generations. Whether this transfer is justified depends on the relative positions of those generations. If future generations are substantially richer, there is an equity argument against large present sacrifices on their behalf — not from pure time preference, but from a straightforward declining-marginal-utility argument. I take this equity consideration seriously. But it cuts both ways: in a world where climate change threatens to leave some future generations substantially worse off than present ones, the equity argument runs in the opposite direction — toward greater present investment in mitigation. Neither consideration supports pure time preference; both support the careful, empirically grounded Ramsey formula.</span></p>
+
+        <span class="section">On the precautionary principle and irreversibility</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Irreversibility: some climate damages are permanent; the precautionary principle demands lower discounting of irreversible harms</span>Climate change presents a distinctive feature that should lower the effective discount rate independently of any philosophical argument about pure time preference: irreversibility. Extinct species cannot be restored. Destabilised ice sheets cannot be re-frozen on human timescales. Societies displaced by rising seas cannot simply move back. Standard cost-benefit analysis, even with a Ramsey discount rate, tends to underweight irreversible harms because it treats all costs symmetrically. But the option value of avoiding irreversible catastrophe — keeping open the possibility of reversing course — is substantial and systematically undervalued by conventional discounting. This provides an additional, non-philosophical argument for treating future harms with near full weight: the asymmetry between reversible and irreversible outcomes is a reason to be especially risk-averse about long-run catastrophic risks.</span></p>
+
+        <span class="section">On the political economy of discount rate choice</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Political economy: high discount rates systematically benefit present wealth-holders at the expense of the unborn; this is not neutral</span>I want to close with a political economy observation. The choice of discount rate is not a technical parameter settled by experts in the back rooms of economics departments. It is a choice with massive distributive consequences — it determines how much present wealth-holders must sacrifice for the benefit of future generations. A high discount rate, by rendering future welfare nearly invisible, systematically favours the interests of those alive today — and in particular the wealthiest, who are the primary beneficiaries of the economic activities whose externalities fall on the future. A low discount rate redistributes moral weight toward those who cannot vote, cannot lobby, cannot be present in our political deliberations at all: future persons. The choice between these rates is not merely technical; it is political and ethical. And the ethics, as Ramsey saw almost a century ago, are clear.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-stern-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">I — The Stern Review: discount rate choice drives the entire policy divergence from Nordhaus</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Stern's δ=0.1% and Nordhaus's δ≈1.5% use the same physical science but generate dramatically different recommended climate policies.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The policy divergence is almost entirely downstream of the choice of pure time preference parameter — an ethical, not empirical, choice.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the ethical argument for near-zero pure time preference is correct, then Nordhaus's higher discount rate is not a more "realistic" estimate — it is an ethically mistaken one.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Stern-Nordhaus debate is primarily an ethical disagreement, not an empirical one — and if Ramsey's argument is sound, Stern's approach is the correct one regardless of what market rates suggest.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">II — Catastrophic risk: fat tails defeat standard expected-value discounting</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Climate change includes low-probability, high-consequence tail risks — catastrophic and irreversible scenarios that standard probability-weighted cost-benefit analysis underweights.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When probability distributions have fat tails, expected present discounted costs can be dominated by extreme scenarios; higher discount rates make these even less visible.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The appropriate response to fat-tailed catastrophic risk is lower discounting of future harm — the risk structure of climate change reinforces the Ramsey argument for near-zero pure time preference.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The catastrophic risk structure of climate change provides an independent empirical argument for near-zero pure time preference — high discount rates are doubly wrong: ethically unjustified and practically dangerous given fat-tailed climate distributions.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">III — Market rates are descriptive, not prescriptive; they cannot govern social decisions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Market discount rates reflect observed preferences of present consumers and investors — including cognitive biases, myopia, and the inability to price in the welfare of future non-parties.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Social decisions about public goods and long-run externalities should be governed by considered ethical principles, not revealed private preferences that encode the very biases we are trying to correct.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The descriptive/prescriptive distinction is fundamental: what people reveal in markets is evidence about psychology, not about what policy ought to do on behalf of all generations.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Market rates are the wrong basis for social discounting — they encode rather than correct the biases Ramsey identified; a prescriptive social discount rate must be derived from ethical principles, not inferred from observed private behaviour.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">IV — Growth assumptions are endogenous to the decision; discounting on growth grounds is circular</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Growth-based discounting assumes future generations will be substantially richer — justifying less present investment in their welfare.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But whether future generations are richer depends on present decisions, including climate policy — severe climate change damages the very growth the discount rate presupposes.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Using growth-based discounting to justify less climate action, which then damages growth, produces a circularity that undermines the discount rate's empirical basis.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The growth defence of discounting is circular in the climate context — when the decision being made affects the growth that justifies the discount, the rate cannot be set independently of the decision it is supposed to govern.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">V — Equity weighting cuts both ways; declining marginal utility supports, not undermines, climate action</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Equity weighting may justify less present sacrifice for future generations if they will be much richer.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But if climate change damages future wealth — especially for the world's poorest — equity weighting runs in the opposite direction: toward more present action.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Neither direction of equity weighting supports pure time preference — the equity argument is about relative welfare levels, not about temporal distance per se.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Equity weighting supports the proposition's case in the climate context — it cannot be used to justify high pure time preference, and given plausible climate impacts it may require even lower effective discount rates than the Ramsey formula alone implies.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">VI — Irreversibility: option value of prevention demands lower discounting of irreversible harms</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Many climate damages are irreversible on human timescales — species extinction, ice sheet destabilisation, sea level rise, ecosystem collapse.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The option value of avoiding irreversible harm — keeping open the possibility of correcting course — is substantial and systematically undervalued by standard discounting.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Irreversibility provides an additional, non-philosophical reason for near-zero discounting of long-run catastrophic risks — over and above the Ramsey pure time preference argument.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Irreversibility reinforces the Ramsey argument from a different direction — even on purely economic grounds, the option value of preventing irreversible harm demands that future welfare be given near-full weight in long-run policy decisions.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">VII — Political economy: high discount rates systematically favour present wealth-holders over the unborn</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A high discount rate renders future welfare nearly invisible in cost-benefit analysis — systematically favouring the interests of present over future generations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Present wealth-holders are the primary beneficiaries of economic activities whose harms fall on the future — the choice of discount rate has massive distributive implications.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Future persons cannot vote, lobby, or participate in political deliberations — the discount rate is one of the few policy parameters that can either protect or ignore their interests.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The discount rate is a distributive choice that systematically disenfranchises future generations — a near-zero pure time preference rate is not politically naive but morally required to give voice to those who cannot represent themselves.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════ OPPOSITION ══════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','nordhaus',this)">Nordhaus</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','parfit',this)">Parfit</button>
+  </div>
+
+  <div class="col-header" id="opp-nordhaus-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">William Nordhaus</span></div>
+    <div class="col-position"><em>A Question of Balance</em> (2008) — descriptive vs prescriptive discounting; market rates reflect genuine preferences; the tyranny of prescriptive ethics; gradualism and the DICE model; why Stern's rate makes the present generation a slave to the future</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','nordhaus','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','nordhaus','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="opp-parfit-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Derek Parfit</span></div>
+    <div class="col-position"><em>Reasons and Persons</em> (1984) — the non-identity problem; the repugnant conclusion; why our obligations to future people are stranger and more complex than Ramsey assumes; the asymmetry between creating and harming</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','parfit','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','parfit','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- NORDHAUS -->
+    <div class="speaker-panel active" id="opp-nordhaus-panel">
+      <div id="opp-nordhaus-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The proposition has offered us a beautiful piece of Cambridge moral philosophy. But beautiful philosophy, imposed on an economy of billions of present people who are poor, insecure, and have their own urgent claims on resources, can be a form of tyranny dressed up as ethics. I want to defend the use of market-based discount rates — not because I am indifferent to future generations, but because I believe the alternative produces worse outcomes for everyone, present and future alike.</p>
+
+        <span class="section">On the descriptive approach to discounting</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Descriptive discounting: market rates reflect actual preferences of actual people and should guide social decisions</span>The proposition insists on a prescriptive approach — deriving the discount rate from ethical first principles and imposing it on economic decisions regardless of what people actually want. I prefer the descriptive approach: using market interest rates that reflect the actual choices of actual persons about how to trade present for future consumption. Why? Because these rates are the ones that govern real investment decisions in a market economy. If the social discount rate diverges dramatically from market rates, we face a practical problem: the policy recommendations derived from the social rate are not implementable within real economic institutions. More fundamentally: the proposition assumes that we, the philosopher-economists, know better than actual people how much they should sacrifice for the future. This is a form of paternalism — and a particularly sweeping one, since it involves overriding the preferences of the entire present generation in favour of generations who do not yet exist.</span></p>
+
+        <span class="section">On the savings rate paradox</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Savings paradox: near-zero pure time preference implies current generations should save far more than they do or can</span>Here is the most devastating practical objection to Ramsey's and Stern's position. If pure time preference should be zero, and if there are investment opportunities available now that yield positive returns in the future, then present generations are morally obligated to save and invest at very high rates — to sacrifice present consumption for future gain. The Ramsey formula with δ=0 and positive expected growth implies an optimal savings rate that is dramatically higher than what any existing economy achieves or that any political system has ever successfully imposed. Applied consistently, the logic of near-zero discounting would require us to drastically reduce present consumption — including the consumption of the global poor — to fund investments whose benefits will accrue to people who will, on reasonable growth assumptions, be far richer than we are. A moral theory that implies we are all currently acting catastrophically wrongly by not transferring enormous resources from the present poor to the future rich has gone somewhere wrong.</span></p>
+
+        <span class="section">On the governance of real capital allocation</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Capital allocation: a prescriptive rate far below market rates produces economic incoherence in a mixed economy</span>In a mixed market economy, public investment decisions are embedded in a context of private investment governed by market rates. If the public sector uses a social discount rate of one percent while the private sector uses rates of five to eight percent, the result is not an optimal allocation across generations — it is a massive misallocation of capital within the present. Projects with low but certain long-run returns are funded instead of projects with higher present returns; the dynamic efficiency of the economy is damaged; and the tax base that funds future public services is eroded. The proposition imagines a world in which we can simply declare a near-zero social discount rate and implement it. In the real world of mixed economies with private capital markets, a prescriptive rate that diverges sharply from market rates produces incoherence, not justice.</span></p>
+
+        <span class="section">On uncertainty as justification for positive discounting</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Uncertainty justification: pure time preference may proxy for real uncertainty about whether future benefits will be received</span>I want to offer a partial defence of positive discount rates that does not rely on the ethically indefensible argument that future welfare matters less per se. Future benefits are genuinely uncertain: the people who will receive them may not exist as predicted; the projects generating them may fail; economic, political, or technological shocks may render them worthless. A positive discount rate may function as an implicit correction for this genuine uncertainty — not as a statement that future welfare is less important, but as a recognition that future receipts are less certain than present ones. This is not the morally objectionable form of pure time preference that Ramsey attacked. It is a rational response to genuine epistemic uncertainty about the future.</span></p>
+
+        <span class="section">On the DICE model and gradualism</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">DICE model: optimal climate policy under market rates involves gradual, increasing carbon taxes — not radical near-term sacrifice</span>My Dynamic Integrated model of Climate and the Economy — the DICE model — uses market-consistent discount rates to evaluate climate policy. The result is not that we should do nothing about climate change. It is that we should implement an optimal carbon tax that starts modestly, rises steadily as the damages of climate change become more severe, and is complemented by investment in clean technology. This gradualist approach outperforms both the do-nothing position and the radical mitigation Stern recommends — because it respects the opportunity costs of present resources, maintains the incentives for investment and growth that will make future generations better placed to adapt, and avoids the enormous transfers from present to future that Stern's approach requires. The ethical case for gradualism is not indifference to the future; it is a considered judgement that sustainable, growth-compatible climate policy does more good — over all generations — than heroic present sacrifice.</span></p>
+
+        <span class="section">On the intergenerational equity objection to Stern</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Future generations will be richer: transferring from poorer present to richer future is regressive, not progressive</span>The proposition affects the language of progressive redistribution on behalf of the future poor. But the empirical facts do not support this framing. On reasonable growth projections, people living in 2150 will be vastly richer than people living today — including the world's present poor. Stern's policy prescriptions involve enormous present sacrifices — particularly by developing countries that are currently trying to industrialise — to protect the welfare of people who will, in expectation, enjoy standards of living unimaginable today. This is not progressive redistribution. It is a transfer from the present poor to the future rich, justified by a philosophical argument that overrides the preferences of those making the sacrifice. A genuinely egalitarian approach would be more concerned with present global poverty than with the welfare of people who will, in all probability, be far better off than we are.</span></p>
+
+        <span class="section">On why Ramsey's argument is not decisive</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Ramsey's argument is not decisive: legitimate components of the discount rate justify substantially positive rates even with δ=0</span>Let me be clear about what I accept and what I reject. I accept that bare temporal distance is not, by itself, a morally relevant difference between persons. I accept that pure time preference — in Ramsey's strict sense — is difficult to defend in the abstract. What I deny is that this concession delivers the near-zero discount rate Ramsey and Stern recommend. The social discount rate includes multiple components: pure time preference, uncertainty corrections, the opportunity cost of capital, and the growth-based component. Even if the pure time preference component is zero, the resulting discount rate — properly accounting for uncertainty and opportunity cost — will be substantially positive. Stern's choice of near-zero overall discount rate is not mandated by the ethical argument against pure time preference; it represents a choice of parameters that conveniently supports the policy conclusions he arrived at by other means.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-nordhaus-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">I — Descriptive discounting: market rates reflect actual preferences; prescriptivism is paternalist</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Market interest rates aggregate the actual intertemporal preferences of millions of real people about how to trade present for future consumption.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Imposing a philosophically derived prescriptive rate overrides these actual preferences in favour of what economists and philosophers believe people should want — a form of radical paternalism.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Democratic legitimacy requires that social decisions about resource allocation be anchored to actual preferences, not to preferences philosophers think agents ought to have.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The prescriptive approach is paternalist — it substitutes philosophical judgement for the actual preferences of present generations; market rates, whatever their imperfections, have the democratic virtue of reflecting what real people actually want.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">II — Savings paradox: near-zero discounting implies enormous, economically ruinous present sacrifice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>With δ=0 and positive expected returns, the Ramsey formula implies optimal savings rates dramatically higher than any economy has achieved — requiring vast cuts in present consumption.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These transfers would flow from relatively poor present generations to future generations that, on growth projections, will be far wealthier.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A moral theory that requires transferring from the present poor to the future rich, and condemns all existing savings behaviour as catastrophically inadequate, has generated an unacceptable conclusion — a reductio of the near-zero rate.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Near-zero pure time preference, applied consistently, implies economically ruinous and distributively regressive sacrifices by present generations — a practical and ethical reductio showing the prescription has been set at the wrong level.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">III — Capital allocation: prescriptive rates sharply diverging from market rates produce economic incoherence</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Public investment decisions in mixed economies sit alongside private capital allocation governed by market rates of five to eight percent.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A social discount rate of one to two percent, sharply below market rates, will fund low-return long-horizon public projects at the expense of high-return present investments — producing misallocation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This misallocation damages dynamic efficiency and erodes the tax base and growth that fund future welfare — ultimately harming the future generations the low rate was designed to help.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Prescriptive rates far below market rates produce economic incoherence in mixed economies — they cannot be implemented without damaging the very growth and investment that sustains both present and future welfare.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">IV — Uncertainty justification: positive discounting may reflect rational epistemic caution, not time preference</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Future benefits are genuinely uncertain — projects may fail, people may not exist to receive them, political changes may render them worthless.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A positive discount rate can function as an implicit correction for this genuine uncertainty — not as a claim that future welfare is intrinsically less important.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This uncertainty-based defence of positive discounting is independent of pure time preference and is not subject to Ramsey's ethical objection.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Positive discount rates can be justified by genuine uncertainty about future receipts without invoking pure time preference — Ramsey's ethical argument, even if accepted, does not imply that the total discount rate should approach zero.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">V — DICE model: optimal gradualism outperforms both inaction and radical near-term sacrifice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The DICE model, using market-consistent rates, recommends a rising carbon tax and technology investment — not inaction but also not the radical present sacrifice Stern implies.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Gradualist climate policy respects opportunity costs of present resources and maintains growth incentives that will make future generations better equipped to adapt.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A policy optimised over all generations using realistic discount rates achieves better total outcomes than heroic present sacrifice that damages present welfare and democratic sustainability.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Optimal gradualism under market-consistent rates is not indifference to the future — it is a multi-generational optimisation that delivers better total welfare than either extreme; the choice is not between caring and not caring but between coherent and incoherent policies.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">VI — Intergenerational equity: transfers from present poor to future rich are regressive</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>On reasonable growth projections, people in 2150 will be far wealthier than people alive today — including the world's present poor.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Stern's prescriptions require large present sacrifices — particularly by developing countries — to protect the welfare of people who will in expectation be enormously better off.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Transferring resources from poorer present to richer future generations is distributively regressive — the opposite of progressive redistribution, whatever philosophical language accompanies it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Near-zero discounting is not the progressive policy it presents itself as — it requires regressive transfers from present poor to future rich; a genuinely egalitarian approach would prioritise present global poverty reduction over future welfare enhancement.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">VII — Ramsey's argument is not decisive: uncertainty and opportunity cost justify substantial positive rates</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Accepting that pure time preference is ethically questionable does not imply the total social discount rate should be near zero.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Uncertainty corrections, opportunity costs of capital, and the growth component can together generate substantially positive social discount rates even with δ=0.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Stern's near-zero overall rate requires setting all these other components implausibly low — a choice of parameters not mandated by the ethical argument against pure time preference.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Conceding the argument against pure time preference does not concede Stern's overall rate — the legitimate components of the discount rate, properly estimated, generate substantially positive rates; Stern's near-zero rate goes beyond what ethics requires.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARFIT -->
+    <div class="speaker-panel" id="opp-parfit-panel">
+      <div id="opp-parfit-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to approach this question from a different direction from my colleague Nordhaus. I share Ramsey's conviction that pure time preference, as he defined it, is difficult to defend. But I want to argue that the philosophical foundations of our obligations to future generations are far more complex — and far stranger — than Ramsey's elegant formula suggests. The problem of discounting future welfare is entangled with some of the deepest and most unresolved puzzles in population ethics; and the proposition, in my view, has papered over those puzzles with a deceptively clean analysis.</p>
+
+        <span class="section">On the non-identity problem</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Non-identity problem: our long-run policy choices affect which people will exist; we cannot harm someone by causing them to exist</span>Here is a problem that Ramsey's framework does not address. Our policy choices today — including our choices about climate change — will affect not just the welfare of future people, but which future people exist. Different energy policies, different patterns of economic development, different global political arrangements, will lead to different people meeting, marrying, and having children. Over the span of centuries, virtually no one who will actually exist under one policy regime would have existed under a different one. This is the non-identity problem. If our policies lead to a world where people exist who would not otherwise have existed, and those people live lives worth living, we have not harmed them — even if their lives are somewhat worse than the lives of the people who would have existed under a more protective policy. They were not harmed; they were created. And one cannot harm someone by bringing them into a life that is worth living. This creates a profound puzzle for the proposition's framework: it cannot be that we wrong future people by our choices if the very people who will judge themselves wronged owe their existence to those choices.</span></p>
+
+        <span class="section">On the repugnant conclusion</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Repugnant conclusion: total welfare maximisation implies a vast population of barely-worth-living lives is better than a small flourishing one</span>Ramsey's optimal savings framework, and Stern's welfare economics, work within an additive, aggregative framework: the goal is to maximise the sum of welfare over all persons across all time. But this framework — total utilitarianism — leads to what I call the Repugnant Conclusion. A world containing ten billion very happy people is judged, by total utilitarian calculus, to be worse than a world containing one hundred billion people whose lives are barely worth living — because the summed total of the larger, barely-satisfied population exceeds the summed total of the smaller, flourishing one. If we take seriously the goal of maximising the present-discounted value of all future welfare, we are implicitly endorsing this framework. But the conclusion is repugnant — as I believe most people immediately recognise. Any ethical framework that leads to the Repugnant Conclusion must be either false or in need of substantial revision. Ramsey's analysis, and Stern's, import a utilitarian aggregation structure that has not been shown to avoid this and related conclusions.</span></p>
+
+        <span class="section">On the asymmetry between creating and harming</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Asymmetry: we have strong duties not to harm existing people, but our duties toward non-existent potential people are different and weaker</span>There is a widespread and, I believe, correct intuition about our obligations with respect to future people. We have a strong duty not to harm people who will exist — that is, people whose existence is already determined and whose welfare will be affected by our choices. But we do not have the same strong duty to create additional people so as to maximise welfare. The asymmetry is this: causing misery to people who will exist is a moral wrong; but failing to create happy people who would otherwise not exist is not in the same moral category. Now, this asymmetry complicates the proposition's framework in a specific way. If climate change reduces the welfare of people who will exist in any case — because they will be born and will suffer from its effects — then we do wrong them, and Ramsey's framework is appropriate. But if our choices affect which people exist — as they will over long periods — then the obligations are different and less clear-cut. The proposition has not distinguished these cases; it has treated all future welfare as equivalent, when the ethics are asymmetric.</span></p>
+
+        <span class="section">On personal identity and the continuity of persons across time</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Personal identity: the self is not a persistent, unified entity; this complicates intertemporal welfare comparisons</span>Ramsey's framework treats each person across time as a unified welfare subject — my welfare in twenty years counts the same as my welfare today, and the welfare of a person born in a century counts the same as mine now. But the metaphysics of personal identity across time is more complex than this. There is serious philosophical debate about whether the person I will be in twenty years is really "me" in any deep sense — whether personal identity is a matter of psychological continuity, physical continuity, or some more complex relation. I argued in Reasons and Persons that the self is not a deep, persistent entity; personal identity is a conventional matter of degree. If this is right, then the intra-personal analogy that Ramsey uses to ground inter-personal discounting is more complicated than it appears — and the same complications apply to our ethical relations with future generations, who may bear only the most attenuated continuity relations with present people.</span></p>
+
+        <span class="section">On the independence of moral status from welfare level</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Moral status is not proportional to welfare level: this conflicts with additive welfare frameworks</span>Here is a further puzzle for the proposition's welfare-aggregative framework. In additive welfare economics, a person with a very low welfare level contributes less to the total than a person with a high welfare level. But this conflicts with our intuition that moral status — the weight a person's welfare and interests should receive in ethical deliberation — does not vary with welfare level. A barely-surviving person is not a lesser moral patient than a flourishing one; their suffering deserves equal consideration even if their welfare score is lower. This suggests that the additive framework underpinning Ramsey's and Stern's analysis — which discounts welfare levels that are lower, and aggregates them with those that are higher, to produce a total to be maximised — may not correctly represent what actually matters morally. The relationship between welfare as measured by economists and moral weight as required by ethics is not the simple identity that Stern's framework assumes.</span></p>
+
+        <span class="section">On uncertainty about future populations</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Population uncertainty: we do not know how many people will exist in the future; this radically complicates welfare maximisation</span>A practical consequence of the non-identity problem and related puzzles is this: the population that will exist in the future depends on present choices in ways we cannot predict with confidence. Different policies lead not just to different welfare levels for a fixed future population, but to different populations altogether — different numbers of people, with entirely different lives. This makes the task of welfare maximisation across generations radically indeterminate. When we try to add up the present value of future welfare, we do not know what that welfare is attached to — how many people, which people, living what kinds of lives. Stern's framework implicitly treats the future population as fixed, or as a risk over a distribution of fixed populations. This is a simplification that systematically understates the genuine complexity of our obligations to the future.</span></p>
+
+        <span class="section">On what follows — humility, not high discounting</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Conclusion: population ethics complexity demands humility about prescriptive frameworks, not complacency about climate</span>I want to be clear about the implications of my arguments. I am not defending Nordhaus's market-rate discounting. I am not arguing that future welfare does not matter, or that we may treat it as nearly weightless. The non-identity problem and the other puzzles I have raised are not arguments for complacency about climate change — they are arguments for intellectual humility about our ability to derive clean prescriptive frameworks from welfare economics. The proposition has offered us Ramsey's elegant formula as if it settled the question. I have argued that the question is harder than Ramsey's formula acknowledges. Our obligations to future people are genuine, but they are also strange, complex, and not fully captured by the additive welfare-maximising framework that the proposition deploys. We need a richer ethics of the future — not just a lower discount rate.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-parfit-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">I — Non-identity problem: long-run policy choices determine which persons exist; we cannot harm non-existent people</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Different policy choices over centuries lead to different people existing — almost no one in the distant future would exist under both a protective and a non-protective policy.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A person cannot be harmed by a policy that brought them into existence in a life worth living — even if a different policy would have created a different, better-off person.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Ramsey's framework treats future welfare as the welfare of a fixed population — it does not address the case where the policy choice determines who will exist.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The non-identity problem shows that the proposition's framework is incomplete — it cannot generate our obligations to future people in the long-run case where policy choices determine which people exist, not merely how well they fare.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">II — Repugnant conclusion: additive welfare maximisation implies vast populations of barely-surviving lives are optimal</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Ramsey-Stern framework maximises the sum of welfare over all persons across time — it is a form of total utilitarianism applied across generations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Total utilitarianism implies the Repugnant Conclusion: a vast population of barely-worth-living lives is better than a small population of flourishing lives, if the total welfare sum is larger.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Repugnant Conclusion is morally unacceptable — any framework that generates it must be revised or rejected.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The additive welfare framework underpinning Ramsey's and Stern's analysis generates the Repugnant Conclusion — a decisive internal objection showing the framework is not the correct foundation for our obligations to future generations.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">III — Asymmetry: strong duties not to harm the existing, weaker and different duties toward the non-existent</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>We have a strong duty not to harm people who will exist — their welfare must be taken seriously, and causing them misery wrongs them.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Our duties with respect to potential people who may or may not exist are different: failing to create happy people is not the same kind of wrong as harming existing ones.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition's framework does not distinguish between these cases — it treats all future welfare as equivalent, obscuring a morally crucial asymmetry.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The asymmetry between harming the existing and failing to create the happy shows that the proposition's uniform treatment of future welfare is morally inadequate — our obligations depend on whether future people will exist anyway, not just on when they live.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">IV — Personal identity: the self is not a persistent entity; continuity relations complicate intertemporal ethics</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Personal identity across time is a matter of psychological and physical continuity — not of a persistent, deep self that remains identical over decades.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If personal identity is a matter of degree, then the relationship between my present self and my future self is more like the relationship between related but distinct persons than it appears.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This complicates both intra-personal discounting and the inter-personal case where we compare welfare across distant future people with whom we share even weaker continuity relations.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The metaphysics of personal identity shows that welfare comparisons across long time spans are more complex than the clean aggregative framework implies — the proposition has assumed a continuity of persons that is philosophically contested.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">V — Moral status vs welfare level: equal moral weight does not imply equal welfare scores</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Moral status — the weight a person's interests deserve — does not vary with welfare level: a barely-surviving person is not a lesser moral patient than a flourishing one.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Additive welfare frameworks treat higher-welfare lives as contributing more to the total — implicitly weighting higher-welfare persons more heavily.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The identity between welfare as measured and moral weight as required is not established by the proposition — it is an assumption that conflicts with our intuitions about equal moral status.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The additive welfare framework does not correctly represent equal moral status across persons — it conflates welfare level with moral weight in ways that generate counterintuitive conclusions about our obligations to worse-off future people.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">VI — Population uncertainty: we cannot maximise welfare over a future population we cannot determine</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Different present policies lead to radically different future populations — different numbers of people with different identities and lives.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Welfare maximisation across generations requires summing welfare over a future population — but when that population is itself a function of present choices, the maximisation problem is radically indeterminate.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Stern's framework treats the future population as exogenous — a simplification that understates the genuine complexity of intergenerational obligations.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Population endogeneity makes welfare maximisation across generations radically indeterminate — the proposition's framework requires a fixed future population that the non-identity problem shows we cannot assume.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">VII — Conclusion: complexity demands humility, not high discounting but also not Ramsey's clean formula</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The non-identity problem, the Repugnant Conclusion, the asymmetry of creation and harm, and population uncertainty show that our obligations to the future are genuinely complex and not fully captured by the additive welfare framework.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This complexity does not justify high discounting or indifference to future welfare — the conclusion is not that future people do not matter.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The conclusion is that we need a richer, more nuanced ethics of the future than the Ramsey formula provides — one that takes seriously the philosophical puzzles his analysis ignores.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proposition's framework is philosophically incomplete — not wrong in its rejection of pure time preference, but premature in thinking that rejection settles the question; a full account of our obligations to future generations remains to be constructed.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd"><span class="modal-hd-title" id="mTitle">Argument</span><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh"><div>No diagram linked</div><code>Add src to IMAGES object</code></div>
+        <img id="mImg" src="" alt="" style="display:none;width:100%;height:auto" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var state={
+  prop:{speaker:'ramsey',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'nordhaus',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
+  document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){sp.classList.remove('hidden');lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{sp.classList.add('hidden');lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+
+function openModal(speaker,n){
+  document.getElementById('mTitle').textContent=speaker+' — argument '+n;
+  document.getElementById('mCap').textContent='';
+  document.getElementById('mImg').style.display='none';
+  document.getElementById('mPh').style.display='flex';
+  document.getElementById('modalWrap').classList.add('open');
+}
+
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none';}
+function imgFail(){document.getElementById('mImg').style.display='none';document.getElementById('mPh').style.display='flex';}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open');}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal();}
+
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2,vw=window.innerWidth,mg=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  tip.style.left=Math.min(Math.max(cx,tw/2+mg),vw-tw/2-mg)+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
