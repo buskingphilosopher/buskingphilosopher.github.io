@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moore's Paradox — House Debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Spectral:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f3f1ec;--bg2:#eae8e0;--bg3:#dedad1;--bg4:#d2cec3;
+  --bdr:rgba(42,38,22,.1);--bdr2:rgba(42,38,22,.2);
+  --text:#1e1b10;--text2:#4a4432;--text3:#908870;--ink:#181510;--rule:rgba(42,38,22,.12);
+  --prop-col:#1a3e6a;--prop-pill-bg:#e5ecf4;--prop-pill-bdr:#a2bcd6;
+  --opp-col:#3c1e6a;--opp-pill-bg:#ece5f4;--opp-pill-bdr:#baa2d6;
+  --a1bg:rgba(18,58,118,.07);--a1brd:rgba(18,58,118,.32);--a1tip:#123876;
+  --a2bg:rgba(18,108,58,.07);--a2brd:rgba(18,108,58,.30);--a2tip:#0c6438;
+  --a3bg:rgba(148,88,14,.08);--a3brd:rgba(148,88,14,.32);--a3tip:#8a520a;
+  --a4bg:rgba(138,24,24,.07);--a4brd:rgba(138,24,24,.30);--a4tip:#821212;
+  --a5bg:rgba(68,32,128,.07);--a5brd:rgba(68,32,128,.29);--a5tip:#401e7c;
+  --a6bg:rgba(18,102,112,.07);--a6brd:rgba(18,102,112,.29);--a6tip:#0c5e6c;
+  --a7bg:rgba(102,68,10,.07);--a7brd:rgba(102,68,10,.28);--a7tip:#5e3e08;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'EB Garamond',Georgia,serif;background:var(--bg);color:var(--text)}
+.motion-header{padding:.85rem 2.5rem .75rem;border-bottom:1px solid var(--rule);text-align:center;background:var(--bg2);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(42,38,22,.2),transparent)}
+.motion-eyebrow{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);font-weight:400;margin-bottom:5px}
+.motion-title{font-family:'EB Garamond',serif;font-size:17px;font-weight:400;font-style:italic;color:var(--ink);letter-spacing:.01em;line-height:1.4}
+.motion-title em{font-style:normal;font-weight:600}
+.motion-sub{font-family:'Spectral',serif;font-size:11px;font-style:italic;color:var(--text3);margin-top:4px;letter-spacing:.02em}
+.columns{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 70px)}
+.col{display:flex;flex-direction:column;overflow:hidden}
+.col.prop{border-right:1px solid var(--rule)}
+.speaker-bar{display:flex;align-items:stretch;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:'DM Mono',monospace;font-size:10px;font-weight:400;padding:8px 13px;cursor:pointer;border:none;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;transition:color .15s,background .15s;flex-shrink:0;white-space:nowrap;letter-spacing:.04em}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.6rem 1.3rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:baseline;gap:.7rem;margin-bottom:2px;flex-wrap:wrap}
+.pill{font-family:'DM Mono',monospace;font-size:9px;font-weight:400;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:2px;flex-shrink:0}
+.pill.prop{background:var(--prop-pill-bg);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill-bg);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:'EB Garamond',serif;font-size:18px;font-weight:400;font-style:italic;color:var(--ink)}
+.col-position{font-family:'Spectral',serif;font-size:12px;font-style:italic;color:var(--text3);margin-top:1px;line-height:1.5}
+.tabs{display:flex;gap:0;margin-top:6px}
+.tab{font-family:'DM Mono',monospace;padding:5px 13px;font-size:10px;letter-spacing:.05em;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:3px 3px 0 0;background:var(--bg3);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2)}
+.prop .tab.active{color:var(--prop-col)}
+.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.2rem 1.5rem;font-size:15.5px;line-height:1.9;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:2px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2)}
+.speaker-panel{display:none}
+.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic;font-size:14px}
+.speech-text em{color:var(--text3)}
+.speech-text .eg{font-family:'DM Mono',monospace;font-size:10.5px;background:var(--bg3);border-left:2px solid var(--bdr2);padding:7px 14px;margin:.4rem 0 .85rem;display:block;color:var(--ink);letter-spacing:.02em;line-height:1.85}
+.speech-text .section{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.logic-view{display:flex;flex-direction:column;gap:.85rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden;cursor:pointer;transition:background .12s}
+.arg-block:hover{background:var(--bg3)}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:'DM Mono',monospace;font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.09em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.img-hint{font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:'EB Garamond',serif;font-size:14.5px;line-height:1.65;color:var(--text2)}
+.plabel{font-family:'DM Mono',monospace;font-weight:400;min-width:16px;font-size:10px;color:var(--text3);padding-top:2px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:'EB Garamond',serif;font-size:14.5px;line-height:1.65;border-top:1px solid var(--bdr);background:var(--bg3);font-style:italic}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:1px;padding:1px 1px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:'DM Mono',monospace;font-size:10px;font-weight:400;font-style:normal;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:2px;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.13);color:var(--ink);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+.modal-wrap{display:none;position:fixed;inset:0;background:rgba(18,14,9,.72);z-index:100;align-items:center;justify-content:center}
+.modal-wrap.open{display:flex}
+.modal{background:var(--bg2);border-radius:3px;border:1px solid var(--bdr2);width:390px;max-width:92%;overflow:hidden}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;border-bottom:1px solid var(--bdr)}
+.modal-hd-title{font-family:'DM Mono',monospace;font-size:10px;color:var(--text);letter-spacing:.04em}
+.modal-close{background:none;border:1px solid var(--bdr);cursor:pointer;color:var(--text2);font-size:14px;line-height:1;padding:3px 7px;border-radius:2px}
+.modal-close:hover{background:var(--bg3)}
+.modal-bd{padding:.85rem}
+.modal-img-wrap{border:1px solid var(--bdr);border-radius:2px;overflow:hidden;background:var(--bg3);min-height:120px;display:flex;align-items:center;justify-content:center}
+.modal-img-wrap img{width:100%;height:auto;display:block}
+.modal-ph{text-align:center;padding:1.5rem;color:var(--text3);font-family:'DM Mono',monospace;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.modal-ph code{font-size:9px;background:var(--bg4);padding:2px 6px;border-radius:2px}
+.modal-cap{margin-top:.5rem;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.03em}
+</style>
+</head>
+<body>
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House · Philosophy of Language · Epistemology · Philosophy of Mind</div>
+  <div class="motion-title">"Moore's paradox is <em>fundamentally a paradox about assertion and the pragmatics of speech</em> — its solution lies in the logic of assertion, not in the nature of belief or self-knowledge"</div>
+  <div class="motion-sub">The paradox: "It is raining, but I don't believe it is" — true but unassertable · Moore · Wittgenstein · Grice &nbsp;vs&nbsp; Shoemaker · Rosenthal · Hintikka</div>
+</div>
+
+<div class="columns">
+
+<!-- ══════════════════════════════════
+     PROPOSITION
+     Moore · Wittgenstein · Grice
+     The paradox is about assertion, not belief
+══════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','moore',this)">Moore</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','wittgenstein',this)">Wittgenstein</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','grice',this)">Grice</button>
+  </div>
+
+  <!-- MOORE HEADER -->
+  <div class="col-header" id="prop-moore-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">G.E. Moore</span></div>
+    <div class="col-position">The original statement of the paradox — asserting p implies believing p; the absurdity is a failure of what assertion pragmatically implies about the speaker's mental state</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','moore','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','moore','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- WITTGENSTEIN HEADER -->
+  <div class="col-header hidden" id="prop-wittgenstein-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Ludwig Wittgenstein</span></div>
+    <div class="col-position"><em>Philosophical Investigations</em> — the logic of assertion; "I believe p" in the first-person present is not a psychological report; the first-person/third-person asymmetry is the key</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','wittgenstein','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','wittgenstein','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- GRICE HEADER -->
+  <div class="col-header hidden" id="prop-grice-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">H.P. Grice</span></div>
+    <div class="col-position">Conversational implicature — the absurdity is a violation of the maxim of Quality; the paradox is fully explained by the pragmatics of assertion without revising the theory of belief</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','grice','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','grice','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ MOORE ══ -->
+    <div class="speaker-panel active" id="prop-moore-panel">
+      <div id="prop-moore-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to begin by describing the phenomenon I observed, because I believe it is both more peculiar and more philosophically significant than subsequent discussion has always recognised. Consider the following sentence:</p>
+        <span class="eg">It is raining, but I don't believe it is.</span>
+        <p>This sentence is not self-contradictory. It does not assert a logical impossibility. There are perfectly ordinary circumstances in which it would be true — it happens all the time that it is raining while someone fails to believe it is. And yet, if I were to assert this sentence sincerely, I would be saying something profoundly absurd. Not merely false — absurd. Something has gone wrong, but what?</p>
+
+        <span class="section">On the two forms of the paradox</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Two forms: omissive and commissive</span>There are actually two distinct forms of the paradox, and any adequate solution must address both. The omissive form — "It is raining, but I don't believe it is" (p ∧ ¬Bp) — asserts the fact while denying belief in it. The commissive form — "It is raining, but I believe it isn't" (p ∧ B¬p) — asserts the fact while asserting a contrary belief. Many proposed solutions address only the omissive form. I insist that a genuine solution must account for both, because the absurdity is present in both. The commissive form is in some ways more striking: it is possible to believe a falsehood, and so there is nothing incoherent about believing it isn't raining while it is. And yet, asserting this openly is just as absurd as the omissive form.</span></p>
+
+        <span class="section">On the asymmetry between first and third person</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">First-person asymmetry: no absurdity in the third person or past tense</span>The paradox is confined to the first person, present tense. There is no absurdity in asserting "It is raining, but Jones doesn't believe it is" — that is a perfectly sensible observation about someone's failure of knowledge. There is no absurdity in asserting "It was raining, but I didn't believe it was" — that is a perfectly natural report of a past state of ignorance. The absurdity arises specifically and exclusively when I, now, assert both that p is the case and that I, now, don't believe it. This restriction to the first-person present tense is a clue to the solution. It tells us that the problem is not in the content of what is said — not in any logical or metaphysical impossibility — but in the performance of asserting it.</span></p>
+
+        <span class="section">On what assertion pragmatically implies</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Moore's solution: assertion implies belief; the Moorean sentence is self-undermining</span>My own diagnosis is this. When a person makes an assertion — sincerely, in normal circumstances — she implies that she believes what she is asserting. This is not a logical implication; it is what I called a pragmatic implication. It is part of what it means to make a sincere assertion, rather than to suppose, hypothesise, or quote. When I assert "It is raining," I imply that I believe it is raining. When I then add "but I don't believe it is raining," I explicitly deny the very thing my act of assertion has implied. The result is self-undermining: the act of assertion and the content of what is asserted are in conflict. This is the source of the absurdity — not a contradiction between two propositions but a contradiction between what the speech act implies and what the content asserts.</span></p>
+
+        <span class="section">On the knowledge version</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The knowledge version: "It is raining but I don't know it is"</span>There is a related but distinct version of the paradox involving knowledge rather than belief: "It is raining but I don't know it is." This too is unassertable, though for subtly different reasons. Asserting p implies not merely believing p but — on some views — claiming to know p. If that is right, the knowledge version is even more directly self-undermining: I am asserting something while explicitly denying that I know it. This connects to the broader epistemology of assertion — the debate about whether the norm of assertion is knowledge rather than mere justified belief. But for the basic paradox, the belief-implication is sufficient to explain the absurdity, and I am not committed to the stronger knowledge norm.</span></div></p>
+
+        <span class="section">On why the paradox matters</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Why the paradox matters: it reveals something about the logic of assertion</span>Wittgenstein, in a generous letter, told me I had "said something about the logic of assertion." I think that is right. The paradox reveals that assertion is not merely the communication of propositional content — it is a speech act with constitutive norms, one of which is that the asserter implies belief in what she asserts. These norms are not reducible to the logical content of what is said; they belong to the pragmatic dimension of assertion. This is the first insight. The second is that the paradox is not primarily a paradox about belief or self-knowledge — it is a paradox about what you can sincerely say, and its location in the pragmatics of speech is where the solution belongs.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-moore-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('moore',1)">
+          <div class="arg-title"><span>I — Two forms of the paradox: omissive (p ∧ ¬Bp) and commissive (p ∧ B¬p)</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The omissive form asserts p while denying belief in p; the commissive form asserts p while asserting belief in ¬p.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Both forms are contingently true in many actual situations — the paradox is not about impossibility of truth but impossibility of coherent assertion.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Any adequate solution must address both forms; solutions addressing only the omissive form are incomplete.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The paradox is a phenomenon of assertion rather than logical truth — its two forms are both unassertable though not impossible, and any solution must account for this across both forms.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('moore',2)">
+          <div class="arg-title"><span>II — First-person present tense restriction: the absurdity is performative not propositional</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>"It is raining but Jones doesn't believe it" is perfectly sensible; "it was raining but I didn't believe it" is perfectly natural — no absurdity in either.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The absurdity is confined to the first-person present-tense assertion — to what I say now about my own current state.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This restriction to the first-person present tense shows that the problem is with the performance of the assertion rather than with the propositional content asserted.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The first-person present-tense restriction is decisive evidence that the paradox is located in the pragmatics of assertion — it is a problem with what one can sincerely say, not with what can be true.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('moore',3)">
+          <div class="arg-title"><span>III — Assertion pragmatically implies belief: the Moorean sentence is self-undermining</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Sincere assertion of p implies that the asserter believes p — this is a constitutive norm of assertion, not a logical entailment.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Asserting "p but I don't believe p" creates a conflict between what the act of assertion implies (belief in p) and what the content explicitly asserts (absence of belief in p).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This conflict between the implied and the explicitly stated is the source of the absurdity — a self-undermining speech act, not a logical contradiction.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Moorean sentence is self-undermining: the speech act of assertion implies what the content explicitly denies; the absurdity is generated by the pragmatics of assertion, not by logical impossibility.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('moore',4)">
+          <div class="arg-title"><span>IV — The knowledge version extends the paradox to the norm of assertion</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>"It is raining but I don't know it is" is equally unassertable — asserting p implies at least claiming to know p, and explicitly denying knowledge is self-undermining.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The knowledge version suggests the norm of assertion may be knowledge rather than mere belief — a stronger requirement that generates its own version of the paradox.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Whether the norm is belief or knowledge, the paradox is located in the normative structure of assertion — not in facts about the mind.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The knowledge version confirms that the paradox is a feature of the normative structure of assertion — both belief-norm and knowledge-norm generate Moorean absurdity through the same mechanism of self-undermining speech.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('moore',5)">
+          <div class="arg-title"><span>V — The paradox reveals the logic of assertion: norms not reducible to propositional content</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Assertion has constitutive norms — including the norm that the asserter believes what she asserts — that are not reducible to the logical content of what is said.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These norms belong to the pragmatic dimension of speech acts, not to the semantic content of propositions.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The paradox reveals these norms by displaying a case where content and norm conflict — making visible something about the logic of assertion that formal logic alone cannot capture.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The paradox's solution lies in the logic of assertion — in the pragmatic norms constitutive of sincere assertoric speech acts — not in the metaphysics of belief or the epistemology of self-knowledge.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ WITTGENSTEIN ══ -->
+    <div class="speaker-panel" id="prop-wittgenstein-panel">
+      <div id="prop-wittgenstein-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>When I attended Moore's talk at the Moral Sciences Club in October 1944 and heard him describe the absurdity of "It is raining but I don't believe it is," I wrote to him immediately. I told him that he had said something about the logic of assertion — that the absurdity "is in fact something similar to a contradiction, though it isn't one" — and that "this just shows that logic isn't as simple as logicians think it is." I want to explain what I meant by this, because I think it goes considerably deeper than Moore's own account, and considerably deeper than the Gricean pragmatic story that will be offered by the next speaker.</p>
+
+        <span class="section">On the asymmetry of "I believe" in the first person present</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">First-person asymmetry: "I believe p" is not a psychological report</span>The key to the paradox lies in understanding what "I believe p" does in the first-person present tense. When I say "I believe it is raining," I am not making a report about my psychological state in the way that I would be if I said "Jones believes it is raining." When someone asks "Is it raining?" and I answer "I believe it is," they cannot complain: "Don't be irrelevant — I asked about the weather, not about your mind." The answer is perfectly relevant. This is because "I believe p" in the first-person present functions as a form of assertion of p — a hedged, less committed assertion, but an assertion nonetheless. It presents p as how things are, from my standpoint. It is not a detached psychological observation about my inner state.</span></p>
+
+        <span class="section">On what this shows about Moore's sentence</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Moore's sentence combines assertion with a denial of the asserter's standpoint</span>Once we see that "I believe p" in the first person is a mode of asserting p — of presenting p as my view of how things are — we can see why "p but I don't believe p" is peculiar. The first conjunct asserts p as how things are. The second conjunct "I don't believe p" expresses something like a standing-back from any assertoric commitment — a denial that p represents my view of the world. But one cannot simultaneously present p as how things are and deny that it represents one's view. The self-undermining is not merely pragmatic, in Grice's sense of a violated maxim — it is a deeper incoherence in the logical grammar of assertion and the first-person use of belief-language.</span></p>
+
+        <span class="section">On why this is about grammar, not psychology</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Grammar not psychology: the rule is a grammatical rule about how these words work</span>Moore described the absurdity as existing "for psychological reasons," and I told him this was wrong — or at least highly misleading. The problem is not psychological. It is grammatical — it concerns the logical grammar of assertion and the use of "I believe" in the first-person present. The rule that you cannot sincerely assert p while denying belief in p is not a contingent psychological generalisation about what minds can do. It is a grammatical rule about what these words mean — about how assertion functions in our language. To violate it is not to make a psychological mistake; it is to produce something that, like a contradiction, is ruled out by the grammar of the language itself.</span></p>
+
+        <span class="section">On why the opposition's self-knowledge solution misses the point</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against the self-knowledge solution: the paradox is not about failure of self-knowledge</span>The opposition will argue that the paradox ultimately reveals something about belief and self-knowledge — that a rational agent's beliefs must be transparent to her, and that Moorean belief is absurd because it involves first-order belief without appropriate higher-order awareness. But this explanation puts the cart before the horse. The logical grammar of assertion and first-person belief-language is prior to any theory of self-knowledge. We do not first understand self-knowledge and then derive the grammar of "I believe." Rather, the grammar of "I believe" — what it does and does not allow — is what frames the problem of self-knowledge. The paradox is a grammatical phenomenon that certain theories of self-knowledge are then called upon to explain; it is not itself explained by those theories.</span></p>
+
+        <span class="section">On the connection to the distinction between assertion and supposition</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Assertion vs supposition: "Suppose p and I don't believe p" is perfectly coherent</span>One of the most revealing features of the paradox is this: while I cannot assert "It is raining but I don't believe it," I can perfectly well suppose or hypothesise this. "Let us suppose that it is raining but I don't believe it" makes perfect sense — it invites us to consider a possible situation. The absurdity is confined to assertion; it does not attach to the propositional content considered in abstraction from any speech act. This shows that the paradox is indeed about the logic of assertion — specifically, about the contrast between the force of assertion and the force of supposition. Assertion commits the speaker to the content in a way that supposition does not; and it is that commitment, and its relation to the self-ascription of belief, that the paradox illuminates.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-wittgenstein-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('wittgenstein',1)">
+          <div class="arg-title"><span>I — "I believe p" in first-person present is a mode of asserting p, not a psychological report</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When asked "Is it raining?" the answer "I believe it is" is perfectly relevant — not a deflection to one's mental state but a hedged assertion about the weather.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>"I believe p" in the first-person present presents p as how things are from the speaker's standpoint — it is a mode of asserting p, not a detached psychological observation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is the first-person/third-person asymmetry: "Jones believes it is raining" is a psychological report; "I believe it is raining" is a form of assertion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The first-person present use of "I believe p" functions as assertion of p — this grammatical insight is the key to understanding why the Moorean sentence is self-undermining.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('wittgenstein',2)">
+          <div class="arg-title"><span>II — Moorean sentence combines assertoric commitment with denial of the asserter's standpoint</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The first conjunct "It is raining" presents p as how things are — it asserts from the speaker's standpoint.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The second conjunct "I don't believe it" denies that p represents the speaker's view of the world — it withdraws the assertoric standpoint.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>One cannot simultaneously present p as how things are and deny that it represents one's view — the combination is grammatically incoherent, not merely pragmatically odd.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Moorean sentence is grammatically self-undermining — deeper than a Gricean implicature violation, it combines the assertion of a standpoint with the denial of any standpoint.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('wittgenstein',3)">
+          <div class="arg-title"><span>III — The rule is grammatical not psychological: violating it is like producing a contradiction</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Moore called the absurdity psychological; Wittgenstein corrected him — the problem is grammatical, concerning the logical grammar of assertion and first-person belief-language.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Grammatical rules determine what words mean and how they function — violating them produces not a psychological mistake but something like a contradiction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The rule that one cannot sincerely assert p while denying belief in p is not a psychological generalisation but a grammatical feature of how assertion works in our language.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The paradox is grammatical — it concerns the logical grammar of assertion, not the psychology of the asserter; it plays in logic a role similar to contradiction, as Wittgenstein told Moore in 1944.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('wittgenstein',4)">
+          <div class="arg-title"><span>IV — The grammar of "I believe" is prior to theories of self-knowledge</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The opposition explains the paradox in terms of belief and self-knowledge — treating it as revealing how a rational agent's beliefs must be transparent to her.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the grammar of "I believe" and its assertoric function is prior to any theory of self-knowledge — it frames what the self-knowledge problem is.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>To derive the grammar from a theory of self-knowledge is to put the explanatory arrow backwards — grammar is the bedrock, not a datum to be explained by deeper theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The opposition's self-knowledge explanation mistakes the order of explanation — the grammar of "I believe" is primitive, and theories of self-knowledge are answerable to it, not vice versa.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('wittgenstein',5)">
+          <div class="arg-title"><span>V — Assertion vs supposition: the paradox is confined to assertoric force</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>"Suppose it is raining but I don't believe it" is perfectly coherent — the propositional content raises no problem when entertained hypothetically.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The absurdity is confined to assertion — to the speech act of asserting the content, not to the content itself considered in abstraction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This confinement to assertoric force confirms that the paradox is about the logic of assertion — specifically the contrast between assertoric and suppositive speech acts.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The paradox's restriction to assertion — its coherence under supposition — is the decisive confirmation that it is a phenomenon of assertoric logic, not of the nature of belief or self-knowledge.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ GRICE ══ -->
+    <div class="speaker-panel" id="prop-grice-panel">
+      <div id="prop-grice-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I want to offer the most parsimonious solution to Moore's paradox — a solution that explains the absurdity entirely within the framework of the pragmatics of assertion, without any appeal to the special grammar of first-person belief reports (which Wittgenstein invokes) and without any appeal to the metaphysics of belief or the epistemology of self-knowledge (which the opposition invokes). The solution follows directly from the Cooperative Principle and its maxims of conversational implicature.</p>
+
+        <span class="section">On the Cooperative Principle and the maxim of Quality</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The Cooperative Principle: the maxim of Quality grounds the absurdity</span>The Cooperative Principle holds that conversational contributions should be such as is required, at the stage at which they occur, by the accepted purpose or direction of the conversation. Among the maxims that specify this principle is the maxim of Quality: do not say what you believe to be false; do not say that for which you lack adequate evidence. When I assert p in normal conversational circumstances, I conversationally implicate that I believe p — because asserting p without believing it would be a violation of the Quality maxim that any rational cooperative communicator would recognise and avoid. This implicature is not a logical entailment — it is a Gricean conversational implicature, defeasible by context.</span></p>
+
+        <span class="section">On how implicature explains the paradox</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Implicature explains the paradox: asserting p implicates Bp; denying Bp cancels the implicature and undermines the assertion</span>When I assert "It is raining but I don't believe it is," the first conjunct "It is raining" implicates that I believe it is raining — by the maxim of Quality. The second conjunct "I don't believe it is raining" explicitly cancels this implicature. The result is not a contradiction — nothing logically impossible has been asserted. Rather, the sentence is pragmatically self-defeating: I have asserted something and simultaneously withdrawn the conversational ground that makes my assertion an assertion. I have, in effect, told my audience: here is my assertion, but I am not cooperating with the norms that make assertions informative. The absurdity is the absurdity of an utterance that is pragmatically incoherent rather than logically impossible.</span></p>
+
+        <span class="section">On the advantages of the pragmatic solution</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Advantages of the pragmatic solution: explains the paradox without revising logic or theory of belief</span>The pragmatic solution has several significant advantages over its rivals. First, it does not require any revision of the logic of belief — we need not say anything unusual about the structure of rational belief or about the conditions for rational self-knowledge. Second, it explains why the absurdity can be cancelled in certain contexts: in fiction, in philosophical illustration, in suppositions, in reported speech — precisely those contexts where the Cooperative Principle is suspended or modified. Third, it explains the connection to similar absurdities in other speech acts: "I promise to do X but I have no intention of doing X" is similarly self-defeating, for analogous implicature reasons. The paradox is one instance of a general pattern of pragmatic self-defeat.</span></div></p>
+
+        <span class="section">On the objection from iterated belief</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against the objection from iterated belief: the paradox of Moorean belief is derivative</span>The opposition will argue that there is a paradox of Moorean belief — not just Moorean assertion — and that any adequate solution must explain why it would be irrational to believe "p and I don't believe p," not just irrational to assert it. I want to resist this move. The paradox of Moorean belief, to the extent it exists, is derivative on the paradox of Moorean assertion. It is because we understand that to sincerely hold the belief that p is to be disposed to assert p — to take p as representing how things are — that we see incoherence in holding p while also holding that one does not believe p. The belief-incoherence is explained by the assertoric norms that govern belief, not the other way around. Shoemaker's priority thesis gets the direction of explanation backwards.</span></p>
+
+        <span class="section">On why the pragmatic solution is complete</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">The pragmatic solution is complete: no deeper theory is needed</span>The paradox is fully explained once we recognise that assertion conversationally implicates belief in what is asserted, and that Moorean sentences cancel this implicature while making the assertion. No deeper theory of belief, self-knowledge, or consciousness is needed to explain the absurdity. The opposition's theories — higher-order thought, doxastic logic, self-transparency — are solutions to a problem that does not exist at the level they are targeting. They are trying to explain why Moorean belief is irrational; but Moorean assertion is the primary phenomenon, and its irrationality is fully explained by the maxim of Quality. The paradox is a pragmatic phenomenon through and through.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-grice-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('grice',1)">
+          <div class="arg-title"><span>I — Maxim of Quality: asserting p implicates Bp; violation generates absurdity</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The maxim of Quality requires asserters not to say what they believe to be false — rational cooperative asserters comply with this.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Asserting p without believing p would violate the maxim of Quality — therefore asserting p implicates belief in p.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This implicature is conversational — defeasible and cancellable in appropriate contexts — not a logical entailment.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Asserting p Gricean-implicates Bp via the maxim of Quality; the Moorean sentence asserts p while explicitly cancelling this implicature, producing pragmatic self-defeat without logical impossibility.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('grice',2)">
+          <div class="arg-title"><span>II — Implicature cancellation makes the Moorean sentence pragmatically self-defeating</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>"It is raining" implicates "I believe it is raining" by Quality; "but I don't believe it is" explicitly cancels this implicature.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Cancelling the implicature while making the assertion withdraws the conversational ground that makes assertion informative.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The result is pragmatic incoherence — not logical impossibility but self-defeat in the cooperative communicative game.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Moorean sentences are pragmatically self-defeating: they make an assertion and simultaneously cancel the implicature that constitutes it as a cooperative contribution — this fully explains the absurdity.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('grice',3)">
+          <div class="arg-title"><span>III — Pragmatic solution explains context-sensitivity and extension to other speech acts</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The absurdity is cancelled in fiction, philosophical illustration, supposition, and reported speech — precisely contexts where the Cooperative Principle is suspended or modified.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Similar pragmatic self-defeat arises in other speech acts: "I promise to do X but have no intention of doing it" — showing this is a general pattern, not a special feature of belief.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The generalisability of the pragmatic pattern and its context-sensitivity confirm it as the right level of explanation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The pragmatic solution correctly predicts when the absurdity is present and when it is absent — its context-sensitivity and generalisability are marks of an explanatorily adequate account.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('grice',4)">
+          <div class="arg-title"><span>IV — Moorean belief-incoherence is derivative on assertoric norms; priority thesis is backwards</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Holding that p is to be disposed to assert p — the assertoric norms of belief derive from the norms of assertion.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Moorean belief-incoherence ("I believe p and I don't believe p") is therefore explained by the assertoric incoherence — not the other way around.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Shoemaker's priority thesis — that belief-absurdity explains assertion-absurdity — reverses the correct order of explanation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The priority of the assertoric over the doxastic is the correct explanatory order — belief-incoherence is derivative on assertoric norms, and Shoemaker's priority thesis is backwards.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('grice',5)">
+          <div class="arg-title"><span>V — The pragmatic solution is complete: no deeper theory of belief or self-knowledge needed</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The maxim of Quality fully explains why asserting "p but I don't believe p" is absurd — the explanation is complete at the pragmatic level.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Higher-order thought theory, doxastic logic, and self-transparency theories are solutions to a problem that does not arise at their level.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A complete explanation at a shallower level is preferable to an incomplete explanation at a deeper level — Ockham's razor favours the pragmatic solution.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The pragmatic solution is complete and parsimonious — no revision of logic, belief theory, or self-knowledge is needed; the paradox is a phenomenon of conversational implicature, fully explained by the Cooperative Principle.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════
+     OPPOSITION
+     Shoemaker · Rosenthal · Hintikka
+     The paradox is fundamentally about belief and self-knowledge
+══════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','shoemaker',this)">Shoemaker</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','rosenthal',this)">Rosenthal</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','hintikka',this)">Hintikka</button>
+  </div>
+
+  <!-- SHOEMAKER HEADER -->
+  <div class="col-header" id="opp-shoemaker-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Sydney Shoemaker</span></div>
+    <div class="col-position">The priority thesis — Moorean belief is the primary absurdity; rational self-knowledge requires belief and higher-order belief to be aligned; assertion-absurdity follows from belief-absurdity</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','shoemaker','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','shoemaker','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- ROSENTHAL HEADER -->
+  <div class="col-header hidden" id="opp-rosenthal-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">David Rosenthal</span></div>
+    <div class="col-position">Higher-order thought theory — a mental state is conscious only when accompanied by an appropriate higher-order thought; Moorean sentences reveal the conditions for conscious, reportable belief</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','rosenthal','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','rosenthal','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- HINTIKKA HEADER -->
+  <div class="col-header hidden" id="opp-hintikka-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Jaakko Hintikka</span></div>
+    <div class="col-position">Epistemic logic — Moorean sentences violate the axioms of doxastic logic; the formal logic of belief captures why the paradox arises; the solution is logical not merely pragmatic</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','hintikka','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','hintikka','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ SHOEMAKER ══ -->
+    <div class="speaker-panel active" id="opp-shoemaker-panel">
+      <div id="opp-shoemaker-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The proposition has told us that Moore's paradox is fundamentally about assertion — about the pragmatics of speech — and that its solution requires nothing more than recognising that assertion implicates belief. I want to argue that this account, while it captures something real, stops at a surface symptom rather than reaching the underlying condition. The phenomenon of Moorean absurdity is present not only in assertion but in belief itself — and any account that explains only the assertoric absurdity without explaining why it would be equally absurd to genuinely believe a Moorean proposition has not explained the phenomenon at its root.</p>
+
+        <span class="section">On Moorean belief — not just Moorean assertion</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Moorean belief: holding "p and I don't believe p" is itself absurd</span>Consider a person who sincerely, genuinely holds the belief that it is raining and also sincerely, genuinely holds the belief that she does not believe it is raining. Setting aside the question of how she came to express this — setting aside assertion entirely — the belief state itself is incoherent. This is Moorean belief, as opposed to Moorean assertion. The agent has a first-order belief that p and a second-order belief that she lacks the first-order belief that p. These cannot both be true of the same rational agent at the same time. The incoherence is in the belief state, not in the act of asserting it. And the Gricean account has nothing to say about this — it concerns assertibility conditions, not the rationality of belief states.</span></p>
+
+        <span class="section">On the priority thesis</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Priority thesis: explain belief-absurdity first; assertion-absurdity follows</span>I call this the priority thesis: if you have an adequate explanation of why it is irrational to hold a Moorean belief — why the belief state "p and I don't believe p" is incoherent — then you have thereby an explanation of why it is incoherent to sincerely assert a Moorean sentence. This is because sincere assertion expresses belief: to sincerely assert p is to express the belief that p. If the belief state expressed by a Moorean assertion were coherent, the assertion would be coherent too. It is precisely because the belief state is incoherent that the assertion inheriting that belief state is incoherent. The assertion-absurdity is a downstream consequence of the belief-absurdity, not its source.</span></p>
+
+        <span class="section">On what grounds the belief-absurdity</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Grounding the belief-absurdity: rational self-knowledge and the transparency of belief</span>What explains why Moorean belief is irrational? The explanation I propose is this: for a rational agent, belief is transparent to itself. A rational agent who believes p is thereby in a position to know that she believes p — the first-order belief and the second-order belief are necessarily aligned in a rational agent. This transparency of belief is not a contingent psychological fact; it is a constitutive feature of what it means to have a rational, conscious belief. A belief that could persist entirely without any second-order awareness — a belief that the agent could simultaneously correctly represent herself as lacking — is not a genuinely rational belief in the full sense. Moorean belief is absurd because it violates this constitutive feature of rational self-knowledge.</span></p>
+
+        <span class="section">On the objection from the Gricean account</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Grice: conversational implicature cannot explain belief-absurdity</span>Grice's account explains why it would be pragmatically self-defeating to assert a Moorean sentence in normal conversational contexts. But it cannot explain why it would be irrational to hold a Moorean belief — why a rational agent cannot simultaneously have the belief that p and the higher-order belief that she lacks this belief. Conversational implicature is a feature of assertoric speech acts; it has no application to the private states of belief. The Gricean account leaves unexplained a phenomenon that clearly exists — the irrationality of Moorean belief — and this unexplained phenomenon is more fundamental than the assertoric absurdity the Gricean correctly explains.</span></p>
+
+        <span class="section">On self-knowledge and what the paradox ultimately reveals</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">What the paradox reveals: the mind's transparency to itself and the constitutive link between belief and self-knowledge</span>Moore's paradox, properly understood, reveals something deep about the relationship between first-order mental states and second-order awareness of them. For genuinely rational, conscious beings, there is a constitutive link between having a belief and being in a position to know one has it. This link is what makes self-knowledge possible — and what makes Moorean belief impossible. The paradox is not merely a curiosity about what can be said. It is a window into the structure of rational consciousness — into what it means for a mind to be transparent to itself. The proposition's account, which locates the solution entirely in the pragmatics of assertion, sees the window but misses what lies beyond it.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-shoemaker-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('shoemaker',1)">
+          <div class="arg-title"><span>I — Moorean belief exists and is incoherent independently of assertion</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>An agent can be in the state of believing p (first-order) while also believing she does not believe p (second-order) — this Moorean belief state is the primary phenomenon.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This belief-incoherence is present regardless of whether the agent asserts anything — it is a feature of the belief state itself, not of any speech act.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Gricean account of assertoric absurdity has nothing to say about the incoherence of the belief state — it concerns assertibility, not doxastic rationality.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Moorean belief is a primary phenomenon that the proposition's assertoric accounts leave unexplained — the paradox of belief is real and prior to the paradox of assertion.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('shoemaker',2)">
+          <div class="arg-title"><span>II — Priority thesis: belief-absurdity explains assertion-absurdity, not vice versa</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Sincere assertion expresses belief — to sincerely assert p is to express the belief that p.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If the belief state expressed by a Moorean assertion were rational, the assertion would be rational too — the assertion-absurdity inherits from the belief-absurdity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The priority thesis: explain why Moorean belief is irrational, and you thereby explain why Moorean assertion is irrational.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The priority thesis correctly identifies belief-absurdity as primary — assertion-absurdity is a downstream consequence; the proposition has the explanatory order backwards.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('shoemaker',3)">
+          <div class="arg-title"><span>III — Belief is transparent to itself: rational self-knowledge aligns first- and second-order belief</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>For a rational agent, belief is transparent: having a belief puts the agent in a position to know she has it — first- and second-order belief are constitutively aligned.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This transparency is not contingent but constitutive — a belief a rational agent could simultaneously represent herself as lacking is not a fully rational conscious belief.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Moorean belief violates this constitutive feature — it posits a first-order belief the agent's second-order beliefs deny, making it structurally irrational.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The transparency of belief is the constitutive ground of Moorean belief-absurdity — rational self-knowledge requires that belief and second-order awareness of belief be aligned, and Moorean belief violates this.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('shoemaker',4)">
+          <div class="arg-title"><span>IV — Gricean implicature cannot explain belief-incoherence: it concerns speech acts not mental states</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Conversational implicature concerns the norms of cooperative assertoric speech — it applies to assertions, not to private belief states.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The irrationality of holding Moorean beliefs — absent any assertion — is a phenomenon in doxastic rationality that implicature theory cannot address.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A solution that leaves the more fundamental phenomenon unexplained is incomplete, however well it explains the surface phenomenon.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Gricean account is incomplete — it explains assertion-absurdity but cannot explain belief-incoherence, which is the more fundamental phenomenon the priority thesis correctly identifies as primary.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('shoemaker',5)">
+          <div class="arg-title"><span>V — The paradox reveals the constitutive link between belief and self-knowledge</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>For rational conscious agents, there is a constitutive link between having a belief and being in a position to know one has it — this is what makes self-knowledge possible.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Moorean belief violates this constitutive link — it asserts a first-order belief that the agent's second-order self-knowledge denies.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The paradox is therefore a window into the structure of rational consciousness — into the mind's constitutive transparency to itself.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Moore's paradox is ultimately about the structure of rational consciousness — the constitutive link between belief and self-knowledge — and the proposition's pragmatic account sees only the surface while the deeper phenomenon remains unaddressed.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ROSENTHAL ══ -->
+    <div class="speaker-panel" id="opp-rosenthal-panel">
+      <div id="opp-rosenthal-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>Shoemaker has given the philosophical case from the theory of self-knowledge. I want to press deeper still, into the theory of consciousness. My claim is that Moore's paradox is intimately connected to the conditions under which a mental state is a conscious mental state — and that my Higher-Order Thought theory of consciousness provides the most illuminating account of why Moorean sentences are not merely pragmatically awkward but reveal something fundamental about the relationship between believing and knowing that one believes.</p>
+
+        <span class="section">On Higher-Order Thought theory</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">HOT theory: a mental state is conscious iff accompanied by an appropriate higher-order thought</span>My Higher-Order Thought theory holds that a mental state is a conscious mental state if and only if it is accompanied by an appropriate higher-order thought — a thought to the effect that one is in that mental state. When I am consciously believing that it is raining, I am in a first-order belief state and I also have a higher-order thought: roughly, the thought that I am believing it is raining. When I am in a first-order belief state without any accompanying higher-order thought, that state is not a conscious state — it is a mental state that I am not aware of having. Beliefs without higher-order thoughts are not accessible to sincere assertion; they cannot be expressed or reported.</span></p>
+
+        <span class="section">On how HOT theory explains Moore's paradox</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">HOT explains the paradox: asserting p requires conscious belief in p; a HOT to the effect that one lacks this belief is incoherent</span>Moore's paradox arises from a conflict between the conditions for sincere assertion and the structure of conscious belief as HOT theory describes it. To sincerely assert p, the agent must have a conscious belief that p — a first-order belief accompanied by a higher-order thought that she has this belief. But when she adds "I don't believe p," she is expressing a higher-order thought to the effect that she lacks the first-order belief in p. She simultaneously has a higher-order thought that she believes p (required for the sincere assertion of p) and a higher-order thought that she does not believe p (expressed by the second conjunct). The contradiction is at the level of higher-order thoughts — it is a contradiction in the agent's own self-conception, not in the propositional content of what she asserts.</span></p>
+
+        <span class="section">On why this is deeper than Grice's implicature</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">HOT is deeper than Grice: the contradiction is in the HOTs, not in the pragmatics</span>Grice explains the absurdity as a violation of conversational maxims — a pragmatic self-defeat that depends on the communicative context. But HOT theory locates the problem at a more fundamental level: in the structure of the agent's own higher-order thoughts about her mental states. The contradiction in the HOTs is present regardless of whether the agent is communicating with anyone. Even a solitary agent who merely entertains the Moorean thought — not as a supposition but as a sincere judgment about her own current state — is in the grip of a conflict between higher-order thoughts. The absurdity is in the mind, not in the communicative act, and HOT theory reveals its location precisely.</span></p>
+
+        <span class="section">On the relationship between HOT theory and Shoemaker's account</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">HOT and Shoemaker: converging on the same point from different directions</span>Shoemaker's account and my HOT account converge on the same fundamental insight: the paradox is grounded in the conditions for rational, conscious self-knowledge, not in the pragmatics of assertion. Where we differ is in the theoretical framework. Shoemaker grounds the transparency of belief in constitutive features of rational self-knowledge — in what it means for a mind to have genuine access to its own states. I ground it in the structural requirement of higher-order thoughts for conscious mental states. Both accounts agree that the proposition's assertoric solution is incomplete, and both agree that what is missing is an account of the relationship between first-order believing and second-order awareness of believing.</span></p>
+
+        <span class="section">On the Descartes connection — Moore's paradox and the cogito</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Moore and Descartes: Moorean absurdity mirrors the cogito's self-evidence</span>There is a deep connection between Moore's paradox and Descartes's cogito that has not received sufficient attention. The sentence "I don't exist" has unproblematic truth conditions — each of us was once non-existent — and yet it has no coherent assertibility conditions, because the act of asserting it presupposes the existence of the asserter. This is the Cartesian version of the paradox. The Moorean sentence "p but I don't believe p" has a similar structure: the act of asserting it presupposes — through the requirement of conscious belief — the very state it denies. Both paradoxes reveal that assertion is not merely the communication of propositional content but the expression of a conscious mental state, and that the conditions for that mental state can conflict with the content expressed. HOT theory is the theoretical framework that makes this connection explicit.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-rosenthal-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('rosenthal',1)">
+          <div class="arg-title"><span>I — HOT theory: mental states are conscious iff accompanied by an appropriate higher-order thought</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A mental state is conscious if and only if it is accompanied by an appropriate higher-order thought — a thought to the effect that one is in that mental state.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>First-order beliefs without accompanying HOTs are non-conscious — not accessible to sincere assertion or self-report.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Sincere assertion of p requires a conscious belief that p — which requires a HOT that one believes p.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>HOT theory provides the framework for understanding why sincere assertion requires conscious belief — and why the Moorean sentence creates a contradiction in the asserter's higher-order thoughts.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('rosenthal',2)">
+          <div class="arg-title"><span>II — The contradiction is in the HOTs: sincere assertion requires HOT(Bp); second conjunct expresses HOT(¬Bp)</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Sincere assertion of p requires a conscious belief in p — which requires a HOT that one believes p: HOT(Bp).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The second conjunct "I don't believe p" expresses a HOT that one does not believe p: HOT(¬Bp).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The agent simultaneously has HOT(Bp) (required by sincere assertion) and HOT(¬Bp) (expressed by the second conjunct) — a contradiction in her higher-order thoughts.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Moorean sentence creates a contradiction in the asserter's higher-order thoughts — the conflict is in the mind's self-conception, not in the pragmatics of the communicative act.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('rosenthal',3)">
+          <div class="arg-title"><span>III — The HOT contradiction is present in solitary judgment, not only in communication</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The contradiction in the higher-order thoughts is present whenever the agent sincerely entertains the Moorean proposition as a judgment about her own current state — not only in communicative contexts.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Gricean implicature is a feature of communicative contexts — it has no application to solitary judgment.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>HOT theory explains the absurdity in both communicative and solitary contexts — Grice's account explains only the former.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>HOT theory is explanatorily superior to the Gricean account — it explains the absurdity wherever it arises, including in solitary judgment where conversational implicature is inapplicable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('rosenthal',4)">
+          <div class="arg-title"><span>IV — Shoemaker and HOT converge: the paradox is about self-knowledge, not pragmatics</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Both Shoemaker's self-transparency account and HOT theory locate the primary absurdity in the relationship between first-order believing and second-order awareness of believing.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Both agree that the proposition's assertoric accounts are incomplete — they explain a surface symptom while missing the underlying condition.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The convergence of two independent theoretical frameworks on the same diagnosis strengthens the opposition's case.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The convergence of Shoemaker's and Rosenthal's accounts confirms that the paradox is fundamentally about the structure of conscious self-knowledge — a diagnosis the proposition's purely assertoric accounts cannot match.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('rosenthal',5)">
+          <div class="arg-title"><span>V — The Descartes connection: Moorean absurdity mirrors the cogito's presuppositional structure</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>"I don't exist" is unassertable — not because it violates Gricean maxims but because asserting it presupposes the asserter's existence, which the content denies.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Moorean sentences have the same structure — asserting p requires a conscious belief whose existence the second conjunct denies.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Both paradoxes reveal that assertion presupposes a conscious mental state whose existence can conflict with the content expressed — a presuppositional structure HOT theory makes explicit.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Moorean absurdity has the same presuppositional structure as the cogito — both reveal that assertion requires a conscious mental state whose nature can conflict with the asserted content; HOT theory provides the unified account.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ HINTIKKA ══ -->
+    <div class="speaker-panel" id="opp-hintikka-panel">
+      <div id="opp-hintikka-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>My colleagues Shoemaker and Rosenthal have argued from self-knowledge and the theory of consciousness. I want to make a different and more formal argument: that Moore's paradox reveals a violation of the axioms of doxastic logic — the formal logic of belief — and that any adequate solution must be grounded in a logical account of the norms governing rational belief systems, not merely in the pragmatics of speech or in informal claims about self-transparency.</p>
+
+        <span class="section">On doxastic logic and its axioms</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Doxastic logic: the formal logic of rational belief systems</span>In my work on epistemic and doxastic logic, I developed formal systems for reasoning about knowledge and belief. The key axiom for our purposes is what is sometimes called the positive introspection axiom or the KK-principle applied to belief: if an agent believes p, then the agent believes that she believes p. In formal notation: Bp → BBp. This axiom captures the transparency of belief — the idea that a rational agent's beliefs are accessible to her second-order awareness. If this axiom holds, then a rational agent who believes p also believes that she believes p. And this means that "Bp ∧ B¬Bp" — believing p while believing that one does not believe p — is formally inconsistent in a system satisfying this axiom.</span></p>
+
+        <span class="section">On how doxastic logic explains Moore's paradox</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Doxastic logic explains the omissive form: Bp → BBp rules out BpB¬Bp</span>The omissive Moorean sentence in its belief form — "p but I don't believe p" — translates into the doxastic structure Bp ∧ B¬Bp. A rational agent who believes p is, by the introspection axiom, also in the state BBp — she believes she believes p. She cannot simultaneously be in the state B¬Bp — believing she does not believe p — without formal inconsistency, since BBp and B¬Bp are contradictory (they are both beliefs about the same proposition, with opposite contents). The omissive Moorean belief state is formally inconsistent in any doxastic system that includes the positive introspection axiom. This is not a pragmatic fact about what can be said — it is a logical fact about what can be consistently believed.</span></p>
+
+        <span class="section">On the commissive form</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">The commissive form: Bp ∧ B¬p requires the agent to believe p and believe ¬p</span>The commissive Moorean sentence — "p but I believe it isn't" — translates to the doxastic structure Bp ∧ B¬p. A rational agent cannot have both Bp and B¬p without violating the consistency condition on belief — the axiom that a rational agent does not believe both p and ¬p simultaneously. The commissive form is thus directly a formal inconsistency in any minimal doxastic logic that includes the consistency axiom. This is more straightforwardly a formal contradiction than the omissive form, which requires the introspection axiom to generate its inconsistency. The formal approach explains both forms within a unified doxastic logic framework.</span></p>
+
+        <span class="section">On the objection that the introspection axiom is too strong</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">The introspection axiom objection: Bp → BBp may be too strong for actual agents</span>The proposition will object that the positive introspection axiom — Bp → BBp — is an idealisation that does not hold for actual agents, who routinely fail to have accurate second-order beliefs about their first-order beliefs. This is a genuine objection. Human agents are not perfectly introspective. But the objection misunderstands the status of doxastic logic. The axioms of doxastic logic describe conditions of ideal rationality — norms that govern what a fully rational agent's belief system would look like. The paradox arises for ideally rational agents; for them the axiom holds, and the Moorean belief state is formally inconsistent. The pragmatic approach similarly involves idealisations — the Cooperative Principle applies to ideally cooperative communicators. Both approaches involve normative idealisations; doxastic logic's idealisation is at least as defensible as Grice's.</span></p>
+
+        <span class="section">On what the formal approach shows that the pragmatic approach misses</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">What formal logic shows: the paradox is a logical not merely pragmatic phenomenon</span>The deepest advantage of the formal approach is that it reveals the paradox to be a logical phenomenon — a violation of formal axioms governing rational belief — rather than merely a pragmatic one. This matters because logical violations are more fundamental than pragmatic ones. A pragmatic violation can be cancelled by context — Grice himself acknowledges that the Cooperative Principle can be suspended in fictional, hypothetical, and philosophical contexts. But a logical inconsistency cannot be cancelled by context. If the Moorean belief state is formally inconsistent, no context renders it coherent. The formal approach predicts this; the pragmatic approach does not. And the data bears it out: even in explicitly hypothetical and philosophical contexts, the Moorean sentence retains a residual absurdity that mere implicature-cancellation cannot dissolve.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-hintikka-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1" onclick="openModal('hintikka',1)">
+          <div class="arg-title"><span>I — Positive introspection axiom: Bp → BBp captures belief transparency formally</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The positive introspection axiom in doxastic logic holds that if an agent believes p, she believes that she believes p: Bp → BBp.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This axiom captures the transparency of belief for ideally rational agents — their beliefs are accessible to their second-order awareness.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Given this axiom, "Bp ∧ B¬Bp" — believing p while believing one does not believe p — is formally inconsistent.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Doxastic logic with the positive introspection axiom formally captures why Moorean belief is inconsistent — the paradox is a violation of logical norms, not merely of pragmatic ones.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2" onclick="openModal('hintikka',2)">
+          <div class="arg-title"><span>II — Omissive form: Bp ∧ B¬Bp is formally inconsistent given Bp → BBp</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If a rational agent believes p, the introspection axiom gives BBp — she believes she believes p.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Moorean belief "I don't believe p" gives B¬Bp — she believes she does not believe p.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>BBp and B¬Bp are contradictory — they cannot both hold in a consistent belief system.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The omissive Moorean belief state is formally inconsistent in any doxastic logic satisfying the positive introspection axiom — the logical inconsistency is what underlies the felt absurdity.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3" onclick="openModal('hintikka',3)">
+          <div class="arg-title"><span>III — Commissive form: Bp ∧ B¬p directly violates doxastic consistency</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The commissive form "p but I believe ¬p" gives Bp ∧ B¬p — the agent believes p and believes ¬p simultaneously.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Minimal doxastic logic includes the consistency axiom: a rational agent does not simultaneously believe both p and ¬p.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Bp ∧ B¬p directly violates the consistency axiom — it is a formal contradiction requiring no additional axioms.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The commissive Moorean belief state directly violates doxastic consistency — doxastic logic explains both Moorean forms within a unified framework, giving the formal approach explanatory generality.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4" onclick="openModal('hintikka',4)">
+          <div class="arg-title"><span>IV — The introspection axiom idealises rational norms; the objection applies equally to Grice</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The objection that Bp → BBp is too strong for actual agents is correct — actual agents fail the introspection axiom.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But doxastic logic describes norms of ideal rationality — the Cooperative Principle similarly idealises to perfectly cooperative communicators.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Both approaches involve normative idealisations; the doxastic idealisation is at least as defensible as the pragmatic one.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The idealisation objection applies equally to Gricean pragmatics — both approaches describe normative ideals; the formal approach's idealisation is no less defensible than the pragmatic approach's.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5" onclick="openModal('hintikka',5)">
+          <div class="arg-title"><span>V — Logical inconsistency cannot be cancelled by context; pragmatic violation can be</span><span class="img-hint">click for image</span></div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Gricean pragmatic violations can be cancelled by context — the Cooperative Principle is suspended in fictional, hypothetical, and philosophical contexts.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Logical inconsistency cannot be cancelled by context — if the Moorean belief state is formally inconsistent, no context renders it coherent.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Even in explicitly hypothetical and philosophical contexts, Moorean sentences retain residual absurdity — which the pragmatic approach cannot explain but the formal approach predicts.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The persistence of Moorean absurdity in contexts where Gricean implicatures are cancelled confirms that the paradox is a logical phenomenon — doxastic logic predicts this; the pragmatic approach does not.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-wrap" id="modalWrap" onclick="closeBd(event)">
+  <div class="modal">
+    <div class="modal-hd"><span class="modal-hd-title" id="mTitle">Argument image</span><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-bd">
+      <div class="modal-img-wrap">
+        <div class="modal-ph" id="mPh"><div>No image linked</div><code>Set src in IMAGES object</code></div>
+        <img id="mImg" src="" alt="" style="display:none" onload="imgOk()" onerror="imgFail()">
+      </div>
+      <div class="modal-cap" id="mCap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var IMAGES={
+  moore:{1:{src:'',caption:'Moore — Two forms: omissive and commissive'},2:{src:'',caption:'Moore — First-person present tense restriction'},3:{src:'',caption:'Moore — Assertion pragmatically implies belief'},4:{src:'',caption:'Moore — The knowledge version'},5:{src:'',caption:'Moore — What the paradox reveals about assertion'}},
+  wittgenstein:{1:{src:'',caption:'Wittgenstein — "I believe p" is a mode of asserting p'},2:{src:'',caption:'Wittgenstein — Moorean sentence combines assertion with denial of standpoint'},3:{src:'',caption:'Wittgenstein — Grammar not psychology'},4:{src:'',caption:'Wittgenstein — Grammar is prior to theories of self-knowledge'},5:{src:'',caption:'Wittgenstein — Assertion vs supposition'}},
+  grice:{1:{src:'',caption:'Grice — Maxim of Quality: asserting p implicates Bp'},2:{src:'',caption:'Grice — Implicature cancellation makes Moorean sentence self-defeating'},3:{src:'',caption:'Grice — Pragmatic solution explains context-sensitivity'},4:{src:'',caption:'Grice — Moorean belief derivative on assertoric norms'},5:{src:'',caption:'Grice — The pragmatic solution is complete'}},
+  shoemaker:{1:{src:'',caption:'Shoemaker — Moorean belief: incoherent independently of assertion'},2:{src:'',caption:'Shoemaker — Priority thesis: belief-absurdity explains assertion-absurdity'},3:{src:'',caption:'Shoemaker — Transparency of belief: first- and second-order aligned'},4:{src:'',caption:'Shoemaker — Gricean implicature cannot explain belief-incoherence'},5:{src:'',caption:'Shoemaker — The paradox reveals rational consciousness'}},
+  rosenthal:{1:{src:'',caption:'Rosenthal — HOT theory: mental states conscious iff accompanied by HOT'},2:{src:'',caption:'Rosenthal — HOT contradiction: sincere assertion requires HOT(Bp); second conjunct gives HOT(¬Bp)'},3:{src:'',caption:'Rosenthal — HOT contradiction present in solitary judgment'},4:{src:'',caption:'Rosenthal — Shoemaker and HOT converge on self-knowledge'},5:{src:'',caption:'Rosenthal — The Descartes connection'}},
+  hintikka:{1:{src:'',caption:'Hintikka — Positive introspection axiom: Bp → BBp'},2:{src:'',caption:'Hintikka — Omissive form formally inconsistent given Bp → BBp'},3:{src:'',caption:'Hintikka — Commissive form violates doxastic consistency'},4:{src:'',caption:'Hintikka — Introspection axiom idealises; so does Grice'},5:{src:'',caption:'Hintikka — Logical inconsistency cannot be cancelled by context'}}
+};
+
+var state={
+  prop:{speaker:'moore',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'shoemaker',view:'speech',speechScroll:0,logicScroll:0}
+};
+
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
+  document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){sp.classList.remove('hidden');lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{sp.classList.add('hidden');lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+function openModal(speaker,n){
+  var d=(IMAGES[speaker]||{})[n]||{src:'',caption:speaker+' arg '+n};
+  document.getElementById('mTitle').textContent=d.caption;document.getElementById('mCap').textContent=d.caption;
+  var img=document.getElementById('mImg'),ph=document.getElementById('mPh');
+  if(d.src){img.src=d.src;img.style.display='none';ph.style.display='none';}
+  else{img.style.display='none';ph.style.display='flex';}
+  document.getElementById('modalWrap').classList.add('open');
+}
+function imgOk(){document.getElementById('mImg').style.display='block';document.getElementById('mPh').style.display='none';}
+function imgFail(){document.getElementById('mImg').style.display='none';document.getElementById('mPh').style.display='flex';document.getElementById('mPh').querySelector('div').textContent='Image failed to load';}
+function closeModal(){document.getElementById('modalWrap').classList.remove('open');}
+function closeBd(e){if(e.target===document.getElementById('modalWrap'))closeModal();}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2,vw=window.innerWidth,mg=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  tip.style.left=Math.min(Math.max(cx,tw/2+mg),vw-tw/2-mg)+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
