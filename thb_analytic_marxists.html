@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytic Marxism Symposium</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a1a1e;--bg2:#222228;--bg3:#2a2a32;--bg4:#343440;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#dddad2;--text2:#9a9790;--text3:#58565200;
+  --text3:#575552;
+  --gold:#b8964a;
+  --prop-green:#4a9068;--prop-pill:#1a3828;--prop-pill-bdr:#386050;
+  --opp-red:#a84848;--opp-pill:#381a1a;--opp-pill-bdr:#603838;
+  --a1bg:rgba(255,200,0,.13);--a1brd:rgba(255,200,0,.42);--a1tip:#ffd844;
+  --a2bg:rgba(50,190,195,.12);--a2brd:rgba(50,190,195,.4);--a2tip:#44ccd0;
+  --a3bg:rgba(70,190,95,.11);--a3brd:rgba(70,190,95,.38);--a3tip:#60d870;
+  --a4bg:rgba(210,75,75,.12);--a4brd:rgba(210,75,75,.4);--a4tip:#e87070;
+  --a5bg:rgba(160,95,225,.12);--a5brd:rgba(160,95,225,.4);--a5tip:#c07eff;
+  --a6bg:rgba(250,130,0,.12);--a6brd:rgba(250,130,0,.4);--a6tip:#ff9933;
+  --a7bg:rgba(170,215,255,.09);--a7brd:rgba(170,215,255,.36);--a7tip:#99ccff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 12px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(184,150,74,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Analytical Marxism &mdash; The September Group &bull; Non-Bullshit Marxism Group &bull; 1979&ndash;present</div>
+  <div class="motion-title">&ldquo;How Should Marxism Be Reconstructed? History, Exploitation, Class, and the Socialist Alternative&rdquo;</div>
+  <div class="motion-sub">Six Responses &bull; G.A. Cohen &middot; Jon Elster &middot; John Roemer &middot; Erik Olin Wright &middot; Philippe Van Parijs &middot; Adam Przeworski &mdash; each arguing for a distinct reconstruction of Marxist theory</div>
+</div>
+
+<div class="columns">
+
+<!-- LEFT COLUMN: Cohen · Elster · Roemer -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','cohen',this)">G.A. Cohen</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','elster',this)">Elster</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','roemer',this)">Roemer</button>
+  </div>
+
+  <!-- COHEN HEADER -->
+  <div class="col-header" id="prop-cohen-header">
+    <div class="col-header-top"><span class="pill prop">Historical Materialism</span><span class="col-subtitle">G.A. Cohen (Oxford)</span></div>
+    <div class="col-position">Technological determinism &amp; functional explanation &mdash; the productive forces develop and select production relations that best facilitate their further growth; the superstructure is functionally explained by the economic base it stabilises. Marxism must be defended on its own terms, rigorously reformulated, not abandoned.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','cohen','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','cohen','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- ELSTER HEADER -->
+  <div class="col-header hidden" id="prop-elster-header">
+    <div class="col-header-top"><span class="pill prop">Rational Choice</span><span class="col-subtitle">Jon Elster (Oslo / Columbia)</span></div>
+    <div class="col-position">Methodological individualism &amp; micro-foundations &mdash; no good social explanation without intentional, causal mechanisms at the individual level. Functional explanation and dialectical deduction are intellectual sins. What survives of Marx is his moral vision and his theory of unintended consequences.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','elster','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','elster','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- ROEMER HEADER -->
+  <div class="col-header hidden" id="prop-roemer-header">
+    <div class="col-header-top"><span class="pill prop">Game-Theoretic</span><span class="col-subtitle">John Roemer (Yale)</span></div>
+    <div class="col-position">Property-relations exploitation &amp; market socialism &mdash; exploitation is grounded not in the labour theory of value but in differential ownership of productive assets, provable as a theorem from game-theoretic micro-foundations. The socialist alternative is coupon socialism, not central planning.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','roemer','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','roemer','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- COHEN -->
+    <div class="speaker-panel active" id="prop-cohen-panel">
+      <div id="prop-cohen-speech" class="speech-text">
+        <p class="salut">Fellow members of the Group,</p>
+        <p>I want to begin by reminding us why we are here. We call ourselves the Non-Bullshit Marxism Group &mdash; <em>Marxismus sine stercore tauri</em> &mdash; because we think that the alternatives to our approach are either an equally rigorous but non-Marxist social science, or else the various species of obfuscatory Althusserian word-spinning that passed for theory when we were students and that I spent considerable energy learning to see through. Our project is the reconstruction of Marxism by the methods of analytical philosophy and empirical social science. I want to defend my particular version of that reconstruction, which grounds Marxism in a theory of history that takes the development of the productive forces as its prime mover.</p>
+        <div class="case-box">
+          <strong>The core of historical materialism, as I read Marx.</strong> History is, fundamentally, the growth of human productive power. Forms of society rise and fall according as they enable or impede that growth. The productive forces &mdash; tools, raw materials, labour power, the knowledge embedded in technology &mdash; tend to develop across history because human beings are somewhat rational and live in conditions of scarcity. When a given set of production relations (a given economic structure: feudal, capitalist, socialist) begins to fetter the further development of the productive forces it had previously enabled, it is eventually replaced by relations that better fit those forces. The legal and political superstructure is selected by, and serves to stabilise, the economic base; the base is itself selected by the forces of production it enables to develop.
+        </div>
+        <span class="section">i. the development thesis and its rational foundation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Development thesis — rationality, scarcity, intelligence</span>The tendency of the productive forces to develop rests on three premises: that human beings are somewhat rational, that they inhabit a world of scarcity, and that they possess sufficient intelligence to improve their material situation. From scarcity follows a struggle for survival; from intelligence follows the capacity to invent scarcity-reducing technologies; from rationality follows a tendency to adopt them when available. These are not controversial empirical claims &mdash; they are near-truisms about human nature and the human situation. What they entail, however, is a tendential historical law: across sufficient time and in the absence of catastrophic interruption, the productive forces will develop. This is the bedrock of historical materialism. It does not require a Hegelian philosophy of history, a theory of dialectical contradiction, or any other metaphysical apparatus. It requires only these minimal and defensible claims about human beings.</span></p>
+        <span class="section">ii. functional explanation and the primacy thesis</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Functional explanation — base selects superstructure; explanation without mechanism</span>My most controversial methodological claim is that the relations of production are functionally explained by the productive forces they serve, and that the superstructure is functionally explained by the economic base it stabilises. Elster objects that functional explanations require micro-level mechanisms to be scientifically respectable. I partly concede this: in biology, the mechanism is natural selection; in social science, we should aspire to find analogous mechanisms. But I deny that the absence of a fully specified mechanism invalidates a functional claim. One can support the claim that B functionally explains A even when one cannot specify the mechanism, if one can point to an appropriately wide range of instances in which whenever A would be functional for B, A appears. The evidence for the primacy of productive forces over production relations is precisely of this form: across the historical record, economic structures that fetter productive development are eventually replaced by those that enable it. The mechanism remains to be specified, but the pattern is real.</span></p>
+        <span class="section">iii. against elster: micro-foundations are necessary but not sufficient</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against Elster — micro-foundations needed but pattern-evidence still valid</span>Elster's attack on functional explanation is motivated by a sound methodological instinct: social science should not invoke the benefits that a social arrangement produces as if that somehow explains why the arrangement exists, absent a mechanism connecting benefits to existence. I accept this as a heuristic. But Elster draws from it the maximalist conclusion that no functional claim is acceptable without full microfoundational specification. This is too strong. Evolutionary biology relied on functional explanation for decades before the micro-mechanisms were understood, and this reliance was not irrational. Marx himself, I believe, was in an analogous position: he had identified a real explanatory pattern &mdash; the tendency for economic forms to shift when they fetter productive development &mdash; and had not yet specified the mechanism. That is an incomplete research programme, not a refuted one. Elster's demand for full microfoundations before pattern-claims can be entertained would have disallowed most of the progress in historical social science.</span></p>
+        <span class="section">iv. socialism from egalitarian premises: the normative turn</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Normative turn — socialism from egalitarianism, critique of self-ownership</span>In my later work I departed from the strictly exegetical and historical-materialist project of the 1978 book to engage directly with normative political philosophy. I want to make a brief for socialism that does not depend on the labour theory of value, on historical inevitability, or on any other Marxist claim that has been shown to be false or questionable. It depends instead on two things: a critique of the self-ownership thesis that underlies right-wing libertarianism, and a positive egalitarian commitment to equality of access to advantage. Nozick argued that because we own ourselves, we own the fruits of our labour, and therefore redistribution is impermissible. I argue that the self-ownership thesis is either trivially true (I am not my body's slave) or, when given the robust content it needs to do Nozick's work, highly contentious &mdash; it treats natural talents as having been earned by their possessors, which is an assumption that egalitarians are entitled to reject. Van Parijs reaches a similar conclusion from a different route; the disagreement is about how much of capitalism is thereby vindicated.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-cohen-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The development thesis: productive forces tend to develop given rationality, scarcity, and intelligence</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Human beings are somewhat rational, live in scarcity, and possess intelligence sufficient to improve their material situation. These are near-truisms about the human condition.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>From scarcity: a struggle for survival. From intelligence: capacity to invent scarcity-reducing technologies. From rationality: a tendency to adopt available improvements.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Therefore: a tendential historical law — productive forces develop across sufficient time and in the absence of catastrophic interruption. This requires no Hegelian metaphysics, only minimal human-nature claims.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The development of the productive forces is a rational consequence of universal human-nature facts; it is the bedrock of historical materialism and needs no further metaphysical support.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The primacy thesis: production relations are functionally explained by the productive forces they serve</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Different production relations have differential capacities to enable or fetter the growth of the productive forces at different stages of development. Feudal relations serve agrarian technology; capitalist relations serve industrial technology.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Historical materialism claims: production relations that best facilitate productive development at any given stage tend to be selected; those that fetter it tend to be replaced. This functional explanation does not require full specification of mechanism but is supported by wide historical pattern-evidence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The superstructure (law, politics, ideology) stabilises the economic base and is in turn selected by the base because of that stabilising function. This gives the economic structure explanatory primacy without making the superstructure epiphenomenal.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The primacy of productive forces over production relations, and of base over superstructure, is defensible as a functional explanation even without full microfoundational specification, given the range and consistency of historical pattern-evidence.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Against Elster's blanket rejection of functional explanation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Elster: no functional claim is scientifically acceptable without full specification of the micro-level mechanism producing the benefit-consequence linkage. Without mechanism, functional explanation is spurious.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Counter: evolutionary biology relied on functional explanation (organisms have hearts because hearts pump blood) for decades before natural selection was understood at the molecular level. Pattern-evidence and functional claims can be legitimate ahead of mechanism-specification.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Marx identified a real explanatory pattern and an incomplete mechanism. This is an unfinished research programme, not a refuted one. Elster's demand forecloses legitimate inquiry by setting too high an evidential bar at the outset.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Elster's blanket rejection of functional explanation is too strong; pattern-evidence can justify functional claims in advance of full mechanism-specification, as the history of science amply demonstrates.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Against Nozick: the self-ownership thesis cannot ground capitalism's distributive inequalities</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Nozick's entitlement theory: because we own ourselves, we own the products of our talents and labour; therefore, redistribution violates rights. The argument requires that self-ownership grounds ownership of external fruits.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The self-ownership thesis, given the robust content it needs to do this work, entails that natural talents are earned by their possessors — that the talented deserve what their talents produce. But natural talents are not earned; they are morally arbitrary endowments.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Egalitarians are therefore entitled to reject the premise that naturally unequal talents generate entitlements to unequal outcomes. The full redistributive implications of egalitarianism remain standing once self-ownership is deflated.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The self-ownership thesis cannot sustain the inegalitarian conclusions Nozick draws from it; rejecting the equation of natural talent with earned entitlement undermines the libertarian case against redistribution at its foundation.</span></div>
+        </div>
+      </div>
+    </div><!-- end cohen -->
+
+    <!-- ELSTER -->
+    <div class="speaker-panel" id="prop-elster-panel">
+      <div id="prop-elster-speech" class="speech-text">
+        <p class="salut">Members of the Group,</p>
+        <p>I coined the label &ldquo;analytical Marxism,&rdquo; and I want to say what I understand by it &mdash; and what I now think it has established. My position has evolved considerably since we began meeting, and I will not pretend otherwise. I began by believing that much of Marx could be salvaged through the application of rational choice theory and methodological individualism. I now believe that rather less can be saved than I hoped. But I also believe that the things that cannot be saved are genuinely indefensible, and that the things that can be saved are genuinely important. Let me explain.</p>
+        <div class="pull">&ldquo;The three deadly sins of Marxism are methodological collectivism, functional explanation, and dialectical deduction. They are closely related to one another, and often go together in practice.&rdquo;</div>
+        <span class="section">i. methodological individualism: the only defensible foundation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Methodological individualism — micro-foundations as the only valid social explanation</span>Methodological individualism, properly understood, holds that all macro-level social phenomena are in principle reducible to micro-level explanations invoking only individuals and their properties. This is a demanding commitment. It does not mean that sociology reduces to psychology, or that structural features of social life are unimportant. It means that when we invoke a structural feature &mdash; capitalism, the state, a class interest &mdash; as an explanatory variable, we must be able to specify the mechanism through which that structure produces its effects at the level of individual action, belief, and choice. Without that specification, we are in danger of treating aggregate patterns as if they were self-explaining agents. Traditional Marxism does this constantly: it explains the behaviour of capital, the ideology of the working class, the interests of the bourgeoisie, without ever specifying how these aggregate outcomes are generated from individual decisions. That is methodological collectivism, and it is the first deadly sin.</span></p>
+        <span class="section">ii. the three deadly sins: functional explanation and dialectical deduction</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Three sins — methodological collectivism, functional explanation, dialectical deduction</span>The second sin is functional explanation: explaining the existence of an institution or practice by the beneficial consequences it produces, without specifying the mechanism by which those consequences cause the institution to exist or persist. Cohen defends this move, but I maintain it is illegitimate in the absence of mechanism. In biology, functional explanation is underwritten by natural selection; we understand exactly how it is that functions produce structures. In social science, no analogous mechanism has been specified for the Marxist case. When Cohen says that production relations are selected because of their capacity to enable productive development, he is gesturing at a mechanism without providing one. The third sin is dialectical deduction: inferring historical outcomes from the inner contradictions of social forms, as Marx does when he says capitalism bears the seeds of its own destruction. This is not explanation; it is Hegelian word-magic in social-science dress.</span></p>
+        <span class="section">iii. what remains: unintended consequences and the normative vision</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">What remains of Marx — unintended consequences, normative self-realisation</span>My critical trawl through Marx's texts was not an exercise in destruction for its own sake. Marx&rsquo;s most durable contribution to social science is his analysis of unintended consequences: the way that individually rational actions produce collectively suboptimal or unforeseen aggregate outcomes. The collective action problems embedded in class struggle, the way that competition among capitalists produces outcomes that are good for no individual capitalist, the systematic mystification of social relations through commodity fetishism &mdash; these are the insights that survive rigorous reconstruction. They survive because they can be given micro-foundations: they describe mechanisms through which individual actions aggregate to produce emergent consequences no one intended. What does not survive is historical materialism as Cohen presents it, the labour theory of value as an economic theory, and the claim that capitalism is bound to collapse in favour of socialism.</span></p>
+        <span class="section">iv. against cohen on functional explanation: the demand for mechanism is non-negotiable</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Cohen — biology analogy fails; mechanism non-negotiable in social science</span>Cohen appeals to evolutionary biology as a case where functional explanation preceded mechanistic specification. But the analogy fails. Darwin identified a specific mechanism &mdash; natural selection through differential reproduction &mdash; simultaneously with making his functional claims. It was not the case that biologists accepted functional claims for generations without any idea of the mechanism. Moreover, the social world is not analogous to a biological ecosystem in the relevant respects: there is no obvious analogue of differential reproduction operating on production relations. Cohen owes us either a mechanism or a reason to believe that one exists. A wide range of historical instances in which what is functional tends to appear is not sufficient without an explanation of <em>why</em> this pattern holds. Without that, we have a correlation masquerading as an explanation.</span></p>
+        <p><em>I yield.</em></p>
+      </div>
+      <div id="prop-elster-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Methodological individualism: micro-foundations are the only valid social explanation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Methodological individualism: all macro-level social phenomena are in principle reducible to micro-level explanations involving only individuals and their properties. Structural terms must be cashed out in individual-level mechanisms.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Traditional Marxism invokes capital, classes, and state interests as if they were self-explaining agents, without specifying how aggregate outcomes are generated from individual decisions. This is methodological collectivism.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Without individual-level mechanism specification, structural Marxist explanations are not false but incomplete in a way that prevents them from being genuinely explanatory. They describe regularities without explaining them.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Methodological individualism is a non-negotiable constraint on social science; Marxist explanations that invoke collective entities without micro-foundations are descriptive at best and pseudo-explanatory at worst.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Functional explanation without mechanism is spurious in social science</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A functional explanation holds that X exists because it serves the function F for system S. For this to be explanatory, there must be a mechanism by which the functional benefit of X for S causes X to be produced or sustained.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In biology, the mechanism is natural selection through differential reproduction — well-specified and empirically confirmed. In Marxist social science, no analogous mechanism has been identified for why production relations that enable productive development are "selected."</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Cohen's appeal to wide historical pattern-evidence is insufficient: a pattern of correlation between functional fitness and institutional existence does not explain the pattern. It redescribes it. Explanation requires mechanism, not further description.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Cohen's functional explanation of production relations by productive forces is not a genuine explanation but a well-organised description of a pattern; until a mechanism is specified, historical materialism explains nothing.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; What survives rigorous reconstruction: unintended consequences and the normative vision</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Marx's analysis of unintended consequences — how individually rational actions aggregate to collectively suboptimal outcomes — can be given full micro-foundations and is empirically vindicated. It is Marx's most durable social-scientific contribution.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Marx's normative vision — of a society enabling the active, joint self-realisation of all its members — is philosophically coherent and humanly compelling. It does not depend on discredited economic or historical claims.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>What does not survive: historical materialism as deterministic theory, the labour theory of value, the dialectical prediction of capitalism's necessary collapse. These are either false or unfounded.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Non-bullshit Marxism, rigorously pursued, reduces to: the analysis of unintended consequences plus a normative vision of self-realisation. The historical-determinist and economic-theoretical core cannot be saved.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Against Cohen: the biological analogy fails; mechanism cannot be deferred</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Cohen: biology accepted functional explanation before mechanism was specified; historical social science should be permitted to do likewise. Pattern-evidence suffices until mechanism is found.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Rebuttal: Darwin identified natural selection — a specific mechanism — simultaneously with the functional claims. And even if there were a temporal gap, it was bridged because biologists understood what kind of mechanism they were looking for. For historical materialism, we have no idea what mechanism could produce the pattern Cohen identifies, or even what a mechanism would look like.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Moreover, the social world lacks an analogue of differential reproduction operating on production relations. The disanalogy is not incidental; it is fatal. Cohen's research programme has produced no candidate mechanisms in fifty years of attempting.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The biological analogy cannot rescue Cohen's functional explanation; in the absence of any candidate mechanism after decades of trying, the most parsimonious conclusion is that historical materialism's functional claims are not genuine explanations.</span></div>
+        </div>
+      </div>
+    </div><!-- end elster -->
+
+    <!-- ROEMER -->
+    <div class="speaker-panel" id="prop-roemer-panel">
+      <div id="prop-roemer-speech" class="speech-text">
+        <p class="salut">Colleagues,</p>
+        <p>I want to defend what I take to be the most important and most durable contribution of analytical Marxism to political economy: the reconstruction of the theory of exploitation on the basis of differential ownership of productive assets, rather than on the labour theory of value. I believe this reconstruction preserves everything that is morally and politically important in the Marxist concept of exploitation while discarding the apparatus &mdash; the labour theory of value, the tendency of the rate of profit to fall, the necessity of labour-power as a commodity &mdash; that has been conclusively shown to be either false or theoretically redundant.</p>
+        <div class="pull">&ldquo;Exploitation and class are second-order concepts in Marxian theory, because both phenomena derive directly from differential ownership of productive assets. Property relations, not the labour exchange, should be the central concern of Marxian theory.&rdquo;</div>
+        <span class="section">i. exploitation without the labour theory of value</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Property-relations exploitation — DOPA replaces labour theory of value</span>The traditional Marxist account of exploitation proceeds via the labour theory of value: workers produce surplus value, which is appropriated by capitalists who own the means of production. The problem is that the labour theory of value is both theoretically unnecessary and empirically false as a price theory. Ian Steedman showed in 1977 that exploitation can be defined, and its existence proven, in a general equilibrium model without any reference to labour values. My contribution was to show that exploitation is a consequence of differential ownership of productive assets &mdash; what I call DOPA &mdash; and can be defined game-theoretically. A group is exploited if, relative to an alternative allocation in which each individual has an equal share of the means of production, they would be better off. Capitalist exploitation follows from unequal initial endowments of capital, not from anything special about the labour contract per se.</span></p>
+        <span class="section">ii. the class-exploitation correspondence principle</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">CECP — class membership predicts exploitation status as a theorem</span>One of my results that I am most proud of is the Class-Exploitation Correspondence Principle. Starting from micro-foundations &mdash; individuals optimising over their choice sets, which are defined by their asset endowments &mdash; I prove as a theorem what Marxists had assumed from observation: that those who optimise by selling their labour are exploited, while those who optimise by hiring labour are exploiters. Five classes emerge endogenously from the model, with distinct and predictable relationships to exploitation. This is analytical Marxism at its best: taking a claim that had been treated as an empirical observation or a definitional truth, and showing that it follows necessarily from more basic assumptions about rational individual behaviour under conditions of differential asset ownership. The class structure of capitalism is a mathematical consequence of unequal ownership, not a brute social fact.</span></p>
+        <span class="section">iii. against cohen: exploitation does not require historical materialism</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against Cohen — exploitation grounded in property rights, not forces/relations schema</span>Cohen's defence of historical materialism seeks to ground the normative critique of capitalism in a theory of how economic forms rise and fall. But the normative critique does not need that grounding. The claim that capitalism is unjust because it involves the exploitation of workers &mdash; the systematic appropriation of the products of their labour through unequal property relations &mdash; requires nothing more than a correct account of what exploitation is and a demonstration that it occurs. My game-theoretic framework provides exactly that, without any commitment to technological determinism or functional explanation. Cohen's historical materialism may be true or false independently of whether my exploitation theory is correct. The normative critique of capitalism stands on property-theoretic grounds alone.</span></p>
+        <span class="section">iv. market socialism: the institutional conclusion</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Market socialism — coupon socialism as the institutional alternative</span>If exploitation flows from unequal ownership of productive assets, the institutional remedy is equalisation of asset ownership. But this need not mean central planning; it can mean market socialism. The form I have proposed &mdash; sometimes called &ldquo;coupon socialism&rdquo; &mdash; involves issuing to each adult citizen an equal endowment of non-transferable coupons that can be used to purchase shares in firms, which then compete in product markets. Citizens receive dividends; labour markets continue to clear; but the systematic advantage of capital ownership over labour is eliminated by making capital ownership universal. Van Parijs reaches a similar egalitarian conclusion through a different route. Wright prefers a more gradualist erosion of capitalism through real utopian institutions. My route is cleaner: identify the source of exploitation, eliminate it at the source.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-roemer-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Exploitation is grounded in differential asset ownership, not the labour theory of value</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The labour theory of value is both theoretically unnecessary and empirically false as a price theory (Steedman 1977: exploitation can be defined in a general equilibrium model without labour values).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Exploitation can be defined game-theoretically: a group is exploited if, relative to an alternative in which each individual has an equal share of society's means of production, they would be better off. This definition captures the moral core of Marxian exploitation without the LTV.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Capitalist exploitation follows directly from unequal initial endowments of capital (DOPA — differential ownership of productive assets), not from anything special about the labour contract. Property relations, not the labour exchange, are the fundamental analytical category.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Exploitation is a mathematically rigorous concept grounded in property relations; the labour theory of value is dispensable, and its abandonment leaves the normative critique of capitalism intact and strengthened.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Class-Exploitation Correspondence Principle: class is a theorem, not an observation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Individuals optimise given their asset endowments: some own enough capital to hire labour (capitalists), some own enough to work for themselves (petty bourgeoisie), some must sell their labour to survive (proletarians), and intermediate cases (semi-proletarians, self-employed) define further classes.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>From these individually optimal choices, five classes emerge endogenously. The CECP proves as a mathematical theorem: those who optimise by hiring labour are necessarily exploiters; those who optimise by selling labour are necessarily exploited.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This transforms what Marxists had assumed from observation into a demonstrated consequence of rational individual behaviour under differential asset ownership — converting an empirical generalisation into a formal result.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The class structure of capitalism and its correlation with exploitation status is not a brute social fact but a mathematical consequence of rational individual behaviour under unequal initial endowments; analytical Marxism proves what classical Marxism assumed.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The normative critique of capitalism does not require Cohen's historical materialism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Cohen grounds the critique of capitalism in a theory of history: economic forms that fetter productive development are replaced. The normative critique follows from this because capitalism will eventually be seen to fetter development.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>My property-theoretic account demonstrates exploitation without any reference to historical trajectories or the development of productive forces. The injustice of capitalism is visible in any cross-section: unequal ownership produces exploitative outcomes for all who must sell their labour.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Historical materialism may be true or false independently; the normative critique is insulated from that question. Cohen's approach makes the critique of capitalism hostage to an empirical theory of history that is disputed; mine does not.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The property-relations account of exploitation provides a more secure normative foundation for the critique of capitalism than Cohen's historical materialism, because it does not depend on contested claims about the dynamics of productive forces.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Market socialism (coupon socialism) as the institutional remedy for asset-inequality</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If exploitation flows from unequal ownership of productive assets, the remedy is equalisation of ownership. This need not mean centralised planning; it is compatible with market allocation of goods and labour.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Coupon socialism: issue each adult citizen an equal, non-transferable endowment of coupons redeemable for shares in competing firms. Firms compete in product markets; citizens receive dividends from their share portfolios; labour markets clear. Capital exploitation is eliminated at source by making capital ownership universal and equal.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is superior to central planning (which destroys the information-processing advantages of markets) and to Van Parijs's basic income (which leaves asset inequality intact and compensates its effects rather than eliminating its cause).</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Coupon socialism is the institutional design that follows most directly from the property-relations analysis of exploitation: it eliminates the cause rather than compensating the effect, while preserving the efficiency advantages of market allocation.</span></div>
+        </div>
+      </div>
+    </div><!-- end roemer -->
+
+  </div>
+</div><!-- end left col -->
+
+
+<!-- RIGHT COLUMN: Wright · Van Parijs · Przeworski -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','wright',this)">E.O. Wright</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','vanparijs',this)">Van Parijs</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','przeworski',this)">Przeworski</button>
+  </div>
+
+  <!-- WRIGHT HEADER -->
+  <div class="col-header" id="opp-wright-header">
+    <div class="col-header-top"><span class="pill opp">Sociological Marxism</span><span class="col-subtitle">Erik Olin Wright (Wisconsin)</span></div>
+    <div class="col-position">Contradictory class locations &amp; real utopias &mdash; the middle class occupies contradictory locations in class relations; empirical class analysis must be supplemented by a programme of envisioning real utopian institutions that erode capitalism from within rather than overthrow it from without.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','wright','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','wright','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- VAN PARIJS HEADER -->
+  <div class="col-header hidden" id="opp-vanparijs-header">
+    <div class="col-header-top"><span class="pill opp">Real Libertarianism</span><span class="col-subtitle">Philippe Van Parijs (Louvain)</span></div>
+    <div class="col-position">Universal basic income &amp; real freedom &mdash; real freedom requires not merely formal rights but the means to exercise them; the highest sustainable unconditional basic income for all, financed partly by taxing employment rents, is what justice demands. This transcends both capitalism and traditional socialism.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','vanparijs','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','vanparijs','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- PRZEWORSKI HEADER -->
+  <div class="col-header hidden" id="opp-przeworski-header">
+    <div class="col-header-top"><span class="pill opp">Political Economy</span><span class="col-subtitle">Adam Przeworski (NYU)</span></div>
+    <div class="col-position">Capitalism, democracy, and class compromise &mdash; workers' parties face a structural dilemma under capitalism: pursuing socialist transformation risks economic retaliation; accepting the system delivers material gains but forecloses transformation. This is not a strategic error but a structural feature of capitalism.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','przeworski','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','przeworski','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- WRIGHT -->
+    <div class="speaker-panel active" id="opp-wright-panel">
+      <div id="opp-wright-speech" class="speech-text">
+        <p class="salut">Colleagues,</p>
+        <p>I want to argue for what I consider the most productive combination of the analytical Marxist commitments: rigorous, empirically grounded class analysis coupled with a forward-looking programme of identifying and building real utopian institutions that can erode capitalism from within. My dissatisfaction is with the Group at both ends: with the tendency of Cohen and Elster to treat Marxism as primarily a theoretical puzzle to be solved in the seminar room, and with the tendency of Roemer and Van Parijs to leap from abstract models to institutional blueprints without the sociological grounding that such blueprints require.</p>
+        <div class="case-box">
+          <strong>Contradictory class locations.</strong> In the Marxist tradition, the working class and the capitalist class are the fundamental categories. But advanced capitalism has produced a vast middle stratum &mdash; managers, supervisors, professionals, technical workers &mdash; that shares some properties of both. Managers sell their labour but exercise control over other workers on behalf of capital. Professionals own human-capital assets but remain dependent on employers. These are not anomalies to be explained away; they are a systematic feature of capitalist class structure that any adequate class analysis must accommodate. I call these &ldquo;contradictory class locations&rdquo; because their occupants genuinely inhabit conflicting class relations simultaneously.
+        </div>
+        <span class="section">i. why the middle class matters: contradictory locations</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Contradictory class locations — middle class as structurally ambiguous</span>The concept of contradictory class locations matters for both analysis and politics. Analytically, it refutes the crude prediction that capitalism would polarise society into two increasingly opposed camps. The middle class is not a vestige of pre-capitalist social forms that will be absorbed into one side or the other; it is a structural feature of advanced capitalism that reproduces itself because capitalism requires the technical and managerial functions that give this stratum its partially privileged position. Politically, it matters because those who occupy contradictory class locations are neither reliably allied with labour nor reliably allied with capital; they are structurally ambivalent, and their political formation requires specific attention. A socialist politics that treats them as either proto-proletarians or class enemies will fail. The empirical sociology of class is not a luxury; it is a prerequisite for coherent socialist strategy.</span></p>
+        <span class="section">ii. against pure modelling: sociology cannot be deduced</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Against pure modelling — empirical class sociology irreducible to game theory</span>Roemer's game-theoretic models are elegant, and the Class-Exploitation Correspondence Principle is a genuine intellectual achievement. But models of the degree of abstraction Roemer employs cannot substitute for the empirical investigation of actually existing class structures. Real class relations are entangled with gender, race, national origin, and cultural capital in ways that cannot be read off from abstract endowment distributions. When I ran cross-national surveys of class structure and class consciousness in the 1980s and 1990s, I found that the relationship between class location and political consciousness was far more complex, and far more culturally mediated, than any abstract model predicted. Analytical Marxism must dirty its hands with data. The retreat to game-theoretic purity is itself a form of ideological comfort.</span></p>
+        <span class="section">iii. real utopias: beyond smashing or accepting capitalism</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Real utopias — eroding capitalism through interstitial institutions</span>The collapse of Soviet communism and the rise of neoliberalism forced me to reconsider the strategic question that classical Marxism had always answered too confidently: what is to be done? I believe the answer is neither the Leninist strategy of smashing capitalism through revolutionary seizure of the state, nor the social-democratic strategy of managing capitalism through Keynesian demand management. The answer is to build, within the interstices of capitalism, institutions that embody non-capitalist social logics: worker cooperatives, participatory budgeting, basic income schemes, Wikipedia. These are embryonic utopias &mdash; they are real in the sense of being actually feasible, not merely theoretically ideal &mdash; and their existence erodes the hold of capitalist relations on social life by demonstrating that other ways of organising production and distribution are viable.</span></p>
+        <span class="section">iv. against elster: the project is not over</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Against Elster — analytical Marxism is not an empty set; empirical and normative core survives</span>When Elster left the Group in 1993 and subsequently declared that non-bullshit Marxism was an &ldquo;empty set,&rdquo; he was expressing a disillusionment that I understand but do not share. What Elster discarded &mdash; the theory of class exploitation, the normative critique of capitalism, the vision of a society enabling collective self-realisation &mdash; are precisely what remain alive and productive. His demands for microfoundational completeness are a methodological ideal that no social science actually meets. If we hold all of social science to that standard, we empty not just Marxism but sociology, political science, and much of economics. The project of analytical Marxism is not to prove that Marxism survives rigorous scrutiny in every detail; it is to identify what is worth preserving and build on that. Elster walked away too soon.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-wright-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Contradictory class locations are a structural feature of capitalism, not an anomaly</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Advanced capitalism requires technical, managerial, and supervisory functions that give their occupants a partially privileged position relative to production workers, while those occupants remain dependent on capital and sell their labour-power.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These "contradictory class locations" — managers, professionals, supervisors — simultaneously occupy capitalist and working-class relations. They are structurally ambivalent: they exercise authority delegated by capital over workers, but are themselves subject to capitalist authority.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The crude Marxist prediction of class polarisation into two opposed camps is therefore empirically false. The middle class reproduces itself as a structural feature of capitalism, not as a transitional form.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Contradictory class locations are a structural and self-reproducing feature of advanced capitalism; any adequate class analysis must accommodate them, and any socialist politics must attend to their specific political formation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Empirical class sociology cannot be replaced by game-theoretic abstraction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Roemer's CECP proves class membership from abstract endowment distributions. But real class relations are entangled with gender, race, national origin, and cultural capital in ways that no endowment model captures.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Cross-national survey evidence of class structure and class consciousness shows that the relationship between class location and political behaviour is far more complex and culturally mediated than abstract models predict.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The retreat to game-theoretic purity is a methodological choice that systematically omits the features of class life that most matter for political strategy. A sociology of class that does not engage with actual class consciousness is of limited use for socialist politics.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Analytical Marxism must engage with empirical sociology; game-theoretic models of exploitation and class are valuable but cannot substitute for the investigation of actually existing class structures and class consciousness.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Real utopias: eroding capitalism through interstitial institutions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Neither Leninist revolutionary seizure of the state nor social-democratic management of capitalism has delivered sustainable socialist transformation. Both strategies accept capitalism's fundamental framework rather than building outside it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Real utopian institutions — worker cooperatives, participatory budgeting, basic income, commons-based production — embody non-capitalist social logics within capitalist societies. They are not fantasies but actual existing institutions with demonstrated viability.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These institutions erode capitalism from within by demonstrating alternative ways of organising production and distribution, building constituencies for deeper transformation, and creating institutional enclaves that expand over time.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The correct socialist strategy is interstitial: build real utopian institutions within capitalism's interstices. This is more robust than revolutionary seizure and more transformative than social-democratic management.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Against Elster: the residue of non-bullshit Marxism is not an empty set</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Elster: rigorous scrutiny reveals that "non-bullshit Marxism" is largely an empty set; the critical project of analytical Marxism has consumed its subject matter.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Counter: what Elster discarded — exploitation theory, class analysis, the normative critique of capitalism — are precisely what remain intellectually productive. Elster's maximalist demand for micro-foundations would equally empty mainstream sociology, political science, and much of economics.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The goal of analytical Marxism is to identify what is empirically defensible and normatively compelling in Marxism and build on it; by that standard, the project is unfinished and productive, not complete and empty.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Elster's conclusion that analytical Marxism is an empty set reflects an unreasonably demanding methodological standard and a premature abandonment of a programme that retains empirical and normative resources Elster's own tools fail to exhaust.</span></div>
+        </div>
+      </div>
+    </div><!-- end wright -->
+
+    <!-- VAN PARIJS -->
+    <div class="speaker-panel" id="opp-vanparijs-panel">
+      <div id="opp-vanparijs-speech" class="speech-text">
+        <p class="salut">Members of the Group,</p>
+        <p>I come to this debate as something of a fellow traveller. I have never identified as a Marxist, but I have always felt at home in this Group precisely because what matters here is not doctrinal allegiance but the possibility of constructive dialogue between people of radical orientation. My contribution to the analytical project is to push beyond both the Marxist inheritance and its neoliberal rivals toward what I call real libertarianism: the view that the highest sustainable unconditional basic income, payable to all citizens regardless of willingness to work, is what a genuinely libertarian conception of freedom requires.</p>
+        <div class="pull">&ldquo;Real freedom is not merely the absence of coercion &mdash; formal freedom. It is having the means to do what one might want to do. A society that maximises real freedom for all will provide the highest unconditional basic income compatible with sustainability.&rdquo;</div>
+        <span class="section">i. formal versus real freedom</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Real vs. formal freedom — means required for genuine freedom</span>Right-wing libertarians and neoclassical economists invoke freedom constantly, but they invoke only formal freedom: the absence of coercion, of legal prohibition. On this view, a starving person in a market economy is perfectly free &mdash; nobody is stopping her from buying food. But this is not freedom in any sense that matters morally. Real freedom requires not merely the absence of barriers to action, but the actual possession of the means to act. A person who is formally free to attend university but lacks the financial resources to do so is not really free to do so. If we take freedom seriously &mdash; as libertarians claim to do &mdash; we should care about real freedom, not merely formal freedom. And maximising real freedom for all requires providing each person with a sufficient material foundation.</span></p>
+        <span class="section">ii. the basic income as the institutional expression of real freedom</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Basic income — unconditional, highest sustainable, financed from employment rents</span>The institutional expression of the commitment to real freedom is an unconditional basic income &mdash; a cash transfer paid to all citizens regardless of whether they work, regardless of their other income, regardless of any means test. Why unconditional? Because conditions &mdash; means tests, work requirements, behavioural requirements &mdash; are precisely the mechanisms through which formal freedom is secured at the expense of real freedom: they reintroduce dependence on the judgments of bureaucrats and employers that the basic income is supposed to eliminate. The level should be the highest that is sustainably compatible with a dynamic economy. It should be financed, partly, by taxing the rents that accrue to those lucky enough to hold desirable jobs &mdash; what I call employment rents &mdash; which are no more deserved than the natural talent rents that Cohen identifies as morally arbitrary.</span></p>
+        <span class="section">iii. against roemer: basic income over coupon socialism</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against Roemer — basic income vs. coupon socialism; the endowment not the return matters</span>Roemer argues that coupon socialism &mdash; equal ownership of productive assets &mdash; is the correct institutional remedy for exploitation, because it eliminates the cause rather than compensating the effect. I have a great deal of sympathy with this view, but I think the basic income is more robust and more flexible. Roemer's coupon socialism addresses one dimension of asset inequality &mdash; ownership of productive capital &mdash; but leaves untouched the inequalities arising from differential ownership of human capital, natural talent, and luck. My basic income addresses the full range of morally arbitrary endowment inequalities by providing a floor beneath which no one can fall, regardless of the source of their disadvantage. Moreover, basic income is compatible with a wide range of ownership structures &mdash; including Roemer's coupon socialism if desired &mdash; and is therefore a more general solution.</span></p>
+        <span class="section">iv. the marxist content of real libertarianism</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Marxist content — real libertarianism preserves Marx's emancipatory core</span>I am aware that this programme looks more like a radical version of liberalism than like Marxism. But I want to insist on its Marxist content. Marx&rsquo;s core commitment was to the emancipation of human beings from all forms of domination and dependence &mdash; including the domination that flows from being forced to sell one&rsquo;s labour to survive. The basic income is the cleanest institutional expression of that commitment: it is the material foundation that makes genuine exit from the labour market possible, not merely formally but really. A person who can refuse employment &mdash; who can say no to degrading work conditions, abusive employers, or socially harmful industries &mdash; is more free in the sense Marx cared about than one who is formally free but practically compelled. Real libertarianism is Marxism&rsquo;s emancipatory core, reconstructed without its theoretical liabilities.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-vanparijs-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Real freedom requires means, not merely absence of coercion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Formal freedom: the absence of coercion, of legal prohibition. On this view, a person is free to do X if no one is preventing her from doing X, regardless of whether she has the means to do it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But freedom in any morally significant sense requires not merely the absence of barriers but the actual possession of the means to act. A formally free but destitute person is not genuinely free to pursue meaningful life options.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If libertarians are serious about freedom — as they claim — they should endorse real freedom: the possession of the means to do what one might want to do, not merely the absence of legal prohibition.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>A genuine commitment to freedom requires a commitment to real freedom; right-wing libertarianism, which recognises only formal freedom, fails on its own stated values by denying most people the means to exercise the freedoms it formally guarantees.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The unconditional basic income maximises real freedom for all</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A conditional income guarantee — with means tests, work requirements, or behavioural conditions — reintroduces dependence on bureaucratic judgment and employer power, the very forms of domination it is supposed to relieve.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>An unconditional basic income, paid to all regardless of work status or other income, provides the material floor that enables genuine exit from degrading conditions without creating new forms of dependence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>It should be set at the highest level sustainably compatible with a dynamic economy, and financed partly by taxing employment rents — the undeserved advantages accruing to holders of desirable jobs — as well as returns to other morally arbitrary asset advantages.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The unconditional basic income, set at the highest sustainable level and financed from morally arbitrary rents, is the institutional expression of a genuine commitment to real freedom for all.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Basic income is more general than coupon socialism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Roemer's coupon socialism equalises ownership of productive capital. This addresses exploitation arising from differential capital endowments but leaves untouched inequalities arising from differential human capital, natural talent, and luck.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A basic income addresses the full range of morally arbitrary endowment inequalities by providing a universal material floor, regardless of the source of the individual's disadvantage. It is a more general solution.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Moreover, basic income is compatible with a wide range of ownership arrangements, including coupon socialism, and is therefore orthogonal to rather than competing with Roemer's proposal at the institutional level.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Basic income is a more general institutional response to morally arbitrary inequality than coupon socialism; it addresses all sources of disadvantage, not just capital ownership, and is compatible with Roemer's proposal as a complement.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Real libertarianism preserves Marx's emancipatory core without his theoretical liabilities</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Marx's core emancipatory commitment was to freedom from all forms of domination, including the compulsion to sell one's labour to survive — the material compulsion that underlies the formal freedom of the labour contract.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The basic income directly realises this commitment: it enables genuine exit from the labour market, making the refusal of degrading work or exploitative conditions practically possible rather than merely formally permitted.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This emancipatory core does not require historical materialism, the labour theory of value, or the prediction of capitalism's collapse. It requires only the commitment to real freedom, which is defensible on independent grounds.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Real libertarianism reconstructs Marxism's emancipatory core — freedom from material compulsion — on defensible libertarian grounds, discarding the theoretical liabilities while preserving what is politically and morally essential.</span></div>
+        </div>
+      </div>
+    </div><!-- end van parijs -->
+
+    <!-- PRZEWORSKI -->
+    <div class="speaker-panel" id="opp-przeworski-panel">
+      <div id="opp-przeworski-speech" class="speech-text">
+        <p class="salut">Colleagues,</p>
+        <p>I left the September Group in 1993 having concluded that, insofar as its original purpose was the critical evaluation of Marxism as a social theory, that task had been substantially completed &mdash; and the results were sobering. My position remains that not much of classical Marxism, as a scientific theory of history and society, survives rigorous scrutiny. But I want to be precise about what does and what does not survive, and I want to make a positive case for what I take to be the genuinely important contribution of analytical Marxism to political economy: the analysis of the structural dilemma facing socialist parties under capitalism.</p>
+        <div class="case-box">
+          <strong>The structural dilemma of social democracy.</strong> Workers' parties in capitalist democracies face a fundamental choice. They can pursue radical socialist transformation: nationalise the means of production, redirect investment, compress wage differentials. But this threatens the confidence of capital; investment falls; unemployment rises; economic performance deteriorates. Voters, facing unemployment and austerity, desert the socialist party at the next election. Alternatively, socialist parties can accommodate the requirements of capital accumulation, moderate their redistributive ambitions, and accept the basic institutional framework of capitalism. This delivers short-term material gains but progressively evacuates the socialist project of its transformative content. There is no clean exit from this dilemma.
+        </div>
+        <span class="section">i. the class compromise: structure, not strategy</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Class compromise — structural not strategic; investment strike as structural power</span>The dilemma I have described is not a strategic error made by socialist parties that could be corrected by better tactics. It is a structural feature of capitalism as a system. Under capitalism, the decision to invest is a private decision made by owners of capital on the basis of expected returns. Governments, whatever their political character, are structurally dependent on maintaining sufficient private investment to generate employment and economic growth. A government that systematically undermines the conditions for private investment will face an economic deterioration that limits its political survival, regardless of how it came to power. This is what I call the structural power of capital: it does not require conspiracy or collective organisation by capitalists; it flows from the decentralised investment decisions of many private actors responding to the incentives capitalism creates.</span></p>
+        <span class="section">ii. the failure of the marxist theory of socialist transition</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Failure of transition theory — no mechanism from capitalism to socialism</span>Classical Marxism predicted that capitalism would generate the conditions for its own supersession: the proletariat would grow, its material interests would align with socialist transformation, class consciousness would develop, and a revolutionary transition would occur. This prediction has been falsified. The proletariat did not grow without limit; contradictory class locations (as Wright correctly emphasises) multiplied. The alignment of material interests with revolutionary consciousness proved far more tenuous than Marx supposed. And the actual history of socialist revolution &mdash; in Russia, China, Cuba &mdash; occurred not in the advanced capitalist countries where Marx expected it but in agrarian societies with weak industrial working classes, and produced results that had nothing to do with the emancipatory vision that motivated the project. The theory of socialist transition is the part of Marxism that analytical scrutiny most definitively refutes.</span></p>
+        <span class="section">iii. against cohen: historical materialism as unfalsifiable</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Cohen — historical materialism unfalsifiable; functional explanation untestable</span>Cohen's defence of historical materialism is admirably rigorous in its exposition, but I want to press a further objection: it may be unfalsifiable. When productive forces appear to regress &mdash; as Cohen acknowledges happened in the decline of Rome &mdash; he distinguishes &ldquo;normal&rdquo; history from periods of restriction, and reasserts the development tendency for the normal periods. But what determines normality? If the development thesis only holds when development actually occurs, it is a tautology. If it holds only in the absence of counterexamples, it cannot be falsified by them. A theory that accommodates all possible historical trajectories through definitional reframing is not a scientific theory; it is an organising narrative. I am not saying historical materialism is false; I am saying we do not yet know how to test it.</span></p>
+        <span class="section">iv. what political science can salvage: democracy as a value</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Democracy as intrinsic value — Marxism historically too instrumental about democratic forms</span>My departure from the Group reflected not just scepticism about Marxist theory but a positive intellectual reorientation toward the study of democracy, its conditions of stability, and its intrinsic value. Classical Marxism has been insufficiently attentive to the intrinsic value of democratic forms, treating them as either a bourgeois illusion concealing class rule or as an instrument of socialist transition. Both views underestimate what is at stake in the maintenance of democratic institutions. The structural power of capital is real; but so is the structural power of organised majorities in democratic polities. The analytical study of how these structural forces interact &mdash; and of the conditions under which democratic majorities can constrain capital effectively &mdash; is the genuinely productive frontier of analytical Marxism&rsquo;s intellectual legacy.</span></p>
+        <p><em>I have said what I wanted to say.</em></p>
+      </div>
+      <div id="opp-przeworski-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The structural power of capital: investment strike as a structural feature, not a conspiracy</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Under capitalism, investment decisions are private, made by owners of capital on the basis of expected returns. Governments are structurally dependent on maintaining sufficient private investment to generate employment and growth.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A government that systematically undermines the conditions for private investment will face economic deterioration regardless of its political mandate. This structural constraint operates through decentralised individual decisions, not through collective capitalist organisation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Therefore, the dilemma of social democracy — radical transformation triggers capital flight and unemployment; accommodation forecloses transformation — is structural, not strategic. Better tactics cannot dissolve it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The structural power of capital imposes a real constraint on socialist governments that cannot be overcome by improved strategy within the existing institutional framework; this is a fundamental insight of analytical political economy.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The theory of socialist transition has been empirically falsified</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Marx predicted: proletariat grows without limit; material interests align with revolutionary consciousness; socialist transition occurs in advanced industrial countries. All three predictions have been falsified.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The proletariat did not grow without limit; contradictory class locations multiplied. Material interest-consciousness alignment proved tenuous. Socialist revolutions occurred in agrarian, not advanced industrial, societies.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The actual history of socialist revolutions produced results bearing no resemblance to the emancipatory vision: centralised party-states, political terror, economic stagnation. The theory of socialist transition is the part of Marxism most definitively refuted by history.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Classical Marxism's theory of socialist transition has been falsified by historical evidence; analytical Marxism should accept this verdict and redirect its energies toward what can be salvaged.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument III &mdash; Against Cohen: historical materialism may be unfalsifiable</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Cohen's development thesis: productive forces tend to develop across history. When historical counterexamples appear (decline of Rome, Dark Ages), Cohen distinguishes "normal" periods from periods of restriction and reasserts the tendency for normal periods.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But this manoeuvre is methodologically problematic: if "normal history" is defined as history in which the productive forces develop, the development thesis holds by definition in normal history, and counterexamples are accommodated by reclassification rather than refutation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A theory that accommodates all possible historical trajectories through definitional reframing has no empirical content; it is an organising narrative, not a scientific hypothesis capable of being falsified.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Historical materialism, as Cohen defends it, may be unfalsifiable; its apparent robustness to historical counterexamples may reflect not explanatory power but definitional flexibility that insulates it from disconfirmation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Democracy has intrinsic value; Marxism has been too instrumentalist about democratic forms</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Classical Marxism treats democratic institutions as either bourgeois illusion (concealing class rule) or instrument (of socialist transition). Both views deny democratic forms intrinsic value.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But democratic institutions — free speech, competitive elections, rule of law — have intrinsic value as protections against arbitrary domination, independently of their class content. Their destruction, as the history of Marxist-Leninist regimes demonstrates, is not a transitional inconvenience but a fundamental moral catastrophe.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The productive frontier of analytical Marxism's legacy is the study of how democratic majorities and structural capital power interact, and of the conditions under which democratic institutions can constrain capital effectively without triggering its withdrawal.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Analytical Marxism's enduring contribution to political science is the serious study of the structural constraints on socialist transformation under capitalism, combined with a recognition that democratic institutions have intrinsic value that socialist politics must protect rather than sacrifice.</span></div>
+        </div>
+      </div>
+    </div><!-- end przeworski -->
+
+  </div>
+</div><!-- end right col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'cohen',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'wright',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
