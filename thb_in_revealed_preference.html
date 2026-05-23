@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revealed Preference — The Symposium</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Philosophy of Economics &mdash; Samuelson (1938) &bull; Sen (1973, 1977) &bull; Hausman (2012) &bull; Thoma (2021) &bull; Vredenburgh (2020) &bull; Guala (2019) &bull; Reiss (2013)</div>
+  <div class="motion-title">&ldquo;Resolved: That Revealed Preference Theory Provides an Adequate Foundation for the Scientific Study of Economic Behaviour&rdquo;</div>
+  <div class="motion-sub">Proposition &bull; Samuelson &middot; Hicks &amp; Allen &middot; Thoma &middot; Vredenburgh &nbsp;&mdash;&nbsp; Opposition &bull; Sen &middot; Hausman &middot; Reiss &middot; Guala</div>
+</div>
+
+<div class="columns">
+
+<!-- ═══════════════════════════════════════════
+     LEFT — Samuelson · Hicks & Allen · Thoma · Vredenburgh
+═══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','samuelson',this)">Samuelson</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','hicks',this)">Hicks &amp; Allen</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','thoma',this)">Thoma</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','vredenburgh',this)">Vredenburgh</button>
+  </div>
+
+  <!-- SAMUELSON HEADER -->
+  <div class="col-header" id="prop-samuelson-header">
+    <div class="col-header-top"><span class="pill prop">Proposition I</span><span class="col-subtitle">Paul Samuelson</span></div>
+    <div class="col-position">The behaviourist programme &mdash; preference theory must be purged of unobservable utility and rebuilt from a single consistency postulate applied to observable choices. WARP and SARP suffice to derive the full empirical content of demand theory without residue.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','samuelson','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','samuelson','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- HICKS HEADER -->
+  <div class="col-header hidden" id="prop-hicks-header">
+    <div class="col-header-top"><span class="pill prop">Proposition II</span><span class="col-subtitle">Hicks &amp; Allen</span></div>
+    <div class="col-position">Ordinal utility and indifference analysis &mdash; cardinal utility is unnecessary and unscientific; the full apparatus of demand theory follows from the ordinal representation of preferences via indifference curves, requiring no interpersonal comparison or introspective measurement.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','hicks','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','hicks','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- THOMA HEADER -->
+  <div class="col-header hidden" id="prop-thoma-header">
+    <div class="col-header-top"><span class="pill prop">Proposition III</span><span class="col-subtitle">Johanna Thoma</span></div>
+    <div class="col-position">Limited mentalism is consistent with the behavioural core &mdash; the objection that revealed preference requires beliefs to individuate options establishes only that revealed preference theorists must accept a minimal mentalism about option description, not that the behavioural interpretation of preference itself is abandoned.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','thoma','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','thoma','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- VREDENBURGH HEADER -->
+  <div class="col-header hidden" id="prop-vredenburgh-header">
+    <div class="col-header-top"><span class="pill prop">Proposition IV</span><span class="col-subtitle">Kate Vredenburgh</span></div>
+    <div class="col-position">Unificationist defence &mdash; revealed preference theory is explanatory not because it provides causal or self-explaining mechanisms but because it unifies disparate choice phenomena under a single formal framework; the no-self-explanation and causal objections both presuppose a constraint-based view of explanation that should be rejected.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','vredenburgh','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','vredenburgh','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ SAMUELSON ══ -->
+    <div class="speaker-panel active" id="prop-samuelson-panel">
+      <div id="prop-samuelson-speech" class="speech-text">
+        <p class="salut">I want to be direct about what this programme is and what it is not.</p>
+        <p>It is not a claim about the hidden springs of human motivation. It is not a psychology. It is not a theory about what people want, feel, or value at some deeper level beneath their observable behaviour. It is precisely a rejection of the demand that economics must engage with such unobservable mental entities. My 1938 paper sought to develop the theory of consumer behaviour freed from any vestigial traces of the utility concept. That was the goal then, and it remains the correct goal now.</p>
+        <div class="case-box">
+          <strong>The Consistency Postulate (WARP).</strong> If a consumer is observed to choose bundle A when bundle B is also affordable, then she will not, under any circumstances in which both are affordable, choose B over A. That is: revealed preference is consistent. From this single postulate, together with continuous demand functions and the assumption that income is fully spent, all the principal theorems of demand theory follow as logical corollaries.
+          <br><br>
+          <strong>Houthakker&rsquo;s SARP (Strong Axiom).</strong> Extending the consistency postulate transitively across chains of revealed preference recovers integrability &mdash; the existence of a utility function rationalising the demand data. The entire edifice of ordinal utility theory is derivable from observable choice without any prior commitment to utility as a psychological reality.
+        </div>
+        <span class="section">i. why the behaviourist programme is correct</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Behaviourist programme — observability; purge of utility</span>The received theory of demand, as I found it in 1938, was built on the concept of marginal utility. Even after the Hicks-Allen ordinalist revision, the concept of utility retained its foundational role: consumers were modelled as maximising some ordinal utility function, with preferences defined over commodity bundles in terms of an unobservable ranking. My objection was methodological. Utility, even in its ordinal form, was introduced as a theoretical primitive not directly tied to any observable magnitude. The theory was therefore, in a sense I took seriously, vacuous &mdash; it was consistent with any pattern of demand. What I wanted instead was a theory whose content was entirely expressed by the constraints it placed on observable demand behaviour. The consistency postulate provides exactly this: it is a testable constraint on price-quantity data, and from it all the valid results of the old utility analysis follow without the utility concept itself appearing anywhere.</span></p>
+        <span class="section">ii. the warp and the empirical content of demand theory</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">WARP — necessary and sufficient; empirical constraint on observable demand</span>The Weak Axiom of Revealed Preference is not merely a notational reformulation of utility maximisation. It is a behavioural constraint with genuine empirical content. If a consumer violates WARP &mdash; if she chooses A over B when B was affordable, and then chooses B over A when A was affordable &mdash; we have direct, observable evidence of inconsistency in her choice behaviour. No recourse to utility, preference, or mental states is needed to identify the violation. With SARP and Houthakker&rsquo;s integrability result, and subsequently with Afriat&rsquo;s theorem and the Generalised Axiom, the theory provides both a necessary and sufficient characterisation of when observed demand data are consistent with rational utility maximisation. The full empirical content of the utility hypothesis is captured. Nothing of value is lost.</span></p>
+        <span class="section">iii. against the critics: the charge of circularity is confused</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Anti-circularity — RP not self-explanatory in a vicious sense</span>Sen will object that revealed preference theory cannot explain choice because a choice cannot be explained by itself: to say that the consumer chose A because she preferred A, where preference just means chose, is circular. I deny the circularity is vicious. The revealed preference framework is not offered as a causal explanation of any particular act of choice. It is offered as a theoretical characterisation of what it means for a pattern of choices, across varying prices and incomes, to be consistent with rational behaviour. The framework is predictive and normative, not causal: it tells us what a consumer who has chosen A over B in one price situation must choose in other price situations if she is to be consistent. This is exactly the kind of constraint a scientific theory of demand should provide.</span></p>
+        <span class="section">iv. against hausman: preferences need not be mental states</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Hausman — preferences as choice patterns, not mental states</span>Hausman will argue that preferences in economics are, and must be, total subjective comparative evaluations &mdash; mental states that cause choices and can diverge from them. I deny that economics has, or needs, such a concept. The theoretical role of preferences in my framework is precisely to summarise choice dispositions across a range of hypothetical budget sets. Whether such dispositions are underlain by mental states in some philosophically robust sense is a question for psychology or philosophy of mind, not economics. The economist&rsquo;s demand theory does not need to answer it. Hausman&rsquo;s criticism presupposes that economics must provide a causal-psychological account of choice; I deny this. Economics provides an empirical theory of the structure of consistent choice. That is enough.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-samuelson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Behaviourist programme: utility must be eliminated in favour of observable consistency</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Scientific theories of consumer behaviour should be grounded in observable phenomena, not in theoretical primitives like utility that have no direct empirical counterpart.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Utility theory, even in its ordinal form, introduces preferences as an unobservable ranking that is prior to and independent of observable choice behaviour.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The revealed preference programme replaces utility with a consistency postulate applied directly to observable price-quantity data, deriving all demand-theoretic results without invoking the utility concept.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The revealed preference programme is methodologically superior: it achieves the full empirical content of demand theory from observable behaviour alone, shedding the last vestiges of unobservable utility.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; WARP/SARP/GARP provide testable, necessary and sufficient conditions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Weak Axiom of Revealed Preference is a directly testable constraint: violations are identifiable from price-quantity data without any reference to mental states.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Houthakker&rsquo;s Strong Axiom (and subsequently Afriat&rsquo;s Theorem via GARP) provides a necessary and sufficient condition for a finite dataset of choices to be rationalisable by a continuous, monotone utility function.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These results capture the full empirical content of the utility maximisation hypothesis without requiring utility to be a psychologically real entity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The consistency axioms of revealed preference theory provide both the testable empirical content and the formal completeness that a scientific theory of demand requires; the utility concept adds nothing that the axioms do not already contain.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The circularity charge conflates causal explanation with predictive characterisation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Sen&rsquo;s circularity objection: &ldquo;she chose A because she preferred A&rdquo; is vacuous if preference just means chose. But the revealed preference framework does not purport to explain any particular act of choice causally.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The framework characterises what a pattern of choices across varying prices must look like if the consumer is to be rationally consistent; it is predictive and normative, not causal-psychological.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A theory that constrains and predicts observable demand behaviour across changing price-income regimes is precisely what a scientific theory of demand requires; causal explanation of individual acts of choice is not the goal.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The circularity objection mistakes the theoretical purpose of revealed preference theory; it is not a causal theory of individual choice but a consistency characterisation of rational demand patterns &mdash; and for that purpose it is not circular but complete.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Against Hausman: economics does not require preferences as mental states</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Hausman: preferences must be total subjective comparative evaluations &mdash; mental states that are causally prior to choices and can diverge from them. Revealed preference theory is untenable because it cannot accommodate this.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the theoretical role of preferences in economics is to summarise choice dispositions across budget sets, not to identify a prior mental cause of each act of choice. Whether such dispositions have a mental basis is a question for psychology, not economics.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Hausman&rsquo;s argument presupposes that economics must provide a causal-psychological account of choice; the revealed preference programme correctly denies this and provides instead an empirical theory of consistent choice structure.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Economics does not need, and should not invoke, preferences as mental states; the revealed preference framework provides all the theoretical machinery demand theory requires from purely behavioural foundations.</span></div>
+        </div>
+      </div>
+    </div><!-- end samuelson -->
+
+    <!-- ══ HICKS & ALLEN ══ -->
+    <div class="speaker-panel" id="prop-hicks-panel">
+      <div id="prop-hicks-speech" class="speech-text">
+        <p class="salut">Our position is the indispensable middle step.</p>
+        <p>Samuelson&rsquo;s revealed preference programme is the radical conclusion of a project that our 1934 paper, &ldquo;A Reconsideration of the Theory of Value,&rdquo; began. We were the first to demonstrate rigorously that cardinal utility measurement is unnecessary for demand theory: that all the principal results &mdash; the laws of demand, the substitution and income effects, the Slutsky equation &mdash; can be derived from the purely ordinal assumption that a consumer can rank commodity bundles but need not assign them numerical utility values. Samuelson went further, arguing that even the ordinal representation should be abandoned in favour of pure behavioural consistency. We regard this as an overreach. Ordinal utility and the indifference curve apparatus preserve essential economic content that the purely behaviourist programme threatens to discard.</p>
+        <div class="pull">&ldquo;We shall reduce the theory of value to a system based upon the assumption that the consumer can order, or rank, his preferences; and this is a much weaker and more reasonable assumption than any that has been used hitherto.&rdquo; &mdash; Hicks &amp; Allen, 1934</div>
+        <span class="section">i. the ordinal revolution: what we achieved</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Ordinal utility — Marshall&rsquo;s cardinal utility unnecessary; ranking sufficient</span>Marshall and the classical economists assumed that utility could be measured cardinally: that a consumer could say not only that she preferred A to B but that she preferred A twice as much as B, or by some determinate quantity. This assumption is both psychologically implausible and, as we showed, unnecessary. All that demand theory requires is that the consumer can rank commodity bundles &mdash; say which she prefers, or that she is indifferent, without assigning numerical magnitudes to preferences. The indifference curve, which represents all combinations of goods between which the consumer is indifferent, encodes exactly this ordinal information. From the assumption of consistent ordinal preference, plus the assumption of a diminishing marginal rate of substitution (the curvature of the indifference curve), the entire apparatus of demand analysis follows.</span></p>
+        <span class="section">ii. the slutsky decomposition and the indifference curve method</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Slutsky decomposition — substitution and income effects from indifference curves</span>Our greatest analytical achievement was a rigorous derivation of the Slutsky decomposition: the separation of the total effect of a price change into a substitution effect (the movement along a given indifference curve to the new price ratio) and an income effect (the movement to a different indifference curve due to changed purchasing power). This decomposition is not only theoretically elegant; it has directly practical implications for welfare analysis, for the measurement of the cost of living, and for the design of tax and subsidy policy. Crucially, it requires no cardinal utility measurement, no interpersonal comparison, and no introspective access to the consumer&rsquo;s inner states &mdash; only the ordinal indifference map. This is the correct level of theoretical abstraction: sufficient to generate rich predictions, minimal enough to be epistemically defensible.</span></p>
+        <span class="section">iii. against samuelson: ordinal utility preserves essential content</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against Samuelson — RP too austere; indifference curves richer</span>Samuelson sought to eliminate even ordinal utility, grounding demand theory in pure choice consistency alone. We argue this goes too far. The indifference curve apparatus allows us to represent not only what consumers choose but the entire preference ordering over commodity space &mdash; including what they would choose in hypothetical situations, how they would rank options they have never faced, and how their welfare changes with price and income changes. Revealed preference theory, by contrast, is restricted to the observable choices that have actually been made and the inferences that can be drawn from the consistency axioms applied to them. For the welfare economist who wants to ask whether a consumer is better or worse off after a price change, the indifference curve apparatus provides a richer theoretical foundation than the revealed preference approach alone. The substitution effect is defined in terms of compensation to a given indifference curve; without the indifference map, the concept has no home.</span></p>
+        <span class="section">iv. the complementarity of both approaches</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Complementarity — RP and ordinal utility reinforce each other</span>We do not regard ordinal utility theory and revealed preference theory as rivals. The deepest result in this area &mdash; Houthakker&rsquo;s theorem and Afriat&rsquo;s theorem &mdash; establishes precisely that the choice data satisfying SARP or GARP are equivalent to the existence of a rationalising ordinal utility function. The two frameworks converge on the same empirical content. The correct picture is that revealed preference provides the behavioural foundation and the testability conditions; ordinal utility theory provides the representational language in which those conditions can be stated, extended to hypothetical choices, and applied in welfare analysis. Together, they constitute an empirically grounded, psychologically minimal, and analytically powerful theory of consumer behaviour. Against Sen and Hausman: neither requires cardinal utility, neither requires introspection, and neither is circular. They are the proper scientific foundation for economics.</span></div>
+        <p><em>We yield the floor.</em></p>
+      </div>
+      <div id="prop-hicks-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The ordinal revolution: ranking suffices, cardinal measurement is unnecessary</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Marshallian demand theory assumed cardinal utility: numerically measurable satisfaction whose marginal unit declines. This assumption is psychologically implausible and epistemically inaccessible.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>All the valid results of Marshallian demand theory &mdash; the laws of demand, comparative statics, the effects of income and price changes &mdash; can be derived from the weaker assumption that consumers can rank bundles ordinally, with no numerical measurement of satisfaction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The indifference curve encodes this ordinal information geometrically: each curve represents bundles between which the consumer is indifferent, and the map of curves represents the full ordinal preference ordering.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ordinal revolution eliminates the methodologically questionable assumption of cardinal utility measurement while preserving all the scientific content of demand theory; ordinal preference is the minimal and correct theoretical foundation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Slutsky decomposition: income and substitution effects from ordinal theory alone</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A price change produces two effects: a substitution effect (the consumer substitutes toward the cheaper good, holding real welfare constant) and an income effect (the change in purchasing power alters consumption).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This decomposition is derivable from the ordinal indifference map alone: the substitution effect is a movement along a given indifference curve, the income effect a shift between curves. No cardinal utility is required.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Slutsky decomposition has direct applications in welfare economics, tax analysis, and the measurement of the cost of living. These applications require the indifference curve apparatus; pure revealed preference, restricted to observable choices, cannot provide them.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Ordinal utility theory, via the Slutsky decomposition, provides theoretical content that pure revealed preference theory cannot replicate; it is not reducible to the behaviourist programme without loss of welfare-analytic power.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Against Samuelson: revealed preference is too austere for welfare analysis</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Samuelson&rsquo;s revealed preference theory restricts itself to inferences from actual observed choices; it cannot represent what a consumer would choose in hypothetical situations or how she ranks bundles she has never faced.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Welfare economics requires judgements about whether a consumer is better or worse off after a price or income change; these judgements require comparison with a hypothetical reference point (the compensation variation), which only the indifference map can provide.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The revealed preference approach can bound welfare effects but not define them precisely; ordinal utility theory defines the relevant concepts directly and rigorously.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Ordinal utility theory is necessary, not merely complementary, for welfare economics; revealed preference theory alone is too austere to ground the welfare comparisons that applied demand analysis requires.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Complementarity: Afriat&rsquo;s theorem unifies the two approaches</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Afriat&rsquo;s theorem establishes that a dataset satisfying GARP is equivalent to the existence of a continuous, monotone, concave utility function rationalising it. The two frameworks converge on the same empirical content.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Revealed preference provides the testable behavioural foundation: consistency conditions on observable price-quantity data. Ordinal utility provides the representational language: extending the framework to hypothetical choices, welfare analysis, and applied demand estimation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Together, the two approaches constitute a scientifically complete theory: empirically grounded, psychologically minimal, testable, and rich enough for policy applications.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ordinal utility and revealed preference frameworks are complementary, not competing; their convergence via Afriat&rsquo;s theorem vindicates both and provides the correct scientific foundation for the study of consumer behaviour.</span></div>
+        </div>
+      </div>
+    </div><!-- end hicks -->
+
+    <!-- ══ THOMA ══ -->
+    <div class="speaker-panel" id="prop-thoma-panel">
+      <div id="prop-thoma-speech" class="speech-text">
+        <p class="salut">I want to address the most technically sophisticated objection to revealed preference theory head-on.</p>
+        <p>The objection I have in mind is not Sen&rsquo;s, which concerns the adequacy of preference as a concept, nor Hausman&rsquo;s, which concerns the right understanding of what preferences are. It is an objection that has recently been taken to be decisive: that the revealed preference programme is incoherent because it cannot even get started without appealing to mental states. Specifically, the claim is that in order to individuate the options among which a consumer chooses &mdash; in order to say what &ldquo;choosing A over B&rdquo; even means &mdash; we must already know the agent&rsquo;s beliefs about A and B. And if revealed preference theory must invoke beliefs to get off the ground, then it is not the purely behaviourist programme it purports to be. I want to argue that this objection, while pointing to something real, does not establish what critics suppose.</p>
+        <div class="pull">&ldquo;All that is established by these arguments is that revealed preference theorists must accept a limited mentalism in their account of the options an agent should be modelled as choosing between. This is consistent both with an essentially behavioural interpretation of preference and with standard revealed preference methodology.&rdquo; &mdash; Thoma, 2021</div>
+        <span class="section">i. the belief-dependence objection stated</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Belief-dependence objection — options must be individuated by beliefs</span>The objection proceeds as follows. A consumer who chooses bundle A may be doing so because she believes A contains red apples and she likes red apples, or because she believes it contains green apples and she prefers those, or for any number of belief-dependent reasons. To apply the consistency axioms, we must be able to identify the option as the same option across different choice situations. But the relevant notion of sameness is belief-sensitive: two physically identical bundles may be different options for an agent with different beliefs about their contents or consequences. It follows that we cannot individuate the objects of choice without knowing the agent&rsquo;s beliefs. And if beliefs are required, the programme is not purely behaviourist: it covertly relies on a mental state it claims to have eliminated.</span></p>
+        <span class="section">ii. limited mentalism is consistent with the behavioural core</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Limited mentalism — option individuation requires beliefs; preference itself need not</span>I accept the premise of the objection: beliefs are needed to individuate options correctly. A consumer should be modelled as choosing between options described in a way that is consistent with her beliefs &mdash; not between physically defined bundles that she may not correctly identify. But this concession does not undermine the behavioural interpretation of <em>preference</em> itself. The core claim of revealed preference theory is that preferences are to be understood as choice dispositions: what an agent would choose, across varying budget sets, when the options are correctly described. Once options are correctly individuated (with the help of belief ascription), the preference relation between them is still defined behaviourally &mdash; by what the agent actually or hypothetically chooses. The mentalism required is limited to option description; the preference relation itself remains behavioural.</span></p>
+        <span class="section">iii. this limited mentalism is consistent with scientific practice</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Consistent with practice — economists already do this; no deeper mentalism required</span>The limited mentalism I am endorsing is not a departure from economic practice; it is a description of it. When economists apply revealed preference analysis, they already assume that consumers know what they are choosing between &mdash; that price and quantity data represent the consumer&rsquo;s own understanding of the options, not merely the analyst&rsquo;s physical description of bundles. This is a minimal and uncontroversial assumption about the consumer&rsquo;s epistemic situation, not a commitment to the rich mentalist picture of preferences as subjective comparative evaluations that Hausman defends. The revealed preference theorist is not committed to the view that preferences are causes of choices in the sense of prior mental states; she is committed only to the view that option individuation must be consistent with the agent&rsquo;s beliefs. This is a much weaker claim.</span></p>
+        <span class="section">iv. against hausman and guala: preference need not be a mental state or a disposition</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Against Hausman/Guala — preference as choice disposition; no deeper ontology needed</span>Hausman argues that preferences must be total subjective comparative evaluations &mdash; mental states that are genuinely distinct from the choices they explain. Guala proposes that preferences are belief-dependent dispositions, neither purely behavioural nor purely mental. I maintain that neither view is required by the theoretical role preferences play in economics. The economist needs preferences to do one job: to generate consistent choice predictions across budget sets. This job is done by the behavioural interpretation &mdash; preferences as choice dispositions, defined over correctly individuated options. Hausman&rsquo;s and Guala&rsquo;s accounts add theoretical commitments that create new difficulties without solving those identified by the critics. Limited mentalism with a behavioural preference interpretation is the most parsimonious view consistent with both the critics&rsquo; arguments and scientific practice.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-thoma-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The belief-dependence objection: option individuation requires mental states</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>To apply consistency axioms, we must identify what option the consumer is choosing; but the same physical bundle may constitute different options for agents with different beliefs about its contents or consequences.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Option individuation is therefore belief-sensitive: we cannot identify the objects of choice without knowing the agent&rsquo;s beliefs, which are mental states.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the revealed preference programme requires beliefs to individuate options, it is not purely behaviourist: it covertly invokes the mental states it claims to have eliminated.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The belief-dependence objection correctly establishes that option individuation requires mentalism; but this does not entail that the interpretation of preference itself must be mentalist &mdash; only that option description must be belief-consistent.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Limited mentalism: beliefs needed for options; preference remains behavioural</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The belief-dependence objection establishes that options must be described in a way consistent with the agent&rsquo;s beliefs; this is the limited mentalism the revealed preference theorist should accept.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But once options are correctly individuated, the preference relation between them is still defined behaviourally: as what the agent actually or hypothetically chooses across varying budget sets.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The core behavioural claim &mdash; that preference is choice &mdash; is not undermined by the concession that option individuation requires belief-sensitivity; the two components are separable.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Limited mentalism about option description is fully compatible with a behavioural interpretation of preference; the belief-dependence objection does not establish that preference must be understood as a mental state prior to and distinct from choice.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Limited mentalism is already implicit in standard economic practice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When economists apply revealed preference analysis, they already assume that consumers know what they are choosing between; price-quantity data are treated as representing the consumer&rsquo;s own understanding of the options.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This assumption is minimal and consistent with standard econometric practice; it does not require the rich mentalist picture of preferences as subjective comparative evaluations that Hausman defends.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Accepting limited mentalism about option description does not disrupt revealed preference methodology: the consistency tests, welfare bounds, and demand predictions all proceed as before.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The limited mentalism required by the belief-dependence objection is already implicit in revealed preference practice and does not require any revision of the core behavioural methodology.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Against Hausman and Guala: no deeper ontology of preference is needed</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Hausman: preferences must be total subjective comparative evaluations &mdash; mental states prior to and causally distinct from choices. Guala: preferences are belief-dependent dispositions with a multiply realisable causal basis.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Both accounts add theoretical commitments beyond what the theoretical role of preference in economics requires: generating consistent choice predictions across budget sets.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Limited mentalism plus a behavioural interpretation of preference is the most parsimonious account consistent with both scientific practice and the critics&rsquo; arguments; neither Hausman&rsquo;s nor Guala&rsquo;s account is necessary.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Limited mentalism with a behavioural preference interpretation is the correct response to the critics; it is more parsimonious than either Hausman&rsquo;s mentalism or Guala&rsquo;s dispositionalism, and fully adequate to the theoretical demands of economic science.</span></div>
+        </div>
+      </div>
+    </div><!-- end thoma -->
+
+    <!-- ══ VREDENBURGH ══ -->
+    <div class="speaker-panel" id="prop-vredenburgh-panel">
+      <div id="prop-vredenburgh-speech" class="speech-text">
+        <p class="salut">I want to rescue revealed preference theory from the most philosophically ambitious attacks on it.</p>
+        <p>Two objections in the literature are treated as particularly damaging. The first is the no-self-explanation objection: revealed preference theory is circular because it explains choice by appeal to preferences that are defined as patterns in choice &mdash; a thing cannot explain itself. The second is the causal explanation objection: all scientific explanation, or at least all good social-scientific explanation, must be causal; but revealed preference theory offers no causal mechanism connecting preferences to choices, only a formal consistency characterisation. I want to argue that both objections share a common assumption about the nature of scientific explanation &mdash; what I call the constraint-based view &mdash; and that the assumption is false. Once we adopt a unificationist account of explanation, both objections lose their force.</p>
+        <div class="case-box">
+          <strong>The Unificationist Account of Explanation (Friedman 1974, Kitcher 1981).</strong> A theory explains a phenomenon by deriving it as an instance of a general pattern that unifies a large number of previously unconnected phenomena under a single formal framework. Explanation consists in the reduction of the number of primitive assumptions needed to account for all the phenomena &mdash; not in identifying causal mechanisms behind each phenomenon.
+        </div>
+        <span class="section">i. the no-self-explanation objection and why it fails</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">No-self-explanation — circularity only on constraint-based view; dissolved by unificationism</span>The no-self-explanation objection says: revealed preference theory explains the consumer&rsquo;s choice of A over B by attributing to her a preference for A over B; but since preference just means chose-A-over-B, the explanation is circular &mdash; we are saying she chose A because she chose A. This objection has force only on what I call the constraint-based view of explanation: the view that an explanation must provide a constraint on the explanandum that is independent of it &mdash; something that rules out the explanandum&rsquo;s failing to obtain. On the constraint-based view, a self-explanation provides no constraint because the preference trivially entails the choice if preference just is choice. But on the unificationist account, an explanation does not need to be a prior independent constraint. It needs to show that the explanandum is an instance of a general pattern that subsumes many other phenomena. Revealed preference theory does exactly this: it derives the observed choice, together with all the other demand behaviour of this consumer across varying prices and incomes, from a small set of consistency axioms. This is genuine unificatory explanation.</span></p>
+        <span class="section">ii. the causal explanation objection and why it fails</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Causal explanation — not a universal requirement; unificationism does not need it</span>The causal explanation objection says: all good scientific explanation must cite the causes of the phenomenon explained; revealed preference theory cites only formal consistency patterns, not causes; therefore it does not explain. On the unificationist account, the causal explanation objection simply does not apply. Unificationist explanations explain by deriving phenomena as instances of general patterns; whether those patterns are causal is a further question, and one that unificationism does not require to be answered in the affirmative. Classical mechanics explains the trajectory of a projectile by deriving it from Newton&rsquo;s laws; this is an explanation even for someone who thinks the force of gravity is not a cause in the robust metaphysical sense but merely a parameter of the pattern. Revealed preference theory similarly explains demand behaviour by deriving it from the consistency axioms; the question of what causes the consistency is separate from the question of whether the theory explains.</span></p>
+        <span class="section">iii. what revealed preference unifies</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Unification — disparate demand phenomena derived from consistency axioms alone</span>The power of the unificationist defence is most vivid when we consider how much revealed preference theory unifies. From the single consistency postulate &mdash; the Weak Axiom &mdash; together with budget exhaustion, we can derive: the negative semi-definiteness of the Slutsky substitution matrix; the symmetry of cross-price effects; the integrability of demand functions; welfare bounds on the cost of living; and the testable restrictions used to detect rationality violations in experimental and survey data. These are a heterogeneous collection of results that would otherwise require separate derivations from separate assumptions. Revealed preference theory unifies all of them under a single formal pattern. That is explanatory achievement of the first order, on any account of explanation that takes unification seriously.</span></p>
+        <span class="section">iv. against reiss: the false-model objection does not impugn unificatory explanation</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Against Reiss — false models can still unify; approximate truth is enough</span>Reiss will argue that revealed preference models, like all economic models, are strictly false: consumers do not always choose consistently, do not always exhaust their budget, and do not always face linear budget constraints. A false model cannot explain, on many accounts. But the unificationist account is not committed to the truth of the premises; it requires only that the model unify the phenomena it addresses within a coherent formal framework. Just as Newtonian mechanics explains planetary motions despite being false at high velocities, revealed preference theory explains demand behaviour despite being violated in some cases. The question is not whether the axioms are universally true but whether deriving demand patterns from them provides genuine unificatory insight. It clearly does, and the degree of approximation is an empirical question about the power of the framework.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-vredenburgh-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; No-self-explanation dissolves under unificationism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The no-self-explanation objection: revealed preference explains choice by preference, but preference just is choice, so the explanation is circular. This objection presupposes the constraint-based view of explanation: explanations must provide independent constraints on the explanandum.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The unificationist account rejects the constraint-based view: explanations explain by showing that the explanandum is an instance of a general pattern that unifies many phenomena under a single formal framework, not by providing independent constraints on each explanandum.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Revealed preference theory unifies observed choices with all other demand behaviour under the consistency axioms; this is genuine unificatory explanation that does not require the preference-choice relation to be non-circular in the constraint-based sense.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The no-self-explanation objection has force only on the constraint-based view of explanation; on the unificationist account, revealed preference theory&rsquo;s derivation of choice from consistency axioms is genuine explanatory achievement.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Causal explanation is not a universal requirement for science</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The causal explanation objection: scientific explanation must cite causal mechanisms; revealed preference theory cites only formal consistency patterns; therefore it does not explain.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the unificationist account does not require explanations to be causal; it requires only that they derive the explanandum as an instance of a general unifying pattern. Many scientific explanations &mdash; thermodynamic, statistical mechanical, classical mechanical &mdash; unify without providing causal mechanisms in the full metaphysical sense.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The question of whether the consistency axioms have a causal basis is separate from the question of whether deriving demand behaviour from them is explanatory; unificationism licenses a positive answer to the latter without answering the former.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The causal explanation objection rests on an overly restrictive account of scientific explanation; unificationism is a legitimate alternative that revealed preference theory satisfies.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Revealed preference unifies a wide range of demand phenomena</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>From the consistency axioms alone, revealed preference theory derives: negative semi-definiteness of the Slutsky matrix; symmetry of cross-price substitution effects; integrability of demand functions; welfare bounds; and rationality tests applicable to experimental data.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These results are heterogeneous and would otherwise require separate derivations from separate assumptions; revealed preference unifies them under a single formal pattern.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Unification of disparate phenomena under a single framework is explanatory achievement on any account that takes unification seriously; the breadth of what revealed preference theory unifies is a measure of its explanatory power.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Revealed preference theory is genuinely explanatory on the unificationist account: it derives a wide range of demand phenomena from minimal consistency assumptions, providing unificatory insight of the highest order.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; Against Reiss: false models can still explain by unification</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Reiss: economic models, including revealed preference models, are false; false premises cannot explain. This requires that explanation demands true premises.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The unificationist account does not require truth of premises, only that the model unifies the phenomena within a coherent formal framework; Newtonian mechanics explains despite being false at relativistic velocities.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The degree of approximation is an empirical question; revealed preference axioms are well-satisfied for most consumer data, and where violated, the violations are themselves theoretically interesting. The framework remains explanatory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The false-model objection does not impugn unificatory explanation; revealed preference theory explains demand behaviour by unification even if the consistency axioms are not universally satisfied.</span></div>
+        </div>
+      </div>
+    </div><!-- end vredenburgh -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════════════════════════════
+     RIGHT — Sen · Hausman · Reiss · Guala
+═══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','sen',this)">Sen</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','hausman',this)">Hausman</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','reiss',this)">Reiss</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','guala',this)">Guala</button>
+  </div>
+
+  <!-- SEN HEADER -->
+  <div class="col-header" id="opp-sen-header">
+    <div class="col-header-top"><span class="pill opp">Opposition I</span><span class="col-subtitle">Amartya Sen</span></div>
+    <div class="col-position">Rational fools and the limits of choice-based preference &mdash; the identification of preference with observed choice erases the morally and theoretically crucial distinctions between sympathy, commitment, and welfare; revealed preference theory produces the most sophisticated model of a rational fool economics has devised.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','sen','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','sen','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- HAUSMAN HEADER -->
+  <div class="col-header hidden" id="opp-hausman-header">
+    <div class="col-header-top"><span class="pill opp">Opposition II</span><span class="col-subtitle">Daniel Hausman</span></div>
+    <div class="col-position">Preferences as total comparative evaluations &mdash; revealed preference theory is completely untenable because the preferences economists need to explain, predict, and assess behaviour are total subjective comparative evaluations &mdash; mental states &mdash; and cannot be identified with choices without theoretical catastrophe.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','hausman','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','hausman','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- REISS HEADER -->
+  <div class="col-header hidden" id="opp-reiss-header">
+    <div class="col-header-top"><span class="pill opp">Opposition III</span><span class="col-subtitle">Julian Reiss</span></div>
+    <div class="col-position">False models and the explanation paradox &mdash; revealed preference models are false of real consumers; false models cannot genuinely explain; and the theory&rsquo;s restriction to observable behaviour severs the link between economic theory and the normative judgements about welfare that applied economics demands.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','reiss','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','reiss','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- GUALA HEADER -->
+  <div class="col-header hidden" id="opp-guala-header">
+    <div class="col-header-top"><span class="pill opp">Opposition IV</span><span class="col-subtitle">Francesco Guala</span></div>
+    <div class="col-position">Preferences as belief-dependent dispositions &mdash; neither the pure behaviourist nor the mentalist picture of preference survives scrutiny; economics actually treats preferences as belief-dependent dispositions with a multiply realisable causal basis, which is why the revealed preference programme was always underspecified and why neither Samuelson&rsquo;s nor Hausman&rsquo;s account is adequate.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','guala','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','guala','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ SEN ══ -->
+    <div class="speaker-panel active" id="opp-sen-panel">
+      <div id="opp-sen-speech" class="speech-text">
+        <p class="salut">I want to argue that revealed preference theory, far from resolving the foundational problems of economics, has produced what I called in 1977 the most sophisticated model of a rational fool.</p>
+        <p>The problem is not that the theory is mathematically incorrect. It is not. The problem is not that it fails to derive the standard results of demand theory. It does not fail. The problem is that in the process of achieving these successes, revealed preference theory has purchased its observability by eliminating the concepts that make economic behaviour intelligible: welfare, sympathy, commitment, and the distinction between what a person chooses and what is good for her.</p>
+        <div class="pull">&ldquo;The purely preference-based approach to economics, including the revealed preference theory, requires treating every behaviour as the result of preference maximisation. This leads to a peculiar model of man: one who is consistent, rational in a formal sense &mdash; and capable of remarkable moral sophistication. But this man is actually a fool.&rdquo; &mdash; Sen, 1977</div>
+        <span class="section">i. the identification of preference with choice is a mistake</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Preference ≠ choice — welfare, desire, and actual choice are distinct</span>The fundamental error of revealed preference theory is its identification of preference with choice. If I prefer A to B, this means, in the revealed preference framework, nothing more and nothing less than that I choose A when B is available. But this identification collapses distinctions that are essential both to moral philosophy and to an adequate understanding of human behaviour. There is the person&rsquo;s welfare &mdash; what is actually good for her, the conditions of her flourishing. There is her desire &mdash; what she wants, what she would be pleased to have. And there is her choice &mdash; what she actually picks, given her beliefs, her constraints, her social context, and the pressures she faces. These three things can and do diverge. A consumer whose preferences have been adapted to deprivation &mdash; who has internalised the expectation of little and no longer wants more &mdash; may choose in accord with her adapted preferences while being genuinely worse off by any reasonable standard of welfare. Revealed preference theory cannot even formulate this possibility.</span></p>
+        <span class="section">ii. sympathy and commitment: what the theory cannot represent</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Commitment — counterpreferential choice; the trade union secretary example</span>Consider my distinction between sympathy and commitment. Sympathy is concern for others&rsquo; welfare that enters one&rsquo;s own welfare function: I am made happier by your happiness, so helping you is consistent with self-interested utility maximisation. Commitment is different: it involves choosing an act that I believe will yield me a lower level of personal welfare than an alternative, because I regard that act as the right thing to do. The committed trade union secretary who votes for a policy she knows will disadvantage her personally, because she judges it best for the collective, is acting from commitment, not sympathy, and certainly not from self-interest. Revealed preference theory must either say she is maximising a utility function that includes the union&rsquo;s interest &mdash; which trivialises the distinction between self-interested and other-regarding action &mdash; or say her choice is irrational. Neither is acceptable.</span></p>
+        <span class="section">iii. adaptive preferences: the sour grapes problem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Adaptive preference — sour grapes; revealed preference cannot detect welfare-relevant preference distortions</span>The fable of the fox and the sour grapes is philosophically deep. The fox, unable to reach the grapes, comes to believe they were sour anyway &mdash; he adapts his preference to his constrained feasibility set. If we take revealed preference at face value, the fox&rsquo;s resulting preference for not-having-the-grapes is as legitimate as any other: it is consistently held, it governs his choices, it is observable. But this is a welfare-relevant distortion of preference that any adequate theory of well-being must be able to identify and treat differently from authentic preference. Women in severely patriarchal societies who &ldquo;prefer&rdquo; their subordinate status, chronically deprived people who &ldquo;prefer&rdquo; less because they have learned to want less &mdash; these cases require us to distinguish between observed choice and genuine welfare. Revealed preference theory is constitutionally incapable of making this distinction. It is, in the relevant sense, blind to injustice.</span></p>
+        <span class="section">iv. against samuelson and thoma: the consistency postulate is not enough</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Against Samuelson — WARP is necessary but not sufficient; welfare requires more</span>Samuelson says the consistency postulate is all economics needs. Thoma says limited mentalism about option description is the only concession required. I deny both. Even granting Thoma&rsquo;s limited mentalism and Samuelson&rsquo;s formal adequacy for demand theory, there remains a domain where revealed preference theory is entirely silent and where economics must speak: the assessment of welfare. When we ask whether a policy makes people better off, we cannot simply read welfare off choices. We need a theory of what makes people&rsquo;s lives go well that is independent of what they happen to choose. The capability approach I have developed in later work is precisely such a theory: it assesses welfare in terms of what people are able to do and be, not in terms of what they happen to choose given their constrained circumstances.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-sen-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Preference, desire, and welfare are distinct; their identification is a category error</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Welfare (what is good for a person), desire (what she wants), and choice (what she picks) are three distinct categories that regularly come apart in ordinary life and in economically important cases.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Revealed preference theory collapses all three by identifying preference with choice: what a person prefers just is what she chooses, and this is treated as the relevant notion of welfare for policy purposes.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This identification makes it impossible to formulate welfare-relevant cases in which choice diverges from welfare &mdash; adaptive preferences, false beliefs, constrained feasibility sets &mdash; that are central to economics and policy analysis.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The identification of preference with choice is a category error that makes revealed preference theory incapable of representing welfare-relevant divergences between what people choose and what is good for them.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Commitment drives a wedge between choice and welfare that the theory cannot bridge</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Commitment: a person chooses an act she believes will yield her lower personal welfare than an alternative, because she judges it right. This is counterpreferential choice in the standard sense &mdash; choice against personal welfare.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Revealed preference theory must either assimilate commitment to preference maximisation (by enlarging the utility function to include moral satisfaction), trivialising the distinction between self-interested and other-regarding action, or classify the committed agent as irrational.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Neither response is acceptable: the first destroys the explanatory content of the theory by making it vacuous (any behaviour can be rationalised by an appropriate utility function); the second is empirically false about the moral psychology of real agents.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Commitment behaviour reveals a structural limitation of revealed preference theory: it cannot represent the distinction between self-interested and genuinely other-regarding action without either trivialising or misclassifying it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Adaptive preference: revealed preference is blind to welfare-relevant distortions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Adaptive preferences (sour grapes): people adjust their desires to their constrained feasibility set, coming to prefer what they can have and discount what they cannot. The resulting preferences are consistently held and govern observed choices.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Revealed preference theory treats adapted preferences as equivalent in status to authentic ones: if they are consistent and govern choices, they are preferences. The theory cannot identify the welfare-relevant distortion.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>But policy analysis regularly requires identifying such distortions: whether people in deprived circumstances are actually well off, or whether their low aspirations reflect injustice, requires distinguishing authentic from adapted preference. This is a task revealed preference theory is constitutionally unable to perform.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Revealed preference theory is blind to adaptive preference and therefore blind to a class of welfare-relevant injustices that any adequate economic theory of well-being must be able to identify.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Welfare assessment requires resources beyond observed choice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Policy analysis requires welfare assessments: is this person better or worse off? Are these people&rsquo;s lives going well? These questions cannot be answered by reading welfare off observed choices.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A theory of welfare independent of choice &mdash; such as the capability approach, which assesses what people are able to do and be &mdash; is needed to answer welfare questions in the presence of adaptive preferences, false beliefs, and constrained feasibility sets.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Samuelson&rsquo;s consistency postulate and Thoma&rsquo;s limited mentalism together do not provide such a theory; they provide a theory of consistent choice, not a theory of welfare.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Revealed preference theory is adequate for describing patterns of consistent choice but not for assessing welfare; applied economics and policy analysis require the richer normative resources that Sen&rsquo;s capability approach, among others, provides.</span></div>
+        </div>
+      </div>
+    </div><!-- end sen -->
+
+    <!-- ══ HAUSMAN ══ -->
+    <div class="speaker-panel" id="opp-hausman-panel">
+      <div id="opp-hausman-speech" class="speech-text">
+        <p class="salut">Revealed preference theory is, I will argue, completely untenable.</p>
+        <p>This is a strong claim. Let me be precise about what I mean. I am not claiming that the mathematical results of Samuelson, Houthakker, and Afriat are incorrect &mdash; they are correct. I am not claiming that consistency tests based on WARP and GARP are useless empirical tools &mdash; they are useful. What I am claiming is that revealed preference theory, as an account of what preferences <em>are</em>, is false. And it is false for reasons that have deep implications for the validity of economic explanation, prediction, and especially welfare assessment.</p>
+        <div class="pull">&ldquo;[Preferences] cannot be defined as choices or as dispositions to choose, because what one chooses depends on one&rsquo;s beliefs as well as one&rsquo;s preferences. Since people&rsquo;s beliefs vary, fixing preferences does not fix choices and fixing choices does not fix preferences.&rdquo; &mdash; Hausman, <em>Preference, Value, Choice and Welfare</em> (2012)</div>
+        <span class="section">i. preferences are total comparative evaluations, not choices</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Preferences as TCEs — total subjective comparative evaluations; prior to choice</span>In everyday life, in psychology, and in the rational choice framework economists actually use to explain and predict behaviour, preferences are not choices. They are total comparative evaluations: assessments of one option as better than another, all things considered, from the perspective of the agent&rsquo;s values, desires, and goals. A preference for A over B is a mental state that, combined with beliefs about what A and B are and beliefs about the agent&rsquo;s own goals and constraints, causes the agent to choose A when B is also available. The mental state is the cause; the choice is the effect. This is how the ordinary concept of preference works, how psychologists study preferences, and how economists implicitly invoke the concept when they explain, predict, and assess behaviour. Samuelson&rsquo;s programme attempted to dispense with this mental state and identify preference with its usual effect, choice. But the effect cannot serve the same theoretical role as the cause.</span></p>
+        <span class="section">ii. the belief problem: fixing choice does not fix preference</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Belief problem — choice depends on beliefs; preferences and choices underdetermine each other</span>The identification of preference with choice fails for a simple reason: what a person chooses depends on her beliefs as well as her preferences. A consumer who chooses bundle A over B may prefer A, or may prefer B but believe that the bundle labelled B actually contains A (she has been deceived). Two consumers with the same preferences and different beliefs will make different choices; two consumers with different preferences and appropriately different beliefs may make the same choices. This means that preferences and choices are not coextensive: fixing the preference does not fix the choice, and fixing the observed choice does not fix the preference. Samuelson&rsquo;s behavioural theory therefore does not succeed in eliminating mental states from economics &mdash; it only hides them. Thoma&rsquo;s concession of limited mentalism about option individuation partially acknowledges this, but does not go far enough: the role of belief pervades the entire choice-to-preference inference, not just the individuation of options.</span></p>
+        <span class="section">iii. the welfare implication: choices cannot proxy welfare</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Welfare — choices are not welfare proxies; welfare requires TCEs</span>The most damaging consequence of revealed preference theory is in welfare economics. The standard welfare argument for free markets and against paternalistic intervention runs as follows: people&rsquo;s choices reveal their preferences; satisfying preferences promotes welfare; therefore, allowing people to choose freely promotes their welfare. This argument has two steps, and revealed preference theory makes both of them circular. The first step &mdash; choices reveal preferences &mdash; is supposed to be a substantive discovery, but on the revealed preference interpretation it is a definition. The second step &mdash; satisfying preferences promotes welfare &mdash; requires that preferences be genuine evaluations of what is good for the agent, not merely consistent choice patterns. Adaptive preferences, preferences formed under false beliefs, or preferences shaped by unjust social conditions may be expressed in consistent choices but are not genuine indicators of welfare. Welfare requires access to the underlying total comparative evaluations, not merely to the choices those evaluations produce.</span></p>
+        <span class="section">iv. against thoma: limited mentalism does not save the programme</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Thoma — limited mentalism insufficient; preference itself must be mental</span>Thoma argues that accepting a limited mentalism about option individuation &mdash; that options must be described in a way consistent with the agent&rsquo;s beliefs &mdash; preserves the core behavioural interpretation of preference itself. I deny this. The problem is not only that option individuation requires beliefs. The problem is that the entire inference from observed choice to attributed preference requires beliefs as an input. To infer that the consumer who chose A prefers A over B, I must assume she had correct beliefs about what A and B are, was not acting from weakness of will, was not under social coercion, and was not choosing strategically for other reasons. All these assumptions are about mental states. The preference attribution depends on a rich background of mental-state assumptions; limited mentalism about options alone does not capture this dependence.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-hausman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Preferences are total comparative evaluations, not choice patterns</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Preferences, in ordinary language, psychology, and the rational choice framework economists actually use, are mental states: assessments of one option as better than another, all things considered, from the agent&rsquo;s perspective.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These mental states cause choices in conjunction with beliefs; they are not identical to choices or dispositions to choose. The same preference can produce different choices with different beliefs; the same choice can express different preferences with different beliefs.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Revealed preference theory attempts to identify preference with choice (or a disposition to choose), thereby eliminating the mental-state cause and replacing it with its effect. But an effect cannot play the theoretical role of its cause.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Revealed preference theory&rsquo;s identification of preference with choice is a category error: preferences are total comparative evaluations that cause choices, and cannot be identified with the choices they produce without theoretical loss.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The belief problem: choices and preferences underdetermine each other</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>What an agent chooses depends on her beliefs as well as her preferences. Two agents with identical preferences and different beliefs will make different choices; two agents with different preferences and appropriately adjusted beliefs may make identical choices.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Therefore, fixing observed choices does not fix preferences, and fixing preferences does not fix choices. The two are mutually underdetermined; they cannot be identified.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Thoma&rsquo;s limited mentalism about option individuation acknowledges part of this problem but does not address its full scope: the role of belief pervades the entire inference from choice to preference, not only the individuation of options.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The mutual underdetermination of preferences and choices by the belief problem shows that revealed preference theory cannot succeed as an account of what preferences are; the problem cannot be solved by limited mentalism about option description alone.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Welfare assessment requires access to total comparative evaluations, not choices</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The standard welfare argument for free markets: choices reveal preferences; satisfying preferences promotes welfare; therefore, free choice promotes welfare. Both steps of this argument are undermined by revealed preference theory.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Step one is circular on the revealed preference interpretation: choices do not reveal preferences as a discovery, they define them. Step two requires that preferences be genuine evaluations of welfare, not merely consistent choice patterns; adaptive or belief-distorted preferences do not satisfy this requirement.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Welfare assessment therefore requires access to the underlying total comparative evaluations &mdash; to what agents genuinely value, all things considered &mdash; not merely to their observed choices.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Revealed preference theory makes welfare economics circular and incapable of identifying welfare-relevant preference distortions; a theory of preferences as total comparative evaluations is required for welfare assessment to be substantive.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Against Thoma: limited mentalism does not preserve the behavioural interpretation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Thoma: accepting limited mentalism about option individuation (beliefs needed for option description) preserves the behavioural interpretation of preference itself.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the full inference from observed choice to attributed preference requires many more mental-state assumptions: that the agent had correct beliefs about options, was not acting under coercion, was not suffering weakness of will, was not choosing strategically. All these are assumptions about mental states.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Limited mentalism about option individuation concedes that beliefs are needed at one point in the inference; Hausman&rsquo;s argument is that beliefs are needed throughout. Conceding the first does not answer the second.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Thoma&rsquo;s limited mentalism is a partial concession that does not save the revealed preference programme; the full inference from choice to preference requires rich mental-state assumptions that go far beyond option individuation.</span></div>
+        </div>
+      </div>
+    </div><!-- end hausman -->
+
+    <!-- ══ REISS ══ -->
+    <div class="speaker-panel" id="opp-reiss-panel">
+      <div id="opp-reiss-speech" class="speech-text">
+        <p class="salut">I want to approach the failure of revealed preference theory from the philosophy of science rather than the philosophy of mind.</p>
+        <p>The issues my colleagues have raised &mdash; adaptive preferences, the belief problem, commitment &mdash; are powerful. But I want to press a different kind of objection, one that engages more directly with the scientific aspirations of the revealed preference programme. Samuelson wanted to produce a scientific theory: testable, derived from observable phenomena, making precise predictions. Did he succeed? In one sense, yes: the axioms do constrain observable demand data in ways that can be tested. But in the more fundamental sense relevant to the programme&rsquo;s ambitions, I think the answer is no &mdash; and for reasons that reveal a deep tension in the very idea of a purely behavioural economics.</p>
+        <div class="pull">&ldquo;The revealed preference theory, once endorsed by the profession because it allows economists to avoid making assumptions concerning unobservable states of affairs, has come under severe attack. And with good reason: the theory is at best a useful empirical tool and at worst a sophisticated form of question-begging about the nature of consumer behaviour.&rdquo; &mdash; Reiss, 2013</div>
+        <span class="section">i. the false-model problem: real consumers violate the axioms</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">False-model problem — GARP violations are pervasive; theory is empirically false</span>The revealed preference programme claims to be empirically grounded: its axioms are testable constraints on observable behaviour. But the empirical record is uncomfortable. Reinhard Sippel&rsquo;s 1997 experiments found a considerable number of violations of the revealed preference axioms even in simple laboratory settings. More broadly, the behavioural economics research programme of Kahneman and Tversky has identified systematic, robust, and predictable violations of rational choice axioms across a wide range of domains: framing effects, loss aversion, time-inconsistency, reference-dependence. These are not random noise; they are systematic patterns that reveal that real consumers do not behave as the revealed preference model specifies. A theory grounded in observable behaviour should be falsified by persistent, systematic deviations from the behaviour it prescribes. The revealed preference framework has not been abandoned in the face of this evidence; it has been progressively qualified, adjusted, and made harder to falsify.</span></p>
+        <span class="section">ii. the explanation paradox and economic models</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Explanation paradox — false models can&rsquo;t explain; but true models can&rsquo;t be built</span>I have identified what I call the explanation paradox: three propositions that economists hold simultaneously are inconsistent. First, economic models are false: the assumptions of revealed preference theory, like those of most economic models, are not true of real economic agents. Second, economic models are explanatory: economists believe their models explain demand behaviour. Third, explanation requires truth: a false account of why something happens does not explain it. These three cannot all be true. Vredenburgh&rsquo;s unificationist response is to deny the third proposition: false models can explain by unifying. But I find this response too quick. Unification is only explanatory when the unifying framework is at least approximately true in the relevant domain. A framework that systematically misrepresents how consumers actually make choices &mdash; by ignoring framing, reference points, time-inconsistency, and social norms &mdash; is not providing genuine unificatory insight into choice; it is providing a mathematically elegant misdescription of it.</span></p>
+        <span class="section">iii. the normative-positive distinction: revealed preference cannot ground welfare</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Normative-positive — welfarism requires normative judgements RP cannot make</span>Even granting that revealed preference theory successfully describes consistent demand behaviour, it fails catastrophically as a foundation for welfare economics. The standard move &mdash; from consistent choices to revealed preferences to welfare assessment &mdash; is blocked by the considerations Sen raised: adaptive preferences, distorted beliefs, constrained feasibility sets. But there is also a more direct problem. Any welfare measure based on choice data requires normative judgements about which choices to count, how to aggregate across consumers, and how to treat comparisons across income levels. The consumer price index, compensating variation, deadweight loss &mdash; all require normative assumptions that the pure revealed preference framework cannot supply. Economists who apply revealed preference methods to policy invariably smuggle in normative judgements; the pretence that revealed preference is a neutral, positive, observation-based theory is not sustainable.</span></p>
+        <span class="section">iv. against vredenburgh: unification without truth is not explanation</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Vredenburgh — unification requires approximate truth; RP fails this</span>Vredenburgh argues that false models can explain by unification, citing the precedent of Newtonian mechanics. But Newtonian mechanics is approximately true across the domain to which it is typically applied &mdash; low velocities, everyday scales &mdash; and its deviations from truth are systematic and predictable. The revealed preference framework deviates from the truth of consumer behaviour not in a systematic and approximately-correctable way but in ways that reveal a fundamentally wrong picture of how choices are made. Consumers do not choose by maximising consistent preference orderings over commodity bundles; they use heuristics, respond to frames and reference points, and are influenced by social norms. A model that abstracts from all of these is not approximately true of its subject matter; it is wrong in a way that generates systematic prediction errors. And a model that generates systematic prediction errors does not explain by unification; it explains nothing.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-reiss-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Revealed preference axioms are systematically violated; the theory is empirically false</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The revealed preference programme grounds itself in observable behaviour; its axioms are testable constraints on observed price-quantity data. Empirical adequacy is therefore a standard the programme itself endorses.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Empirical evidence &mdash; laboratory experiments (Sippel 1997), behavioural economics (Kahneman, Tversky, Thaler) &mdash; reveals systematic, robust violations of the revealed preference axioms: framing effects, loss aversion, time-inconsistency, reference-dependence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A theory grounded in observable behaviour and systematically falsified by that behaviour is not an adequate scientific foundation; it has been progressively qualified to avoid falsification rather than revised in light of evidence.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Revealed preference theory is empirically false as a description of actual consumer behaviour; its axioms are routinely and systematically violated, which undermines the observability-grounded scientific credentials the programme claims.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The explanation paradox: false models cannot explain</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Three propositions that economists hold are inconsistent: (1) economic models, including revealed preference models, are false; (2) economic models are explanatory; (3) explanation requires truth.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Vredenburgh denies (3) via unificationism: false models can explain by unification. But unification is explanatory only when the unifying framework is approximately true in the relevant domain.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Revealed preference theory systematically misrepresents how choices are made &mdash; ignoring framing, reference points, time-inconsistency, social norms &mdash; and is therefore not approximately true; it provides mathematical misdescription, not unificatory insight.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The explanation paradox is not resolved by unificationism; false models that systematically misrepresent their subject matter do not explain by unification, and revealed preference theory&rsquo;s falsity is not the benign, approximately-correctable falsity of successful scientific idealisations.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Revealed preference cannot ground welfare analysis without covert normative assumptions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Any welfare measure based on choice data &mdash; consumer price indices, compensating variation, deadweight loss &mdash; requires normative judgements about which choices to count, how to treat adaptive preferences, and how to aggregate across consumers and income levels.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The pure revealed preference framework, as a purely positive observational theory, cannot supply these normative judgements; economists who apply it to policy invariably invoke additional normative assumptions that the framework does not justify.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The pretence that revealed preference provides a neutral, observation-based foundation for welfare economics is unsustainable; the normative is always already present in the measurement choices that apply the theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Revealed preference theory cannot serve as the foundation for welfare economics; the normative judgements required for welfare assessment must be made explicit and cannot be read off observable choice data.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Against Vredenburgh: RP&rsquo;s falsity is not the benign falsity of successful idealisations</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Vredenburgh: false models can explain by unification; Newtonian mechanics is an example. Reiss: Newtonian mechanics is approximately true in its domain of application, and its deviations are systematic and correctable.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Revealed preference theory&rsquo;s deviations from truth are not approximately correctable; they reflect a fundamentally wrong model of how choices are made &mdash; by maximising consistent preference orderings &mdash; when real consumers use heuristics, respond to frames, and are subject to social influence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A model that is wrong in this deep sense generates systematic prediction errors rather than approximately correct predictions, and does not achieve the genuine unification that would make it explanatory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Vredenburgh&rsquo;s unificationist defence fails because revealed preference theory&rsquo;s falsity is not the benign, approximately-correctable falsity of successful scientific idealisations but a fundamental misrepresentation of the causal structure of choice.</span></div>
+        </div>
+      </div>
+    </div><!-- end reiss -->
+
+    <!-- ══ GUALA ══ -->
+    <div class="speaker-panel" id="opp-guala-panel">
+      <div id="opp-guala-speech" class="speech-text">
+        <p class="salut">I want to argue that the entire debate between behaviourists and mentalists has been conducted on false terms.</p>
+        <p>The standard picture assumes that preferences must be either behavioural regularities (Samuelson&rsquo;s programme) or mental states (Hausman&rsquo;s programme). Behaviourists say preferences are choice patterns; mentalists say they are prior psychological states. Both sides assume this is an exhaustive disjunction. I want to challenge the assumption. The actual scientific practice of economists &mdash; in choice theory, in behavioural economics, in experimental economics &mdash; treats preferences in a way that fits neither pure behaviourism nor mentalism. They are treated as belief-dependent dispositions with a multiply realisable causal basis. This is why economists are consistently reluctant to commit to either interpretation when pressed.</p>
+        <div class="pull">&ldquo;Preferences are neither behavioural regularities nor mental states. They are belief-dependent dispositions with a multiply realisable causal basis &mdash; which explains why economists are consistently reluctant to commit to either interpretation and why both the behaviourist and mentalist programmes have always been unstable.&rdquo; &mdash; Guala, 2019</div>
+        <span class="section">i. neither behaviourism nor mentalism fits scientific practice</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Neither fits practice — economists use both behavioural and mental talk inconsistently</span>Behavioural economists &mdash; following Samuelson&rsquo;s programme &mdash; claim that preferences are nothing but choice patterns. But in practice, they regularly make claims about preferences that go beyond any particular set of observed choices: they attribute preferences to consumers who have not yet chosen, they make predictions about choices in novel situations, and they ask whether choices in one domain predict choices in another. These are claims about dispositions that go beyond any actual or hypothetical choice sequence. At the same time, economists regularly use mental-state language: they speak of agents &ldquo;knowing&rdquo; their preferences, &ldquo;discovering&rdquo; them through deliberation, having preferences that &ldquo;change&rdquo; over time. These are not mere figures of speech; they reflect genuine theoretical commitments. Neither pure behaviourism nor pure mentalism captures what economists actually do when they theorise about preferences.</span></p>
+        <span class="section">ii. preferences as belief-dependent dispositions</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Belief-dependent dispositions — preferences are causal dispositions conditional on beliefs</span>My proposal is that preferences are belief-dependent dispositions: stable causal structures that generate choices under specific belief conditions. A consumer&rsquo;s preference for apples over oranges is a disposition to choose apples when she correctly believes she is confronted with apples and oranges and no other relevant factors interfere. The disposition is not the choice itself (as the behaviourist would have it) nor a purely mental state that causes choices independently of beliefs (as the mentalist would have it). It is a belief-conditioned causal regularity that generates choices as its manifestations. This account explains why beliefs are required to individuate options (Thoma is right about this) but also explains why preferences cannot be identified with choices (Hausman is right about this): the same disposition can produce different choices under different beliefs, and the same choices can manifest different dispositions under different beliefs.</span></p>
+        <span class="section">iii. the multiply realisable causal basis</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Multiple realisability — preferences implemented by various neural/cognitive mechanisms</span>Dispositions are multiply realisable: the same preference &mdash; the same belief-dependent disposition &mdash; can be implemented by different underlying neural or cognitive mechanisms in different individuals, or even in the same individual at different times. This explains a feature of economic practice that neither behaviourism nor mentalism can account for: economists are agnostic about the psychological or neurological implementation of preferences because the dispositional characterisation is sufficient for economic theorising. The revealed preference programme erred in thinking that this agnosticism required eliminating the concept of preference altogether; what it actually required was a functional, dispositional account that abstracts from implementation details while remaining committed to there being real causal structures underlying the choice patterns.</span></div>
+        <span class="section">iv. against samuelson and thoma: dispositionalism is not behaviourism with limited mentalism</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Against Samuelson/Thoma — dispositionalism is a third view, not a refinement of behaviourism</span>Thoma suggests that limited mentalism about option individuation preserves the core behaviourist interpretation of preference. I deny this. Dispositionalism is not behaviourism with a small concession about option description. It is a fundamentally different account of what preferences are: causal structures that generate choices, not patterns in choices. The difference matters for two reasons. First, dispositions can ground counterfactuals: we can say what a consumer would choose in situations she has never faced, because dispositions project beyond their actual manifestations. Pure behaviourism cannot do this. Second, dispositions can be causally prior to choices in a way that preferences-as-choices cannot be: the disposition causes the choice, which means preferences can genuinely explain choices rather than merely redescribing them. Thoma&rsquo;s limited mentalism keeps the shell of the behaviourist programme while implicitly committing to its dispositionalist replacement.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-guala-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Economic practice fits neither pure behaviourism nor pure mentalism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Pure behaviourism: preferences are choice patterns. But economists attribute preferences to agents who have not yet chosen, make predictions about novel situations, and ask whether preferences are stable across domains &mdash; claims that go beyond any actual or hypothetical choice sequence.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Pure mentalism: preferences are mental states prior to and causally distinct from choices. But economists regularly use mental-state language alongside behavioural language without committing to a specific psychological implementation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The actual scientific practice of economists in choice theory, behavioural economics, and experimental economics treats preferences in a way that is consistent with neither pure programme; economists are consistently reluctant to commit to either interpretation when pressed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The behaviourist-mentalist dichotomy is false as a description of economic practice; a third account &mdash; dispositionalism &mdash; is needed to characterise what economists actually do when they theorise about preferences.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Preferences are belief-dependent dispositions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A preference is a belief-dependent disposition: a stable causal structure that generates choices when the agent correctly believes she is confronted with the relevant options and no interfering factors are present.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This account explains why beliefs are required to individuate options (the disposition is conditioned on belief states about what the options are), and why preferences cannot be identified with choices (the same disposition can produce different choices under different beliefs).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Dispositions project beyond their actual manifestations: they ground counterfactuals about what the agent would choose in novel situations. This is a theoretical resource that pure behaviourism lacks and that economic practice requires.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Preferences as belief-dependent dispositions provide the correct account: they are real causal structures that generate choices, explain why beliefs are required, ground counterfactuals, and fit the actual practice of economists better than either behaviourism or mentalism.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Multiple realisability explains economists&rsquo; agnosticism about implementation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Dispositions are multiply realisable: the same preference (the same belief-dependent disposition) can be implemented by different neural or cognitive mechanisms in different individuals or in the same individual at different times.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This explains a feature of economic practice: economists are agnostic about the psychological or neurological implementation of preferences. The dispositional characterisation abstracts from implementation details while remaining committed to real underlying causal structures.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The revealed preference programme mistakenly inferred that agnosticism about implementation required eliminating preference altogether; what it actually required was a functional-dispositional account that is implementation-neutral.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Economists&rsquo; implementation agnosticism is explained by the multiple realisability of dispositions, not by the eliminability of preference; the revealed preference programme drew the wrong lesson from the correct observation that implementation details are theoretically inert.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Against Samuelson and Thoma: dispositionalism is not behaviourism with concessions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Thoma: limited mentalism about option individuation preserves the core behaviourist interpretation &mdash; preferences as choice dispositions with beliefs playing a minimal role in option description.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But dispositionalism is not behaviourism with a small concession: dispositions are causal structures prior to and generative of choices, not patterns in choices. The difference matters: dispositions can genuinely cause and explain choices; patterns in choices cannot cause themselves.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Thoma&rsquo;s limited mentalism implicitly commits to there being causal structures that underlie choice patterns &mdash; this is the core claim of dispositionalism &mdash; while presenting itself as a defence of the behaviourist programme. It cannot have both.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Thoma&rsquo;s limited mentalism is an unstable position that covertly adopts the dispositionalist account while framing itself as a defence of behaviourism; the honest conclusion is that preferences are belief-dependent dispositions, not choice patterns, and the revealed preference programme requires replacement rather than patching.</span></div>
+        </div>
+      </div>
+    </div><!-- end guala -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'samuelson',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'sen',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
