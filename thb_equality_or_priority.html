@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equality or Priority — The Symposium</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:16px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 12px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Distributive Justice &mdash; Nagel, &ldquo;Equality&rdquo; (1979) &bull; Parfit, &ldquo;Equality or Priority?&rdquo; (1991/1995) &bull; Otsuka &amp; Voorhoeve (2009) &bull; Temkin (1993) &bull; Crisp (2003)</div>
+  <div class="motion-title">&ldquo;Equality or Priority? What Grounds Our Duty to Benefit the Worse Off&mdash;Comparative Fairness, Absolute Level, or Something Else?&rdquo;</div>
+  <div class="motion-sub">Six Positions &bull; Nagel &middot; Otsuka &amp; Voorhoeve &middot; Temkin &mdash; Parfit &middot; Parfit&nbsp;(Reply) &middot; Crisp &mdash; all turning on the case of two children, a city, and a suburb</div>
+</div>
+
+<div class="columns">
+
+<!-- ═══════════════════════════════════════════
+     LEFT COLUMN — Nagel · Otsuka+Voorhoeve · Temkin
+═══════════════════════════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','nagel',this)">Nagel</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','otsuka',this)">Otsuka &amp; Voorhoeve</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','temkin',this)">Temkin</button>
+  </div>
+
+  <!-- NAGEL HEADER -->
+  <div class="col-header" id="prop-nagel-header">
+    <div class="col-header-top"><span class="pill prop">Egalitarianism</span><span class="col-subtitle">Thomas Nagel</span></div>
+    <div class="col-position">The city-or-suburb case — moving to help the disabled child is an egalitarian decision. It is in itself bad if some are worse off than others through no fault of their own; this badness is over and above any utilitarian consideration, and can override it.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','nagel','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','nagel','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- OTSUKA HEADER -->
+  <div class="col-header hidden" id="prop-otsuka-header">
+    <div class="col-header-top"><span class="pill prop">Egalitarianism Defended</span><span class="col-subtitle">Otsuka &amp; Voorhoeve</span></div>
+    <div class="col-position">Prioritarianism fails the one-child test &mdash; the Priority View cannot distinguish intrapersonal from interpersonal trade-offs, violating the separateness of persons. Egalitarianism, revised under risk, better satisfies the demands of distributive justice.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','otsuka','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','otsuka','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- TEMKIN HEADER -->
+  <div class="col-header hidden" id="prop-temkin-header">
+    <div class="col-header-top"><span class="pill prop">Comparative Fairness</span><span class="col-subtitle">Larry Temkin</span></div>
+    <div class="col-position">Inequality is intrinsically bad as comparative unfairness &mdash; it is genuinely bad, in one respect, when some are worse off than others through no fault of their own. The Levelling Down Objection rests on a questionable person-affecting principle that egalitarians need not accept.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','temkin','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','temkin','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ NAGEL ══ -->
+    <div class="speaker-panel active" id="prop-nagel-panel">
+      <div id="prop-nagel-speech" class="speech-text">
+        <p class="salut">Let me begin with a case.</p>
+        <p>Suppose you are the parent of two teenage children. One of them, let us call her Ann, is healthy and able-bodied. The other, Ben, has recently been diagnosed with a serious physical disability. You have lost your job but have two offers: one in a city, where Ben would gain access to specialist medical facilities that would substantially, though not wholly, alleviate the effects of his disability; the other on the outskirts of town, in a suburb with excellent schools and open spaces, where Ann would flourish. The gain to Ann from the suburb is greater, let us stipulate, than the gain to Ben from the city. A utilitarian would therefore move to the suburb. What should you do?</p>
+        <div class="case-box">
+          <strong>The Two-Child Case (Nagel 1979).</strong>
+          <br>
+          Ann (healthy) in city: 60 &nbsp;&bull;&nbsp; Ben (disabled) in city: 39
+          <br>
+          Ann (healthy) in suburb: 70 &nbsp;&bull;&nbsp; Ben (disabled) in suburb: 30
+          <br><br>
+          Utilitarian verdict: move to the suburb (total = 80 &gt; 69). Nagel&rsquo;s verdict: move to the city. It is more urgent to benefit Ben, even though the benefit we can give him is smaller.
+        </div>
+        <span class="section">i. the egalitarian ground: it is in itself bad if some are worse off</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Egalitarian principle — inequality intrinsically bad</span>The principle I am invoking is this: it is in itself bad &mdash; bad over and above any bad effects it may have on individuals &mdash; if some people are worse off than others through no fault or choice of their own. This badness resides in the inequality itself. It is the unfairness of some being less well off than others without having done anything to deserve or incur that disadvantage. When I say it is in itself bad, I mean that this badness does not derive from the suffering it causes, from the envy it generates, or from any further consequence. The inequality is bad in the same way that injustice is bad: not because it makes someone feel worse but because it is a departure from a condition of fairness. Ben is worse off than Ann through no fault of his own. That inequality has a moral weight that is independent of, and can override, the utilitarian calculation that slightly favours the suburb.</span></p>
+        <span class="section">ii. urgency, not merely size of benefit</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Urgency — the worse-off have a stronger claim, independent of benefit size</span>The key concept is urgency. It is more urgent to benefit Ben, even though the benefit we can give him &mdash; a move from 30 to 39 &mdash; is smaller than the benefit we can give Ann, which is a move from 60 to 70. The reason it is more urgent is not simply that Ben benefits more in percentage terms, or that his needs are more pressing in some medical sense. It is that improving the situation of someone who is already worse off than others has a priority that improving the situation of the better-off does not. This priority is grounded in the badness of inequality itself. The urgency of Ben&rsquo;s claim is a function of his relative position: the fact that he is worse off than Ann is precisely what generates the additional weight.</span></p>
+        <span class="section">iii. pluralism: equality is not the only value</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Pluralist egalitarianism — equality matters but need not always dominate</span>I am not claiming that equality always overrides every other consideration. Equality is not the only value; it must be weighed against the total welfare of individuals and against other moral considerations. In this case, I claim, the egalitarian consideration is sufficient to override the small utilitarian advantage of the suburb: a gain of one unit in total welfare, against a very substantial inequality reduction. But I readily acknowledge that cases can be constructed where the utilitarian advantage is so great that moving to the suburb would be justified even against the egalitarian consideration. My claim is that the egalitarian principle constitutes a genuine moral reason &mdash; one that is not simply reducible to the welfare of individuals &mdash; and that in this case that reason is decisive. Parfit will say I am really a prioritarian. I deny this: my reason for moving to the city is comparative. It depends essentially on the fact that Ben is worse off than Ann.</span></p>
+        <span class="section">iv. in reply to parfit: the comparison is essential, not incidental</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Parfit — egalitarian reason is essentially comparative</span>Parfit suggests that my reasoning, properly understood, appeals only to Ben&rsquo;s absolute level of welfare, not to his comparative position, and that I would have equally strong reason to benefit Ben even if Ann did not exist and there were no inequality between them. I contest this. The urgency I feel to benefit Ben is heightened precisely because he is worse off than Ann. If Ben were the only child and had the same absolute level, I do not believe my reason to benefit him rather than pursue some other good would have the same moral character. The egalitarian reason is relational: it is grounded in the comparative fact that someone is worse off than another. Separating it from that comparative fact and calling it &ldquo;priority&rdquo; leaves behind the very thing that made the reason morally distinctive.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-nagel-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Inequality is intrinsically bad: the principle of equality</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>It is in itself bad &mdash; bad over and above any effects on individuals &mdash; if some are worse off than others through no fault or choice of their own. This badness is the unfairness of undeserved inequality.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Ben is worse off than Ann through no fault or choice of his own. The inequality between them is therefore bad in itself, independently of the utilitarian calculus.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This intrinsic badness of inequality constitutes a genuine moral reason to reduce it that is independent of, and can override, the utilitarian case for the suburb.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The egalitarian principle provides an independent moral ground for moving to the city that is not captured by welfare maximisation, and in this case is sufficient to override the small utilitarian advantage of the suburb.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Urgency is grounded in comparative position, not absolute level</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>It is more urgent to benefit Ben than Ann, even though the benefit he would receive is smaller.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This urgency is grounded in Ben&rsquo;s comparative position: the fact that he is worse off than Ann is precisely what generates the additional moral weight of his claim.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The urgency is therefore essentially relational: remove the comparison with Ann and the distinctive moral weight of the egalitarian reason is lost.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Urgency in the egalitarian sense is irreducibly comparative: it cannot be restated as a non-relational claim about Ben&rsquo;s absolute level without losing the distinctively egalitarian ground of the moral reason.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Pluralist egalitarianism: equality can be outweighed but is not reducible to welfare</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Equality is not the only value: it must be weighed against the welfare of individuals, liberty, and other moral considerations. It can be outweighed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But equality is a genuine, irreducible moral value &mdash; not merely an instrument for promoting welfare &mdash; and its weight in a given case is a matter of judgment, not formula.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In the two-child case, the egalitarian reason (substantial inequality reduction) outweighs the utilitarian reason (a gain of one welfare unit to the total). The verdict: move to the city.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Pluralist egalitarianism yields the correct verdict in the two-child case without commitment to the view that equality always overrides welfare &mdash; a flexibility that the Priority View purchases only by abandoning the essentially comparative nature of the egalitarian reason.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Against Parfit: the comparative dimension is essential, not eliminable</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Parfit: the urgency of benefiting Ben can be fully accounted for by his absolute level of welfare, independently of any comparison with Ann. One can re-describe the egalitarian reason as prioritarian without loss.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But if Ann did not exist, or if she were equally badly off, the distinctively egalitarian reason to benefit Ben would have a different character. The relational fact that Ben is worse off than Ann is not merely background context; it is constitutive of the moral reason.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Parfit&rsquo;s re-description preserves the verdict (move to the city) while losing the ground (comparative unfairness); this is not a neutral re-description but an elimination of what makes the reason distinctively egalitarian.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The egalitarian reason cannot without distortion be restated as prioritarian: the relational, comparative character of the reason is not an optional framing but the moral substance of the position.</span></div>
+        </div>
+      </div>
+    </div><!-- end nagel -->
+
+    <!-- ══ OTSUKA & VOORHOEVE ══ -->
+    <div class="speaker-panel" id="prop-otsuka-panel">
+      <div id="prop-otsuka-speech" class="speech-text">
+        <p class="salut">Our argument proceeds in two stages.</p>
+        <p>In the first stage we accept, with Parfit, that there is a powerful objection to egalitarianism: the Levelling Down Objection. If inequality were intrinsically bad, then it would be in at least one respect better if the better-off were brought down to the level of the worse-off, even if no one thereby gains. This seems deeply counterintuitive: there is nothing good about blinding the sighted in order to produce equality among the blind. The Priority View avoids this objection entirely. We therefore take it seriously as an alternative to egalitarianism.</p>
+        <p>In the second stage, however, we argue that the Priority View fails a different test &mdash; one that is, we believe, decisive. The test is provided by the One-Child Case, a transformation of Nagel&rsquo;s two-child case that Parfit&rsquo;s view cannot handle without generating deeply counterintuitive implications.</p>
+        <div class="case-box">
+          <strong>The One-Child Case (Otsuka &amp; Voorhoeve 2009).</strong> You have a single teenage child, Cathy, who is healthy but faces a 50% chance of developing the same disability as Ben, and a 50% chance of remaining able-bodied. You must now &mdash; before knowing how her health develops &mdash; choose permanently between the city and the suburb. Moving to the suburb maximises Cathy&rsquo;s expected welfare (50). Moving to the city is recommended by final-utility prioritarianism because the move from 30 to 39 at a low absolute level has greater priority-weighted value than the move from 60 to 70 at a higher level.
+        </div>
+        <span class="section">i. the one-child case defeats final-utility prioritarianism</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">One-child case — prioritarianism requires you to act against Cathy&rsquo;s expected interest</span>In the One-Child Case, moving to the suburb maximises Cathy&rsquo;s expected welfare. No matter how things turn out, you can offer Cathy a complete prudential justification for the suburb: you balanced the two possible outcomes from the perspective of her self-interest alone, and the suburb was better for her in expected terms. Final-utility prioritarianism nevertheless requires you to move to the city, because the priority-weighted expected value of the city is higher. This means the prioritarian is requiring you to act against the expected interests of the only person whose welfare is at stake, for reasons that are entirely impersonal &mdash; reasons that have nothing to do with Cathy&rsquo;s own good. This is a deeply counterintuitive implication. When only one person&rsquo;s well-being is at issue, it is bizarre to make decisions on the basis of impersonal moral weights rather than on the basis of what is good for that person.</span></p>
+        <span class="section">ii. prioritarianism fails to track the separateness of persons</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Separateness of persons — two-child and one-child cases are morally different; priority ignores this</span>The fundamental problem is that final-utility prioritarianism applies the same moral calculus to the two-child case and the one-child case. In the two-child case, Ann and Ben are separate persons: no prudential justification for forgoing a gain to Ben can be offered from the perspective of Ben&rsquo;s interests alone, because the gain that compensates for it goes to someone else. In the one-child case, Cathy&rsquo;s two possible futures are unified because they are both potential futures of <em>hers</em>. This unity makes it appropriate to balance the potential advantages and drawbacks of each option from the perspective of her interests alone. The Priority View, by applying the same priority weights in both cases, fails to track this morally crucial difference between what happens within a single life and what happens across the boundary between two lives.</span></p>
+        <span class="section">iii. egalitarianism does track the difference</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Egalitarianism under risk — comparative fairness requires the city in the two-child case but not the one-child case</span>The egalitarian view, by contrast, handles the difference correctly. In the two-child case, there is genuine inequality: Ben is worse off than Ann through no fault of his own. The egalitarian principle &mdash; that it is bad if some are worse off than others without deserving to be &mdash; gives strong reason to move to the city. In the one-child case, there is no inequality between separate persons: Cathy faces a risk of being worse off in one of her possible futures, but this is not an inequality in the morally relevant sense, because both futures belong to the same individual. The egalitarian principle does not apply to risks within a single life in the same way it applies to inequalities between separate persons. This means the egalitarian can recommend the suburb in the one-child case (maximising Cathy&rsquo;s expected welfare) while recommending the city in the two-child case (reducing inequality between Ann and Ben). The Priority View cannot make this distinction.</span></p>
+        <span class="section">iv. in reply to parfit&rsquo;s defence: the one-child case is not parochial</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Reply to Parfit&rsquo;s defence — one-child objection not answered by hybrid prioritarianism</span>Parfit, in his later defence of the Priority View, suggests that hybrid prioritarianism &mdash; which gives priority to people&rsquo;s prospects for welfare as well as their actual welfare &mdash; can handle the one-child case better. Even hybrid prioritarianism, he suggests, recommends the city. We have three replies. First, even if hybrid prioritarianism reaches the same verdict (city) in the one-child case, it does so for the wrong reasons &mdash; impersonal priority-weighting rather than Cathy&rsquo;s expected good. The prudential justification we can offer for the suburb is available only if we maximise expected welfare; hybrid prioritarianism forecloses it. Second, Parfit does not explain why priority should apply to prospects as well as outcomes &mdash; the extension multiplies the complexity of the view without providing a principled ground for it. Third, the structural problem remains: the Priority View applies the same moral framework to intrapersonal and interpersonal cases, and this is the error that egalitarianism does not make.</span></p>
+        <p><em>We yield the floor.</em></p>
+      </div>
+      <div id="prop-otsuka-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Final-utility prioritarianism requires acting against the only person&rsquo;s expected interest</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the One-Child Case, moving to the suburb uniquely maximises Cathy&rsquo;s expected welfare (50 vs 49.5). Someone solely concerned with Cathy&rsquo;s interests would prefer the suburb on her behalf.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Final-utility prioritarianism requires the city because the priority-weighted expected value of the city is higher: gains from lower absolute levels receive greater moral weight.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This means the prioritarian is requiring the parent to act against the expected welfare of the only person whose well-being is at stake, for entirely impersonal reasons. If you chose the suburb, you could offer Cathy a complete prudential justification; if you chose the city, no such justification is available no matter how things turn out.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Final-utility prioritarianism generates the deeply counterintuitive result that one must act against the expected interests of the only affected person for impersonal moral reasons &mdash; a result that is both implausible in itself and a symptom of the deeper structural problem with the Priority View.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Prioritarianism fails to respect the separateness of persons</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the Two-Child Case, Ann and Ben are separate persons. No prudential justification for the suburb can be offered to Ben from the perspective of his interests alone, because only a different person (Ann) benefits. The separateness of persons makes it hard to justify forgoing a gain to Ben in order to benefit Ann more.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In the One-Child Case, Cathy&rsquo;s two possible futures are unified because they are both potential futures of hers. It is appropriate to balance them from the perspective of her interests alone.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Final-utility prioritarianism applies the same priority weights to increments in welfare in both cases, thereby failing to track the morally crucial difference between trade-offs within a life and trade-offs across lives.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Priority View fails to respect the separateness of persons by treating intrapersonal and interpersonal trade-offs as morally equivalent; this is a fundamental flaw, not a technical difficulty.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Egalitarianism correctly distinguishes the two cases</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The egalitarian principle applies to inequalities between separate persons: it is bad if some are worse off than others through no fault of their own. In the Two-Child Case, this principle applies and generates strong reason to move to the city.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In the One-Child Case, there is no inequality between separate persons: Cathy faces a risk within her own life, not an unchosen disadvantage relative to another person. The egalitarian principle does not apply in the same way.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The egalitarian therefore recommends the suburb in the One-Child Case (maximising Cathy&rsquo;s expected welfare) and the city in the Two-Child Case (reducing inequality between Ann and Ben).</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Egalitarianism correctly tracks the morally crucial distinction between intrapersonal risk and interpersonal inequality; it recommends different choices in the two cases for principled reasons, while the Priority View treats them the same.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Against hybrid prioritarianism: it answers the wrong question</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Parfit&rsquo;s hybrid prioritarianism extends priority-weighting to prospects as well as outcomes, and therefore recommends the city even in the One-Child Case. Parfit claims this shows that prioritarianism can handle the one-child objection.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But even if hybrid prioritarianism reaches the same verdict (city), it does so for the wrong reasons: impersonal priority-weighting of prospects rather than concern for Cathy&rsquo;s expected good. The verdict is the same; the justification is not. And no prudential justification for the city can be offered to Cathy from the perspective of her own interests.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Moreover, hybrid prioritarianism provides no principled ground for why priority should apply to prospects as well as outcomes; the extension multiplies complexity without solving the structural problem of failing to distinguish intrapersonal from interpersonal trade-offs.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Hybrid prioritarianism does not resolve the one-child objection; it reaches the right verdict by the wrong route and fails to explain why the intrapersonal/interpersonal distinction should be ignored.</span></div>
+        </div>
+      </div>
+    </div><!-- end otsuka -->
+
+    <!-- ══ TEMKIN ══ -->
+    <div class="speaker-panel" id="prop-temkin-panel">
+      <div id="prop-temkin-speech" class="speech-text">
+        <p class="salut">I want to defend egalitarianism from a direction somewhat different from Nagel&rsquo;s.</p>
+        <p>The Levelling Down Objection, as Parfit presents it, is taken by many to be simply devastating to egalitarianism. If inequality is intrinsically bad, then its removal must be in at least one respect a change for the better, however that removal is achieved. But if we blind the sighted to produce equality among the blind, that seems in no respect an improvement. Therefore &mdash; so the argument goes &mdash; inequality cannot be intrinsically bad, and egalitarianism is false. I want to resist this conclusion at every step.</p>
+        <div class="pull">&ldquo;Isn&rsquo;t it unfair for some to be worse off than others through no fault of their own? Isn&rsquo;t it unfair for some to be blind while others are not? And isn&rsquo;t unfairness bad? Does this mean I think it would be better if we blinded everybody? No. Equality is not all that matters. But in one respect &mdash; the respect of comparative fairness &mdash; a world of universal blindness is better than a world of unequal sight.&rdquo;</div>
+        <span class="section">i. the slogan and why it is questionable</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The Slogan — person-affecting principle; Temkin&rsquo;s challenge</span>At the heart of the Levelling Down Objection is what I call the Slogan: an outcome can be better in some respect only if it is better for some particular person. The Slogan is a narrow person-affecting principle: it holds that the only genuine improvements are improvements in the welfare of actual individuals. This principle has great intuitive appeal. But it is not obvious that it is correct, and the Levelling Down Objection inherits all of its force from the Slogan&rsquo;s assumed truth. If we are entitled to doubt the Slogan &mdash; if we are entitled to believe that an outcome can be better in some respect even if it is better for no one &mdash; then the Levelling Down Objection loses its force. And I submit that we are so entitled, because the Slogan presupposes a welfarist view of what can be morally valuable that is itself controversial and contestable.</span></p>
+        <span class="section">ii. comparative fairness as a genuine moral consideration</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Comparative fairness — relational value; unchosen inequality is genuinely bad</span>The egalitarian&rsquo;s fundamental concern is with comparative fairness: with how individuals fare relative to each other. It is bad, I maintain, when some are worse off than others through no fault or choice of their own, not because this makes any individual worse off than they would otherwise be, but because it is unfair &mdash; and unfairness is bad even when no individual is made worse off by the unfair state of affairs. The Levelling Down case forces a choice: accept the Slogan and reject egalitarianism, or reject the Slogan and accept that the equal-blindness world is better in one respect (comparative fairness) even though it is worse in overall welfare. I choose the latter. This is not absurd. There genuinely is something bad about the unequal world &mdash; the unfairness of some being blind while others are not through no fault of their own &mdash; and that bad thing is absent in the equal world. We need not and should not conclude that equalisation by levelling down is on balance better. Equality is not the only value. But it is a value.</span></p>
+        <span class="section">iii. inequality is complex and multi-dimensional</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Complexity of inequality — many principles, no algorithm; judgement required</span>One source of the Levelling Down Objection&rsquo;s apparent force is the assumption that egalitarianism must yield a simple algorithm: the worse the inequality, the more reason to reduce it, always and everywhere. But the moral assessment of inequality is, I argue, inherently complex. Inequality may be worse when it affects a greater proportion of the population; it may be worse at the bottom than at the top; it may be worse when the gap is wider; and it may be worse when those who are worse off are significantly below some reasonable standard of sufficiency. These dimensions do not reduce to a single measure, and no single principle of equality can capture all of them. This complexity is not a defect in egalitarianism; it reflects the genuine complexity of the moral phenomenon we are trying to assess. The fact that the resulting theory is not a simple formula does not mean it is no theory at all.</span></p>
+        <span class="section">iv. against parfit: priority cannot replace equality</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Against Parfit — altitude analogy misses comparative unfairness</span>Parfit&rsquo;s altitude analogy is famous. People at higher altitudes find it harder to breathe, not because they are higher than others but because of their absolute altitude. Similarly, Parfit claims, benefits to the worse-off matter more, not because they are worse off than others, but because they are at a lower absolute level. The comparison with others is irrelevant. But the analogy fails in a crucial respect: breathing difficulty is not a matter of comparative fairness. Nobody is treated unfairly by finding it hard to breathe at high altitude; there is no wrongdoer, no relationship of advantage and disadvantage between persons. Inequality of welfare is different: it involves some people being worse off than others, and when that is unchosen and undeserved, there is a genuine complaint about comparative treatment. Parfit&rsquo;s altitude analogy precisely strips away the relational, moral dimension of inequality and replaces it with an impersonal fact about absolute levels. That is not a neutral re-description; it is a substantive elimination of what makes inequality morally objectionable.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-temkin-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Levelling Down Objection rests on the Slogan, which is questionable</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Levelling Down Objection: if inequality is intrinsically bad, levelling down must be in some respect an improvement; but levelling down (e.g. blinding the sighted) is in no respect an improvement; therefore inequality is not intrinsically bad.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The objection rests on the Slogan: an outcome can be better in some respect only if it is better for some particular person. The Slogan is a narrow person-affecting principle of contested validity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If we are entitled to doubt the Slogan &mdash; to believe that fairness can be a genuine moral improvement even when it benefits no one &mdash; the Levelling Down Objection loses its force. We are so entitled: the Slogan presupposes a welfarism that is itself controversial.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Levelling Down Objection is not as decisive as it appears; it presupposes the Slogan, which is independently contestable, and the egalitarian is entitled to reject the Slogan and accept that levelling down is in one respect (comparative fairness) better, even if worse overall.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Comparative fairness is a genuine moral value, independent of individual welfare</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>It is bad when some are worse off than others through no fault or choice of their own, not because this makes any individual worse off than they would otherwise be, but because it is unfair &mdash; and unfairness is bad even when no individual is made worse off by it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In the universal-blindness world, the comparative unfairness of the unequal-blindness world is absent. This is a genuine moral improvement in the dimension of comparative fairness, even if the world is worse overall in welfare terms.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Pluralism: equality of welfare matters, but so does total welfare and other values. Levelling down is not on balance better; but the reduction in unfairness is a real moral good that is real and present in the levelled-down world.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Comparative fairness is a genuine moral value that the Levelling Down Objection illegitimately dismisses; the egalitarian is entitled to say that the equal-blindness world is better in one respect, without being committed to saying it is better all things considered.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Inequality is complex; no single principle captures all its dimensions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The moral badness of inequality varies across multiple dimensions: the proportion of the population that is worse off, the size of the gap, whether the worse-off are near or far from a sufficiency threshold, and others.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No single formula can reduce these dimensions to a single measure; the assessment of inequality requires judgment across multiple incommensurable considerations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This complexity is a feature, not a bug: it reflects the genuine moral complexity of the phenomenon. A theory that yielded a simple algorithm would be suspicious precisely because it ignored morally relevant distinctions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The complexity of egalitarianism does not impugn it; the Priority View&rsquo;s simplicity is achieved by systematically ignoring morally relevant features of comparative advantage and disadvantage that egalitarianism correctly tracks.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Against Parfit: the altitude analogy strips away the moral dimension of inequality</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Parfit: benefits to the worse-off matter more because of their absolute level, not their comparative position. The altitude analogy: one finds it hard to breathe at high altitude regardless of whether others are at lower altitudes.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But breathing difficulty at altitude is not a matter of comparative fairness; there is no wrongdoer, no relationship of advantage and disadvantage between persons. Inequality of welfare is different: it involves some being worse off than others, and when unchosen, this generates a genuine complaint about treatment.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Parfit&rsquo;s analogy strips away the relational, comparative dimension of inequality and replaces it with a non-comparative fact about absolute levels. This is not a neutral re-description but the substantive elimination of what makes inequality morally distinctive.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The altitude analogy fails because it ignores the morally crucial relational character of inequality; comparative fairness &mdash; how some fare relative to others through no fault of their own &mdash; is the heart of the egalitarian concern and cannot be recast in non-comparative terms without moral loss.</span></div>
+        </div>
+      </div>
+    </div><!-- end temkin -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════════════════════════════
+     RIGHT COLUMN — Parfit · Parfit Reply · Crisp
+═══════════════════════════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','parfit',this)">Parfit</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','parfitreply',this)">Parfit (Reply)</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','crisp',this)">Crisp</button>
+  </div>
+
+  <!-- PARFIT HEADER -->
+  <div class="col-header" id="opp-parfit-header">
+    <div class="col-header-top"><span class="pill opp">The Priority View</span><span class="col-subtitle">Derek Parfit</span></div>
+    <div class="col-position">Benefiting people matters more the worse off they are &mdash; not because of their comparative position but because of their absolute level. Egalitarianism is false; the Levelling Down Objection is decisive; the Priority View captures what is true in egalitarianism without its absurdities.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','parfit','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','parfit','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- PARFIT REPLY HEADER -->
+  <div class="col-header hidden" id="opp-parfitreply-header">
+    <div class="col-header-top"><span class="pill opp">Priority View Defended</span><span class="col-subtitle">Parfit (Reply to Otsuka &amp; Voorhoeve)</span></div>
+    <div class="col-position">The One-Child Case does not defeat the Priority View &mdash; the case for priority in intrapersonal settings is independently defensible; hybrid prioritarianism handles the objection; and the egalitarian alternative generates its own difficulties that Otsuka and Voorhoeve understate.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','parfitreply','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','parfitreply','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- CRISP HEADER -->
+  <div class="col-header hidden" id="opp-crisp-header">
+    <div class="col-header-top"><span class="pill opp">Sufficientism</span><span class="col-subtitle">Roger Crisp</span></div>
+    <div class="col-position">Neither equality nor priority — compassion is the correct ground. We should give absolute priority to those below a threshold of sufficiently good life; above that threshold, equality and priority both lose their moral force. The city-or-suburb case is about compassion, not fairness.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','crisp','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','crisp','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ PARFIT ══ -->
+    <div class="speaker-panel active" id="opp-parfit-panel">
+      <div id="opp-parfit-speech" class="speech-text">
+        <p class="salut">I want to begin with what I take to be the clearest version of the problem.</p>
+        <p>Nagel is right that we should move to the city. He is right that the urgency of benefiting the disabled child is greater than the benefit we could give the healthy child, even though the latter benefit is larger. But I believe he has misdescribed his own reason. His reason is not, I will argue, the egalitarian reason he supposes &mdash; not the intrinsic badness of the inequality between the two children. It is the prioritarian reason: that benefiting the disabled child matters more because that child is worse off in absolute terms.</p>
+        <div class="pull">&ldquo;People at higher altitudes find it harder to breathe. Is this because they are higher up than other people? In one sense, yes. But they would find it just as hard to breathe even if there were no other people who were lower down. In the same way, on the Priority View, benefits to the worse off matter more, but that is only because these people are at a lower absolute level. It is irrelevant that they are worse off than others.&rdquo; &mdash; <em>Equality or Priority?</em> (1995)</div>
+        <span class="section">i. the levelling down objection is decisive</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Levelling Down Objection — decisive against telic egalitarianism</span>Telic egalitarianism &mdash; the view that it is in itself bad if some are worse off than others &mdash; is subject to the Levelling Down Objection. If inequality is intrinsically bad, then its removal must be in at least one respect a change for the better, however it is achieved. Suppose the better-off suffer misfortune and become as badly off as everyone else. Their misfortune removes the inequality. Egalitarianism must say this is in one way good. But this seems absurd. When we blind the sighted to produce equality among the blind, we have made things worse for some and better for no one. There is nothing good in this &mdash; no respect in which it is an improvement. The Levelling Down Objection shows that telic egalitarianism is committed to a conclusion that is not merely counterintuitive but genuinely morally repugnant: that a world can be improved by gratuitous harm to the well-off, provided only that the harm produces equality.</span></p>
+        <span class="section">ii. the priority view avoids levelling down</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Priority View — absolute level, not comparative; no levelling down implication</span>The Priority View avoids this problem entirely. On the Priority View, benefiting people matters more the worse off they are &mdash; but this is because of their absolute level, not their comparative position. If Ann suffered misfortune and became as badly off as Ben, this would be a change for the worse. Nothing is gained by Ann&rsquo;s misfortune: no benefit accrues to Ben, the priority-weighted value of outcomes does not improve, and the Priority View correctly identifies this as unambiguously bad. The egalitarian must say there is at least one respect in which this levelling down is good; the prioritarian need say no such thing. This is a decisive advantage. Nagel&rsquo;s intuition that we should move to the city is better explained by the Priority View than by egalitarianism, because the Priority View can generate that conclusion without the Levelling Down implication.</span></p>
+        <span class="section">iii. the altitude analogy: why comparisons are irrelevant</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Altitude analogy — absolute level, not relativity, does the moral work</span>My altitude analogy is designed to make vivid what the Priority View claims. People at high altitude find it harder to breathe, but the difficulty is not caused by their being higher than others at lower altitude. They would find it equally hard to breathe even if no one were at lower altitude. Similarly, on the Priority View, benefits to the worse off matter more because of where those people are in absolute terms &mdash; because their lives are harder, their opportunities more constrained, their welfare more precarious &mdash; not because of where they are in relation to the better-off. The comparison with the better-off is evidence of the absolute level, but it is not the ground of the moral claim. This means that if Ann and Ben were the only people in the world, with the same absolute levels, we would have equally strong reason to benefit Ben &mdash; even in the complete absence of inequality. Nagel&rsquo;s egalitarian view cannot say this. I believe he should be able to say it, and that his intuitions, properly understood, support the Priority View.</span></div>
+        <span class="section">iv. nagel is really a prioritarian</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Nagel as prioritarian — his intuitions track absolute level, not relative position</span>Nagel says it is more urgent to benefit the disabled child. I ask: would it be equally urgent to benefit the disabled child even if he had no sibling who was better off? I believe &mdash; and I believe Nagel believes, if he examines his own intuitions &mdash; that the answer is yes. The disabled child would be at the same absolute level whether or not he had an able-bodied sibling; and the urgency of benefiting him arises from that absolute level, not from the comparison. If this is right, then Nagel is not really an egalitarian. He is using the language of equality while reasoning in terms of the Priority View. My task is not to change his verdict but to correct his explanation of it.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-parfit-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Levelling Down Objection is decisive against telic egalitarianism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Telic egalitarianism: it is in itself bad if some are worse off than others. If true, the removal of inequality must be in at least one respect a change for the better, regardless of how it is achieved.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If the better-off suffer misfortune that equalises their welfare with the worse-off, the inequality is removed; telic egalitarianism must say this is in one way good.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>But this is morally repugnant: blinding the sighted to produce equality is not good in any respect. When some are made worse off and no one benefits, there is no moral improvement. The Levelling Down Objection reveals that telic egalitarianism is committed to an absurdity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Telic egalitarianism is false; the Levelling Down Objection is decisive. No view that treats equality as intrinsically valuable can avoid committing to the absurdity that gratuitous harm to the well-off is in some respect an improvement.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Priority View avoids Levelling Down while preserving pro-worse-off intuitions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>On the Priority View, benefiting people matters more the worse off they are, because of their absolute level. Nothing good happens when the better-off are harmed without benefit to the worse-off: no priority-weighted improvement is registered.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Priority View therefore generates no Levelling Down implication: it correctly identifies gratuitous equalisation as unambiguously bad (the priority-weighted sum of welfare is reduced, and nothing is gained).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Yet the Priority View still recommends moving to the city in Nagel&rsquo;s case: the priority-weighted gain to the disabled child exceeds the priority-weighted gain to the healthy child, because gains from lower levels have greater moral weight.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Priority View generates the correct verdict in Nagel&rsquo;s case without the Levelling Down implication; it is superior to telic egalitarianism because it captures the intuition that benefits to the worse-off matter more while avoiding the absurd commitment to levelling down.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The altitude analogy: absolute level, not comparative position, grounds priority</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>People at higher altitudes find it hard to breathe regardless of whether others are at lower altitudes. Their difficulty is caused by their absolute altitude, not by any comparison with others.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Similarly, benefits to the worse-off matter more because of their absolute level &mdash; the hardship, constraint, and precariousness of their lives &mdash; not because of their comparative position. The comparison is evidence of the level, not the ground of the reason.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This means that if there were no better-off people to compare with, we would have equally strong reason to benefit the worse-off. The Priority View is a non-comparative view; the egalitarian reason is comparative and therefore loses its ground in isolated populations.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The altitude analogy correctly identifies what does the moral work in our concern for the worse-off: their absolute level, not their relative position. The Priority View is therefore better grounded than egalitarianism, which makes the reason comparative and therefore contingent on the existence of the better-off.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Nagel is really a prioritarian: his intuitions track absolute levels</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Nagel says it is more urgent to benefit the disabled child; he characterises this as an egalitarian conviction, grounded in the comparative fact that the disabled child is worse off than his sibling.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But if the disabled child had no sibling, Nagel would &mdash; I submit &mdash; have the same conviction that it is urgent to benefit him. The urgency arises from the child&rsquo;s absolute level, not from the existence of a better-off sibling.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the urgency persists in the absence of inequality, then it cannot be grounded in inequality. Nagel&rsquo;s intuitions, properly interrogated, support the Priority View, not egalitarianism.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Nagel is a prioritarian who uses the language of equality; the Priority View correctly re-describes his intuitions as non-comparative concern for absolute level, without distorting the verdict or the strength of the moral reason.</span></div>
+        </div>
+      </div>
+    </div><!-- end parfit -->
+
+    <!-- ══ PARFIT REPLY ══ -->
+    <div class="speaker-panel" id="opp-parfitreply-panel">
+      <div id="opp-parfitreply-speech" class="speech-text">
+        <p class="salut">I want to respond to Otsuka and Voorhoeve&rsquo;s one-child objection directly.</p>
+        <p>Otsuka and Voorhoeve claim that the Priority View fails because it applies the same moral calculus to intrapersonal trade-offs and interpersonal trade-offs, thereby ignoring the separateness of persons. In the One-Child Case, they say, moving to the suburb uniquely maximises the child&rsquo;s expected welfare; the prioritarian who requires the city is therefore acting against the only person&rsquo;s expected interest for impersonal reasons, which is absurd. This is a serious objection and I want to give it its due. But I do not believe it is decisive.</p>
+        <div class="case-box">
+          <strong>Parfit&rsquo;s reply.</strong> Consider which option is better for the child at risk of disability, from the perspective of what we owe to her. If there is a one-in-two chance that moving to the city would be better for her &mdash; because she turns out to be disabled and the city provides the treatment she needs &mdash; and if she would in that case be at a very low absolute level of welfare, there is strong reason to choose the city grounded entirely in concern for what is at stake in <em>her</em> life. This concern is prioritarian, not impersonal.
+        </div>
+        <span class="section">i. priority applies to prospects: hybrid prioritarianism</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Hybrid prioritarianism — priority-weighted prospects, not just outcomes</span>My response is to endorse what I call hybrid prioritarianism: the view that we should care about the priority-weighted well-being both of outcomes people actually receive and of the prospects they face &mdash; the probability-weighted set of possible outcomes they might receive. Just as non-prioritarians who are egalitarians rightly care about equality of outcomes and equality of chances, prioritarians can and should care about people&rsquo;s prospects weighted by priority as well as their actual outcomes weighted by priority. Applied to the One-Child Case: there is a one-in-two chance that the child will be at a very low level of welfare and will benefit from the city. The expected priority-weighted welfare of the city exceeds that of the suburb. The prioritarian therefore recommends the city, not for impersonal reasons but because of what is at stake in the child&rsquo;s own life.</span></p>
+        <span class="section">ii. the prudential-justification argument proves too much</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Prudential justification argument overextended — many correct choices cannot be prudentially justified ex post</span>Otsuka and Voorhoeve argue that one can offer a prudential justification for moving to the suburb to the child no matter how things turn out: the suburb maximised her expected welfare. This is true, but it does not show that the city is wrong. The availability of a prudential ex post justification for one option does not entail that the other option is impermissible. Many correct moral choices cannot be prudentially justified to each affected person after the fact: a fair lottery may result in one person winning and another losing, yet both faced the same fair procedure. The question is not whether we can justify the outcome to the child after the fact, but whether we have strong moral reason to choose the city given what is at stake in her life. And we do: there is a non-trivial chance she will be badly off, and the city would prevent this.</span></p>
+        <span class="section">iii. egalitarianism faces its own difficulties under risk</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Egalitarian difficulties under risk — ex ante vs ex post equality; inconsistency</span>Otsuka and Voorhoeve suggest that egalitarianism handles the one-child case by simply not applying its principles, because there is no inequality between separate persons in the one-child case. But this move creates its own problem: under risk, it is not always clear whether the relevant equality is ex ante (equality of prospects) or ex post (equality of outcomes). If two people face a fair coin toss that will make one of them better off and leave the other as they are, is there more equality in the prospect (both face the same chance) or the outcome (one will be better off than the other)? The egalitarian faces a genuine dilemma here that the Priority View does not: it must choose between ex ante and ex post equality, and each choice generates counterintuitive results in some cases. The priority view, which applies its framework uniformly, has a structural advantage in clarity and consistency.</span></p>
+        <span class="section">iv. the separateness of persons cuts both ways</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Separateness cuts both ways — egalitarianism also ignores individual boundaries</span>Otsuka and Voorhoeve say the Priority View fails to respect the separateness of persons because it applies the same calculus to intrapersonal and interpersonal cases. But note that telic egalitarianism faces a parallel difficulty from a different direction: it is prepared, under some conditions, to accept that the better-off should be disadvantaged even when this benefits no one, in order to produce equality. This is, in a sense, the ultimate failure to respect the separateness of persons: it treats individuals as mere vessels of an impersonal value (equality) rather than as ends in themselves whose welfare matters. The Priority View, by contrast, is grounded entirely in what is at stake for particular persons at particular levels of welfare. It is the more person-centred, not the less person-centred, of the two views.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-parfitreply-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Hybrid prioritarianism handles the One-Child Case by weighting prospects</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Hybrid prioritarianism: we should care about the priority-weighted well-being of people&rsquo;s prospects (probability-weighted possible outcomes) as well as their actual outcomes. This parallels the egalitarian&rsquo;s concern for equality of chances and equality of outcomes.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In the One-Child Case: there is a one-in-two chance the child will be at a very low absolute level and will benefit greatly from the city; there is a one-in-two chance she will be healthy and will benefit from the suburb. The priority-weighted expected value of the city exceeds that of the suburb.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The prioritarian&rsquo;s recommendation of the city is therefore grounded entirely in what is at stake in the child&rsquo;s own life &mdash; not in impersonal values but in concern for a person who may be very badly off. This is not impersonalism but a legitimate extension of the person-centred Priority View.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Hybrid prioritarianism recommends the city in the One-Child Case for reasons grounded in what is at stake for the child herself; the one-child objection is answered without retreating to impersonalism.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The prudential-justification argument proves too much</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Otsuka and Voorhoeve: one can offer a prudential justification for the suburb to the child no matter how things turn out (the suburb maximised her expected welfare); the city cannot be similarly justified; therefore the suburb is correct.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the availability of an ex post prudential justification for one option does not entail that the other is impermissible. Many correct moral choices cannot be prudentially justified to each affected party after the fact: fair procedures routinely produce outcomes that are disappointing to those who would have benefited from a different outcome.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The question is whether, before the fact, we have strong moral reason to choose the city given the chance that the child will be badly off. The answer is yes: the concern for what is at stake in her life if she is disabled gives genuine moral reason to choose the city that is not impersonal.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The prudential-justification argument does not establish that the suburb is the only permissible choice; the availability of an expected-welfare justification for the suburb is compatible with the city being the morally required choice given what is at stake in the child&rsquo;s life.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Egalitarianism faces unresolved difficulties under risk: ex ante vs. ex post</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Otsuka and Voorhoeve handle the one-child case by claiming the egalitarian principle does not apply to intrapersonal risk. But this creates a problem: under risk, should equality be assessed ex ante (equal prospects) or ex post (equal outcomes)?</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Each answer generates counterintuitive results: ex ante equality may permit ex post inequality; ex post equality may require morally arbitrary allocations to correct for outcomes that were fair in prospect. The egalitarian must choose, and neither choice is unproblematic.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Priority View applies its framework uniformly under certainty and risk: it is always better, other things equal, to give priority to improving the welfare of those at lower absolute levels. This consistency is a structural advantage.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Egalitarianism faces a genuine dilemma under risk between ex ante and ex post conceptions of equality that the Priority View avoids; the apparent advantage of egalitarianism in the one-child case comes at the cost of unresolved inconsistency elsewhere.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; The separateness of persons cuts against egalitarianism more than against the Priority View</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Otsuka and Voorhoeve: the Priority View violates the separateness of persons by applying the same calculus to intrapersonal and interpersonal cases.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But telic egalitarianism is prepared to accept that the better-off should be disadvantaged with no corresponding benefit to the worse-off, in order to produce equality. This treats individuals as vessels of the impersonal value of equality rather than as ends whose welfare matters.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Priority View, by contrast, grounds its concern for the worse-off entirely in what is at stake for particular persons at particular levels of welfare; it is person-centred throughout and never recommends making things worse for some without benefit to anyone.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The separateness of persons is better respected by the Priority View than by telic egalitarianism; the Priority View is grounded entirely in the welfare of particular persons and never sacrifices individuals to an impersonal value.</span></div>
+        </div>
+      </div>
+    </div><!-- end parfitreply -->
+
+    <!-- ══ CRISP ══ -->
+    <div class="speaker-panel" id="opp-crisp-panel">
+      <div id="opp-crisp-speech" class="speech-text">
+        <p class="salut">I want to suggest that both sides of this debate have missed the real source of our intuitions in Nagel&rsquo;s case.</p>
+        <p>Both Nagel and Parfit agree that we should move to the city. Both agree that the reason has something to do with the disabled child&rsquo;s worse situation. They disagree about whether that reason is comparative (egalitarian) or non-comparative (prioritarian). I want to propose a third diagnosis: the reason is neither equality nor priority but compassion &mdash; a direct, non-comparative concern for those who are badly off, which generates what I call the Compassion Principle, and which, when developed, points toward sufficientarianism rather than either of the views my interlocutors have defended.</p>
+        <div class="pull">&ldquo;The basis of our special concern for the worse off, in cases like Nagel&rsquo;s, is not that they are worse off than others, nor that well-being has diminishing marginal moral value. It is simply that they are badly off &mdash; that their lives fall below a level at which a reasonable person would find them good. This is a direct response to suffering, not a response to inequality or to a mathematical property of well-being curves.&rdquo;</div>
+        <span class="section">i. what is driving the intuition in nagel&rsquo;s case</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Compassion — not equality or priority; direct response to suffering below threshold</span>Consider what is actually generating the strong intuition that we should move to the city. Is it the inequality between the two children? Or is it the fact that the disabled child will have a very hard life? I submit that it is overwhelmingly the latter. We are moved by the prospect of a child growing up with a serious disability that will profoundly limit his life without treatment. If Ben&rsquo;s disability were mild &mdash; if even without treatment he would live a flourishing life &mdash; the intuition that we must move to the city would be substantially weaker, even if the inequality between Ann and Ben were exactly the same. What is driving the intuition is not the gap between Ann and Ben but the badness of Ben&rsquo;s situation in absolute terms. And this is not Parfit&rsquo;s priority either: it is not that Ben&rsquo;s welfare has diminishing marginal moral value in some abstract mathematical sense. It is that Ben is badly off, and we have compassion for those who are badly off.</span></p>
+        <span class="section">ii. sufficientarianism: absolute priority below the threshold</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Sufficientism — absolute priority below threshold; indifference above it</span>The principle that I derive from this diagnosis is sufficientarianism: we should give absolute priority to benefiting those whose lives fall below a threshold of sufficiently good life, over benefits to those who are above that threshold. Below the threshold, we have compelling reason to improve someone&rsquo;s life regardless of the benefits foregone by those above the threshold. Above the threshold, the special urgency of the compassion principle fades: we have no more reason to help a millionaire reach a higher income than to help a billionaire do so. In Nagel&rsquo;s case, Ben is below the threshold (or would be without treatment) and Ann is above it (even without the move to the suburb). The sufficientarian verdict is: move to the city, and move there decisively &mdash; not because of equality, not because of priority-weighted welfare, but because Ben&rsquo;s situation falls below what we can reasonably regard as a sufficiently good life.</span></p>
+        <span class="section">iii. against the priority view: the repugnant implication</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against Priority — millionaires and billionaires; priority has no threshold</span>The Priority View has an implication that sufficientarianism avoids. Since the Priority View holds that benefits to the worse-off always matter more than benefits to the better-off, by virtue of the concavity of the transformation function, it follows that we should always give some extra weight to benefiting a moderately poor person over a rich one, and to benefiting a rich person over a very rich one, and so on indefinitely. There is no level above which the special concern for the worse-off ceases. This means the Priority View must give some extra weight to benefiting a millionaire over a billionaire. But this seems wrong: the difference in well-being between millionaires and billionaires is morally irrelevant. Above a sufficient level, equality and priority are simply beside the point. Sufficientarianism correctly identifies the threshold above which these concerns fade, in a way that the Priority View, with its smooth transformation function, cannot.</span></p>
+        <span class="section">iv. against egalitarianism: levelling down and the Beverly Hills case</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Against egalitarianism — Levelling Down; Beverly Hills case; equality lacks traction above threshold</span>Egalitarianism shares the Priority View&rsquo;s problem of lacking a threshold. The egalitarian must say there is some moral reason to reduce the inequality between millionaires and billionaires, which seems implausible. But egalitarianism has the additional problem of Levelling Down: if we could equalise the welfare of two millionaires by slightly reducing the richer one, egalitarianism must regard this as in one respect an improvement. But it is not. I agree with Parfit on this point: levelling down is not good in any respect. Temkin&rsquo;s response &mdash; that the Slogan is questionable &mdash; does not help here, because even if we grant that fairness is a genuine moral value independent of welfare, the fairness between millionaires and billionaires is simply not a pressing moral concern. Sufficientarianism correctly focuses our moral attention below the threshold of sufficiency, where genuine suffering and deprivation give grounds for compassion and priority, and neither egalitarianism nor prioritarianism can do this consistently.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-crisp-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The intuition in Nagel&rsquo;s case is driven by compassion, not equality or priority</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The intuition that we should move to the city is overwhelmingly driven by the prospect of a child living with a serious disability without treatment: by the badness of Ben&rsquo;s situation in absolute terms.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If Ben&rsquo;s disability were mild &mdash; if even without treatment he would flourish &mdash; the intuition to move to the city would be substantially weaker, even if the inequality between Ann and Ben were the same. The inequality is not what drives us.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>But nor is Parfit&rsquo;s priority driving us: it is not that Ben&rsquo;s welfare has diminishing marginal moral value in the abstract. It is that Ben is badly off, and we have compassion for those whose lives fall below what can reasonably be regarded as good.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The intuition in Nagel&rsquo;s case is best explained by compassion &mdash; a direct non-comparative concern for those who are badly off &mdash; rather than by egalitarianism (concern for relative position) or prioritarianism (concave moral weighting of welfare).</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Sufficientarianism: absolute priority below the threshold of sufficiently good life</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Below a threshold of sufficiently good life, we have compelling reason to improve someone&rsquo;s situation regardless of the benefits foregone by those above the threshold. The special urgency of the compassion principle grounds absolute priority below the threshold.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Above the threshold, the compassion principle fades: we have no more reason to help a millionaire reach a higher income than to help a billionaire. Equality and priority between the well-off are morally irrelevant.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In Nagel&rsquo;s case, Ben is below (or approaching) the threshold; Ann is above it. The sufficientarian verdict &mdash; move to the city &mdash; is correct, and its ground is compassion, not fairness or priority-weighting.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Sufficientarianism gives the correct verdict in Nagel&rsquo;s case for the right reasons, and correctly identifies the threshold above which egalitarian and prioritarian considerations cease to have moral force.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Against the Priority View: it gives weight to differences between the very well-off</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Priority View holds that benefits to the worse-off always have greater priority-weighted value, regardless of how well-off both parties are. There is no threshold above which the differential weight disappears.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This implies the Priority View must give some extra weight to benefiting a millionaire over a billionaire, since the millionaire is worse off in absolute terms. But this seems morally implausible: the difference between very well-off people is simply not a matter of special moral concern.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Sufficientarianism correctly identifies a threshold above which priority fades; the Priority View&rsquo;s smooth transformation function has no such threshold and therefore cannot explain why our concern for the worse-off has limits.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Priority View generates a counterintuitive implication &mdash; that differences between the very well-off always matter morally &mdash; that sufficientarianism avoids by correctly locating the special concern for the worse-off below a threshold of sufficiently good life.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; Against egalitarianism: Levelling Down and the Beverly Hills case</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Egalitarianism must give some moral weight to reducing inequality between millionaires and billionaires, which seems implausible (the Beverly Hills case). It also faces the Levelling Down Objection: any equalisation, however gratuitous, is in one way a moral improvement.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Temkin&rsquo;s reply &mdash; that the Slogan is questionable &mdash; does not save egalitarianism in the Beverly Hills case: even granting that fairness is a genuine moral value, the fairness between the very well-off is not a pressing moral concern that should compete with other values.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Sufficientarianism correctly focuses moral attention below the threshold of sufficiency, where genuine suffering and deprivation give grounds for compassion; above the threshold, neither equality nor priority generates compelling reasons, and both theories err in extending their principles there.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Sufficientarianism avoids the failures of both egalitarianism (Levelling Down, Beverly Hills) and prioritarianism (no threshold, millionaires); it correctly identifies compassion for those below a sufficiency threshold as the genuine moral ground of our concern for the worse-off.</span></div>
+        </div>
+      </div>
+    </div><!-- end crisp -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'nagel',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'parfit',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
