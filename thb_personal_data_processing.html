@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Data Processing — House Debate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Fira+Code:wght@300;400;500&family=Spectral+SC:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#16141e;--bg2:#1c1a28;--bg3:#221f32;--bg4:#2a2640;--bg5:#32304c;
+  --bdr:rgba(180,160,255,.07);--bdr2:rgba(180,160,255,.14);--bdr3:rgba(180,160,255,.26);
+  --text:#ddd8f4;--text2:#a89ed0;--text3:#685e90;--ink:#ece8ff;--rule:rgba(180,160,255,.065);
+  --prop-col:#9ac8b0;--prop-pill-bg:rgba(80,180,130,.13);--prop-pill-bdr:rgba(80,180,130,.28);
+  --opp-col:#c8a09a;--opp-pill-bg:rgba(180,100,90,.12);--opp-pill-bdr:rgba(200,120,110,.26);
+  --a1bg:rgba(80,200,140,.06);--a1brd:rgba(80,200,140,.30);--a1tip:#5ec890;
+  --a2bg:rgba(100,140,255,.06);--a2brd:rgba(100,140,255,.28);--a2tip:#7aabff;
+  --a3bg:rgba(220,160,80,.07);--a3brd:rgba(220,160,80,.30);--a3tip:#d4a050;
+  --a4bg:rgba(220,90,100,.06);--a4brd:rgba(220,90,100,.28);--a4tip:#e06070;
+  --a5bg:rgba(160,100,255,.06);--a5brd:rgba(160,100,255,.28);--a5tip:#b080ff;
+  --a6bg:rgba(60,200,210,.06);--a6brd:rgba(60,200,210,.28);--a6tip:#3ec8d4;
+  --a7bg:rgba(240,170,80,.06);--a7brd:rgba(240,170,80,.26);--a7tip:#e8aa50;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Spectral',Georgia,serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;font-size:15.5px}
+
+/* circuit-board grid texture */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.08;background-image:linear-gradient(rgba(180,160,255,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(180,160,255,.3) 1px,transparent 1px);background-size:40px 40px}
+
+.motion-header{padding:.8rem 2rem .65rem;border-bottom:1px solid var(--rule);text-align:center;background:var(--bg2);flex-shrink:0;position:relative;z-index:2}
+.motion-header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(180,160,255,.25),transparent)}
+.motion-eyebrow{font-family:'Fira Code',monospace;font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--text3);font-weight:300;margin-bottom:6px}
+.motion-title{font-family:'Spectral',serif;font-size:15.5px;font-weight:400;font-style:italic;color:var(--ink);letter-spacing:.01em;line-height:1.5}
+.motion-title em{font-style:normal;font-weight:600;color:#b0a0ff}
+.motion-sub{font-family:'Fira Code',monospace;font-size:8.5px;color:var(--text3);margin-top:5px;letter-spacing:.04em;font-weight:300}
+
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0;position:relative;z-index:1}
+.col{display:flex;flex-direction:column;overflow:hidden}
+.col.prop{border-right:1px solid var(--rule)}
+
+.speaker-bar{display:flex;align-items:stretch;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:'Fira Code',monospace;font-size:9.5px;font-weight:300;padding:8px 14px;cursor:pointer;border:none;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;transition:color .15s,background .15s;flex-shrink:0;white-space:nowrap;letter-spacing:.05em}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp .speaker-btn.active{color:var(--opp-col)}
+
+.col-header{padding:.55rem 1.25rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:baseline;gap:.65rem;margin-bottom:3px;flex-wrap:wrap}
+.pill{font-family:'Fira Code',monospace;font-size:8px;font-weight:300;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;border-radius:2px;flex-shrink:0}
+.pill.prop{background:var(--prop-pill-bg);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill-bg);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:'Spectral',serif;font-size:17.5px;font-weight:400;font-style:italic;color:var(--ink)}
+.col-position{font-family:'Fira Code',monospace;font-size:9px;color:var(--text3);margin-top:2px;line-height:1.8;letter-spacing:.01em;font-weight:300}
+.tabs{display:flex;gap:0;margin-top:6px}
+.tab{font-family:'Fira Code',monospace;padding:4px 13px;font-size:9px;letter-spacing:.05em;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:3px 3px 0 0;background:var(--bg3);margin-right:3px;user-select:none;transition:color .15s,background .15s;font-weight:300}
+.tab.active{background:var(--bg2)}
+.prop .tab.active{color:var(--prop-col)}
+.opp .tab.active{color:var(--opp-col)}
+
+.col-body{flex:1;overflow-y:auto;padding:1.15rem 1.55rem 3.5rem;font-size:15.5px;line-height:1.94;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:2px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2)}
+.speaker-panel{display:none}
+.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic;font-size:13.5px}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:'Fira Code',monospace;font-size:8px;text-transform:uppercase;letter-spacing:.2em;color:var(--text3);margin:1.4rem 0 .35rem;display:block;font-weight:300}
+
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg3);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 12px;font-family:'Fira Code',monospace;font-size:8px;font-weight:400;text-transform:uppercase;letter-spacing:.09em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 12px 5px}
+.premise{display:flex;gap:10px;margin-bottom:7px;font-family:'Spectral',serif;font-size:14px;line-height:1.7;color:var(--text2)}
+.plabel{font-family:'Fira Code',monospace;font-weight:300;min-width:16px;font-size:9px;color:var(--text3);padding-top:2px;flex-shrink:0}
+.conclusion{display:flex;gap:10px;padding:7px 12px;font-family:'Spectral',serif;font-size:14px;line-height:1.7;border-top:1px solid var(--bdr);background:var(--bg4);font-style:italic}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:'Fira Code',monospace;font-size:9px;font-weight:300;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg5);border:1px solid var(--bdr3);border-radius:2px;padding:4px 11px;color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Motion before the House · Data Ethics · Political Philosophy · Contractualism · Privacy Theory · Digital Rights</div>
+  <div class="motion-title">"The permissibility of personal data processing by social networking services should be grounded in the <em>quality of opportunities provided to users</em> — not in whether those users have given autonomous consent"</div>
+  <div class="motion-sub">Wolmarans &amp; Voorhoeve (2022) · Scanlon, "Responsibility and the Value of Choice" · Nissenbaum, Privacy in Context (2010) · Zuboff, The Age of Surveillance Capitalism (2019)</div>
+</div>
+
+<div class="columns">
+
+<!-- ═══════════════════════ PROPOSITION ═══════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','wv',this)">Wolmarans &amp; Voorhoeve</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','zuboff',this)">Zuboff</button>
+  </div>
+
+  <div class="col-header" id="prop-wv-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Wolmarans &amp; Voorhoeve</span></div>
+    <div class="col-position">"What Makes Personal Data Processing by SNS Permissible?" (2022) · the Value of Opportunity (VoC) view · why consent fails as the grounding norm · the generic and specific user · third-party interests · regulation as opportunity improvement, not consent enhancement</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','wv','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','wv','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="prop-zuboff-header">
+    <div class="col-header-top"><span class="pill prop">Proposition</span><span class="col-subtitle">Shoshana Zuboff</span></div>
+    <div class="col-position">The Age of Surveillance Capitalism (2019) · consent is doubly corrupted: structurally and epistemically · behavioural surplus as expropriation · instrumentarian power · why the VoC framework, though right to abandon consent, remains too permissive · what genuine permissibility requires</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','zuboff','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','zuboff','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ══ WOLMARANS & VOORHOEVE ══ -->
+    <div class="speaker-panel active" id="prop-wv-panel">
+      <div id="prop-wv-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>When you open Facebook, Instagram, or TikTok, you are presented with a terms-of-service agreement. You click "I agree." The law — and much of the philosophical literature — treats this as the moment of moral transformation: the moment at which what would otherwise be an intrusion on your privacy becomes permissible. We argue that this view is wrong. Not merely practically inadequate. Philosophically wrong. The click is doing no moral work. And once we understand why, we can see what actually makes data processing permissible or not.</p>
+
+        <span class="section">On the failure of the consent model</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Consent fails: structural features of SNS terms ensure consent is neither informed nor genuinely autonomous</span>The consent model holds that data processing is permissible when users have given autonomous, informed consent to the terms of service. We do not deny that autonomous consent would be morally transformative — that a genuine, informed, voluntary agreement would change the moral landscape. We deny that this is what actually occurs. Consider the structural features of social networking service consent. Terms of service are typically dozens of pages long, written in legal language designed for liability protection rather than comprehension. Empirical research consistently shows that fewer than one percent of users read these terms. More fundamentally: the data practices consented to involve complex inferences, predictive modelling, and data sales to third parties whose uses users cannot anticipate. Genuine informed consent requires that the person understands what they are agreeing to. The academic and legal ideal of consent requires this understanding. The "consent" obtained by SNS operators does not approximate it. And once we recognise that the formal requirement of consent is not met in substance, the consent model cannot do the moral work it is assigned.</span></p>
+
+        <span class="section">On the value of choice view — what actually grounds permissibility</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">VoC view: permissibility is grounded in the value of the opportunity set offered, not in the user's response to it</span>We propose instead that what makes data processing permissible is not the user's response — the click of agreement — but the quality of the opportunity the SNS offers. Drawing on Scanlon's contractualism and Voorhoeve's work on the value of opportunity, we argue that a person's options are morally adequate when they are such that she could not reasonably reject facing them. This means: when the opportunity to exchange personal data for valuable services is genuinely good enough — when the services are sufficiently valuable, when the data use is appropriately limited, when reasonable alternatives exist — then the processing is permissible regardless of whether the user actually deliberated carefully over the terms. Conversely, when the opportunity set is exploitative — when the value exchanged is meagre relative to the data surrendered, when default settings systematically extract more than users would endorse on reflection, when there are no meaningful alternatives — the processing is impermissible regardless of formal consent. What matters is the structure of the options, not the signature on the form.</span></p>
+
+        <span class="section">On the generic and specific user — how to assess opportunity value</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Generic and specific user: opportunity assessment must consider both the range of users and their actual decision-making dispositions</span>A crucial question for the VoC view is: how do we assess whether an opportunity is sufficiently valuable? We argue that this assessment must be made across a range of users — not merely a hypothetical rational deliberator, and not merely the actually clicking individual. There are two dimensions. First, we must consider the generic user: the range of persons who will encounter this opportunity, with their different information levels, decision-making capacities, and vulnerability profiles. An opportunity that is genuinely valuable for the information-rich and psychologically robust user may be exploitative for the cognitively vulnerable, the time-pressured, or the informationally impoverished. Second, we must consider what actual users — with their actual heuristics, biases, and dispositions — will actually choose when facing the options as presented. An SNS that uses dark patterns to steer users toward maximal data surrender may formally offer a choice while practically ensuring that choice systematically disserves users' interests. Opportunity quality must be assessed in light of actual, not idealised, decision-making.</span></p>
+
+        <span class="section">On third-party interests — the social dimension of data processing</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Third parties: individual user consent cannot authorise harms to those who never consented — social effects require a different standard</span>The consent model focuses on the bilateral relationship between user and platform. But data processing has profound effects on third parties who are not party to any consent transaction. Behavioural data aggregated from millions of users enables targeted political advertising that manipulates democratic processes. Predictive models built from personal data discriminate in housing, insurance, and employment. The data of one user informs inferences about people who never shared that data at all. None of these third-party effects are addressed by the consent of the individual user who clicked "agree." The VoC framework requires us to assess the value of the opportunity not merely for the consenting user but for the range of persons affected by the data processing. This includes — as a matter of explicit moral requirement — the interests of third parties who are affected but never consulted. A data practice that generates real value for users while creating systematic harms to democratic institutions or to the rights of non-users cannot be rendered permissible by the user's consent alone.</span></p>
+
+        <span class="section">On the regulatory implications — from consent to opportunity improvement</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Regulatory shift: move from consent enhancement to opportunity quality regulation — the standard becomes what users would endorse, not what they did accept</span>The practical implications of the VoC view differ substantially from the consent model. Under the consent model, the regulatory goal is improved consent: better notices, clearer terms, more granular choices. Under the VoC view, the goal is improved opportunities: ensuring that the actual options users face are ones that advance their genuine interests. This means that default settings should be set to the level of data use that users would endorse on reflection — not to the maximum extraction the platform can defensibly present as consented to. It means that SNS operators cannot justify harmful data practices by pointing to terms users formally agreed to, if those terms did not constitute a genuinely valuable opportunity. It means that data practices should be evaluated against a standard of what a reasonable user with accurate information about the practice's consequences would choose — not against the bare fact of a click. The shift is from "did you agree?" to "were your options good enough?"</span></p>
+
+        <span class="section">On Scanlon's contractualism as the philosophical foundation</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Contractualist foundation: reasonable rejection is the correct standard — not consent, not aggregate welfare, but what no one could reasonably reject</span>Our account draws on Scanlon's contractualism, according to which an action is permissible if and only if it is governed by principles that no one could reasonably reject. This contractualist framework is well suited to the data context for several reasons. First, it directs attention to the quality of the opportunity set — are these terms ones that any affected person, properly informed and reasoning correctly about their interests, could reasonably accept? Second, it incorporates third-party interests through the requirement that no one — including those not party to the data transaction — could reasonably reject the governing principle. Third, it grounds the standard in what is reasonable rather than in what was actually chosen, which is precisely the move we need when actual choices are systematically distorted by information asymmetry, cognitive bias, and structural power. The contractualist framework explains why consent is insufficient — it can be given under conditions that no one could reasonably endorse — while providing a positive alternative standard for assessing permissibility.</span></p>
+
+        <span class="section">On why this view is more demanding than it first appears</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">The view is demanding: most current SNS data practices fail the VoC standard, not merely the consent standard</span>We want to be clear that the VoC view is not a relaxation of the moral standard governing data processing. It is not a licence for SNS operators to bypass consent because they judge their offerings to be valuable. The standard of reasonable rejection is stringent. Most current SNS data practices, we submit, fail it. Default settings that extract maximal data unless users actively opt out cannot be justified as offering users opportunities they could not reasonably reject — the asymmetry of information and default power is too great. The sale of sensitive personal data to third-party advertisers who build predictive models affecting users' lives in ways they did not anticipate cannot be rendered permissible by pointing to a service that is genuinely useful. The harvesting of data to train AI systems whose downstream effects are currently unknowable cannot be authorised by the abstract possibility that users could have read the terms. Our view is more demanding than consent because it evaluates the actual structure of the options — not just whether the form was signed.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-wv-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">I — Consent fails as a grounding norm: structural features ensure it is neither informed nor autonomous in practice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Genuine informed consent requires comprehension of what is being agreed to — but SNS terms are long, complex, and read by fewer than 1% of users; the data uses consented to involve inferences and third-party sales users cannot anticipate.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The consent obtained is therefore not autonomous in any morally meaningful sense — it is a formal ritual that does not track the substantive understanding that would make it morally transformative.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A consent that is structurally guaranteed to be uninformed cannot bear the moral weight assigned to it by the consent model — it cannot render permissible what would otherwise be a serious privacy intrusion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The consent model is philosophically wrong, not merely practically inconvenient — actual SNS consent lacks the properties that would make it morally transformative, and regulatory improvement of consent procedures cannot address the structural problem.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">II — VoC view: permissibility is grounded in opportunity quality — what users could not reasonably reject facing</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Drawing on Scanlon's contractualism, an option set is morally adequate when it is such that a person could not reasonably reject facing it — when it is genuinely good enough given all interests at stake.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Data processing is permissible when the opportunity to exchange data for services meets this contractualist standard — not when the user actually agreed, but when the option was genuinely valuable enough to be one no one could reasonably reject.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This standard evaluates the structure of the options, not the user's response — it focuses regulatory attention on what platforms offer, not on whether users completed a consent procedure.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The VoC view provides the correct grounding for data processing permissibility — it replaces the empty formalism of consent with a substantive standard for the quality of the opportunity users face.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">III — Opportunity assessment requires considering both generic and specific users, and actual decision-making dispositions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>An opportunity must be assessed across the range of users who will encounter it — an option that benefits the sophisticated may exploit the cognitively vulnerable or informationally impoverished.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Opportunity assessment must account for actual decision-making: dark patterns and default settings that steer users toward maximal data surrender formally offer choice while practically ensuring systematic disservice to users' interests.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Opportunity quality is not what ideally rational users would choose, but what actual users with actual heuristics and biases will effectively achieve through their choices in the presented option structure.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Proper opportunity assessment requires empirically informed attention to how actual users interact with actual option structures — not a hypothetical rational deliberator, and not the average user, but the full range of those affected.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">IV — Third-party interests: individual consent cannot authorise systematic harms to those who never consented</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Data processing has profound third-party effects — manipulation of democratic processes through targeted political advertising, discrimination through predictive models, inference about non-consenting individuals from others' data.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No individual user's consent can authorise harms to third parties — the consent model focuses on the bilateral user-platform relationship and systematically ignores those outside it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The VoC framework requires assessment of opportunity value for all affected parties, including third parties who never shared their data — a data practice that benefits users while harming democratic institutions or non-users fails the contractualist standard.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Third-party effects are a decisive objection to the consent model — individual consent cannot render permissible practices that harm those who never consented; the VoC framework's contractualist scope encompasses these harms in a way the consent model cannot.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">V — Regulatory shift: from consent enhancement to opportunity quality — from "did you agree?" to "were your options good enough?"</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The consent model generates consent-enhancement regulation: better notices, clearer terms, more granular choices — all of which leave the underlying structure of options untouched.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The VoC view generates opportunity-improvement regulation: default settings must reflect what users would endorse on reflection; data uses must be limited to what users would rationally authorise with full information; harmful practices cannot be licensed by formal agreement.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This shift changes who bears the burden: under consent, users must protect themselves by reading terms; under VoC, platforms must design options that users' interests are genuinely served by.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The VoC view generates a more demanding and more appropriate regulatory framework — the burden shifts from users to platforms, from procedure to substance, from consent perfection to opportunity quality.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">VI — Scanlon's contractualism is the correct philosophical foundation: reasonable rejection, not consent, not welfare</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Scanlonian contractualism holds that an action is permissible iff governed by principles no one could reasonably reject — this is the correct standard because it grounds permissibility in the interests of all affected parties, not in the bare fact of consent or aggregate welfare.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The contractualist framework handles information asymmetry correctly: the question is not what users did agree to but what they could not reasonably reject — this abstracts away from distorted actual choices while preserving attention to real interests.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Third-party interests are incorporated through the requirement that no one — including non-users — could reasonably reject the governing principles, which is exactly what is needed in contexts of broad social data effects.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Scanlonian contractualism provides a philosophically well-grounded foundation for data processing permissibility — it explains both why consent is insufficient and what the correct positive standard is.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">VII — The VoC view is more demanding than consent: most current SNS practices fail it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The VoC standard is not a relaxation of moral requirements — it is a shift in what the requirements target; the contractualist standard of reasonable rejection is stringent.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Most current SNS data practices — maximal-extraction defaults, sensitive data sales to third parties, AI training data harvesting — cannot be justified as opportunities that users could not reasonably reject, given the information asymmetry and power differential.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The VoC view does not license platforms to bypass consent because they believe their services are valuable — it imposes a stringent independent standard that evaluates the actual structure and effects of data practices.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The VoC view condemns most current SNS data practices more decisively than the consent model — because it evaluates the real structure of options, not the formality of agreement, it is harder to game and imposes more genuine obligations on platforms.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ZUBOFF ══ -->
+    <div class="speaker-panel" id="prop-zuboff-panel">
+      <div id="prop-zuboff-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I join my colleagues on the proposition in their rejection of consent as the grounding norm for data processing permissibility. But I want to press further — to argue that the problem with consent in the data context is not merely that users fail to read terms of service. The problem is structural and systemic. Surveillance capitalism has constructed an economic logic in which consent is not just practically imperfect but philosophically incoherent as a legitimating norm. And I want to suggest that while the Value of Opportunity framework represents a genuine advance, it may still be too permissive — it risks licensing practices that should be condemned at a deeper level.</p>
+
+        <span class="section">On surveillance capitalism and the expropriation of behavioural surplus</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Behavioural surplus: SNS operators unilaterally claim data as a raw material — this is expropriation, not exchange, and consent cannot transform it</span>The economic logic of surveillance capitalism, as I have documented, begins with a fundamental act of unilateral appropriation. Google discovered, early in its development, that the behavioural data generated by users' searches — their spelling errors, click patterns, revision sequences, location data — was extraordinarily useful for predicting and influencing behaviour. This data was a byproduct of the search service; it was not the intended exchange. It was surplus — behavioural surplus — that Google claimed unilaterally and deployed for its own purposes. The same logic extended to Facebook, to Instagram, to TikTok, to every platform that monetises through behavioural prediction. The exchange is presented as bilateral: service for data. But it is in fact an expropriation of human experience, reclassified as a raw material for economic processes that users never agreed to and do not benefit from. When we ask whether consent can legitimise this, we are asking whether a unilateral claim to someone's experiential residue can be transformed into a legitimate exchange by the ritual of a click. I submit that it cannot — not because the click is uninformed, but because the thing being "consented to" was never the user's to agree to in the first place.</span></p>
+
+        <span class="section">On instrumentarian power — why consent is not merely impractical but structurally corrupted</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Instrumentarian power: the power asymmetry between platform and user structurally corrupts the possibility of genuine consent</span>Consent, to be morally transformative, must be given in conditions of relative equality, genuine choice, and freedom from manipulation. Surveillance capitalism systematically destroys each of these conditions. The power I call "instrumentarian" — the ability to know individual behaviour, to predict it, and to modify it through precisely targeted interventions — is held by the platform and denied to the user. The user does not know what the platform knows about them. The user does not know how that knowledge is being deployed to shape their decisions. The user cannot meaningfully evaluate the consequences of sharing data, because those consequences are produced by processes that are proprietary, opaque, and subject to constant revision. In this context, the formal possibility of clicking "I agree" or "I disagree" is not a genuine choice — it is the simulation of choice, offered as a political and legal shield for practices that would otherwise be recognisable as surveillance and control. Consent cannot be rescued by making terms more readable, because the fundamental asymmetry of knowledge and power is the problem, not the typography of the terms.</span></p>
+
+        <span class="section">On where I agree with Wolmarans and Voorhoeve — and where I push further</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Agreement and divergence: VoC is right to move beyond consent but may still be too permissive about the exchange itself</span>I agree with my colleagues that consent cannot ground permissibility in this context, and that the relevant standard must assess the quality of opportunities offered. But I want to press on whether the opportunity exchange model — service for data — is itself the right frame for assessing permissibility. When Wolmarans and Voorhoeve ask whether the opportunity to exchange data for services is sufficiently valuable, they are accepting the framing of a bilateral exchange. But the exchange model presupposes that the data has legitimately become the platform's to use. I am questioning that presupposition. If the data is an expropriation of human experience — a unilateral claim on the residue of people's lives — then making the exchange more valuable does not resolve the underlying wrong. It is analogous to asking whether a toll on a highway was fairly set, when the deeper question is whether someone had the right to erect a toll at all. The VoC framework improves the terms of an exchange whose legitimacy remains, on my account, fundamentally contested.</span></p>
+
+        <span class="section">On the aggregation problem and the social construction of surveillance</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Aggregation: individually harmless data points aggregate into surveillance infrastructure that could not have been consented to individually</span>A further dimension of the problem concerns aggregation. Individual data points — a search query, a location, a click — may seem trivial. But the aggregation of billions of such data points across millions of users and years of interaction produces a surveillance infrastructure whose capabilities vastly exceed anything a user could have anticipated or consented to when they first signed up. Solove has documented the aggregation problem in detail: combining publicly available information can produce profiles that violate privacy in ways that none of the individual disclosures did. This aggregation is not something users consented to — it is an emergent property of the system that did not exist at the moment of any individual's consent. The VoC framework must grapple with this: the opportunity being assessed is not merely the present exchange but the future uses of aggregated data, including uses that have not yet been developed. Assessing opportunity value in the present cannot fully account for a system that continuously discovers new ways to exploit existing data.</span></p>
+
+        <span class="section">On the democratic stakes — why data processing permissibility is not merely a personal matter</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Democratic stakes: surveillance capitalism threatens the epistemic infrastructure of democracy — personal data processing is a collective political problem, not a bilateral exchange</span>My colleagues have noted that data processing affects third parties. I want to strengthen this point by specifying the nature of the collective harm. Surveillance capitalism's behavioural modification techniques — micro-targeted advertising, emotional contagion experiments, algorithmic manipulation of information feeds — are not merely commercial tools. They are instruments capable of shaping the beliefs, preferences, and political behaviour of entire populations. The Cambridge Analytica scandal demonstrated that personal data, harvested through a social network, could be weaponised to target individual voters with personalised political messages designed to exploit psychological vulnerabilities. This is not a marginal use case. It is the logical extension of the business model. When we ask whether data processing is permissible, we are not merely asking whether individual users get a fair deal. We are asking whether a private power structure that can modify the beliefs of millions is compatible with democratic self-governance. This question cannot be answered at the level of individual opportunity quality.</span></p>
+
+        <span class="section">On what genuine permissibility requires — beyond VoC</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Beyond VoC: permissibility may require systemic constraints on data use that no individual opportunity assessment can provide</span>If the critique I have developed is correct, then genuine permissibility of data processing requires more than opportunity improvement. It requires systemic constraints on the kinds of data use that are permissible at all — constraints that cannot be licensed by individual user agreement, however well-informed and genuinely autonomous. Specifically: behavioural prediction and modification techniques that operate below the threshold of conscious awareness cannot be rendered permissible by any individual agreement, because they subvert the very deliberative capacity that makes agreement meaningful. Data uses whose downstream effects include democratic manipulation cannot be licensed at the individual level because their harms are collective and cannot be consented to individually. The category of impermissible data uses must be defined at the systemic level — through democratic deliberation about the kinds of data practices a free society should permit — rather than through the bilateral exchange model that both the consent framework and, I argue, the VoC framework presuppose.</span></p>
+
+        <span class="section">On what I concede — and what remains of the VoC framework</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Concession: VoC is a genuine improvement over consent for the domain of legitimate data exchanges; it just does not define that domain</span>I want to close by acknowledging what my critique does not establish. I have argued that the VoC framework accepts the framing of a bilateral exchange whose legitimacy is itself in question. But I do not claim that all data processing is impermissible, or that the exchange framework is never appropriate. Within the domain of data processing practices that are not impermissible at the systemic level — practices that do not involve covert behavioural modification, democratic manipulation, or unilateral expropriation of behavioural surplus — the VoC framework provides the correct standard for assessing individual permissibility. My argument is that this domain is narrower than Wolmarans and Voorhoeve assume. They take the exchange model as given and ask what quality of opportunities it must offer; I argue that prior to that question, we must determine which practices are permissible candidates for the exchange model at all. These are complementary, not competing, projects — and together they provide a more complete account of data processing permissibility than either alone.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-zuboff-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">I — Behavioural surplus: SNS operators unilaterally expropriate human experience as raw material — this precedes and corrupts any consent</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Surveillance capitalism begins with a unilateral appropriation: behavioural data generated as a byproduct of using a service is claimed by the platform as a raw material for prediction and influence products.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This behavioural surplus was never the user's to exchange — it is an expropriation of the residue of human experience, reclassified as economic input without the subject's meaningful participation in that reclassification.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Consent cannot transform this expropriation into a legitimate exchange — the thing being "agreed to" was claimed prior to and independently of any agreement; the consent procedure legitimises after the fact what was already done.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The fundamental wrong in surveillance capitalism precedes the consent transaction — behavioural surplus is expropriated unilaterally; consent cannot render permissible a claim to human experience that was never the platform's to make.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">II — Instrumentarian power: the power asymmetry structurally corrupts the possibility of genuine consent</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Genuine consent requires relative equality, genuine choice, and freedom from manipulation — surveillance capitalism systematically destroys each of these conditions through instrumentarian power: the ability to know, predict, and modify behaviour held by the platform but denied to the user.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Users cannot meaningfully evaluate the consequences of data sharing because those consequences are produced by proprietary, opaque, continuously revised processes — the epistemic asymmetry is not a contingent imperfection but a structural feature of the business model.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In this context, the formal click of agreement is not a genuine choice but a simulation of choice offered as a political and legal shield — consent cannot be rescued by typographic improvement because the power asymmetry is the problem.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Consent is not merely practically imperfect in the surveillance capitalism context — it is structurally corrupted by instrumentarian power asymmetry; no improvement of consent procedures can address this structural condition.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">III — VoC is right to abandon consent but accepts the exchange frame whose legitimacy is itself contested</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Wolmarans and Voorhoeve correctly reject consent as the grounding norm — but they accept the exchange frame, asking whether the service-for-data exchange offers sufficiently valuable opportunities.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The exchange frame presupposes that the data has legitimately become the platform's to use — but if behavioural surplus is an expropriation, this presupposition is exactly what is in dispute.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Making the exchange more valuable does not resolve the underlying wrong — it is analogous to fairly pricing a toll on a highway whose erection was itself illegitimate.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The VoC framework improves on consent but remains within an exchange model whose legitimacy requires independent justification — assessing opportunity quality presupposes that the practice of data extraction is permissible in principle, which is precisely what needs to be established.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">IV — Aggregation: individual data points aggregate into surveillance infrastructure that no moment of individual consent could authorise</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Individual data points — a search query, a location, a click — may seem trivial at the moment of collection; their aggregation across millions of users and years produces surveillance capabilities that vastly exceed anything anticipated or consented to individually.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Aggregation is not something users consented to — it is an emergent property of the system that did not exist at the moment of any individual's initial agreement; new uses of existing data are continuously discovered.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The VoC framework must assess opportunity quality including future uses of aggregated data — but the future uses are precisely what are unknown at the moment of assessment, creating an irreducible temporal problem for any consent- or opportunity-based framework.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The aggregation problem is a decisive objection to point-in-time permissibility assessment — whether through consent or VoC — because the harms of data processing are temporally distributed and emerge from accumulation rather than any individual transaction.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">V — Democratic stakes: surveillance capitalism threatens epistemic democracy — this is a collective political problem beyond individual opportunity assessment</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Behavioural modification through micro-targeted advertising, emotional contagion, and algorithmic feed manipulation are not merely commercial tools — they are instruments capable of shaping the beliefs and political behaviour of entire populations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Cambridge Analytica demonstrated the weaponisation of personal data for individualised political manipulation at scale — this is a logical extension of the surveillance capitalism business model, not an exceptional misuse.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The question of whether a private power structure that can modify the beliefs of millions is compatible with democratic self-governance cannot be answered at the level of individual opportunity quality — it is a collective political question requiring democratic resolution.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Data processing permissibility is not only a question of individual opportunity quality — it is a collective political question about compatible with democratic self-governance; the VoC framework, focused on individual opportunity assessment, cannot address this dimension.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">VI — Beyond VoC: genuine permissibility requires systemic constraints that no individual opportunity assessment can provide</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Behavioural prediction and modification techniques operating below the threshold of conscious awareness cannot be rendered permissible by any individual agreement — they subvert the deliberative capacity that makes agreement meaningful.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Data uses whose harms are collective — democratic manipulation, discrimination infrastructure, epistemic pollution — cannot be licensed at the individual level because the harms are not individual and cannot be consented to individually.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The category of permissible data uses must be defined at the systemic level through democratic deliberation — establishing which practices a free society permits at all — prior to and independently of any individual opportunity assessment.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Genuine permissibility requires a two-level analysis: systemic constraints established democratically defining the domain of permissible data practices, within which VoC can then assess individual opportunity quality — the two frameworks are complementary, not competing.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">VII — Concession: VoC is the correct standard within the domain of legitimate data exchanges; the dispute is about that domain's boundaries</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Not all data processing involves expropriation of behavioural surplus, instrumentarian power, or democratic manipulation — some data exchanges are genuine bilateral transactions in which opportunity quality is the appropriate standard.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Within the domain of practices that are permissible at the systemic level — not involving covert modification, democratic manipulation, or unilateral expropriation — VoC provides the correct individual-level standard.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The disagreement with Wolmarans and Voorhoeve is about the boundary of this domain — they accept the exchange frame as given; I argue the domain is narrower, excluding practices whose character makes them categorically impermissible regardless of opportunity quality.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Zuboff and Wolmarans-Voorhoeve are engaged in complementary rather than competing projects — systemic constraints define which data practices can enter the exchange frame at all; VoC then assesses the quality of opportunities within permissible exchanges.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- end prop col -->
+
+<!-- ═══════════════════════ OPPOSITION ═══════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','scanlon',this)">Scanlon</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','nissenbaum',this)">Nissenbaum</button>
+  </div>
+
+  <div class="col-header" id="opp-scanlon-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">T.M. Scanlon</span></div>
+    <div class="col-position">"Responsibility and the Value of Choice" (in <em>Morality and Responsibility</em>, 2022) · What We Owe to Each Other (1998) · the value of choice is not the value of opportunity alone · the forfeiture view vs VoC · the generic user problem · why Wolmarans &amp; Voorhoeve's application of his framework goes beyond what it can bear</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','scanlon','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','scanlon','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-header hidden" id="opp-nissenbaum-header">
+    <div class="col-header-top"><span class="pill opp">Opposition</span><span class="col-subtitle">Helen Nissenbaum</span></div>
+    <div class="col-position">Privacy in Context (2010) · "Privacy as Contextual Integrity" (2004) · both consent and VoC are wrong frameworks · contextual integrity as the correct standard · why privacy norms are context-specific, not transaction-specific · the SNS as a broken contextual space</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','nissenbaum','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','nissenbaum','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ══ SCANLON ══ -->
+    <div class="speaker-panel active" id="opp-scanlon-panel">
+      <div id="opp-scanlon-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>I find myself in an unusual position. The proposition draws on my own contractualist framework — on the account of the value of choice I have developed across several decades of work — to argue for a conclusion that I think goes further than my framework supports, and in a direction I am not fully comfortable with. I want to engage with the proposition on its own terms, to acknowledge what is correct in its critique of consent, and then to explain where I think the Value of Opportunity view, as they develop it, faces serious problems — some of which reflect limitations in my own original account that I have since tried to address.</p>
+
+        <span class="section">On what I accept — the limits of the forfeiture view</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Forfeiture view rejected: choice does not licence burdens merely because they were formally chosen — the value of choice grounds both the right to choose and the conditions under which choice can bear moral weight</span>My account of the value of choice was developed partly as a critique of what I call the Forfeiture View — the idea that a person may permissibly be required to bear a burden if and only if they have actively chosen to accept it, because the act of choosing forfeits their right to complain about the outcome. I reject the Forfeiture View because it focuses exclusively on the bare fact of choice, divorced from the quality of the options available and the conditions under which choice was made. A choice made under severe duress, or from a severely constrained option set, or without adequate information about its implications, does not have the legitimating force that the Forfeiture View assigns to choice as such. In this much, I agree with Wolmarans and Voorhoeve. The SNS click-through is not a choice that bears the moral weight the consent model assigns to it. The options offered are not adequate; the information available is not adequate; the power differential is severe. Insofar as the proposition critiques the Forfeiture View as applied to data consent, it is correct.</span></p>
+
+        <span class="section">On the generic user — a problem for the VoC view that I identified</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Generic user problem: Scanlon's original framework uses a generic user standard that Voorhoeve modifies — but this modification creates new difficulties</span>Wolmarans and Voorhoeve note that my original contractualist account evaluates option sets by reference to what a generic user has reason to value and how a generic user can be expected to fare given the opportunities. They then modify this to require assessment for the full range of users with different decision-making abilities. This modification is motivated by real concerns — the generic user standard may underweight harms to more vulnerable users. But I want to press on a difficulty this modification creates. If we assess opportunity quality by reference to the range of actual users, we must decide how to aggregate across that range. Do we assess by the worst-off user? By some weighted average? By whether most users benefit? Each aggregation method will produce different verdicts. The proposition does not specify how to aggregate across the range of users, and I am not sure a principled answer is available. My original generic user standard avoided this aggregation problem by idealising; the modified standard inherits it but does not resolve it.</span></p>
+
+        <span class="section">On the limits of the VoC account — Olsaretti's objection</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Olsaretti's objection: VoC can only generate responsibility for a restricted class of burdens — the framework may be incomplete in ways that affect the data context</span>Serena Olsaretti has pressed a powerful objection to my Value of Choice account — one that I think bears on Wolmarans and Voorhoeve's application of it. Olsaretti argues that VoC, in its most distinctive version, can only justify responsibility attributions for a restricted class of burdens: those that are the opportunity-accompanying costs of choices that are genuinely valuable in themselves. For burdens that are simply the consequences of choices that were available and made, VoC has less to say — it collapses, in these cases, toward the Forfeiture View it was designed to replace. The data context raises precisely this question: are the privacy burdens of SNS use opportunity-accompanying costs of genuine choices that are valuable in themselves? Or are they simply the consequences of entering a space that offers no real alternative? If the latter — and the structural dominance of major platforms makes this question live — then VoC cannot generate the clean verdict the proposition requires.</span></p>
+
+        <span class="section">On reasonable rejection and who counts as reasonably rejecting</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Reasonable rejection: who is the appropriate rejector in the data context? The diversity of interests among users makes the contractualist standard indeterminate</span>The proposition says that data processing is permissible when no affected party could reasonably reject the governing principles. But in the data context, this standard faces a serious indeterminacy problem. Some users value the services highly and consider the data exchange genuinely beneficial — they could not reasonably reject it. Others are privacy-sensitive, find the data collection intrusive, and would prefer to pay directly rather than with their data — they might reasonably reject the current arrangement. A third group — the cognitively vulnerable, the informationally impoverished — may be harmed in ways they do not fully recognise. How do we determine whether "no one could reasonably reject" the relevant principle, given this diversity? My contractualist framework was designed for relatively homogeneous moral situations; its application to a context of profound heterogeneity in preferences, information levels, and vulnerability requires refinement that neither I nor Wolmarans and Voorhoeve have fully provided.</span></p>
+
+        <span class="section">On the value of consent as more than a procedure</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Consent has intrinsic value: the VoC framework risks treating consent as merely instrumental, losing sight of what consent actually does for persons</span>The proposition argues that consent is not the grounding norm for data processing permissibility. I want to resist a version of this argument that goes too far. Consent — genuine, informed, voluntary consent — is not merely a procedure for transferring a permission. It is the expression of a person's autonomous standing as the author of their own life, the recognition that this person's decision about this matter belongs to them. When we bypass consent because we have determined that the opportunity offered was sufficiently valuable, we risk treating the person as an object of our beneficent assessment rather than as an agent whose own decision is what matters. This is not a merely procedural concern. It is the recognition that persons have a right to make decisions about their own information that cannot be overridden simply because we — or the platform, or the regulator — judge the outcome to be good for them. The VoC framework, in making the permissibility of data processing depend on opportunity quality rather than on the person's own choice, risks a form of paternalism that the proposition has not adequately grappled with.</span></p>
+
+        <span class="section">On the right to refuse — and what it means for the VoC framework</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Right to refuse: the VoC framework does not adequately account for the person's right to refuse a genuinely good opportunity</span>The most direct challenge to the VoC view is this: can a person permissibly refuse an opportunity that, by the proposition's standard, was sufficiently valuable? If data processing is permissible when the opportunity is good enough — and it remains permissible regardless of whether the user actually valued it or chose it — then the user's refusal appears to carry no moral weight. But this seems wrong. A person's right to control their own personal information is not merely a right to a good outcome — it is a right to decide, even suboptimally, about matters that fall within their personal domain. The proposition might respond that VoC determines permissibility at the level of the platform's policy, not the individual user's choice — the platform is permitted to offer the opportunity, but the user retains the right to decline. But this response does not fully address the paternalism worry: the platform's data practices are governed by the standard of what good opportunities look like, not by whether users actually endorse them. Individual refusal, on this account, seems to have no regulatory force.</span></p>
+
+        <span class="section">On what I conclude — a more modest use of the VoC framework</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Modest VoC: the framework should supplement, not replace, consent — it sets minimum conditions for the option set, but genuine consent within those conditions remains the grounding norm</span>I want to propose a more modest use of my framework than Wolmarans and Voorhoeve defend. Rather than replacing consent with opportunity quality as the grounding norm for permissibility, I suggest that opportunity quality sets a necessary but not sufficient condition. Platforms are obligated to ensure that the options they offer are such that no one could reasonably reject facing them — this is a threshold condition that sets the floor below which no consent can legitimise data processing. But above that floor, genuine consent — actual, informed, voluntary agreement by the person whose data is at stake — remains the grounding norm for the specific data uses that occur. This preserves both the proposition's insight that the option set must be adequate, and the value of consent as the expression of personal autonomy within adequate options. It avoids the paternalism worry and respects the person's right to decide about their own information, while acknowledging that the decision must occur within an option set that passes a minimum quality standard.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-scanlon-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">I — The forfeiture view is correctly rejected: choice does not legitimate burdens merely because they were formally made</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Forfeiture View holds that a person may permissibly bear a burden if they actively chose it — but choice made under duress, from a severely constrained option set, or without adequate information does not have the legitimating force the Forfeiture View assigns to choice as such.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>SNS click-through consent is precisely such a choice: options are inadequate, information is inadequate, and the power differential is severe; it does not bear the moral weight the consent model assigns to it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Insofar as the proposition critiques the Forfeiture View as applied to data consent, it is correct — I accept this part of their argument.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proposition's critique of consent-as-forfeiture-of-complaint is sound — but this does not establish that opportunity quality, rather than a reformed notion of consent, should be the grounding norm; the critique of the Forfeiture View leaves open what should replace it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">II — The generic user problem: moving from generic to range-of-users assessment creates an unsolved aggregation problem</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>My original framework evaluates options by reference to a generic user — a useful idealisation that avoids the aggregation problem but may underweight harms to vulnerable users.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Voorhoeve's modification assesses opportunity quality across the range of actual users with different decision-making abilities — but this modification requires specifying how to aggregate across that range: worst-off user? weighted average? majority benefit?</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Each aggregation method produces different verdicts; the proposition does not specify a principled aggregation rule, inheriting the aggregation problem without resolving it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The move from generic to range-of-users assessment is motivated but creates an unsolved aggregation problem — the VoC framework as applied in the data context lacks the principled specification of how diverse user interests are weighted in the opportunity assessment.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">III — Olsaretti's objection: VoC can only ground responsibility for a restricted class of burdens — it may not cover all data harms</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Olsaretti argues that VoC, in its most distinctive version, can only justify responsibility for burdens that are opportunity-accompanying costs of choices genuinely valuable in themselves — not for all burdens consequent on choices that were available.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The data context raises the question of whether privacy burdens are opportunity-accompanying costs of genuine choices, or simply consequences of entering a space with no real alternative — if the latter, VoC's verdict is less clear.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In cases where VoC cannot generate a clear verdict, it risks collapsing toward the Forfeiture View it was designed to replace — the distinctive force of the VoC framework may be narrower than the proposition requires.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Olsaretti's objection exposes a genuine limitation in the VoC account that affects its application to data processing — the framework may be incomplete in the precise cases where it is most needed.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">IV — Reasonable rejection and heterogeneity: the contractualist standard faces indeterminacy given the profound diversity of user interests</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The contractualist standard of "no one could reasonably reject" is designed for relatively homogeneous moral situations — it faces indeterminacy when users differ profoundly in preferences, information, and vulnerability.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Some users value the service highly, consider the exchange genuinely beneficial, and could not reasonably reject it; others are privacy-sensitive and might reasonably reject the current arrangement; still others are harmed in ways they do not recognise.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Determining whether "no one could reasonably reject" a data policy, given this diversity, requires a principle for adjudicating among divergent reasonable perspectives that neither my framework nor the proposition provides.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The reasonable rejection standard faces a serious indeterminacy problem in the data context — the diversity of user interests and vulnerabilities makes it unclear how to apply the contractualist test without additional principles that the proposition has not supplied.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">V — Consent has intrinsic, not merely instrumental, value: VoC risks paternalism by overriding persons' decisions with assessments of their good</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Genuine consent is not merely a procedure for transferring a permission — it is the expression of a person's autonomous standing as the author of their own life, the recognition that their decision about this matter belongs to them.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When permissibility is grounded in opportunity quality rather than the person's own choice, we risk treating persons as objects of beneficent assessment rather than as agents whose own decisions are what matter.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Persons have a right to make decisions about their own information that cannot be overridden simply because a regulator or platform judges the outcome to be good for them — VoC must account for this right, not subsume it into the opportunity assessment.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The VoC framework risks paternalism — grounding permissibility in opportunity quality rather than the person's own choice treats the person's actual decision as less important than what we judge is good for them; this is in tension with the autonomy-respecting spirit of contractualism.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">VI — Right to refuse: if permissibility is grounded in opportunity quality, individual refusal carries no regulatory force</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If data processing is permissible when the opportunity meets the VoC standard — regardless of whether the user values it — then the user's refusal appears to have no moral weight within the framework.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A person's right to control their own information is not merely a right to a good outcome — it is a right to decide, even suboptimally, about matters that fall within their personal domain; this right is not fully captured by the opportunity quality assessment.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition's response — that VoC governs platform policy while users retain the right to decline — does not address the deeper point: that the data processing is deemed permissible by reference to a standard the user did not apply, rather than to their actual endorsement.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The right to refuse is insufficiently protected by the VoC framework — if permissibility is assessed by opportunity quality, individual refusal has no independent regulatory force; the framework should account for the person's right to decide about their own information, not override it with a quality standard.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">VII — Modest VoC: opportunity quality as a necessary floor condition, with genuine consent remaining the grounding norm above that floor</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Opportunity quality sets a necessary threshold condition: no consent can legitimise data processing where the option set fails the reasonable rejection standard — platforms must ensure options are good enough for consent to be meaningful.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Above that threshold, genuine informed consent — actual, voluntary agreement by the person whose data is at stake — remains the grounding norm for specific data uses; the person's own decision is what matters, within adequate options.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This preserves the proposition's insight about minimum opportunity quality while maintaining consent as the grounding norm within adequate options, avoiding the paternalism worry and respecting the right to decide.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The correct view is VoC as a floor, consent as the grounding norm — opportunity quality is a necessary but not sufficient condition for permissibility; genuine consent within adequate options remains the basis on which specific data processing is authorised.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ NISSENBAUM ══ -->
+    <div class="speaker-panel" id="opp-nissenbaum-panel">
+      <div id="opp-nissenbaum-speech" class="speech-text">
+        <p class="salut">Mr President,</p>
+        <p>The debate so far has been conducted entirely within a framework that I think is fundamentally misdirected. Both the proposition and the opposition have assumed that the question of data processing permissibility is essentially a question about the bilateral relationship between a user and a platform — about the quality of the options offered, or the validity of the consent given, or the value of the exchange. I want to argue that this bilateral framing misses the nature of privacy as a moral and social phenomenon. Privacy is not primarily about what individuals choose to share with platforms. It is about the appropriate flow of information in social contexts defined by distinct norms. Once we understand this, both the consent framework and the Value of Opportunity framework appear as variants of the same fundamental error.</p>
+
+        <span class="section">On contextual integrity — privacy as appropriate information flow</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Contextual integrity: privacy is appropriate information flow according to context-specific norms — not individual control or transactional quality</span>The theory of contextual integrity, which I have developed over several years, defines privacy not as individual control over information, nor as the outcome of a good transaction, but as the appropriate flow of information according to the norms of the social context in which that information was originally disclosed. When you share your health information with your doctor, you do so in a context with specific norms: the information flows appropriately to other treating physicians, to the relevant hospital records, and perhaps to certain insurance functions — but not to your employer, your family, or advertisers. The privacy violation occurs not when information is shared — sharing is often the point — but when information flows outside the norms appropriate to the context in which it was originally shared. Applied to SNS, the theory generates this verdict: information disclosed on a social network — in the context of social connection, self-expression, community building — violates contextual integrity when it flows to advertisers, political campaigns, predictive modelling firms, or employers, because these flows violate the norms of the social context in which the information was originally shared.</span></p>
+
+        <span class="section">On why the consent model fails from a contextual integrity perspective</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Consent is the wrong frame: what matters is context-appropriate flow, not individual agreement — users cannot consent to violations of contextual norms on behalf of the context</span>The consent model fails, on my account, not because users fail to read terms of service, but because the consent model asks the wrong question. When a user clicks "I agree" to terms allowing their data to flow to advertisers, the question is not whether they agreed but whether this flow is appropriate to the social context in which the information was originally shared. And the answer, typically, is that it is not. The context of social networking — the norms under which people share photos, opinions, relationship statuses, political views — does not include the norm that this information flows to commercial third parties for targeted advertising. Users sharing information in this context have a reasonable expectation, grounded in the contextual norms of social networking, that it remains within that context. The fact that they clicked a legal agreement does not change the contextual norms — just as your doctor's ability to get you to sign a waiver does not make it contextually appropriate for them to share your health information with advertisers. Consent cannot override contextual norms, because those norms are not the individual's to waive.</span></div>
+
+        <span class="section">On why the VoC framework also fails from a contextual integrity perspective</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">VoC also fails: it assesses the value of the transaction rather than the appropriateness of the information flow — it imports the consent framework's bilateral error into a different register</span>The Value of Opportunity framework avoids some of the consent model's failures, but it inherits its fundamental error. Both frameworks focus on the bilateral relationship between user and platform — on what is offered and what is received, on whether the deal is fair, on whether the options are good enough. But this bilateral framing treats data as something that moves between two parties to a transaction, and asks whether the terms of the transaction are adequate. The contextual integrity framework asks a different question: is the information flow appropriate to the social context in which the information originated? These are fundamentally different questions. Information that originated in a social context — shared among friends, expressed in a community, disclosed in a context of trust and reciprocity — does not become appropriate for commercial flow simply because the transaction through which it moves is a fair one. The fairness of the transaction does not determine the appropriateness of the flow. The VoC framework, in assessing the quality of the opportunity offered by the platform, is still treating the data as a commodity whose movement is governed by transactional norms rather than contextual ones.</span></p>
+
+        <span class="section">On the social construction of privacy norms — why they cannot be waived individually</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Social norms: contextual privacy norms are collective, not individual — individuals cannot waive them unilaterally, just as they cannot waive norms of professional confidentiality</span>A crucial feature of the contextual integrity framework is that the relevant norms are social and collective, not individual and personal. When I share a medical diagnosis with my doctor, the confidentiality norm that governs that disclosure is not my personal preference for privacy — it is a norm embedded in the institution of medicine, in the fiduciary relationship between doctor and patient, in the social practice of healthcare. I cannot waive that norm by signing a form, because the norm is not mine alone to waive — it belongs to the context and to all who inhabit it. The same is true of social networking contexts. The norms under which people share personal information on social networks — the implicit expectations of the context — are collective. They are not the property of any individual user, to be waived by their agreement or satisfied by an adequate opportunity. When platforms violate these contextual norms, they do wrong to all participants in the context, not merely to those who happen to have read the terms carefully enough to have "agreed" to the violation.</span></p>
+
+        <span class="section">On the SNS as a broken contextual space — why the problem is architectural</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Broken context: SNS architecture systematically violates the contextual norms under which information is shared — the context is corrupted at its foundation</span>The deepest problem with social networking services, from a contextual integrity perspective, is that they are designed to systematically violate the contextual norms under which information is shared. The architecture of a platform like Facebook or Instagram creates a space that presents itself as a social context — a place for sharing among friends, family, and communities — while simultaneously operating as a commercial surveillance infrastructure that channels information shared in this social context to commercial third parties. This is not a marginal or incidental feature of SNS architecture. It is the business model. The platform creates a contextual space with social norms, harvests information disclosed under those social norms, and redirects it to a commercial context governed by entirely different norms. No improvement in consent procedures and no improvement in the quality of the opportunity offered addresses this architectural problem. The contextual space itself is corrupted at its foundation.</span></p>
+
+        <span class="section">On what a contextual integrity approach to regulation requires</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Contextual regulation: regulation should enforce context-appropriate information flows, not improve consent or opportunity — the standard is contextual norms, not transactional quality</span>The regulatory implications of contextual integrity differ substantially from both the consent model and the VoC framework. Under the consent model, regulation aims to improve the consent procedure. Under VoC, regulation aims to improve the quality of the opportunity offered. Under contextual integrity, regulation aims to enforce context-appropriate information flows — to ensure that information disclosed in one context does not flow to another in ways that violate the norms of the originating context. Practically, this means that data shared in the context of social networking cannot be redirected to commercial advertising without violating contextual norms, regardless of what users agreed to or what opportunity they were offered. It means that the appropriate regulatory target is the information flow itself — the technical and contractual mechanisms by which data crosses contextual boundaries — rather than the consent procedure or the option set presented to users. The GDPR's principle of purpose limitation — data collected for one purpose should not be used for another — is a partial expression of contextual integrity, though it is implemented through consent machinery that contextual integrity shows is insufficient.</span></p>
+
+        <span class="section">On what I concede — and where I join the proposition's critique</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Concession: contextual integrity and VoC agree that current SNS data practices are impermissible — they disagree about why and about what would make them permissible</span>Let me be clear about where contextual integrity agrees with the proposition, despite disagreeing about the framework. Both the VoC view and contextual integrity condemn most current SNS data practices as impermissible. Both reject the consent model as an adequate grounding for permissibility. Both identify that the current regulatory framework — which treats consent as the key to permissibility — is fundamentally misdirected. Where we differ is in our account of what would make data processing permissible, and what regulatory approach follows from that account. Wolmarans and Voorhoeve say: improve the quality of the opportunity offered, and data processing can be permissible within the exchange framework. I say: data processing is permissible only when the information flows are appropriate to the context in which the data was originally shared — which is a standard that can rarely be met by SNS data practices, regardless of the quality of the opportunity offered. These are not merely terminological differences. They generate different verdicts about what is permissible and different programmes for regulation.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-nissenbaum-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">I — Contextual integrity: privacy is appropriate information flow according to context-specific norms, not individual control or transactional quality</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Privacy is not primarily about what individuals choose to share, nor about the quality of transactions through which sharing occurs — it is about appropriate flows of information according to the norms of the social context in which information was originally disclosed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Information shared in a social context — medical, professional, social networking — has contextually appropriate flows defined by the norms of that context; flows to other contexts violate contextual integrity regardless of individual agreement.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Applied to SNS: information shared in the context of social connection violates contextual integrity when it flows to advertisers, political campaigns, or predictive modelling firms — these flows violate the norms of the context in which the information was originally shared.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Contextual integrity is the correct framework for data processing permissibility — it grounds the standard in the social norms of the originating context, not in individual agreement or transactional quality; SNS data flows to commercial third parties violate contextual integrity systematically.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">II — Consent fails from a CI perspective: clicking "agree" cannot override contextual norms that are not the individual's to waive</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The consent model asks whether the user agreed to the data flow — but the contextually correct question is whether the flow is appropriate to the norms of the context in which the information was shared.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Users sharing information in a social networking context have a reasonable expectation, grounded in contextual norms, that it remains within that context — a legal agreement does not change those norms, just as a doctor's waiver does not make sharing patient data with advertisers contextually appropriate.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Contextual norms are not the individual's to waive — they belong to the context and all who inhabit it; individual consent cannot override collective contextual norms.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Consent fails not because users fail to read terms but because it asks the wrong question — the contextual norms of social networking do not include commercial data flows; no individual consent can make such flows contextually appropriate.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">III — VoC also fails: it assesses transactional fairness, not contextual appropriateness — a different answer to the wrong question</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The VoC framework asks whether the opportunity offered is sufficiently valuable — a transactional question about the bilateral user-platform relationship.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But information that originated in a social context does not become appropriate for commercial flow simply because the transaction through which it moves is a fair one — the fairness of the transaction does not determine the appropriateness of the flow.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>VoC inherits the consent model's bilateral framing error — treating data as a commodity whose movement is governed by transactional norms rather than contextual ones; it provides a better answer to the wrong question.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The VoC framework improves on consent within the transactional frame but remains in the wrong frame — contextual integrity shows that both consent and VoC are answers to a question about bilateral transactions, when the relevant question is about context-appropriate information flows.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">IV — Social norms: contextual privacy norms are collective and cannot be unilaterally waived by individual users</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Medical confidentiality, professional privilege, and the implicit norms of social networking contexts are collective and institutional — they belong to the context, not to the individual; no individual can waive them unilaterally by signing a form.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The implicit expectations of social networking contexts — that information shared among friends and communities remains within those relationships — are collective norms, not individual preferences; they cannot be dissolved by any individual's agreement with a platform.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>When platforms violate these collective contextual norms, they wrong all participants in the context — not merely those who have or have not read the terms; the wrong is social, not merely individual.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Contextual privacy norms are collective and inalienable by individual agreement — platforms that violate them wrong the entire community of context participants, a wrong that cannot be remedied by improving the consent procedure or the quality of the opportunity offered.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">V — The SNS as broken contextual space: the architecture systematically corrupts the contextual norms under which information is shared</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>SNS architecture creates a space that presents itself as a social context — for sharing among friends, family, and communities — while simultaneously operating as a commercial surveillance infrastructure redirecting information shared in this social context to entirely different commercial contexts.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is not incidental but architecturally fundamental — the business model of SNS is the systematic violation of the contextual norms under which information is shared; the platform profits from the gap between what the context appears to be and what it actually is.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No improvement in consent, and no improvement in the quality of the opportunity offered, addresses this architectural problem — the context itself is corrupted at its foundation, and within a corrupted context, any bilateral transaction inherits that corruption.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The fundamental wrong of SNS data processing is architectural — the platform creates a false context to harvest information under social norms it then violates; consent procedures and opportunity quality assessments operate within a context that is already broken.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">VI — Contextual regulation: enforce context-appropriate flows, not consent procedures or opportunity quality</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Contextual integrity generates a distinctive regulatory target: the information flow itself — the technical and contractual mechanisms by which data crosses contextual boundaries — rather than the consent procedure or the option set presented to users.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Data shared in a social networking context cannot appropriately flow to commercial advertising regardless of user agreement or opportunity quality — contextual integrity specifies the permitted flows independently of bilateral transactional assessments.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The GDPR's purpose limitation principle partially implements contextual integrity but implements it through consent machinery — contextual integrity shows that the purpose limitation principle should be enforced contextually, not through consent.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Contextual integrity generates a more demanding and more accurately targeted regulatory programme than either consent or VoC — it enforces context-appropriate information flows independently of bilateral transactional assessments, addressing the architectural problem that consent and VoC leave intact.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">VII — Concession: CI and VoC agree that current SNS practices are impermissible — they differ on why and what would change them</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Contextual integrity and VoC agree: the consent model is inadequate, and most current SNS data practices are impermissible; the regulatory direction should shift away from consent procedures.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>They differ: VoC says improve the quality of the opportunity offered — data processing can be permissible within the exchange framework if the options are good enough; CI says data processing is permissible only when the information flows are appropriate to the context of origin, a standard SNS practices rarely meet regardless of transactional quality.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These differences are not merely terminological — they generate different verdicts about borderline cases and different regulatory programmes; the proposition's VoC framework is an improvement on consent but remains within the wrong frame for analysing the core wrong of SNS data processing.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Contextual integrity and VoC agree on the practical verdict — current SNS practices are impermissible — but disagree on the framework; CI provides the more accurate diagnosis of the wrong and the more appropriate regulatory prescription.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+
+<script>
+var state={
+  prop:{speaker:'wv',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'scanlon',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  document.getElementById(side+'-'+speaker+'-speech').classList.remove('hidden');
+  document.getElementById(side+'-'+speaker+'-logic').classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){sp.classList.remove('hidden');lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{sp.classList.add('hidden');lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2,vw=window.innerWidth,mg=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  tip.style.left=Math.min(Math.max(cx,tw/2+mg),vw-tw/2-mg)+'px';
+  tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
