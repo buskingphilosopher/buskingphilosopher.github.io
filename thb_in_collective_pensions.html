@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Pool Risks Across Generations — The Symposium</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Pensions Policy &bull; Otsuka (2023) &bull; Barr (2025) &bull; Schokkaert (2025) &bull; Heath (2025) &bull; van Ewijk (2025) &bull; Karnein (2025)</div>
+  <div class="motion-title">&ldquo;Resolved: That collective risk-pooling across generations &mdash; not private accumulation &mdash; is required by justice and provides the superior foundation for pension provision&rdquo;</div>
+  <div class="motion-sub">Proposition &bull; Otsuka &middot; Barr &middot; Schokkaert &nbsp;&mdash;&nbsp; Opposition &bull; Heath &middot; van Ewijk &middot; Karnein &mdash; all contributors to the <em>Economics &amp; Philosophy</em> symposium on <em>How to Pool Risks Across Generations</em></div>
+</div>
+
+<div class="columns">
+
+<!-- LEFT — Otsuka · Barr · Schokkaert -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','otsuka',this)">Otsuka</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','barr',this)">Barr</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','schokkaert',this)">Schokkaert</button>
+  </div>
+
+  <!-- OTSUKA HEADER -->
+  <div class="col-header" id="prop-otsuka-header">
+    <div class="col-header-top"><span class="pill prop">How to Pool Risks</span><span class="col-subtitle">Michael Otsuka</span></div>
+    <div class="col-position">Collective defined contribution, defined benefit, and pay-as-you-go pensions are all superior to individual pots: they pool longevity and investment risk across space and time, realise Rawlsian reciprocity through voluntary mutual association, and constitute a social union of social unions &mdash; an evergreen body that shares our fates as equals.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','otsuka','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','otsuka','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BARR HEADER -->
+  <div class="col-header hidden" id="prop-barr-header">
+    <div class="col-header-top"><span class="pill prop">Multiple Design Options</span><span class="col-subtitle">Nicholas Barr</span></div>
+    <div class="col-position">Risk-sharing in pensions is correct and welfare-improving, but the design space is richer than CDC alone &mdash; conditional career-average plans, PAYG with adjustable benefits, and hybrid arrangements all embody the core insight; the choice between them is empirical and depends on country context, not philosophical principle alone.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','barr','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','barr','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- SCHOKKAERT HEADER -->
+  <div class="col-header hidden" id="prop-schokkaert-header">
+    <div class="col-header-top"><span class="pill prop">Beyond Mutual Advantage</span><span class="col-subtitle">Erik Schokkaert</span></div>
+    <div class="col-position">Collective risk pooling is necessary but not sufficient &mdash; a pension system embedded in the broader web of social relations must also address distributive justice between cohorts and within generations, including unchosen inequalities in lifetime earnings, gender pension gaps, and the fate of the first generation under PAYG; mutual advantage cannot exhaust justice.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','schokkaert','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','schokkaert','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- OTSUKA -->
+    <div class="speaker-panel active" id="prop-otsuka-panel">
+      <div id="prop-otsuka-speech" class="speech-text">
+        <p class="salut">Colleagues,</p>
+        <p>Let me begin with an individual. She has just entered the labour market. She does not know how long she will live. She does not know how well any investments she saves will fare. She does not know what inflation will do to the real value of her savings over a career of forty years. If she manages her retirement savings alone &mdash; in her own individual pension pot &mdash; she faces the full weight of longevity risk, investment risk, and inflation risk without relief. The individual pot is a corner solution, and like all corner solutions, it is suboptimal. The case for collective pensions begins here.</p>
+        <div class="case-box">
+          <strong>Three kinds of collective pension.</strong>
+          <br><br>
+          <strong>Collective Defined Contribution (CDC).</strong> Contributions are pooled; the collective invests in growth assets for longer than any individual could; longevity risk is shared across the pool; the law of large numbers predicts the collective&rsquo;s mortality with precision unavailable to any individual.
+          <br><br>
+          <strong>Funded Defined Benefit (DB).</strong> The scheme promises a specific pension in exchange for contributions; investment risk is pooled across the cohort and across time; the sponsor backstops shortfalls, but the funded nature means assets exist to meet liabilities.
+          <br><br>
+          <strong>Pay As You Go (PAYG).</strong> Current workers&rsquo; contributions fund current retirees&rsquo; pensions; the scheme is unfunded but evergreen; demographic risk is spread across generations; investment risk is replaced by wage-growth risk, which is typically lower and less correlated with retirement consumption.
+        </div>
+        <span class="section">i. the case for collective risk pooling</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Risk pooling — longevity and investment risk tamed by collective, not individual, provision</span>The central insight of the book is that the risks threatening retirement income are tamed far better by collective provision than by individual accumulation. Longevity risk &mdash; the risk of outliving one&rsquo;s savings &mdash; is eliminated within a sufficiently large pool because the pool&rsquo;s average lifespan is predictable even though each individual&rsquo;s is not. Resources are transferred from those who die early to those who live long: the early-dying subsidise the long-living, and everyone benefits from the insurance. Investment risk &mdash; the risk that the value of a portfolio crashes at the worst possible moment, just before or during retirement &mdash; is similarly tamed by collective provision: a collective can stay invested in growth assets for longer than any individual dare, because as members retire, new contributing members replace them, maintaining the collective&rsquo;s steady demographic profile and its capacity to absorb short-term volatility. The individual pot de-risks at precisely the wrong moment; the collective need not.</span></p>
+        <span class="section">ii. rawlsian reciprocity and the social union of social unions</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Rawlsian reciprocity — social union of social unions; fair terms of cooperation for mutual advantage</span>The book&rsquo;s philosophical claim is that collective pensions can be justified not only on grounds of efficiency but on grounds of justice &mdash; specifically, Rawlsian justice as fair terms of social cooperation for mutual advantage. Rawlsian justice as fairness is neither fundamentally luck egalitarian nor relational egalitarian. Its most fundamental idea is society as a cooperative system in which citizens participate on terms that are fair and mutually beneficial. Collective pensions are a paradigmatic instance of such cooperation: each worker contributes resources to the collective; the collective pools those resources with the resources of others; each member benefits from the collective provision to an extent that exceeds what she could have achieved alone; and the terms of participation are equal &mdash; no one exploits another, and each benefits proportionally. In Rawlsian terms, the collective pension is a &ldquo;social union of social unions&rdquo;: an enduring cooperative body that survives the turnover of its members, remaining evergreen as new contributors replace those who retire.</span></p>
+        <span class="section">iii. voluntariness: binding at entry, not coercion</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Voluntariness — binding at entry preserves freedom; prevents rational defection; enhances options</span>I want to address directly the charge that collective pensions are paternalistic impositions on individual autonomy. The collective pension I defend is one that individuals choose to join at the outset of their working lives &mdash; at the age of majority, when they enter the scheme with full information about its terms. Having joined, they agree to remain collectively invested or to pay a meaningful penalty for early withdrawal. This binding is not a restriction of freedom; it is an exercise of it. Freedom properly understood encompasses the right to make binding commitments &mdash; to enter contracts that constrain one&rsquo;s future behaviour in exchange for benefits one could not obtain without that constraint. The binding prevents rational defection: were members free to exit once they became better-informed about their individual risk profiles, only bad risks would remain in the pool, destroying the benefits for all. The commitment is what makes the cooperative benefit possible. It enhances the range of valuable options rather than restricting it.</span></p>
+        <span class="section">iv. against the individual pot: why private accumulation is unjust</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against individual pots — suboptimal, unjust; exposes individuals to avoidable risk</span>The individual defined contribution pot is not merely inefficient. It is unjust &mdash; or rather, it is the product of an unjust failure to provide the institutional framework that would allow individuals to share one another&rsquo;s fates. When individuals face avoidable longevity and investment risks alone, and when collective provision would eliminate those risks to the mutual advantage of all, the failure to provide that collective provision imposes avoidable burdens on people in retirement. This is not merely a market failure; it is a failure of the basic social compact. The state and employers that force workers into individual pots &mdash; through the shift from defined benefit to defined contribution over the past forty years &mdash; have transferred enormous risks from institutions onto individuals, and have done so in ways that are not to anyone&rsquo;s advantage: not to the workers who bear the risk, not to the employers who shed it without corresponding compensating benefits.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-otsuka-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Collective risk pooling eliminates longevity and investment risk that individual pots cannot</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>An individual facing retirement alone faces full longevity risk (outliving savings) and investment risk (portfolio crash near retirement); these risks cannot be eliminated by any individual strategy.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A collective of sufficient size eliminates longevity risk via the law of large numbers (predictable average lifespan) and can sustain growth-asset investment for longer than any individual because new contributors replace retirees, maintaining the demographic profile.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Both CDC (funded, pooled across cohort and across generations), DB (funded, with sponsor backstop), and PAYG (unfunded, cross-generational) achieve this collective taming of risk in different but functionally analogous ways.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Collective pension provision dominates individual accumulation in taming longevity and investment risk; the individual defined contribution pot is a suboptimal corner solution that collective provision strictly improves upon.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Collective pensions realise Rawlsian reciprocity: social union of social unions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Rawlsian justice as fairness: the most fundamental idea is society as a system of fair cooperation for mutual advantage among equals. Cooperative arrangements that benefit all parties on equal terms are paradigmatically just.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A collective pension is precisely such an arrangement: each member contributes resources; the collective pools them; each member benefits from provision exceeding what she could achieve alone; the terms of entry are equal across members; no one exploits another.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The collective pension is a &ldquo;social union of social unions&rdquo;: it remains evergreen as contributors replace retirees, enabling indefinite risk-smoothing across as well as within generations.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Collective pensions are paradigm instances of Rawlsian fair cooperation for mutual advantage; they have a justice-based claim on our institutions that exceeds mere efficiency considerations.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Voluntary binding at entry is an exercise of freedom, not a constraint on it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The scheme requires commitment at entry: members agree to remain collectively invested or pay a meaningful penalty for exit; this prevents rational defection that would destroy the pool.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Freedom properly understood includes the right to make binding commitments; entering a contract that constrains future behaviour in exchange for benefits otherwise unavailable is an exercise of freedom, not a curtailment of it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The binding makes the cooperative benefit possible by preventing the adverse-selection spiral in which only bad risks remain after good risks exit; it therefore expands the valuable options available to all parties.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Voluntary binding at entry is consistent with individual freedom and is justified by the cooperative benefit it enables; it is not paternalism but the rational price of cooperation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The shift to individual pots is a failure of justice, not merely of efficiency</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When collective provision would eliminate avoidable risks to mutual advantage, the failure to provide it imposes unjustifiable burdens on individuals in retirement.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The forty-year shift from defined benefit to individual defined contribution transferred enormous risks from institutions onto individuals without compensating advantage to those individuals; this is not a neutral market outcome but a redistribution of risk from the strong to the vulnerable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A failure of fair cooperative provision &mdash; a failure to pool avoidable risks on terms that would be to everyone&rsquo;s advantage &mdash; is a failure of justice in addition to a failure of efficiency.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The individual defined contribution pot is not a neutral default but a failure of just cooperative provision; restoring collective pensions is not a restriction of freedom but the fulfilment of a justice-based obligation to share one another&rsquo;s fates.</span></div>
+        </div>
+      </div>
+    </div><!-- end otsuka -->
+
+    <!-- BARR -->
+    <div class="speaker-panel" id="prop-barr-panel">
+      <div id="prop-barr-speech" class="speech-text">
+        <p class="salut">I want to build on Otsuka&rsquo;s framework and, in some important respects, enrich it.</p>
+        <p>Otsuka and I have worked together on pension design for many years, and we are in fundamental agreement on the core proposition: risk-sharing is welfare-improving and the individual defined contribution pot is a corner solution that all parties would prefer to escape. Where I want to add to the picture is in the design space. The case for collective risk-sharing is robust. The conclusion that any particular design &mdash; above all the CDC model Otsuka favours &mdash; is the unique solution to be recommended across all countries and contexts, is not.</p>
+        <div class="pull">&ldquo;A defined-contribution plan places all risk on individual members, a defined-benefit plan all risk on the plan sponsor. Each of these designs is what economists call a &lsquo;corner solution&rsquo; and, like most corner solutions, generally suboptimal. The welfare case for risk-sharing is not a case for any particular risk-sharing design.&rdquo; &mdash; Barr, 2025</div>
+        <span class="section">i. the design space is richer than cdc alone</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Design space — CIDC, CDC, conditional DB, PAYG with adjustable benefits: all share risk</span>Between the two corner solutions &mdash; individual DC (all risk on the member) and traditional final-salary DB (all risk on the sponsor) &mdash; lies a rich space of intermediate designs. Cohort individually defined contribution (CIDC) pools longevity risk within a cohort without cross-cohort pooling; it preserves the clear individual ownership property that many savers value while eliminating the most acute risk each individual faces. Collective defined contribution (CDC) pools across cohorts as well, achieving greater smoothing at the cost of explicit cross-generational transfers. Conditional defined benefit maintains a benefit target but allows that target to be adjusted downward in bad times, avoiding the solvency crises that afflicted traditional final-salary DB schemes when bond yields collapsed. PAYG with adjustable benefit formulae &mdash; as in Sweden&rsquo;s notional defined contribution scheme &mdash; achieves cross-generational smoothing through the tax system. Each design has different properties with respect to intergenerational fairness, transparency, portability, and political sustainability. Otsuka is right that the principle is collective risk-sharing; he is too confident that CDC is the design that embodies it best.</span></p>
+        <span class="section">ii. the dutch experience: design matters as well as principle</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Dutch experience — financial economics valuation caused crises; actuarial approach better</span>The Netherlands provides a salutary case study. It had, for decades, one of the most admired collective pension systems in the world: large, industry-wide, funded defined benefit schemes administered by social partners. From the early 2000s, Dutch regulators adopted the financial economics approach to valuing pension liabilities &mdash; discounting future obligations at risk-free (government bond) yields rather than at expected portfolio returns. When bond yields collapsed after the 2008 financial crisis and remained near zero for a decade, this approach reported massive funding deficits in schemes that were not genuinely insolvent on any actuarial assessment. The result was politically damaging cuts to pensions in payment, a collapse of trust in the collective system, and ultimately a legislative reform that moved the Netherlands toward a form of CDC. Otsuka is right that this crisis was largely caused by bad regulatory valuation methodology, not by the principle of collective risk-sharing. But the lesson is that design &mdash; including the choice of valuation methodology &mdash; is as important as principle. A well-designed collective pension must specify not only its risk-sharing structure but its governance, funding rules, and valuation basis.</span></p>
+        <span class="section">iii. partial coverage and portability: the gig economy problem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Partial coverage — gig economy, self-employed, career-changers excluded from collective benefits</span>Otsuka&rsquo;s model assumes a steady, long-term employment relationship through which membership of the collective pension is maintained. This assumption was plausible when most workers spent their careers with a single large employer. It is much less plausible today. The growth of platform labour, gig-economy work, self-employment, and frequent career changes means that large and growing segments of the workforce lack the stable employment relationship that anchors collective pension membership. Workers who contribute during the first half of their career but then move to self-employment receive less than actuarially proportional benefits from the collective scheme, because the terms of the scheme &mdash; designed for complete careers &mdash; work to their disadvantage. Any adequate collective pension proposal must address this portability problem: either by making the state pension generous enough to cover those excluded from occupational schemes, or by extending collective provision to encompass the self-employed and platform workers. Otsuka&rsquo;s model does not adequately address this.</span></p>
+        <span class="section">iv. design pluralism: no single model fits all countries</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Design pluralism — path dependence, institutional capacity, and demographic context all matter</span>The appropriate design for a collective pension system depends substantially on context: the country&rsquo;s demographic trajectory, the maturity of its capital markets, the strength of its state administrative capacity, the historical legacy of existing schemes, and the political economy of pension reform. In Denmark, the ATP scheme provides effective collective provision through a mandatory funded arrangement with defined contributions and annuity-like benefits. In Sweden, the NDC scheme achieves collective smoothing through the notional defined contribution design. In the UK, the USS provides a funded multi-employer scheme that Otsuka rightly cites as a model. Canada&rsquo;s New Brunswick scheme offers conditional career-average pensions with explicit risk-sharing. There is no single design that dominates in all these contexts. Otsuka&rsquo;s philosophical case for collective risk-sharing is correct. His practical preference for CDC as the paradigm case is too strong.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-barr-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The design space for collective risk-sharing is richer than CDC alone</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Between individual DC (all risk on member) and final-salary DB (all risk on sponsor), there is a rich space of intermediate designs: CIDC, CDC, conditional DB, PAYG with adjustable formulae, notional DC, and hybrid arrangements.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Each intermediate design has different properties with respect to intergenerational fairness, transparency, portability, political sustainability, and the distribution of demographic and investment risk across parties.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The welfare case for collective risk-sharing is a case for the principle; it does not uniquely determine which design best instantiates it in any given context.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Otsuka&rsquo;s philosophical case for collective risk-sharing is correct, but his practical preference for CDC as the paradigm is too strong; the appropriate design depends on empirical context that philosophy alone cannot determine.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Dutch experience shows that design and valuation methodology are as critical as principle</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Dutch collective pension crisis was caused primarily by a regulatory requirement to value liabilities at risk-free government bond yields (the financial economics approach), which reported massive deficits when yields collapsed after 2008.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>On the actuarial approach (valuing liabilities at long-term expected portfolio returns), the Dutch schemes were not genuinely insolvent; the crisis was a crisis of measurement, not of collective pension provision as such.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The lesson is that collective pension design must specify governance, funding rules, and valuation methodology alongside risk-sharing structure; the principle of collective pooling does not settle these design questions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Dutch experience vindicates Otsuka&rsquo;s critique of the financial economics approach but also shows that design is as important as principle; any proposal for collective pensions must specify its full institutional architecture.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Partial coverage and portability are underaddressed problems for any collective model</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Collective pension schemes are designed for stable, long-term employment relationships; workers who leave mid-career for self-employment, gig work, or career changes receive less than actuarially proportional benefits.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The growth of platform labour, self-employment, and frequent career changes means large segments of the workforce are systematically disadvantaged by collectively designed schemes that do not accommodate non-standard employment trajectories.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A complete proposal for collective pensions must address portability and coverage gaps, either through a generous state pension floor or through extending collective provision to non-standard workers.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The portability and coverage problem is a structural challenge for collective pension proposals that Otsuka inadequately addresses; it must be solved for collective provision to deliver justice to all workers, not only those in stable long-term employment.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Design pluralism: context determines the optimal risk-sharing design</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The appropriate pension design depends on demographic trajectory, capital market maturity, state administrative capacity, institutional legacy, and political economy &mdash; all of which vary substantially across countries.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Denmark (ATP), Sweden (NDC), UK (USS), Canada (New Brunswick) all realise collective risk-sharing through different designs suited to their institutional contexts; no single design dominates across all settings.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Philosophy establishes the principle; institutional economics and public finance must determine the design; treating one design as philosophically privileged across all contexts oversteps what philosophical argument can establish.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Design pluralism is the correct policy conclusion from the philosophical case for collective risk-sharing; Otsuka&rsquo;s CDC preference is one sound design among several, not the uniquely justified form of collective provision.</span></div>
+        </div>
+      </div>
+    </div><!-- end barr -->
+
+    <!-- SCHOKKAERT -->
+    <div class="speaker-panel" id="prop-schokkaert-panel">
+      <div id="prop-schokkaert-speech" class="speech-text">
+        <p class="salut">I agree with Otsuka that collective risk pooling is better than individual accumulation. But I want to press a harder question: is mutual advantage sufficient as the normative basis for pension justice?</p>
+        <p>Otsuka explicitly frames his case as a case about mutual advantage &mdash; each member benefits from the collective arrangement compared with what she could achieve alone. He is transparent that he does not focus on redistribution: he wants to show that a strong case for collective pensions survives even if we set aside redistributive grounds and build only on mutual advantage. I admire the strategy. But I believe it leaves crucial questions of justice unaddressed, and that a complete theory of pension justice must go beyond mutual advantage in ways that Otsuka&rsquo;s framework does not accommodate.</p>
+        <div class="pull">&ldquo;Egalitarian concerns are of crucial importance in most countries and they require going further than collective risk pooling and taking into account that society is more than a system of self-interested monetary transfers between and within cohorts.&rdquo; &mdash; Schokkaert, 2025</div>
+        <span class="section">i. the first generation problem</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">First generation problem — those who never contributed under PAYG receive gifts; Otsuka calls this unfair, but justice may require it</span>Consider the introduction of a pay-as-you-go pension system &mdash; as occurred across Western Europe after the Second World War. The first generation of recipients under such a system received full pensions without having made contributions: they were, in Otsuka&rsquo;s framework, beneficiaries of a cooperative scheme to which they contributed nothing. Otsuka is consistent: he regards this as raising a problem of reciprocity. But historically, these gifts to the first generation were not regarded as unjust &mdash; and for good reason. The first generation of workers in post-war welfare states had often suffered devastating losses of savings through inflation, war, and depression. A justice that said: because you did not contribute, you receive nothing, would have been cruel and politically unacceptable. Justice, in the full sense, sometimes requires gifts that mutual advantage alone cannot justify. The reciprocity framework, taken strictly, cannot vindicate the most defensible instances of intergenerational redistribution.</span></p>
+        <span class="section">ii. unchosen inequalities in lifetime earnings</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Luck egalitarianism — unchosen earnings inequalities feed through to pension inequality; mutual advantage doesn&rsquo;t address this</span>A collective risk-pooling system that proportionally mirrors lifetime earnings will systematically deliver larger pensions to higher earners &mdash; not because they have worked harder or saved more wisely, but because their earning capacity reflects factors largely outside their control: educational background, inherited social capital, cognitive endowment, and the social conditions that shaped them. A mutual advantage framework accepts this as just: each party brings her contributions and proportionally benefits from the collective. An egalitarian framework resists: the unchosen inequalities in lifetime earnings that feed through to proportionally larger pensions are unjust, even if the risk-pooling structure that transmits them is mutually advantageous. Otsuka acknowledges this concern but argues that as long as the state provides a floor pension meeting basic needs, the mutually advantageous occupational pension above the floor is just. I dispute this: a floor below which no one falls does not make inequalities above the floor just if those inequalities are unchosen.</span></p>
+        <span class="section">iii. the gender pension gap</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Gender pension gap — structural earnings disadvantage; collective pooling without redistribution reproduces it</span>The gender pension gap is a vivid illustration of what mutual advantage misses. Women receive substantially lower pensions than men across virtually all developed pension systems &mdash; typically between 25% and 40% lower &mdash; for reasons that are largely not attributable to choices but to structural disadvantages: lower average earnings, career interruptions for caregiving, part-time work made necessary by the unequal distribution of domestic labour, and glass ceilings that limit advancement. A collective risk-pooling system that mirrors lifetime earnings will reproduce this gap faithfully: women will contribute less and receive less, on terms that are mutually advantageous in the sense that each member does better than she would in an individual pot, while the gender-based inequality is perpetuated. Justice requires more: either through PAYG redistributive elements that credit caregiving periods, or through benefit formulae that partially equalise outcomes across earnings distributions.</span></p>
+        <span class="section">iv. society is more than a web of self-interested transfers</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Social relations — pension system embedded in broader justice; mutual advantage too thin a conception</span>Otsuka&rsquo;s framework treats the pension system as if it were a self-contained cooperative arrangement evaluated by its internal terms of mutual advantage. But a pension system is embedded in the broader web of social relations within and between cohorts. It is not merely a mechanism for efficient risk-sharing; it is a reflection of what a society believes it owes its members at the end of their working lives. That conception of what we owe one another cannot be reduced to mutual advantage: it includes recognition of past contributions not mediated through market wages (care work, volunteering, community labour), solidarity with those whose lifetime earnings reflect unchosen disadvantage, and the claim of each person to a dignified retirement regardless of the contingencies of birth and career. A pension justice framework adequate to these demands must go beyond the mutual advantage of Rawlsian reciprocity toward a fuller egalitarianism that Otsuka, on his own admission, has not yet provided.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-schokkaert-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The first-generation problem: justice sometimes requires gifts that mutual advantage cannot justify</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Under PAYG introduction, the first generation received full pensions without having contributed; in Otsuka&rsquo;s reciprocity framework, this is problematic because no contribution implies no entitlement.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Historically, this &ldquo;gift&rdquo; to the first generation was widely regarded as just: post-war pensioners had suffered devastating losses through war and inflation and lacked the savings to sustain themselves; withholding pensions on grounds of non-contribution would have been cruel and unacceptable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The most defensible instances of intergenerational redistribution exceed what a strict mutual advantage framework can vindicate; justice sometimes requires gifts grounded in need, solidarity, and desert beyond market contribution.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Mutual advantage is insufficient as the sole normative basis for pension justice; the first-generation problem reveals that a complete theory must include redistributive grounds that Otsuka&rsquo;s framework explicitly sets aside.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Unchosen earnings inequalities flow into pension inequality; mutual advantage cannot address this</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A collective risk-pooling system proportional to lifetime earnings delivers larger pensions to higher earners; higher earnings largely reflect unchosen advantages (educational background, inherited capital, cognitive endowment) rather than greater effort or merit.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Mutual advantage accepts this as just on the grounds that each member does better than she would alone; luck egalitarianism identifies it as unjust on the grounds that the inequality flows from unchosen factors.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Otsuka&rsquo;s floor-and-mutual-advantage argument does not resolve this: a floor below which no one falls does not make inequalities above the floor just if those inequalities are unchosen.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Luck egalitarian concerns about unchosen earnings inequalities are not answered by the mutual advantage framework; a complete pension justice theory must address the distributive implications of unchosen advantage and disadvantage in lifetime earnings.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The gender pension gap: collective pooling without redistribution reproduces structural injustice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Women receive 25–40% lower pensions than men across most developed systems, largely because of lower average earnings, career interruptions for caregiving, and part-time work imposed by unequal domestic labour distribution &mdash; factors that are structurally rather than voluntarily determined.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A collective risk-pooling system proportional to lifetime earnings faithfully reproduces this gap: women contribute less and receive less, on terms that are mutually advantageous in Otsuka&rsquo;s sense but unjust in the egalitarian sense.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Justice requires additional measures: crediting caregiving periods in benefit formulae, partial redistribution of pension entitlements, or PAYG elements that partially equalise outcomes across the earnings distribution.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The gender pension gap exposes a structural limitation of the mutual advantage framework: collective risk pooling without redistributive elements reproduces gender-based injustice that a complete theory of pension justice must address.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Society is more than a web of self-interested transfers; pension justice requires fuller egalitarianism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A pension system is embedded in the broader web of social relations within and between cohorts; it reflects what a society believes it owes its members in retirement &mdash; a moral commitment that exceeds mutual advantage.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>That moral commitment includes recognition of contributions not mediated through market wages (care work, community labour), solidarity with those whose earnings reflect unchosen disadvantage, and each person&rsquo;s claim to a dignified retirement regardless of birth or career contingency.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These demands cannot be reduced to or fully satisfied by the mutual advantage of Rawlsian reciprocity; they require a fuller egalitarianism that Otsuka acknowledges but does not provide.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Otsuka&rsquo;s mutual advantage framework is a necessary but insufficient component of pension justice; a complete theory must incorporate egalitarian redistribution that addresses unchosen earnings inequalities, caregiving recognition, and the structural causes of the gender pension gap.</span></div>
+        </div>
+      </div>
+    </div><!-- end schokkaert -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- RIGHT — Heath · van Ewijk · Karnein -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','heath',this)">Heath</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','vanewijk',this)">van Ewijk</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','karnein',this)">Karnein</button>
+  </div>
+
+  <!-- HEATH HEADER -->
+  <div class="col-header" id="opp-heath-header">
+    <div class="col-header-top"><span class="pill opp">Intra vs. Intergenerational</span><span class="col-subtitle">Joseph Heath</span></div>
+    <div class="col-position">Otsuka conflates intragenerational and intergenerational cooperation &mdash; only the retirement transfer system is genuinely intergenerational; the longevity and investment risk pools are essentially intragenerational, pooling risks within a cohort. The folk theorem supports intra-generational cooperation; its extension to the intergenerational case is less secure than Otsuka assumes.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','heath','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','heath','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- VAN EWIJK HEADER -->
+  <div class="col-header hidden" id="opp-vanewijk-header">
+    <div class="col-header-top"><span class="pill opp">Voluntariness Fails in Practice</span><span class="col-subtitle">Casper van Ewijk</span></div>
+    <div class="col-position">Voluntariness is the wrong design principle for collective pensions &mdash; Dutch experience shows that behavioural barriers and discontinuity risk make voluntary collective schemes unstable; only mandatory or near-mandatory participation can sustain the intergenerational pooling that collective pensions require; Rawlsian rationality assumptions are too optimistic.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','vanewijk','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','vanewijk','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- KARNEIN HEADER -->
+  <div class="col-header hidden" id="opp-karnein-header">
+    <div class="col-header-top"><span class="pill opp">Two Kinds of Cooperation</span><span class="col-subtitle">Anja Karnein</span></div>
+    <div class="col-position">Otsuka&rsquo;s Rawlsianism is the wrong kind &mdash; Rawlsian social cooperation requires more than mutual advantage, is not mere means to self-interested ends, and generates difference-principle duties that pension cooperation does not; the Rawlsian framing overstates the justice claim of collective pensions in three decisive respects.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','karnein','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','karnein','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- HEATH -->
+    <div class="speaker-panel active" id="opp-heath-panel">
+      <div id="opp-heath-speech" class="speech-text">
+        <p class="salut">I want to press a clarification that I believe matters significantly for evaluating Otsuka&rsquo;s central claim.</p>
+        <p>Otsuka argues that collective pensions pool risks across as well as within generations, and that this cross-generational risk-sharing is the source of their special value and their claim to Rawlsian reciprocity. I want to argue that this description, while not wrong, is importantly misleading. When we look carefully at the three risk-pooling mechanisms that Otsuka identifies within a collective pension arrangement, we find that only one of them is genuinely intergenerational. The other two are essentially intragenerational: they pool risks within a cohort of similarly-aged individuals, not across different generations.</p>
+        <div class="case-box">
+          <strong>Three systems within a pension arrangement.</strong>
+          <br><br>
+          <strong>The retirement system.</strong> Current workers&rsquo; contributions fund current retirees&rsquo; benefits. This is genuinely intergenerational: a transfer of income from the relatively young to the relatively old, sustained by indirect reciprocity through overlapping generations.
+          <br><br>
+          <strong>The longevity risk pool.</strong> Members who die early subsidise those who live long. In a typical CDC scheme, this pooling occurs among members of a broadly similar age cohort: those who entered the scheme together. This is essentially intragenerational.
+          <br><br>
+          <strong>The investment risk pool.</strong> Investment returns are pooled across the scheme. In CDC schemes that pool only within cohorts, this is again essentially intragenerational; cross-cohort pooling requires a specific design choice and creates explicit cross-generational transfers.
+        </div>
+        <span class="section">i. the intragenerational character of longevity and investment pooling</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Intragenerational distinction — longevity and investment pools are within-cohort; only retirement is cross-generational</span>In the canonical CDC model as described by Otsuka, members pool their retirement savings collectively. The longevity pool is formed among members of a given cohort: those who entered the scheme around the same time and will retire around the same time. The early-dying subsidise the long-living among age-peers. This is what an annuity does: it is an intragenerational insurance arrangement. Similarly, the investment risk pool in the CDC scheme covers members who are investing toward retirement at broadly similar time horizons. The compound returns that Otsuka rightly identifies as a major benefit of collective investment &mdash; the ability to stay in growth assets for longer &mdash; also accrue primarily to within-cohort members who collectively maintain a longer investment horizon than any individual in the cohort dare. The cross-generational element is real but specific: it consists in the fact that as one cohort retires and draws down, a new cohort enters and contributes, maintaining the pool&rsquo;s demographic profile. This is a genuine intergenerational transfer, but it is the retirement system, not the risk pools, that constitutes it.</span></p>
+        <span class="section">ii. why the distinction matters for reciprocity</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Reciprocity — intragenerational pooling doesn&rsquo;t need Rawlsian reciprocity; insurance suffices</span>The distinction between intragenerational and intergenerational pooling matters enormously for the reciprocity claim. Intragenerational risk-pooling is not a case of Rawlsian intergenerational cooperation at all: it is ordinary insurance, of the kind that commercial insurers provide when they are not prevented by adverse selection from doing so. The fact that individuals who share a rough birth year pool their longevity and investment risks needs no elaborate Rawlsian justification; it can be justified simply as efficient insurance against risks that all members of the cohort face equally. The Rawlsian reciprocity claim &mdash; that we are sharing one another&rsquo;s fates across generations &mdash; applies, if it applies at all, specifically and only to the retirement transfer system. Otsuka sometimes writes as if the reciprocity claim applies to the entire collective pension arrangement; it does not. Identifying this more precisely is important for understanding what kind of justification the different components of collective pensions actually require.</span></p>
+        <span class="section">iii. the folk theorem and indirect reciprocity</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Folk theorem — supports retirement system specifically; limits of indirect reciprocity</span>I have long argued that the folk theorem of game theory supports Rawlsian claims about intergenerational cooperation. In a repeated game with overlapping generations, cooperation can be sustained through indirect reciprocity: each generation contributes to its predecessors, expecting its successors to reciprocate. This supports the retirement transfer system as a cooperative equilibrium. But the folk theorem&rsquo;s application is specific: it supports the retirement transfer, not the within-cohort risk pools. Moreover, the folk theorem requires certain conditions &mdash; a sufficiently high discount rate, a sufficiently stable demographic environment, a sufficient degree of symmetry between generations &mdash; that may not hold in all circumstances. Otsuka sometimes invokes the folk theorem as if it straightforwardly supports the entire collective pension apparatus. A more careful reading shows that it supports the retirement transfer under specific conditions, and says much less about the risk pools than Otsuka implies.</span></div>
+        <span class="section">iv. a productive investment account: what collective pensions really achieve</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Productive investment — compound returns, not cross-generational pooling, is the main benefit</span>I want to propose that the main benefit of collective pensions may not be cross-generational risk-pooling at all, but rather the compounding of returns on long-term productive investment. A collective scheme can invest more heavily in growth assets &mdash; equities, real estate, infrastructure &mdash; for longer than an individual dare, not primarily because it pools risks across generations but because it collectively commits to a long-term investment horizon that no individual investor would voluntarily maintain. The compounding of returns on a diversified growth portfolio over decades is the primary driver of the superior performance of well-run pension funds. This benefit accrues to the members of each cohort collectively, as a consequence of their collective investment commitment. It is not cross-generational in the relevant sense; it does not require Rawlsian intergenerational reciprocity to justify; and it provides an even stronger case for collective provision than Otsuka&rsquo;s risk-sharing argument does.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-heath-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Only the retirement transfer is genuinely intergenerational; longevity and investment pools are intragenerational</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Three systems within a collective pension: (a) the retirement system (cross-generational transfer from workers to retirees); (b) the longevity risk pool (within-cohort insurance against early death); (c) the investment risk pool (collective long-horizon investment).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In the canonical CDC scheme, the longevity and investment pools operate among members of a broadly similar age cohort: early-dying subsidise long-living among age-peers; investment returns are pooled across a cohort with similar time horizons. These are intragenerational arrangements.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Only the retirement transfer is genuinely intergenerational: a transfer from relatively young workers to relatively old retirees, sustained by the influx of new cohorts replacing those that retire.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Otsuka conflates intragenerational and intergenerational pooling; the cross-generational element of collective pensions is real but specific to the retirement transfer, not to the entire risk-pooling apparatus.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Intragenerational pooling needs no Rawlsian reciprocity; ordinary insurance suffices</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Intragenerational risk-pooling is ordinary insurance: individuals who share a rough birth year pool longevity and investment risks. This is what commercial annuities do and can be justified as efficient insurance without Rawlsian reciprocity.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Otsuka&rsquo;s Rawlsian reciprocity claim &mdash; that we are sharing one another&rsquo;s fates across generations on fair terms &mdash; applies, if it applies at all, specifically to the retirement transfer system, not to the within-cohort risk pools.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Treating intragenerational insurance as if it required Rawlsian justification overstates the philosophical work that needs to be done and conflates two quite different kinds of cooperation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The within-cohort components of collective pensions can be justified by ordinary insurance reasoning; the Rawlsian reciprocity argument applies specifically and only to the retirement transfer, not to the collective pension arrangement as a whole.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The folk theorem supports the retirement transfer under specific conditions, not the full apparatus</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The folk theorem: in a repeated game with overlapping generations, cooperation can be sustained through indirect reciprocity. This supports the retirement transfer system as a cooperative equilibrium under conditions of sufficient discount rate symmetry and demographic stability.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The folk theorem&rsquo;s application is specific and conditional; it does not support the within-cohort risk pools, which are not intergenerational games; and it does not guarantee the sustainability of cross-generational transfers under all demographic or economic conditions.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Otsuka invokes the folk theorem as if it supports the full collective pension apparatus; a careful reading shows it supports the retirement transfer specifically and says much less about the risk pools.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The folk theorem provides more limited support for Otsuka&rsquo;s claims than he implies; its application is specific to the retirement transfer under specific conditions, not to collective pension provision as a whole.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The primary benefit may be compound investment returns, not cross-generational pooling</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A collective pension&rsquo;s ability to invest heavily in growth assets for decades generates compound returns that substantially exceed the returns available to individuals who must de-risk as they approach retirement.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This benefit accrues to each cohort collectively through their shared long-term investment commitment; it does not require cross-generational transfers or Rawlsian intergenerational reciprocity to justify.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The productive investment account provides an even stronger and more precisely grounded case for collective provision than the risk-sharing account, since it does not depend on cross-generational reciprocity that the folk theorem supports only under specific conditions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The primary benefit of collective pensions may be long-term productive investment compounding rather than cross-generational risk-pooling; this provides a stronger case for collective provision that does not depend on the more contested claims about intergenerational reciprocity.</span></div>
+        </div>
+      </div>
+    </div><!-- end heath -->
+
+    <!-- VAN EWIJK -->
+    <div class="speaker-panel" id="opp-vanewijk-panel">
+      <div id="opp-vanewijk-speech" class="speech-text">
+        <p class="salut">My concern is with what I believe is the most vulnerable element of Otsuka&rsquo;s proposal: its reliance on voluntariness as the mechanism by which collective pensions are established and maintained.</p>
+        <p>Otsuka is aware of a fundamental tension in his proposal. The efficiency gains of collective risk-pooling require that members remain in the pool once they have joined: if they are free to exit when their individual risk profile becomes more favourable, adverse selection destroys the pool. Otsuka&rsquo;s solution is voluntary binding at entry: individuals choose to join at the outset of their working lives and agree to heavy exit penalties thereafter. I want to argue that this solution does not adequately address the problem, and that the Dutch experience with pension reform illustrates why.</p>
+        <div class="pull">&ldquo;Although it is well-established that risk sharing between generations can be beneficial and welfare improving to all, it is far from certain that new generations will enter existing pension arrangements on a voluntary basis. The discontinuity risk &mdash; the possibility that poor performance deters new entrants and triggers a downward spiral &mdash; is a real and underestimated threat.&rdquo; &mdash; van Ewijk, 2025</div>
+        <span class="section">i. the discontinuity risk: when performance deters entry</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Discontinuity risk — funding deficits deter new entrants; spiral undermines voluntariness</span>A collective pension scheme that has suffered investment losses or actuarial deficits will appear less attractive to new entrants than to established members. This is the discontinuity risk: a scheme that has accumulated liabilities in excess of assets &mdash; as Dutch schemes did when bond yields collapsed between 2008 and 2022 &mdash; will find it increasingly difficult to attract new members on the original terms. Young workers entering a scheme in deficit are being asked to subsidise the deficits of their predecessors; on a strictly voluntary basis, it is rational for them to decline. The resulting adverse selection &mdash; new entrants decline, the deficit per remaining member grows, more members defect, the scheme collapses &mdash; is precisely the scenario that Otsuka&rsquo;s binding-at-entry provision is designed to prevent. But binding-at-entry works only for those who are already members. It cannot compel the entry of the generation that has not yet joined. Only mandatory participation can close this gap.</span></p>
+        <span class="section">ii. behavioural barriers to voluntary pension saving</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Behavioural barriers — present bias, complexity, inertia; most people don&rsquo;t voluntarily save adequately</span>Otsuka follows Rawls in assuming that individuals at the age of majority make rational, informed decisions about pension provision when presented with the opportunity to join a collective scheme. The assumption is too optimistic. An extensive empirical literature on pension saving documents robust and persistent behavioural barriers to voluntary participation: present bias (the tendency to discount future consumption too heavily relative to present consumption), status quo inertia (the tendency to remain in whatever arrangement one was defaulted into), complexity aversion (the tendency to avoid decisions about financial products that are genuinely hard to understand), and optimism bias (the tendency to underestimate personal longevity and therefore personal pension needs). These are not failures of rationality that can be corrected by better information; they are stable features of human decision-making under conditions of long time horizons and genuine uncertainty. A voluntary scheme that requires individuals to choose to join at the age of majority will fail to enrol a substantial fraction of the workforce for these reasons alone.</span></p>
+        <span class="section">iii. the dutch experience: compulsory participation rescued collective pensions</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Dutch experience — mandatory industry-wide schemes; compulsion necessary; voluntariness inadequate</span>The Netherlands has, for decades, operated collective pension schemes that are organised by social partners and are quasi-mandatory for workers in covered industries. This quasi-mandatory character &mdash; enforced through collective labour agreements that bind employers to offer the scheme and near-universal coverage requirements &mdash; has been essential to the schemes&rsquo; ability to pool risks across generations. The recent Dutch reforms that moved the system toward a CDC-type structure did not make it voluntary; they maintained the quasi-mandatory structure while reforming the risk-sharing and valuation methodology. If the Netherlands, with its strong tradition of social partnership and collective provision, cannot sustain collective pensions on a voluntary basis, it is unrealistic to suppose that systems with weaker institutional traditions could do so. Compulsion &mdash; or at minimum strong default enrolment with significant auto-escalation &mdash; is not a violation of the freedom that collective pensions protect; it is a precondition for their existence.</span></p>
+        <span class="section">iv. compulsion is not paternalism: the case for mandatory provision</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Compulsion vs. paternalism — mandatory pensions protect workers from their own future regret; not paternalistic</span>Otsuka argues that voluntary binding is consistent with individual freedom and is not paternalistic. I largely agree with this as an account of what voluntary binding does when it works. What I question is whether voluntary binding at entry is sufficient to sustain a collective pension system in the face of the discontinuity risk and behavioural barriers I have identified. The stronger conclusion &mdash; that mandatory participation is justified &mdash; can also be defended on non-paternalistic grounds. Mandatory collective pensions protect workers not from their own irrational choices but from the systemic consequences of others&rsquo; rational choices to defect: the coordination problem that arises when each worker&rsquo;s rational decision to exit (or not to enter) makes everyone worse off. Compulsion is the appropriate response to a coordination failure, not paternalism in response to irrationality. Otsuka should accept mandatory participation as a permissible and often necessary design feature of collective pension systems.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-vanewijk-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Discontinuity risk: performance deficits deter new entrants and can trigger collapse</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A collective pension scheme that has accumulated actuarial deficits appears less attractive to new entrants than to established members: new entrants are asked to subsidise the deficits of their predecessors, which is rational for them to decline on a voluntary basis.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The resulting adverse selection spiral &mdash; new entrants decline, deficit per member grows, more members defect, scheme collapses &mdash; is the scenario Otsuka&rsquo;s binding-at-entry provision is designed to prevent; but binding-at-entry cannot compel the entry of generations that have not yet joined.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Only mandatory participation can close this gap and prevent the discontinuity risk from undermining the scheme&rsquo;s intergenerational pooling properties.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The discontinuity risk is a structural threat to voluntary collective pension schemes that binding-at-entry cannot address; mandatory participation is the appropriate design response to protect the intergenerational pooling that makes collective pensions valuable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Behavioural barriers make voluntary pension saving persistently inadequate</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>An extensive empirical literature documents robust and persistent behavioural barriers to voluntary pension participation: present bias, status quo inertia, complexity aversion, and optimism bias about longevity.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These are stable features of human decision-making under long-horizon uncertainty, not correctable by better information alone; they produce systematic under-saving among workers who are, on Otsuka&rsquo;s own terms, rational agents.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Otsuka follows Rawls in assuming individuals make rational decisions at the age of majority; this assumption is too optimistic given the robust evidence for these barriers in real pension contexts.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Behavioural barriers undermine voluntary participation in collective pension schemes; the Rawlsian rationality assumption that underpins Otsuka&rsquo;s voluntariness argument is too optimistic in light of the empirical evidence on pension saving behaviour.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Dutch experience: quasi-mandatory participation was essential, not incidental, to collective pension success</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Dutch collective pension schemes have been organised through quasi-mandatory collective labour agreements that bind employers to offer schemes with near-universal coverage; this quasi-mandatory character has been essential to risk-pooling across generations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The recent Dutch reform that moved the system toward CDC maintained the quasi-mandatory structure; it reformed risk-sharing and valuation methodology while preserving compulsion.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the Netherlands, with its exceptionally strong tradition of social partnership, cannot sustain collective pensions on a voluntary basis, it is unrealistic to expect systems with weaker institutional traditions to do so.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Dutch experience demonstrates that quasi-mandatory participation is a practical precondition for sustainable collective pension provision; voluntariness alone cannot maintain the demographic profile and contribution base that effective intergenerational pooling requires.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Compulsion addresses coordination failure, not irrationality; it is not paternalism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Mandatory collective pension participation protects workers not from their own irrational choices but from the systemic consequences of others&rsquo; rational choices to defect: the coordination failure in which individually rational defection produces collectively worse outcomes for all.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Compulsion as a response to coordination failure is not paternalism; it is the appropriate institutional solution to a class of problems in which voluntary individual choice produces collectively suboptimal outcomes.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Otsuka should accept mandatory participation as a permissible and often necessary design feature; his binding-at-entry proposal moves in the right direction but does not go far enough to address discontinuity risk and behavioural barriers.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Mandatory participation in collective pension schemes is justified as a response to coordination failure, not paternalism; Otsuka&rsquo;s voluntariness commitment should be revised to permit mandatory provision in contexts where voluntary binding cannot sustain the intergenerational pooling that collective pensions require.</span></div>
+        </div>
+      </div>
+    </div><!-- end van ewijk -->
+
+    <!-- KARNEIN -->
+    <div class="speaker-panel" id="opp-karnein-panel">
+      <div id="opp-karnein-speech" class="speech-text">
+        <p class="salut">I want to challenge the most philosophically ambitious element of Otsuka&rsquo;s book: its claim to be Rawlsian.</p>
+        <p>Otsuka tells us that his thinking about pensions led him to abandon his prior commitment to luck egalitarianism and to embrace Rawlsian justice as fairness. He argues that collective pension schemes are instances of social cooperation on equal terms for mutual advantage &mdash; the central idea of Rawlsian justice &mdash; and that they are therefore paradigmatically just in Rawlsian terms. I want to argue that this claim is overstated, and that the specific kind of social cooperation that Rawls has in mind differs from collective pension cooperation in at least three respects that are relevant to the normative claims being made.</p>
+        <div class="case-box">
+          <strong>Two river-crossers.</strong> A and B need to cross a river. The only boat requires two rowers. This entails cooperation; cooperation demands fair terms; crossing together allows both to flourish. They cooperate and achieve mutual advantage. Is this Rawlsian cooperation? Otsuka treats pension cooperation as analogous to the river-crossing. I argue that Rawlsian social cooperation is structurally different in three respects.
+        </div>
+        <span class="section">i. first difference: rawlsian cooperation is not merely a means to mutual advantage</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">First difference — Rawlsian cooperation is not merely instrumental; it constitutes social life, not merely serves it</span>For Rawls, social cooperation is not merely a means by which individuals pursue their own pre-social interests. It is partly constitutive of the good life: citizens in a just society value participation in cooperative social institutions not only for the external goods it produces but for the intrinsic goods of social membership, civic standing, and mutual recognition. The justice of cooperative arrangements is evaluated not only by whether they produce mutual advantage but by whether they embody the right kind of social relationships &mdash; relationships of respect among equals. Pension cooperation, in Otsuka&rsquo;s account, is valuable entirely because of the external benefits it produces: better risk management, higher average retirement income, elimination of longevity risk. It is valued instrumentally, as a means to individual financial security. This is importantly different from the way Rawls values social cooperation, and the difference matters for the normative conclusions that can be drawn from it.</span></p>
+        <span class="section">ii. second difference: rawlsian cooperation generates difference-principle duties</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Second difference — difference principle; inequalities must benefit the worst-off; pension cooperation does not generate this</span>For Rawls, the inequalities arising from a chosen scheme of social cooperation must be justified to those in the worst-off position through the difference principle: inequalities are just only if they are to the maximum benefit of the least-advantaged members of society. This is a strong redistributive constraint on cooperative arrangements: the terms of cooperation must be structured to maximise the position of the least advantaged, not merely to produce mutual advantage for all. Collective pension cooperation, as Otsuka describes it, generates mutual advantage for all participants but does not necessarily satisfy the difference principle. A scheme that pools risks proportionally to contributions, delivers larger pensions to higher earners, and requires only that all members do better than they would in an individual pot, may fall well short of the difference principle. Schokkaert has identified exactly this gap: mutual advantage is not the same as maximum benefit to the least advantaged, and Otsuka&rsquo;s Rawlsianism imports only one element of Rawls&rsquo;s framework.</span></p>
+        <span class="section">iii. third difference: the nature of mutual advantage is different</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Third difference — Rawlsian advantage is not narrowly self-interested; pension cooperation is</span>In Rawls&rsquo;s account, the mutual advantage that motivates and justifies social cooperation is not reducible to narrowly self-interested monetary gain. Citizens in Rawls&rsquo;s original position are motivated by their interests in the primary goods &mdash; liberties, opportunities, income, and the social bases of self-respect &mdash; but they are also motivated by a desire for social justice for its own sake. They are not purely self-interested; they are concerned with the fairness of the arrangements they are creating. The mutual advantage in Otsuka&rsquo;s pension cooperation is explicitly and straightforwardly financial: each member benefits from collective provision compared with individual provision, in terms of expected retirement income and reduced risk. This is a narrowly self-interested form of mutual advantage. It lacks the moral dimension that Rawlsian mutual advantage involves: the acceptance of terms of cooperation one could justify to all other members, including those who are worse off.</span></p>
+        <span class="section">iv. what pension cooperation can and cannot claim to be</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Legitimate non-Rawlsian claim — mutual insurance without full Rawlsian justice; valuable but less demanding than claimed</span>Let me be clear about what I am not claiming. I am not claiming that collective pensions are unjust, or that Otsuka is wrong to advocate for them. I am claiming that the Rawlsian label overstates the normative status of the claim. Collective pension cooperation is a form of mutually advantageous social insurance: a cooperative arrangement that makes each participant better off than she would be alone. That is a sound and important ground for providing it collectively. But it is not the same as claiming that justice requires it, in the strong Rawlsian sense that would bring in the difference principle, the primacy of the basic structure, and the constitutional essentials. The weaker claim &mdash; that collective pension provision is welfare-improving, mutually advantageous, and preferable to individual accumulation &mdash; is fully vindicated. The stronger claim &mdash; that it is a paradigm instance of Rawlsian justice as fairness &mdash; is not.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-karnein-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Rawlsian cooperation is not merely instrumental; pension cooperation is</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Rawlsian social cooperation is partly constitutive of the good life for citizens: participation in just cooperative institutions is valued for the intrinsic goods of social membership, civic standing, and mutual recognition, not only for external benefits.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Pension cooperation in Otsuka&rsquo;s account is valued entirely instrumentally: it produces better risk management and higher average retirement income. It is a means to individual financial security, not a constitutive element of social life.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This difference is relevant to the normative conclusions: purely instrumental cooperation can be justified by welfare economics alone; it does not require Rawlsian justice as fairness.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Pension cooperation is instrumentally but not constitutively social in Rawls&rsquo;s sense; invoking Rawlsian justice overstates the normative character of what is, on Otsuka&rsquo;s own account, a form of mutually beneficial financial insurance.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Rawlsian cooperation generates difference-principle duties that pension cooperation does not</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The difference principle: inequalities arising from a chosen scheme of social cooperation are just only if they maximally benefit the least-advantaged members of society. This is a strong redistributive constraint on cooperative arrangements.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Collective pension cooperation as Otsuka describes it generates mutual advantage for all participants but does not necessarily satisfy the difference principle: it may deliver larger pensions to higher earners without maximising the position of the least advantaged.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Otsuka&rsquo;s Rawlsianism imports only the mutual advantage element of Rawls&rsquo;s framework; it leaves out the difference principle, which is at least as central to Rawlsian justice as the cooperative framework.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Otsuka&rsquo;s Rawlsianism is selectively applied: it invokes Rawls&rsquo;s cooperative framework to justify collective pensions but does not import the difference principle that would generate redistributive duties his framework does not acknowledge.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Rawlsian mutual advantage includes a moral dimension that pension cooperation&rsquo;s financial advantage lacks</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Rawlsian cooperation: citizens in the original position are motivated by the social bases of self-respect and by a desire for social justice for its own sake; they are not purely self-interested but concerned with the fairness of cooperative terms they could justify to all members, including the worst-off.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Pension cooperation&rsquo;s mutual advantage is explicitly financial: each member benefits in terms of expected retirement income. This is a narrowly self-interested form of advantage that lacks the moral dimension of Rawlsian mutual advantage.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Treating narrowly financial mutual advantage as equivalent to Rawlsian mutual advantage collapses a distinction that is central to Rawls&rsquo;s framework and that carries normative weight.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The narrowly financial mutual advantage of pension cooperation is not equivalent to Rawlsian mutual advantage; invoking the latter overstates the moral character of what collective pension members are actually doing and agreeing to.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; The legitimate claim: mutually advantageous insurance, not paradigm Rawlsian justice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Collective pension cooperation is a form of mutually advantageous social insurance: a cooperative arrangement that makes each participant better off than she would be alone. This is a sound and important ground for collective provision.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But it is not the same as claiming that justice requires it in the strong Rawlsian sense that brings in the difference principle, the primacy of the basic structure, and constitutional essentials.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The weaker claim &mdash; collective pension provision is welfare-improving, mutually advantageous, and preferable to individual accumulation &mdash; is fully vindicated. The stronger claim &mdash; that it is a paradigm instance of Rawlsian justice as fairness &mdash; is not.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Otsuka&rsquo;s correct and important practical conclusion does not require the Rawlsian label he attaches to it; collective pensions are justified as mutually advantageous social insurance, a weaker but more defensible claim than paradigm Rawlsian justice.</span></div>
+        </div>
+      </div>
+    </div><!-- end karnein -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'otsuka',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'heath',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
