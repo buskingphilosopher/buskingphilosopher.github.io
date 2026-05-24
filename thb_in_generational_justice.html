@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Justice Across Ages — The Symposium</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 11px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Intergenerational Justice &mdash; Bidadanure (2021) &bull; Daniels (1988) &bull; McKerlie (2012) &bull; Gosseries (2023) &bull; Lippert-Rasmussen (2025) &bull; Meijers &amp; Timmer (2025)</div>
+  <div class="motion-title">&ldquo;Resolved: That lifespan equality alone is insufficient &mdash; synchronic, relational equality between co-existing age groups is independently required by justice&rdquo;</div>
+  <div class="motion-sub">Proposition &bull; Bidadanure &middot; McKerlie &middot; Meijers &amp; Timmer &nbsp;&mdash;&nbsp; Opposition &bull; Daniels &middot; Gosseries &middot; Lippert-Rasmussen</div>
+</div>
+
+<div class="columns">
+
+<!-- LEFT — Bidadanure · McKerlie · Meijers & Timmer -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','bidadanure',this)">Bidadanure</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','mckerlie',this)">McKerlie</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','meijers',this)">Meijers &amp; Timmer</button>
+  </div>
+
+  <!-- BIDADANURE HEADER -->
+  <div class="col-header" id="prop-bidadanure-header">
+    <div class="col-header-top"><span class="pill prop">Justice Across Ages</span><span class="col-subtitle">Juliana Uhuru Bidadanure</span></div>
+    <div class="col-position">Relational egalitarianism supplements, but does not displace, complete lives equality &mdash; some age-group inequalities are unjust for synchronic, relational reasons that endure even when diachronic lifespan equality is satisfied; treating young and old as equals demands more than an equal share over a lifetime.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','bidadanure','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','bidadanure','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- MCKERLIE HEADER -->
+  <div class="col-header hidden" id="prop-mckerlie-header">
+    <div class="col-header-top"><span class="pill prop">Simultaneous Segments</span><span class="col-subtitle">Dennis McKerlie</span></div>
+    <div class="col-position">Egalitarian principles apply to temporal stages of lives, not only to complete lives &mdash; a theory of justice between age groups must evaluate how different people are faring at the same time, and not merely whether their completed lifetimes will eventually be equal.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','mckerlie','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','mckerlie','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- MEIJERS & TIMMER HEADER -->
+  <div class="col-header hidden" id="prop-meijers-header">
+    <div class="col-header-top"><span class="pill prop">Overlap &amp; Future Generations</span><span class="col-subtitle">Meijers &amp; Timmer</span></div>
+    <div class="col-position">Relational egalitarianism extends across generational overlap to ground duties toward future non-contemporaries &mdash; social equality among future contemporaries, entailed by relational egalitarianism, creates present-generation duties that reach beyond currently existing social relations.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','meijers','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','meijers','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- BIDADANURE -->
+    <div class="speaker-panel active" id="prop-bidadanure-panel">
+      <div id="prop-bidadanure-speech" class="speech-text">
+        <p class="salut">Colleagues,</p>
+        <p>Age structures our social fabric &mdash; our institutions, relationships, obligations, and entitlements. There is an age for voting, an age for working, and an age when one is expected, and sometimes required, to retire. Each stage of life brings with it specific social risks and vulnerabilities. Consequently, multidimensional inequalities arise between age groups. How should we respond to these inequalities?</p>
+        <p>The dominant answer in the philosophical literature has been to view them through the lens of what I call <em>complete lives egalitarianism</em>: inequalities between age groups at a given moment are not themselves problematic, provided that over a complete lifetime each person receives an equal share of goods. Since everyone ages, age-based differentiation is really just a mechanism for distributing goods across the stages of a single life. I accept that this view captures something important. But I argue it is not sufficient. Some age-group inequalities are unjust for reasons that persist even when complete lifetime equality obtains, and they are unjust for reasons that are irreducibly relational.</p>
+        <div class="case-box">
+          <strong>The Two Problems.</strong> Justice between co-existing generations falls under two analytically distinct headings:
+          <br><br>
+          <strong>Birth-cohort justice.</strong> Are successive generations of people born at different times receiving comparable shares of goods over their complete lifetimes? This is primarily a diachronic question, answered by examining how resources are distributed across the stages of different cohorts&rsquo; lives.
+          <br><br>
+          <strong>Age-group justice.</strong> Are people at different stages of life, co-existing at the same moment, relating to one another as equals? This is primarily a synchronic question &mdash; and it is the one complete lives egalitarianism systematically fails to address.
+        </div>
+        <span class="section">i. the limits of complete lives egalitarianism</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Complete lives view — fails to capture synchronic relational wrongs</span>Complete lives egalitarianism (CLE) holds that what matters morally is equality over a complete life, not equality at any given moment. The young person who is worse off than the old person is not unjustly treated, on this view, as long as she will in due course receive equivalent goods as she ages. This view is plausible for a certain class of cases &mdash; for instance, the case of pension provision, where the young are today funding benefits they will themselves eventually draw. But it is not sufficient. Consider a young person today who faces a 40% unemployment rate, cannot afford housing, carries disproportionate student debt, and is systematically excluded from political institutions dominated by older generations. Even if we stipulate that this person will, by sixty, have accumulated equivalent lifetime resources to her elders, the relational injustice she endures now &mdash; the marginalisation, the subordination, the epistemic exclusion &mdash; is not captured by the diachronic calculus. What is unjust is not merely a distributional deficit that will eventually be corrected. It is the degraded social standing she occupies today, relative to her co-existing contemporaries who are older.</span></p>
+        <span class="section">ii. relational egalitarianism as supplement</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Relational supplement — domination, infantilisation, marginalisation are synchronic wrongs</span>Relational egalitarianism, in the tradition of Elizabeth Anderson and Samuel Scheffler, holds that equality is fundamentally about the terms on which people stand in relation to one another &mdash; about freedom from domination, subordination, and social hierarchy. My claim is that some age-group inequalities are relational wrongs of this kind. The infantilisation of young adults &mdash; the systematic denial of their competence and agency, the exclusion from decision-making that will shape their futures, the ageist assumptions that rationalise their inferior treatment in labour markets &mdash; are wrongs that exist in the present tense, at the synchronic level of how co-existing citizens relate to one another. These wrongs are not cancelled or deferred by the prospect that the young person will eventually be old. The relational wrong occurs now, and justice requires its correction now. This is why I argue that CLE requires supplementation, not merely refinement, by relational egalitarianism.</span></p>
+        <span class="section">iii. the practical implications: labour markets and youth quotas</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Labour markets — precarious youth employment as synchronic relational injustice</span>The argument from relational egalitarianism generates direct and novel policy conclusions that CLE cannot reach. Take youth unemployment. The persistently higher unemployment rates of young workers during economic transitions are not merely a distributional inconvenience that will be corrected over a lifetime; they are a synchronic relational injustice in which young people are systematically excluded from the social standing that meaningful work confers. Similarly, the near-total exclusion of young adults from legislative chambers is not a problem that lifespan equality can address: the political subordination that young people endure today, when political decisions are made, is an injustice of the present moment, not of the lifetime average. Youth quotas in parliaments &mdash; requiring that some proportion of elected representatives come from younger age groups &mdash; are the direct institutional response to this synchronic wrong.</span></p>
+        <span class="section">iv. against daniels: the prudential model fails for relational reasons</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Daniels — prudential lifespan cannot reach relational synchronic wrongs</span>Daniels argues that age-group differences in resource allocation are best understood through the model of a single prudent individual planning the allocation of resources across the stages of her own life. From this model, differential treatment of age groups is justified as a scheme for allocating scarce goods wisely across a lifespan. My objection is not to the model&rsquo;s internal coherence but to its domain. A prudential model is designed to answer diachronic questions: what is the optimal lifetime distribution? It cannot, in principle, address synchronic relational questions: are the young and old relating to one another as equals right now? The asymmetries of domination, infantilisation, and political exclusion that I identify as synchronic relational wrongs are simply invisible to the prudential lifespan account. What the prudent individual planner cannot see, justice between co-existing persons must nonetheless respond to.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-bidadanure-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Complete lives egalitarianism fails to capture synchronic relational wrongs</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Complete lives egalitarianism (CLE): age-group inequalities at any moment are not in themselves unjust, provided that each person receives an equal share of goods over a complete lifetime.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But some age-group inequalities involve synchronic relational wrongs &mdash; marginalisation, domination, infantilisation, epistemic exclusion &mdash; whose injustice is located in the present terms of social standing, not in the lifetime distributional calculus.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These wrongs are not cancelled by the prospect of eventual lifetime equality: the relational wrong exists now, in how co-existing citizens stand in relation to one another, and justice requires its correction in the present tense.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>CLE is insufficient as a complete theory of age-group justice: it captures birth-cohort justice but is blind to synchronic relational wrongs between co-existing age groups.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Relational egalitarianism supplies the missing synchronic dimension</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Relational egalitarianism (Anderson, Scheffler): equality is fundamentally about the terms on which people stand in relation to one another — freedom from domination, subordination, and social hierarchy.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Some age-group inequalities are relational wrongs of this kind: the infantilisation of young adults, their exclusion from democratic deliberation that shapes their futures, and ageist labour-market discrimination are synchronic relational injustices.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The relational conception cannot be re-described as distributive: the wrong is not a distributional deficit but a degraded social standing that exists independently of how lifetime resources are eventually allocated.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Relational egalitarianism identifies a class of age-group injustices that CLE structurally cannot reach; it must supplement (not displace) CLE as the second required principle of a complete theory of age-group justice.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Policy implications: labour markets and youth quotas as correctives to synchronic injustice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Youth unemployment during economic transitions and the near-total exclusion of young adults from legislative chambers are synchronic relational injustices: they deny young people the social standing that work and political participation confer, at the moment that matters.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These injustices cannot be addressed by policies designed to ensure lifetime equality of resources: the political subordination endured today, when decisions are made, is an injustice of the present, not of the lifetime average.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Youth quotas in parliaments and targeted youth employment policies are the direct institutional responses to synchronic relational injustice that the relational framework, and only the relational framework, can justify.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The relational framework generates distinctive and urgent policy conclusions &mdash; youth quotas, age-targeted employment policies &mdash; that CLE and the prudential lifespan account cannot reach.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Against Daniels: the prudential model is blind to relational synchronic injustice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Daniels: age-group differences are best understood through the model of a single prudent individual allocating resources across the stages of her own life; differential treatment of age groups is justified as prudent lifespan planning.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But a prudential model is designed to answer diachronic questions (what is the optimal lifetime distribution?) and is in principle incapable of answering synchronic relational questions (are the young and old relating as equals right now?).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The asymmetries of domination, infantilisation, and political exclusion that constitute synchronic relational injustice are simply invisible to the prudential planner; a theory of justice between co-existing persons must nonetheless respond to them.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The prudential lifespan account is insufficient not because it is internally inconsistent but because it operates in the wrong domain; justice between co-existing age groups requires a synchronic, relational framework that the prudential model cannot supply.</span></div>
+        </div>
+      </div>
+    </div><!-- end bidadanure -->
+
+    <!-- MCKERLIE -->
+    <div class="speaker-panel" id="prop-mckerlie-panel">
+      <div id="prop-mckerlie-speech" class="speech-text">
+        <p class="salut">I want to press Bidadanure&rsquo;s central thesis from a different direction &mdash; one that is less explicitly relational but, I believe, equally devastating to the view that complete lives is all that matters.</p>
+        <p>My starting point is the observation that most egalitarian theories &mdash; from Rawls to Nagel &mdash; evaluate equality over complete lives. They ask: when people&rsquo;s lives, taken as wholes, are compared, are those lives made equally good? This is a plausible starting point, but I argue it is not the only legitimate temporal scope for egalitarian concern, and that restricting egalitarianism to the complete-life scope generates counterintuitive results in age-group cases that can only be resolved by applying egalitarian principles to temporal stages of lives.</p>
+        <div class="pull">&ldquo;The egalitarian values of equality and priority for the badly off apply to temporal parts of lives, not just to complete lives. When one person is badly off at a given time while another thrives at that same time, this creates an egalitarian reason to improve the worse-off person&rsquo;s situation &mdash; even if the deficit will eventually be compensated.&rdquo;</div>
+        <span class="section">i. the simultaneous segments view</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Simultaneous segments — egalitarian concern for temporal parts, not only complete lives</span>I distinguish three temporal scopes at which equality between people can be assessed. First, at the level of <em>complete lives</em>: comparing how well people fare over their entire lifetimes, from birth to death. Second, at the level of <em>simultaneous segments</em>: comparing how different people are faring during the same period, at the same point or stretch of time. Third, at the level of <em>corresponding segments</em>: comparing how people at the same age group fare in different time periods, asking whether old people now are faring as well as old people did thirty years ago. My claim is that the simultaneous segments view &mdash; the evaluation of how people are faring concurrently &mdash; is a legitimate and irreducible locus of egalitarian concern. It cannot be collapsed into the complete-lives view without generating results that conflict with our strongest egalitarian intuitions.</span></p>
+        <span class="section">ii. why complete lives egalitarianism generates wrong verdicts</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Complete lives generates wrong verdicts — compensation objection</span>Consider a case where a person suffers severe deprivation in youth and is compensated by exceptional prosperity in old age, such that her complete lifetime is equally good as a person who enjoyed moderate, steady prosperity throughout. Complete lives egalitarianism declares these two lives equally just. But our egalitarian intuitions resist this verdict. The severe deprivation in youth was an egalitarian bad, even if it was subsequently compensated. The compensation did not retroactively eliminate the injustice of the earlier period; it addressed a different stage of the same person&rsquo;s life. This suggests that egalitarian concern must be sensitive to what is happening to people at particular times, not only to the aggregate sum over a complete life. The simultaneous segments view captures this sensitivity; the complete lives view does not.</span></p>
+        <span class="section">iii. priority for the badly off at temporal stages</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Priority at temporal stages — badly-off at a given time have special claims</span>If the Priority View is correct &mdash; that benefiting people matters more the worse off they are &mdash; then this should apply to people&rsquo;s situations at particular times, not merely to their complete lives. A person who is badly off at time t has a stronger claim on our concern, at time t, than a person who is well off at time t. This claim is not extinguished by facts about how their complete lives will eventually compare. If young people are, at this moment, significantly worse off than old people in terms of unemployment, housing security, and political representation, the Priority View gives us a reason to address this now &mdash; not to wait and see how their complete lives turn out. Daniels&rsquo; prudential lifespan account ignores this present-tense urgency entirely; the simultaneous segments view incorporates it as a structural feature of justice.</span></p>
+        <span class="section">iv. partial convergence with bidadanure and divergence from daniels</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Convergence with Bidadanure — both reject CLE as exhaustive; differ on relational vs distributive</span>Bidadanure and I agree on the core thesis: complete lives egalitarianism is not exhaustive. Where she identifies relational wrongs as the additional dimension, I identify distributive wrongs in temporal stages. These two approaches are complementary rather than competing. The relational wrongs Bidadanure identifies &mdash; domination, infantilisation, political exclusion &mdash; are accompanied by the distributive wrongs I identify at simultaneous temporal segments: young people who are significantly worse off than their contemporaries at the same moment. Both dimensions point toward the conclusion that Daniels&rsquo; prudential model, restricted as it is to the diachronic allocation of resources across a single life, cannot do the full work of justice between co-existing generations.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-mckerlie-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Three temporal scopes of equality; simultaneous segments is irreducible</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Equality between people can be assessed at three temporal scopes: (a) complete lives — how well people fare over entire lifetimes; (b) simultaneous segments — how different people are faring concurrently at the same point in time; (c) corresponding segments — how people at the same age group fare across different historical periods.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Complete lives egalitarianism assesses only scope (a) and treats scopes (b) and (c) as morally inert unless they affect lifetime equality.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The simultaneous segments view (b) is an irreducible locus of egalitarian concern: it cannot be collapsed into (a) without generating verdicts that conflict with our strongest egalitarian intuitions about temporal stages.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The simultaneous segments view is a legitimate and irreducible temporal scope for egalitarian evaluation; restricting egalitarianism to complete lives misses a morally significant dimension of the distribution of well-being across co-existing people.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Complete lives generates wrong verdicts in compensation cases</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If a person suffers severe deprivation in youth but is compensated by exceptional prosperity in old age, producing a complete lifetime equal to that of a steadily prosperous person, complete lives egalitarianism declares the two situations equally just.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But our egalitarian intuitions resist this verdict: the severe deprivation in youth was an egalitarian bad, even if subsequently compensated; compensation at a later stage does not retroactively eliminate the injustice of the earlier period.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This intuition is best captured by the simultaneous segments view: the young person was worse off than her contemporaries at time t, which was an egalitarian reason to improve her situation at t, not deferred to life&rsquo;s end.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Complete lives egalitarianism generates counterintuitive verdicts in compensation cases; the simultaneous segments view correctly identifies the egalitarian bad in the temporal stage where the deprivation occurs.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Priority for the badly off applies at temporal stages, not only to complete lives</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Priority View: benefits to the worse-off matter more. This should apply to people&rsquo;s situations at particular times, not only to the aggregate of their complete lives.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If young people are significantly worse off than their contemporaries at time t in unemployment, housing, and political representation, the Priority View gives a present-tense reason to address this at time t, not to defer attention until complete lifetimes can be compared.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Daniels&rsquo; prudential lifespan account ignores this present-tense priority urgency; the simultaneous segments view incorporates it as a structural feature of how egalitarian values apply across time.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Priority View applied to temporal stages vindicates present-tense concern for the worse-off at any given moment; this is additional evidence that complete lives is not the only legitimate temporal scope of egalitarian justice.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Convergence with Bidadanure; combined defeat of the prudential model</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Bidadanure identifies relational synchronic wrongs; McKerlie identifies distributive wrongs in temporal segments. Both approaches identify dimensions of age-group injustice that CLE cannot capture.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The two approaches are complementary: the relational wrongs of domination and infantilisation that Bidadanure identifies are accompanied by the distributive wrongs of simultaneous segment inequality that McKerlie identifies.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Together, they show that the prudential lifespan account &mdash; restricted to the diachronic allocation of resources across a single imagined life &mdash; fails to engage with either the relational or the distributional dimensions of justice between co-existing generations.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Bidadanure&rsquo;s relational dimension and McKerlie&rsquo;s distributive temporal dimension are independently motivated and mutually reinforcing; their conjunction constitutes a decisive case against the sufficiency of any purely diachronic theory of age-group justice.</span></div>
+        </div>
+      </div>
+    </div><!-- end mckerlie -->
+
+    <!-- MEIJERS & TIMMER -->
+    <div class="speaker-panel" id="prop-meijers-panel">
+      <div id="prop-meijers-speech" class="speech-text">
+        <p class="salut">We want to extend the relational egalitarian framework that Bidadanure has defended, in a direction that addresses the most serious objection it faces.</p>
+        <p>The standard objection to relational egalitarianism in the intergenerational context is what Lippert-Rasmussen calls the Argument from Temporal Non-Overlap: relational egalitarianism holds that justice requires equal social relations among people, but we cannot stand in social relations with generations that do not yet exist and with whom we do not share time. Therefore, relational egalitarianism is silent about our duties to remote future generations &mdash; which is an embarrassing lacuna for any theory aspiring to be a complete account of intergenerational justice. We want to challenge this conclusion by showing that the relational egalitarian framework, properly understood, does generate duties toward future generations, through the mechanism of generational overlap.</p>
+        <div class="case-box">
+          <strong>The Overlap Argument.</strong> Current generations overlap with the next generation; the next generation will overlap with the generation after that; and so on through a chain of generational overlaps. The relational egalitarian commitment to social equality among contemporaries entails, at each link in the chain, a duty to ensure that the relevant contemporaries can relate as equals. This iterative commitment generates duties regarding remote future generations &mdash; not directly, since we share no social relations with them, but indirectly, through our duties to the intermediate generations who will overlap with them.
+        </div>
+        <span class="section">i. social equality among future contemporaries</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Future contemporaries — relational egalitarianism commits to equality among those who will co-exist</span>The heart of our argument is this: relational egalitarianism is concerned not only with social equality among currently existing contemporaries, but with social equality among <em>future</em> contemporaries &mdash; among the generations that will coexist at some future time. The relational egalitarian does not merely want the people who are alive today to relate as equals. She wants all human generations to relate as equals with those who share their time. This commitment to future equality among contemporaries is internal to the relational egalitarian framework; it is not an external addition. And it entails that current generations have duties to ensure that the conditions for such future equality are not undermined by what we do now.</span></p>
+        <span class="section">ii. the chain of overlap and indirect duties</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Chain of overlap — indirect duties to remote future via intermediate generations</span>Consider the chain of generational overlap. Generation G1 (currently existing people) overlaps with G2 (people who are children now and will be adults in future decades); G2 will overlap with G3; G3 with G4; and so on. G1 has no direct social relations with G3 or G4, since they do not yet exist and G1 will not live to encounter them. But G1&rsquo;s treatment of G2 &mdash; the resources it leaves, the institutions it builds, the environment it maintains &mdash; will shape G2&rsquo;s capacity to provide conditions of social equality for G3. G1 therefore has indirect duties toward G3, mediated by G1&rsquo;s duties to G2. The chain of overlap generates a relay of relational egalitarian duties that reaches into the remote future, without requiring direct social relations between non-overlapping generations.</span></p>
+        <span class="section">iii. against lippert-rasmussen&rsquo;s non-overlap objection</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against Lippert-Rasmussen — non-overlap is not a decisive objection; overlap chain suffices</span>Lippert-Rasmussen argues that the Argument from Temporal Non-Overlap is decisive: relational egalitarianism cannot explain duties to non-overlapping future generations because the relevant social relations do not exist. He considers and rejects various attempts to expand the notion of &ldquo;social relations&rdquo; to include causal influence without contemporaneity, arguing that such expansions either trivialise the notion or generate implausible results. Our response is different: we do not need to expand the notion of social relations to reach future generations. We need only to follow the chain of overlap. G1&rsquo;s relational egalitarian commitments to G2 are sufficient to generate the relevant indirect duties toward G3, because G1 knows that G2 will itself be a relational egalitarian agent with duties to G3. The overlap chain transmits the normative commitment across non-overlapping gaps without requiring direct social relations between the gaps.</span></p>
+        <span class="section">iv. extending bidadanure: synchronic and diachronic relational justice</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Extending Bidadanure — her synchronic relational justice + our diachronic relational chain</span>Bidadanure&rsquo;s theory of age-group justice focuses on synchronic relational equality: the wrongs that co-existing generations inflict on one another when the young are dominated, infantilised, or politically marginalised. Our argument extends the relational framework diachronically: it shows that the same relational egalitarian commitments that generate synchronic duties also generate duties across the chain of generational overlap. The two dimensions are not competitors but complements. A complete relational egalitarian theory of intergenerational justice requires both: synchronic relational equality among co-existing generations (Bidadanure&rsquo;s contribution) and diachronic relational chains of duty toward future contemporaries (our contribution). Together, they constitute a more complete theory than either dimension alone could provide.</span></p>
+        <p><em>We yield the floor.</em></p>
+      </div>
+      <div id="prop-meijers-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Relational egalitarianism is committed to equality among future contemporaries</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Relational egalitarianism: justice requires that people relate to one another as equals. This commitment is not restricted to currently existing people; it applies to all people who will share their time &mdash; all future contemporaries.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The relational egalitarian does not merely want today&rsquo;s people to relate as equals; she wants future generations, when they co-exist, to also relate as equals. This is internal to the framework, not an external addition.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The commitment to social equality among future contemporaries entails that current generations must not undermine the conditions for that future equality &mdash; giving rise to present-generation duties regarding future people.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Relational egalitarianism is internally committed to social equality among future contemporaries; this commitment grounds present-generation duties regarding future people without requiring any extension of the notion of &ldquo;social relations&rdquo; beyond its standard meaning.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The chain of overlap relays relational duties across non-overlapping gaps</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Generational overlap: G1 overlaps with G2; G2 overlaps with G3; and so on. G1 shares no direct social relations with G3, but G1&rsquo;s treatment of G2 shapes G2&rsquo;s capacity to provide conditions for G3&rsquo;s social equality with G4.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>G1 therefore has indirect relational duties toward G3, mediated by G1&rsquo;s direct relational duties to G2 and G2&rsquo;s anticipated relational duties to G3.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This chain of overlap transmits the normative commitment of relational egalitarianism across non-overlapping generational gaps, generating duties to remote future generations without requiring direct social relations between those gaps.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The chain of generational overlap provides a mechanism by which relational egalitarian duties extend to remote future generations; the Temporal Non-Overlap objection does not defeat relational egalitarianism but only motivates the use of the overlap chain as the mechanism of transmission.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Against Lippert-Rasmussen: the overlap chain does not require expanding social relations</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Lippert-Rasmussen: relational egalitarianism cannot ground duties to non-overlapping future generations; attempts to expand &ldquo;social relations&rdquo; to include causal influence without contemporaneity either trivialise the notion or generate implausible results.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Our response does not require expanding the notion of social relations: G1&rsquo;s duties to G2 are sufficient, because G1 knows that G2 will itself have relational egalitarian duties to G3. The chain of overlap transmits the normative commitment without any expansion.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The non-overlap objection targets a version of relational egalitarianism that claims direct duties to non-overlapping generations; the overlap chain argument avoids this target by grounding indirect duties through intermediate overlapping generations.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Lippert-Rasmussen&rsquo;s non-overlap objection does not defeat the overlap chain argument; the argument does not require the expansion he correctly identifies as problematic, and reaches future generations through an independent and well-grounded mechanism.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Extending Bidadanure: synchronic and diachronic relational justice are complementary</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Bidadanure&rsquo;s theory provides synchronic relational egalitarianism: duties regarding the present terms on which co-existing age groups relate to one another, grounding youth quotas and employment protections.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The overlap chain argument provides diachronic relational egalitarianism: duties regarding the future terms on which successive generations will relate to one another, grounding present-generation environmental and institutional obligations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These two dimensions are not competitors but complements: a complete relational egalitarian theory of intergenerational justice requires both the synchronic and the diachronic dimensions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The overlap chain argument extends Bidadanure&rsquo;s relational framework from the synchronic to the diachronic dimension; together they constitute a more complete theory of intergenerational justice than either provides alone.</span></div>
+        </div>
+      </div>
+    </div><!-- end meijers -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- RIGHT — Daniels · Gosseries · Lippert-Rasmussen -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','daniels',this)">Daniels</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','gosseries',this)">Gosseries</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','lippert',this)">Lippert-Rasmussen</button>
+  </div>
+
+  <!-- DANIELS HEADER -->
+  <div class="col-header" id="opp-daniels-header">
+    <div class="col-header-top"><span class="pill opp">Prudential Lifespan Account</span><span class="col-subtitle">Norman Daniels</span></div>
+    <div class="col-position">The prudent lifespan allocator model resolves age-group conflict without invoking interpersonal equality &mdash; differential treatment of age groups is justified when a prudent individual would endorse it as a scheme for allocating goods across her own life stages; age is morally different from race or gender.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','daniels','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','daniels','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- GOSSERIES HEADER -->
+  <div class="col-header hidden" id="opp-gosseries-header">
+    <div class="col-header-top"><span class="pill opp">Reciprocity-Based Justice</span><span class="col-subtitle">Axel Gosseries</span></div>
+    <div class="col-position">Intergenerational justice is best grounded in indirect reciprocity through overlapping generations &mdash; the folk theorem of intergenerational game theory grounds cooperative obligations between generations through chains of reciprocal contribution; relational equality adds complexity without explaining the essential moral structure.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','gosseries','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','gosseries','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- LIPPERT-RASMUSSEN HEADER -->
+  <div class="col-header hidden" id="opp-lippert-header">
+    <div class="col-header-top"><span class="pill opp">Temporal Non-Overlap</span><span class="col-subtitle">Kasper Lippert-Rasmussen</span></div>
+    <div class="col-position">Relational egalitarianism faces the decisive Argument from Temporal Non-Overlap &mdash; justice regulates relations between non-overlapping generations, but relational egalitarianism requires social relations that cannot exist between such generations; attempts to rescue it via expanded notions of social relation or overlap chains face serious difficulties.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','lippert','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','lippert','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- DANIELS -->
+    <div class="speaker-panel active" id="opp-daniels-panel">
+      <div id="opp-daniels-speech" class="speech-text">
+        <p class="salut">I want to defend a position that has been widely mischaracterised, and in the process show why the relational turn my colleagues on the other side propose, however attractive it sounds, rests on a confusion about the nature of age-based difference.</p>
+        <p>Bidadanure charges me with constructing a model that is blind to synchronic relational injustice. I accept that the prudential lifespan account is designed to answer a different question from the one she is asking. But I deny that the question she is asking is the right one, or that it identifies genuine injustice rather than a category mistake about the moral significance of age.</p>
+        <div class="pull">&ldquo;People at different stages of life are not different groups whose inequality requires the same moral concern as gender or racial inequality. They are the same people at different points in time. The old were once young; the young will be old. This fundamental feature of age makes questions of justice between age groups categorically different from questions of justice between genders, races, or classes.&rdquo; &mdash; Daniels, 1988</div>
+        <span class="section">i. the prudential lifespan account: the key insight</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Prudential lifespan — single prudent allocator; age-group fairness via intrapersonal prudence</span>The key insight of the Prudential Lifespan Account is that questions of justice between age groups can be modelled as questions of prudential allocation within a single life. Suppose we ask: what is a fair distribution of healthcare resources between the young and the old? The approach asks: what allocation would a prudent individual choose for the different stages of her own life, given that she will pass through youth, middle age, and old age, and that she does not know at what stage she is currently making her allocation decision? This prudential allocator will not simply maximise resources at one stage; she will balance the needs and risks characteristic of different stages, giving priority to where resources can do the most good across a lifetime. The resulting allocation can then justify, without invoking interpersonal inequality, the differential treatment of age groups that we observe in healthcare and income support systems.</span></p>
+        <span class="section">ii. age is unlike race and gender: the universality of ageing</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Universality of ageing — age differs from race/gender; all pass through all stages</span>Bidadanure argues that age-group inequalities are unjust in the same way that gender and racial inequalities are. I deny this. The crucial disanalogy is that age is a universal experience: all of us were once young, and all of us (if we survive) will be old. A young person who receives fewer healthcare resources than an old person today is not a member of a permanently disadvantaged group analogous to a racial minority. She is at one stage of a process through which all members of the society are passing. The age-based differential she experiences today will, in due course, be reversed: she will receive the corresponding benefits when she is old. This universality means that age-based differentials can be justified through the prudential lifespan model in a way that gender- or race-based differentials cannot. A person cannot prudently consent to receiving worse treatment permanently on the basis of her gender or race; she can prudently consent to receiving differential treatment at different stages of her own life.</span></p>
+        <span class="section">iii. relational injustice or category error?</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Category error — relational framing misidentifies the nature of age-group difference</span>When Bidadanure identifies the contemporary situation of young adults as involving relational injustice &mdash; domination, infantilisation, political marginalisation &mdash; she is identifying real social phenomena. But I question whether these are best characterised as injustices of <em>age</em>, or injustices of class, economic precarity, race, and gender that happen to correlate with age in particular historical circumstances. The high youth unemployment rate is primarily a consequence of labour-market structures, economic cycles, and educational policy failures that could in principle be corrected without invoking any principle of age-group justice. The underrepresentation of young people in parliaments is a democratic dysfunction, but one that can be analysed and addressed through standard theories of descriptive representation without invoking a sui generis principle of synchronic age-group equality.</span></p>
+        <span class="section">iv. the birth-cohort problem is the real problem</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Birth-cohort justice — the real intergenerational problem; prudential model addresses it</span>The genuine intergenerational problem that justice must address is the birth-cohort problem: whether successive generations receive comparable shares of goods over their complete lifetimes. This is the problem that the prudential lifespan model, combined with approximate cohort equality, addresses. Are the lifetime benefit ratios of different cohorts approximately equal? Will today&rsquo;s young adults receive in old age benefits comparable to those today&rsquo;s old adults are receiving, given their contributions? These are the real questions of intergenerational fairness. The synchronic relational framework Bidadanure proposes is, at best, a supplement to this analysis for particular cases of social marginalisation; at worst, it conflates genuine injustices of class and race with the less morally urgent question of whether age groups relate to one another as equals at a given synchronic moment.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-daniels-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Prudential Lifespan Account: intrapersonal prudence grounds age-group fairness</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Prudential Lifespan Account: questions of justice between age groups can be modelled as questions of prudential allocation within a single life &mdash; what would a prudent individual choose for the different stages of her own life, given uncertainty about which stage she currently occupies?</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The resulting allocation will balance needs and risks characteristic of different life stages, giving priority to where resources can do the most good across a lifetime. This justifies differential treatment of age groups without invoking interpersonal inequality.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Combined with approximate birth-cohort equality, this model addresses the real intergenerational problem &mdash; comparable lifetime benefit ratios across successive cohorts &mdash; without requiring a synchronic relational framework.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Prudential Lifespan Account provides a coherent, non-relational justification for differential treatment of age groups; it answers the fundamental question of intergenerational fairness without the theoretical apparatus that Bidadanure&rsquo;s relational view requires.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The universality of ageing makes age categorically different from race and gender</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Gender and race are fixed characteristics: a person who is worse off because of her gender or race is a member of a permanently disadvantaged group who cannot reasonably consent to her worse treatment.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Age is universal: all people pass through all age groups in sequence. A young person who receives fewer resources than an old person today will receive comparable resources when she is old; the differential is not permanent but a stage in a shared process.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This universality makes age-based differentials justifiable through the prudential lifespan model, in a way that gender- or race-based differentials cannot be: the young person can prudently consent to the differential she experiences today because she knows it will be reversed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Age is categorically different from race and gender as a basis for differential treatment; the universality of ageing makes the prudential lifespan model the appropriate framework for age-group justice, rather than the interpersonal equality norms that govern race and gender.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Alleged relational injustices of age are better described as injustices of class, race, and economic structure</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The social phenomena Bidadanure identifies &mdash; high youth unemployment, housing insecurity, political underrepresentation &mdash; are real social problems that cause genuine suffering.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But these phenomena are primarily consequences of labour-market structures, economic cycles, educational policy failures, and democratic dysfunction that happen to correlate with age in particular historical circumstances, rather than intrinsic injustices of age-group membership.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>They can be analysed and addressed through existing frameworks of economic justice and democratic representation without invoking a sui generis principle of synchronic age-group equality.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Bidadanure identifies real social problems but misattributes them to age-group injustice; they are better analysed as injustices of class, economic structure, and democratic dysfunction that do not require a novel synchronic relational framework.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The birth-cohort problem is the genuine intergenerational justice question</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The genuine intergenerational justice problem: whether successive birth cohorts receive comparable lifetime benefit ratios &mdash; whether the young today will, over their complete lives, receive shares of goods comparable to those received by today&rsquo;s old.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The prudential lifespan account, combined with approximate cohort equality, addresses this question directly and provides testable criteria for assessing intergenerational fairness in healthcare, pensions, and income support.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The synchronic relational framework Bidadanure proposes adds complexity and theoretical apparatus without addressing the fundamental birth-cohort question or providing clearer practical guidance than the prudential model offers.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The birth-cohort problem is the fundamental question of intergenerational justice; the prudential lifespan account addresses it directly; Bidadanure&rsquo;s synchronic relational framework is, at best, a supplement for specific cases rather than an independent, foundational principle.</span></div>
+        </div>
+      </div>
+    </div><!-- end daniels -->
+
+    <!-- GOSSERIES -->
+    <div class="speaker-panel" id="opp-gosseries-panel">
+      <div id="opp-gosseries-speech" class="speech-text">
+        <p class="salut">My position is distinct from Daniels&rsquo;s, and in some respects closer to Bidadanure&rsquo;s, but ultimately I think the relational egalitarian framework is the wrong theoretical vehicle for the concerns it is trying to express.</p>
+        <p>I agree with Bidadanure that complete lives egalitarianism is insufficient, and that the prudential lifespan model cannot do the full work of intergenerational justice. But I disagree that the correct supplement is relational egalitarianism. The framework I find most compelling is what I call indirect reciprocity through overlapping generations &mdash; a framework grounded not in the social relations of equality but in the structure of cooperative obligations that overlapping generations generate for one another.</p>
+        <div class="pull">&ldquo;Each generation inherits institutions, knowledge, and infrastructure from its predecessors, and owes a comparable inheritance to its successors. This is not a matter of standing in relations of equality with the past generation; it is a matter of participating in a cooperative scheme of indirect reciprocity through which the benefits of social cooperation are transmitted across time.&rdquo;</div>
+        <span class="section">i. the folk theorem and indirect reciprocity</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Folk theorem — indirect reciprocity via overlapping generations; cooperation without simultaneity</span>The folk theorem of game theory shows that cooperation can be sustained in a repeated game with overlapping generations through a system of indirect reciprocity: each generation contributes to the welfare of the previous one, not because it will receive a direct reciprocal contribution from that same generation, but because it anticipates participating in a cooperative system in which its own successors will similarly contribute to it. This is the structure of pay-as-you-go pension systems, of publicly funded education, and of environmental stewardship: each generation contributes to institutions and resources that it did not itself create, trusting that the cooperative system will persist. The moral foundation of intergenerational justice, on this view, is the obligation to participate in and sustain these cooperative structures, rather than to stand in relations of social equality with co-existing age groups.</span></p>
+        <span class="section">ii. what reciprocity explains that relational equality does not</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Reciprocity vs relational equality — reciprocity grounds obligation; relational equality does not explain why we owe anything to future generations</span>The relational egalitarian framework faces a fundamental explanatory gap in the intergenerational context: why should current generations bear costs for the sake of future generations with whom they share no social relations? Bidadanure&rsquo;s answer relies on the extension of relational concern, but this extension is question-begging unless we have an independent account of why non-contemporaries fall within the scope of our relational egalitarian commitments. The reciprocity framework provides this account directly: current generations owe their successors a comparable inheritance because they themselves benefited from the inheritance of their predecessors. The obligation is grounded in the structure of cooperation, not in the extension of social equality. This is both more explanatorily powerful and more practically tractable: it grounds specific and quantifiable obligations (leave a comparable capital stock, maintain institutions in functioning condition) rather than the more diffuse demand to relate as equals.</span></p>
+        <span class="section">iii. ageism without relational equality: a sufficientarian supplement</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Ageism — sufficientarian threshold; ageism wrong not because of relational inequality but because it fails the threshold</span>I do not deny that ageism exists or that the marginalisation of young adults is a genuine social problem. But I prefer to ground the wrongness of ageism in a sufficientarian principle rather than a relational egalitarian one. What makes it wrong to systematically exclude young people from the labour market or from political participation is not that they thereby fail to stand in relations of equality with their contemporaries, but that they are thereby denied access to a threshold of social goods &mdash; meaningful work, political voice, economic security &mdash; below which their lives fall short of what a person can reasonably demand. This sufficientarian account captures the urgency of the youth unemployment and political exclusion cases without invoking the complex theoretical apparatus of relational egalitarianism or the difficult questions about the scope of social relations that Lippert-Rasmussen&rsquo;s objection raises.</span></p>
+        <span class="section">iv. against bidadanure on youth quotas</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Against youth quotas — epistemic diversity argument not distinctively relational; better grounded in democracy theory</span>Bidadanure argues that youth quotas in parliaments are required by synchronic relational equality: young people must be represented in order to correct the relational injustice of political marginalisation. I find this argument less compelling than the alternatives. The case for youth quotas, where it is made, is better grounded in epistemic arguments about the value of cognitive diversity in legislative deliberation, or in democratic legitimacy arguments about the need for affected parties to have a voice in decisions that shape their futures. Neither of these arguments requires invoking the relational egalitarian framework; both are compatible with sufficientarianism or with standard democratic theory. Bidadanure&rsquo;s relational framing adds no independent justificatory weight to conclusions that can be reached by more parsimonious theoretical routes.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-gosseries-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Indirect reciprocity via overlapping generations grounds intergenerational obligations</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The folk theorem of game theory: cooperation can be sustained in repeated overlapping-generations games through indirect reciprocity &mdash; each generation contributes to predecessors, expecting successors to contribute to it, without requiring direct reciprocal exchange between the same parties.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Pay-as-you-go pensions, publicly funded education, environmental stewardship, and institutional maintenance all exhibit this structure: each generation contributes to systems it did not create and benefits from systems it did not build.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The moral foundation of intergenerational justice is the obligation to participate in and sustain these cooperative structures of indirect reciprocity, not to stand in relations of social equality with co-existing age groups.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Indirect reciprocity through overlapping generations provides a more fundamental and practically tractable account of intergenerational obligations than relational egalitarianism; the cooperative structure grounds specific obligations without requiring the extension of social equality to temporal non-contemporaries.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Reciprocity explains why we owe anything to future generations; relational equality does not</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Relational egalitarianism faces a fundamental explanatory gap: why should current generations bear costs for future generations with whom they share no social relations? Extending relational concern to non-contemporaries is question-begging without an independent account of why they fall within scope.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The reciprocity framework provides this account directly: current generations owe their successors a comparable inheritance because they benefited from their predecessors&rsquo; inheritance. The obligation is grounded in the structure of cooperative benefit, not in the extension of social equality.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is more explanatorily powerful and practically tractable: it grounds specific, quantifiable obligations (comparable capital stock, functioning institutions) rather than the diffuse demand to relate as equals.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Reciprocity provides the explanatory foundation that relational egalitarianism lacks: it grounds specific intergenerational obligations in the structure of cooperative benefit without requiring the extension of social equality to temporal non-contemporaries.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Ageism is better captured by sufficientarianism than relational egalitarianism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The wrongness of ageist exclusion from labour markets and political participation does not require the relational egalitarian framework to explain it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A sufficientarian principle suffices: what makes systematic exclusion wrong is that young people are denied access to a threshold of social goods &mdash; meaningful work, political voice, economic security &mdash; below which their lives fall short of what anyone can reasonably demand.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This account captures the urgency of youth exclusion cases without invoking the complex theoretical apparatus of relational egalitarianism or the difficult questions about social relations that Lippert-Rasmussen raises.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Sufficientarianism is a more parsimonious and equally powerful account of the wrongs of ageist exclusion than relational egalitarianism; Bidadanure&rsquo;s relational framework adds theoretical complexity without explanatory gain in these cases.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; Youth quotas are better justified by epistemic and democratic arguments than relational equality</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Bidadanure argues that youth quotas in parliaments are required by synchronic relational equality: young people must be represented to correct the relational injustice of political marginalisation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The same conclusions are more compellingly reached by epistemic arguments (cognitive diversity enhances legislative quality) and democratic legitimacy arguments (affected parties must have voice in decisions shaping their futures). Neither argument requires the relational egalitarian framework.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A justified conclusion reached by a more parsimonious route does not vindicate the more complex theoretical framework; Bidadanure&rsquo;s relational framing adds no independent justificatory weight to conclusions reachable by simpler means.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The case for youth quotas is better grounded in epistemic and democratic theory than in relational egalitarianism; Bidadanure&rsquo;s framework does not provide the unique justification she claims for her policy conclusions.</span></div>
+        </div>
+      </div>
+    </div><!-- end gosseries -->
+
+    <!-- LIPPERT-RASMUSSEN -->
+    <div class="speaker-panel" id="opp-lippert-panel">
+      <div id="opp-lippert-speech" class="speech-text">
+        <p class="salut">I want to press the most fundamental objection to relational egalitarianism in the intergenerational context, and to show that Meijers and Timmer&rsquo;s overlap-chain response, while ingenious, does not resolve it.</p>
+        <p>The Argument from Temporal Non-Overlap is this: justice regulates relations between non-overlapping generations &mdash; we have duties to people who will be born long after we are dead and with whom we will never share time or social space. Relational egalitarianism, however, grounds duties of justice in social relations: in the way people stand in relation to one another within shared institutions, practices, and power structures. But if we share no social relations with future non-contemporaries, relational egalitarianism is silent about our duties to them. And a theory of justice that is silent about duties to non-overlapping future generations is not a complete theory of justice.</p>
+        <div class="case-box">
+          <strong>The Argument formalised.</strong>
+          <br>P1. Justice regulates relations between non-overlapping generations (we have duties to the unborn great-grandchildren who will inherit the consequences of our climate decisions).
+          <br>P2. Relational egalitarianism requires social relations to exist between the parties to a justice relation.
+          <br>P3. Non-overlapping generations share no social relations.
+          <br>C. Therefore, relational egalitarianism cannot explain our duties to non-overlapping future generations — it is an incomplete theory of justice.
+        </div>
+        <span class="section">i. the argument defended against expansion of social relations</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Non-overlap — expanding social relations faces dilemma; trivialisation or implausibility</span>One response to the argument is to expand the notion of &ldquo;social relations&rdquo; to include causal influence without contemporaneity: if current decisions causally affect future people, then current people are &ldquo;socially related&rdquo; to them in the relevant sense. I have considered this and several related expansions carefully and found them wanting. A one-way view on which only causal influence is required either trivialises the notion of social relations &mdash; making every causal interaction a social relation &mdash; or generates implausible results: it would make a bomb-setter who sets a timer for 200 years hence socially related to all those who will be affected, with the relational egalitarian framework generating the conclusion that justice requires the bomb-setter to relate to those future victims as equals. This is not the right way to think about what relational egalitarianism is for. Social relations, in the sense relevant to relational egalitarianism, are shared practices and institutions within which persons stand in power relations that can be structured more or less hierarchically. Future non-contemporaries do not participate in these practices and institutions.</span></p>
+        <span class="section">ii. against meijers and timmer: the overlap chain has gaps</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Against overlap chain — normative transmission requires each link to be obligated; link-by-link problem</span>Meijers and Timmer argue that the chain of generational overlap transmits relational egalitarian duties to non-overlapping generations through intermediate links: G1 has duties to G2, and G2 will have duties to G3, so G1&rsquo;s treatment of G2 is constrained by what G2 will need in order to fulfil its duties to G3. This is a clever argument, but it faces a fundamental difficulty. The relay of normative obligation requires that at each link, the intermediate generation is under the relevant obligation. But the argument for G2&rsquo;s obligations to G3 is the same as the argument for G1&rsquo;s obligations to G2 &mdash; and that argument is precisely the one we are trying to establish. The chain does not establish the obligations; it presupposes them. Moreover, the chain requires that each intermediate generation reliably discharge its obligations, which is an empirical assumption that may not hold and cannot ground the normative force of the original obligation.</span></p>
+        <span class="section">iii. what relational egalitarianism can and cannot do</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Scope limitation — relational egalitarianism applies to co-existing; something else needed for non-overlapping</span>I am not arguing that relational egalitarianism is worthless as a framework for intergenerational justice. Bidadanure is right that it captures something important about the treatment of co-existing age groups: the synchronic relational wrongs she identifies are genuine and important. But a framework that applies rigorously to co-existing generations and falls silent about non-overlapping generations is at best half a theory. The complete theory of intergenerational justice must supplement relational egalitarianism with a non-relational account of our duties to future non-contemporaries &mdash; whether Gosseries&rsquo; reciprocity framework, Rawls&rsquo;s just savings principle, or a sufficientarian account of what we owe the future. Relational egalitarianism cannot be the foundational framework; it is a component of the larger theory.</span></p>
+        <span class="section">iv. the deeper structural problem: relational equality requires contemporaneity</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Structural problem — relational equality is inherently synchronic; justice is not</span>The deepest problem for Bidadanure and Meijers and Timmer is structural: relational egalitarianism is an inherently synchronic framework. It evaluates the terms on which people who co-exist stand in relation to one another. This is its strength when applied to co-existing age groups &mdash; and its weakness when extended to the full scope of intergenerational justice. Justice, by contrast, is not inherently synchronic: we can have duties to people with whom we do not co-exist, people in the future and people in the past, and these duties can be binding regardless of whether we share any social relations. A theory of justice that is structurally limited to the synchronic is not a theory of justice at all; it is a theory of what we owe our contemporaries. That is valuable, but it is not enough.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-lippert-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Argument from Temporal Non-Overlap and its defence against expansion of social relations</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Argument from Temporal Non-Overlap: justice regulates relations between non-overlapping generations (P1); relational egalitarianism requires social relations (P2); non-overlapping generations share no social relations (P3); therefore relational egalitarianism cannot explain duties to non-overlapping future generations (C).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The attempt to expand &ldquo;social relations&rdquo; to include one-way causal influence without contemporaneity either trivialises the concept or generates implausible results (e.g., a bomb-setter with a 200-year timer is &ldquo;socially related&rdquo; to those affected).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Social relations in the sense relevant to relational egalitarianism are shared practices and institutions within which persons stand in power relations; future non-contemporaries do not participate in these practices.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Argument from Temporal Non-Overlap is sound; the expansion of social relations to rescue relational egalitarianism either trivialises the concept or generates implausible results; the objection stands.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Against Meijers and Timmer: the overlap chain presupposes rather than establishes the obligations</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Meijers and Timmer: the chain G1→G2→G3 relays relational egalitarian duties to non-overlapping generations; G1&rsquo;s duties to G2 are constrained by what G2 will need to fulfil its duties to G3.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the argument for G2&rsquo;s obligations to G3 is the same argument as for G1&rsquo;s obligations to G2; the chain does not establish the obligations at each link but presupposes them. The relay requires that each intermediate generation is under the relevant obligation, which is what we are trying to establish.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Moreover, the relay requires reliable discharge of obligations by intermediate generations, which is an empirical contingency that cannot ground the normative force of the original obligation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The overlap chain argument presupposes rather than establishes the relational egalitarian obligations at each link; it is circular and cannot do the normative work Meijers and Timmer require of it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Relational egalitarianism is a component, not a foundation, of intergenerational justice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Relational egalitarianism correctly captures synchronic relational wrongs between co-existing age groups: Bidadanure&rsquo;s contributions in this domain are genuine and important.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But a framework that applies rigorously to co-existing generations and falls silent about non-overlapping generations is at best half a theory of intergenerational justice.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The complete theory must supplement relational egalitarianism with a non-relational account of duties to non-overlapping future generations &mdash; reciprocity, just savings, or sufficientarianism.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Relational egalitarianism is a valuable component of the theory of intergenerational justice but not its foundation; it requires supplementation by a non-relational account of duties to future non-contemporaries.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; The structural problem: relational egalitarianism is inherently synchronic; justice is not</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Relational egalitarianism evaluates the terms on which co-existing persons stand in relation to one another; it is structurally synchronic, assessing the present conditions of social standing among contemporaries.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Justice, by contrast, is not inherently synchronic: we can have duties to past and future people with whom we share no contemporaneity, and these duties can be binding regardless of whether we share social relations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A theory of justice that is structurally limited to the synchronic is not a complete theory of justice; it is a theory of what we owe our contemporaries &mdash; valuable and important, but constitutively insufficient as an account of intergenerational justice.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The structural synchronicity of relational egalitarianism is not a contingent limitation but a constitutive feature of the framework; it cannot, without circularity or expansion-by-stipulation, be transformed into a complete theory of intergenerational justice.</span></div>
+        </div>
+      </div>
+    </div><!-- end lippert -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'bidadanure',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'daniels',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('extra');
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+// fix stray class addition in switchSpeaker
+document.querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('extra')});
+</script>
+</body>
+</html>
