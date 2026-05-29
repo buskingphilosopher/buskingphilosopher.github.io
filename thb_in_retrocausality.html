@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retrocausality in Philosophy</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 10px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Retrocausality &mdash; Price (1996, 2012) &bull; Cramer (1986) &bull; Lewis (1976, 1986) &bull; Dummett (1964) &bull; Berkovitz (2002) &nbsp;&mdash;&nbsp; Maudlin (2011) &bull; Tooley (1997) &bull; Penrose (1989) &bull; Horwich (1987) &bull; Dowe (2000)</div>
+  <div class="motion-title">&ldquo;This House Believes that retrocausal and time-symmetric interpretations of causation are more defensible than their forward-causation and interventionist alternatives in contemporary philosophy of physics&rdquo;</div>
+  <div class="motion-sub">Proposition &bull; Price &middot; Cramer &middot; Lewis &middot; Dummett &middot; Berkovitz &nbsp;&mdash;&nbsp; Opposition &bull; Maudlin &middot; Tooley &middot; Penrose &middot; Horwich &middot; Dowe</div>
+</div>
+
+<div class="columns">
+
+<!-- LEFT — Proposition -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','price',this)">Price</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','cramer',this)">Cramer</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','lewis',this)">Lewis</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','dummett',this)">Dummett</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','berkovitz',this)">Berkovitz</button>
+  </div>
+
+  <!-- PRICE HEADER -->
+  <div class="col-header" id="prop-price-header">
+    <div class="col-header-top"><span class="pill prop">Time-Symmetric Pragmatism</span><span class="col-subtitle">Huw Price, 1996 / 2012</span></div>
+    <div class="col-position">The temporal asymmetry of causation is not a fundamental feature of the world but a projection of our own temporally asymmetric epistemic and practical situation; a fully objective physics is time-symmetric, and the appearance of an arrow of causation dissolves once we adopt an Archimedean view from outside time; retrocausality is coherent and empirically motivated by quantum entanglement.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','price','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','price','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- CRAMER HEADER -->
+  <div class="col-header hidden" id="prop-cramer-header">
+    <div class="col-header-top"><span class="pill prop">Transactional Interpretation</span><span class="col-subtitle">John Cramer, 1986</span></div>
+    <div class="col-position">Quantum mechanics is best interpreted through the Transactional Interpretation, in which a completed quantum event is a &ldquo;transaction&rdquo; between a forward-in-time offer wave and a backward-in-time confirmation wave; retrocausality is not a bug but the core mechanism by which quantum non-locality is explained without action at a distance or violations of special relativity.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','cramer','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','cramer','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- LEWIS HEADER -->
+  <div class="col-header hidden" id="prop-lewis-header">
+    <div class="col-header-top"><span class="pill prop">Counterfactual &amp; Backwards Causation</span><span class="col-subtitle">David Lewis, 1976 / 1986</span></div>
+    <div class="col-position">Counterfactual analysis of causation does not logically preclude backwards causation; Lewis argues that the asymmetry of counterfactual dependence is a contingent, nomological feature of our world, not a conceptual necessity, and that possible worlds with backwards causation are perfectly coherent; the causal arrow could, in principle, run in the reverse temporal direction.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','lewis','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','lewis','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- DUMMETT HEADER -->
+  <div class="col-header hidden" id="prop-dummett-header">
+    <div class="col-header-top"><span class="pill prop">Backwards Causation &amp; Semantic Coherence</span><span class="col-subtitle">Michael Dummett, 1964</span></div>
+    <div class="col-position">Backwards causation is conceptually coherent: Dummett defends the possibility of causing past events by arguing that the standard objection &mdash; that one cannot affect what has already occurred &mdash; conflates epistemic inaccessibility with causal impossibility; a careful analysis of what it means to bring something about shows that temporal direction is not a conceptual requirement of causation.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','dummett','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','dummett','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BERKOVITZ HEADER -->
+  <div class="col-header hidden" id="prop-berkovitz-header">
+    <div class="col-header-top"><span class="pill prop">Retrocausal Quantum Correlations</span><span class="col-subtitle">Joseph Berkovitz, 2002</span></div>
+    <div class="col-position">Retrocausal models offer the best available account of quantum non-locality: by allowing measurement settings to influence past hidden variables, they preserve local causality in a way that forwards-only models cannot; Berkovitz argues that the apparent paradoxes of retrocausality in quantum mechanics are manageable and that retrocausal models are superior to both many-worlds and collapse interpretations on grounds of explanatory economy.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','berkovitz','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','berkovitz','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- PRICE -->
+    <div class="speaker-panel active" id="prop-price-panel">
+      <div id="prop-price-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>The central question of this debate is whether the temporal asymmetry of causation &mdash; the apparent fact that causes precede effects &mdash; is a deep, objective feature of the physical world, or whether it is an artefact of our own temporally situated perspective. I shall argue for the latter, and I shall argue that taking this view seriously opens the door to retrocausality as not merely coherent but empirically motivated.</p>
+        <p>My starting point is what I call the <em>Archimedean view</em>: the view of the world from no particular point in time. From this perspective, the laws of fundamental physics are almost entirely time-symmetric. There is no preferred direction of time in quantum mechanics, electrodynamics, or general relativity. The temporal asymmetry we observe &mdash; the asymmetry between cause and effect, between records and anticipations, between the open future and the fixed past &mdash; is a macroscopic, thermodynamic phenomenon, not a fundamental physical one.</p>
+        <div class="case-box">
+          <strong>The central argument for time-symmetry.</strong><br><br>
+          The laws of physics, at the fundamental level, are time-reversal invariant (or CPT-symmetric in quantum field theory). The manifest asymmetry of our experience &mdash; that causes precede effects, that the past is fixed and the future open &mdash; is explained by the low-entropy initial conditions of the universe and the thermodynamic arrow of time. But this explanation is contingent: it tells us why we, situated as we are, experience causation as temporally directed. It does not establish that causation is metaphysically forward-directed. A being with the reverse thermodynamic orientation would experience a reversed causal arrow. Neither perspective is privileged.<br><br>
+          Consequence: the asymmetry of causation is perspectival, not fundamental. Retrocausality is in principle as admissible as forward causation.
+        </div>
+        <span class="section">i. the source of the causal arrow</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Causal arrow — thermodynamic, not metaphysical; perspectival not fundamental; Price's Archimedean view</span>I want to distinguish two questions. The first is an empirical question: why does our world exhibit the temporal asymmetries it does? The second is a conceptual question: is temporal direction a necessary component of the causal relation itself? My opponents run these questions together. They take the empirical fact of a thermodynamic arrow and use it to establish a metaphysical conclusion about the direction of causation. But the two questions are independent. The thermodynamic arrow explains why we, as agents embedded in time in a particular way, represent causation as forward-directed. It does not follow that causation, considered from the Archimedean perspective, is constitutively forward-directed. Once we separate these questions, the door to retrocausality opens.</span></p>
+        <span class="section">ii. quantum mechanics as empirical motivation</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Quantum non-locality — retrocausality resolves it without non-local signalling; EPR correlations best explained retrocausally</span>The empirical motivation for retrocausality comes from quantum mechanics, specifically from the phenomenon of entanglement and the correlations revealed by Bell-inequality violations. These correlations cannot be explained by any local hidden variable theory with forward causation only &mdash; this is what Bell&rsquo;s theorem establishes. The standard responses are to accept non-locality (Bohmian mechanics), to accept the many-worlds interpretation, or to accept that quantum mechanics is irreducibly non-classical. But there is a fourth option: to allow that the measurement settings can influence, retrocausally, the values of hidden variables at the time of preparation. This retrocausal model restores local causality. The correlations are not explained by spooky action at a distance but by ordinary local causation running partly backwards in time.</span></p>
+        <span class="section">iii. the agent-relativist account of the causal asymmetry</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Agent relativism — causal asymmetry explained by asymmetry of agency; no metaphysical asymmetry required</span>Why do we experience causation as temporally asymmetric? My answer is agent-relativist: the asymmetry of causation is the asymmetry of agency. We can intervene on the future but not on the past because of our thermodynamic situation: we have memories of the past and deliberate about the future, and our deliberations can make a difference to what comes after but not to what has already occurred, given the thermodynamic gradient. This explains the phenomenology of causation without entrenching its temporal direction as a metaphysical necessity. The asymmetry of causation is real for us, in our situation; it is not a fundamental feature of the universe.</span></p>
+        <span class="section">iv. against the fixity of the past</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Fixity of the past — conflates epistemic inaccessibility with causal impossibility; Price agrees with Dummett here</span>The most common objection to retrocausality is the fixity of the past: the past has already occurred, so how could it be affected by what we do now? But this objection conflates two distinct claims. The first is an epistemic claim: we cannot change what we already know to have happened. The second is a causal claim: events in the past are causally inaccessible to present interventions. These come apart. If retrocausality obtains, then the past event was always going to be influenced by the future measurement; it was the outcome of a causal process that ran partly backwards. There is no contradiction in this, only the need to revise our folk-causal picture. The fixity of the past is an epistemic constraint, not a metaphysical one.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-price-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The causal arrow is thermodynamic and perspectival, not fundamental or metaphysically necessary</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The fundamental laws of physics are time-symmetric (or CPT-symmetric); temporal asymmetry at the macroscopic level is explained by thermodynamic and initial-condition facts, not by any fundamental asymmetry in the laws.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The asymmetry we observe in causation derives from the thermodynamic arrow; it reflects our embedded, temporally situated perspective, not a mind-independent metaphysical asymmetry.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>From the Archimedean view (outside time), causal asymmetry is not a fundamental feature of physical reality; it is a perspectival projection.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Retrocausality is not ruled out by the fundamental physics; the apparent asymmetry of causation is perspectival and thermodynamic, not a metaphysical constraint on possible causal relations.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Quantum entanglement provides empirical motivation for retrocausal hidden variable models</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Bell&rsquo;s theorem establishes that quantum correlations cannot be explained by local hidden variable theories with purely forward-directed causation; something non-standard must be invoked.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Retrocausal hidden variable models — in which measurement settings influence hidden variable values at the time of preparation — restore local causality; correlations are explained by local causal processes running partly backwards in time.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This option is at least as theoretically coherent as non-local interpretations (Bohm) or many-worlds and is more parsimonious about ontological commitments to additional branches or pilot waves.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Quantum entanglement is positive empirical motivation for retrocausality; retrocausal models offer a local-causal explanation of Bell correlations that forward-only models cannot match without accepting non-locality or proliferating ontology.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Agent-relativism explains the phenomenology of causal asymmetry without metaphysical asymmetry</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The asymmetry of agency — that we deliberate about the future, not the past — explains why we experience causation as forward-directed; this is a feature of our thermodynamic situation, not a metaphysical necessity.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Agent-relativism preserves the practical reality of the causal asymmetry without entrenching it as a fundamental feature of physical reality.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The phenomenology of causation is therefore fully explained without positing a metaphysically privileged temporal direction; retrocausality remains permissible at the level of fundamental physics.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Agent-relativism about the causal arrow explains the phenomenology of causation without licensing the inference that causation is metaphysically forward-directed; the temporal asymmetry of agency does not rule out retrocausality in physics.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The fixity-of-the-past objection conflates epistemic and causal inaccessibility</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The objection: the past is fixed, so retrocausation is impossible. But &ldquo;fixed&rdquo; means epistemically settled for us — we know it has occurred. This is an epistemic, not a causal, constraint.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In a retrocausal world, the past event was always the outcome of a causal process that included future influences; there is no contradiction, only unfamiliarity. The event is &ldquo;fixed&rdquo; precisely because the retrocausal influence has already occurred.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Conflating epistemic fixity with causal inaccessibility begs the question against retrocausality.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The fixity-of-the-past objection fails: it conflates epistemic fixity with causal impossibility; retrocausality entails only that past events were always causally shaped by future ones, which is consistent with their epistemic fixity.</span></div>
+        </div>
+      </div>
+    </div><!-- end price -->
+
+    <!-- CRAMER -->
+    <div class="speaker-panel" id="prop-cramer-panel">
+      <div id="prop-cramer-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>The Transactional Interpretation of quantum mechanics is the most direct and most naturally retrocausal of the major interpretations. I want to show why it deserves to be taken seriously as a physical proposal, and why its retrocausal structure is a strength rather than a weakness.</p>
+        <p>The Transactional Interpretation begins from a simple observation: the Schr&ouml;dinger equation, like the classical wave equation, has both advanced (backward-in-time) and retarded (forward-in-time) solutions. Conventional quantum mechanics arbitrarily discards the advanced solutions. I argue that we should take both seriously. When we do, quantum measurement is no longer a mystery: it is the completion of a &ldquo;transaction&rdquo; between a retarded offer wave emitted by the source and an advanced confirmation wave emitted by the absorber. The transaction collapses the wave function and determines the outcome non-locally but without any violation of special relativity.</p>
+        <div class="pull">&ldquo;The transactional interpretation provides an intuitively satisfying account of quantum mechanics in which the process of measurement is understood as a completed transaction between emitter and absorber, involving both advanced and retarded waves propagating across spacetime.&rdquo; &mdash; Cramer, 1986</div>
+        <span class="section">i. the advanced wave as physical</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Advanced wave — both solutions physically real; discarding advanced solution is arbitrary; TI takes both seriously</span>The standard argument against the Transactional Interpretation begins with the claim that advanced solutions to the wave equation are unphysical: they correspond to waves propagating backwards in time and so cannot represent anything real. But this argument is question-begging. It assumes at the outset that nothing physical can propagate backwards in time. The Wheeler-Feynman absorber theory in classical electrodynamics provides a precedent: advanced electromagnetic waves were there shown to be physically necessary for a consistent treatment of radiation reaction. If we are prepared to take advanced electromagnetic waves seriously in the classical case, we should be prepared to take advanced quantum waves seriously in the quantum case.</span></p>
+        <span class="section">ii. the measurement problem dissolved</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Measurement problem — TI dissolves it; wave function collapse is a completed transaction, not an irreducible mystery</span>The measurement problem &mdash; why quantum superpositions appear to collapse to definite outcomes upon measurement &mdash; is one of the deepest unsolved problems in the foundations of quantum mechanics. The Transactional Interpretation dissolves it: there is no mysterious collapse. The offer wave travels forward in time from the source, establishing a superposition of possible outcomes. Each potential absorber emits a confirmation wave backwards in time. The transaction is completed when the offer and confirmation waves reinforce each other at both the emission and absorption events. The outcome is determined by the completed transaction across spacetime: no collapse is needed because the definite outcome was always the result of the retrocausal transaction.</span></p>
+        <span class="section">iii. non-locality without action at a distance</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Non-locality — TI explains EPR correlations without FTL signalling; retrocausal transactions are locally causal in 4D</span>The EPR correlations &mdash; the fact that measurements on entangled particles yield correlated outcomes regardless of their spatial separation &mdash; seem to require action at a distance. The Transactional Interpretation explains these correlations without any action at a distance: the correlation is established by the transaction, which is a four-dimensional spacetime process. The transaction involves local interactions at both ends, connected by advanced and retarded waves that traverse the intervening spacetime. There is no instantaneous spooky influence; there is only a retrocausal structure that makes the correlation appear non-local when viewed from within the forward time direction only.</span></p>
+        <span class="section">iv. against the many-worlds alternative</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Against MWI — TI is more parsimonious; MWI multiplies entities without explanatory gain; TI explains outcomes, not just statistics</span>The many-worlds interpretation is often presented as the natural alternative to collapse theories: it avoids wave function collapse by allowing all branches to be real. But many-worlds purchases this resolution of the measurement problem at the cost of an enormous ontological proliferation: an uncountably infinite branching of actual worlds. The Transactional Interpretation achieves the same resolution &mdash; no collapse, no mystery about measurement &mdash; without this proliferation. It postulates only the waves and transactions that are needed to explain the observed outcomes. And, crucially, it explains why specific outcomes occur, not just the probability distribution over outcomes: the completed transaction selects the outcome. Many-worlds cannot explain why this branch rather than any other is the one we observe; it can only say that all branches are real.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-cramer-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Discarding the advanced wave solution is arbitrary; both solutions should be taken as physical</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Schr&ouml;dinger equation, like the classical wave equation, has both retarded (forward-in-time) and advanced (backward-in-time) solutions; standard QM discards the advanced solution by assumption.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Wheeler-Feynman absorber theory provides a precedent for taking advanced electromagnetic waves seriously in classical physics; the same move is available in quantum mechanics.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Discarding the advanced solution on the grounds that backwards propagation is unphysical begs the question against retrocausality; the assumption should be evaluated on explanatory grounds, not stipulated.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The advanced wave solution should be retained; discarding it is an arbitrary convention motivated by the assumption of forward causation, not by any independent physical or mathematical requirement.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Transactional Interpretation dissolves the measurement problem without wave function collapse</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the TI, a quantum event is a completed transaction: an offer wave (retarded, from source) and a confirmation wave (advanced, from absorber) mutually reinforce each other at both ends of the interaction.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The definite outcome is determined by which transaction is completed; there is no collapse of a superposition because the completed transaction always selects exactly one outcome.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The measurement problem is dissolved without positing a special collapse mechanism, a special role for observers, or a many-branches ontology.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The TI dissolves the measurement problem through its retrocausal structure; wave function collapse is replaced by a completed transaction, which is both physically intuitive and ontologically parsimonious.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; EPR correlations are explained locally by retrocausal transactions; no action at a distance is required</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>EPR correlations appear to require non-local influences because viewing the interaction from within the forward time direction only makes it seem as if distant measurements affect each other instantaneously.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In the TI, the correlation is established by a four-dimensional spacetime transaction involving local interactions at both ends; from the Archimedean view, the interaction is entirely local.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No superluminal signalling is required or implied; the non-locality is an artifact of the forward-time perspective, not a feature of the underlying spacetime process.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The TI explains EPR correlations without non-locality or superluminal signalling; apparent non-locality is dissolved by recognising the retrocausal structure of the transaction in four-dimensional spacetime.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; The TI is more parsimonious than many-worlds and explains specific outcomes, not merely statistics</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Many-worlds avoids collapse but at the cost of uncountably infinite branching worlds; TI avoids collapse without this proliferation, requiring only the waves and transactions needed to explain actual outcomes.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Many-worlds cannot explain why any particular branch is the one experienced; TI explains why specific outcomes occur through the mechanism of transaction completion.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Parsimony and explanatory completeness both favour TI over many-worlds; retrocausality is the price, but it is a smaller price than ontological proliferation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The TI is superior to many-worlds on parsimony grounds and superior on explanatory completeness; retrocausality is less costly than the ontological multiplication required by many-worlds.</span></div>
+        </div>
+      </div>
+    </div><!-- end cramer -->
+
+    <!-- LEWIS -->
+    <div class="speaker-panel" id="prop-lewis-panel">
+      <div id="prop-lewis-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>My contribution to this debate is primarily logical and metaphysical rather than physical. I want to establish that backwards causation &mdash; the causation of earlier events by later ones &mdash; is conceptually coherent, and that the counterfactual analysis of causation, which I have defended at length, does not preclude it.</p>
+        <p>Causal asymmetry &mdash; the fact that causes precede effects &mdash; is a contingent feature of our world, not a conceptual necessity. It is grounded, on my account, in the asymmetry of counterfactual dependence: earlier events do not counterfactually depend on later ones in our world, but this is a nomological and thermodynamic fact, not a logical truth. In other possible worlds, counterfactual dependence could run backwards, and in those worlds, causation would run backwards too.</p>
+        <div class="case-box">
+          <strong>Counterfactual analysis and temporal direction.</strong><br><br>
+          On my counterfactual analysis, C causes E if and only if, had C not occurred, E would not have occurred (with appropriate conditions to avoid backtracking counterfactuals). In our world, this analysis yields forward causation because the asymmetry of overdetermination and the low-entropy initial conditions make it the case that the occurrence of a future event counterfactually depends on its immediate past causes but not on its remote past causes or on future events.<br><br>
+          But this is a contingent, world-relative fact. In a world with different thermodynamics or different initial conditions, the counterfactual asymmetry could reverse, and with it the direction of causation. Backwards causation is possible; it is simply not actual.
+        </div>
+        <span class="section">i. the counterfactual analysis permits backwards causation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Counterfactual analysis — permits backwards causation in other possible worlds; causal asymmetry is nomological not conceptual</span>The key insight is that the counterfactual analysis of causation is neutral with respect to temporal direction. What makes causes precede effects in our world is not the analysis itself but the particular pattern of counterfactual dependence that obtains in our world, which is itself grounded in thermodynamic and initial-condition facts. In a possible world where the thermodynamic gradient runs the other way, or where there is no thermodynamic gradient at all, the pattern of counterfactual dependence could reverse, and with it the causal direction. The counterfactual analyst is therefore committed to the conceptual possibility of backwards causation, even if backwards causation is not nomologically possible in our world.</span></p>
+        <span class="section">ii. the asymmetry of overdetermination</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Overdetermination asymmetry — explains why backtracking is blocked in our world; different in worlds with backwards causation</span>In our world, the past is overdetermined by the present: there are vastly more independent traces of past events than there are anticipatory traces of future events. This asymmetry of overdetermination is what blocks backtracking counterfactuals: we evaluate &ldquo;if C had not occurred, what would have been different?&rdquo; by holding fixed the past and varying the future, because the past is overdetermined and the future is not. But this is a contingent feature of our world. In a world with the reversed thermodynamic gradient, the future would be overdetermined by the present, and the past would be the open, underdetermined domain. In that world, causal counterfactuals would naturally run backwards.</span></p>
+        <span class="section">iii. against the logical impossibility charge</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Not logically impossible — no self-defeating loops arise if causal history is consistent; closed timelike curves are locally coherent</span>It is sometimes claimed that backwards causation leads to logical paradox: the &ldquo;grandfather paradox,&rdquo; or the ability to signal one&rsquo;s past self with contradictory instructions. But these paradoxes arise only when backwards causation is combined with the assumption that the agent has the ability to create genuine inconsistencies. On a consistent-histories approach, backwards causation is not paradoxical: the causal influences from the future to the past are always part of the consistent history that actually obtains. There is no loop that could be exploited to create contradictions because the full causal history, including the backwards influences, is self-consistent by stipulation. The logical impossibility charge conflates causal inconsistency with the possibility of agent interference.</span></p>
+        <span class="section">iv. possible worlds with backwards causation</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Possible worlds — backwards causation worlds are coherent; nomological possibility is a separate question from conceptual possibility</span>Even if we grant that backwards causation does not occur in our world, the conceptual possibility of worlds with backwards causation is well-established. Consider a world in which the laws of nature are the time-reverse of ours: in that world, every causal process runs backwards relative to our temporal ordering. Agents in that world would experience a reversed causal arrow and would describe their own situation as one in which causes precede effects &mdash; in their temporal direction. From the Archimedean view, both worlds are equally coherent. The asymmetry between forward and backward causation is therefore not conceptual but nomological: it is a feature of the laws and initial conditions of particular worlds, not of the concept of causation itself.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-lewis-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The counterfactual analysis is temporally neutral; causal asymmetry is nomological, not conceptual</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The counterfactual analysis of causation defines causation in terms of patterns of counterfactual dependence; it does not build in a temporal direction as a conceptual requirement.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Forward causation in our world is explained by the particular pattern of counterfactual dependence that obtains here, grounded in thermodynamics and initial conditions, not by the analysis itself.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In possible worlds with different thermodynamics or initial conditions, counterfactual dependence could reverse, and with it the causal direction.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The counterfactual analysis permits backwards causation in possible worlds with different patterns of counterfactual dependence; causal asymmetry is a contingent, nomological feature of our world, not a conceptual necessity.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The asymmetry of overdetermination explains forward causation in our world and could reverse in other worlds</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The past is overdetermined by the present in our world: there are many independent traces of past events but few anticipatory traces of future ones. This asymmetry grounds the ban on backtracking counterfactuals.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is a contingent thermodynamic fact. In a world with reversed thermodynamics, the future would be the overdetermined domain and the past the open one.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In that world, causal counterfactuals would run backwards and causal direction would be reversed; the asymmetry of overdetermination is not metaphysically necessary.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The overdetermination asymmetry explains forward causation in our world contingently; in other possible worlds, the overdetermination could reverse, yielding backwards causation; this confirms that causal direction is nomological, not metaphysical.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Consistency conditions block paradoxes; backwards causation is not self-undermining</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Grandfather-paradox-style objections assume that backwards causation enables agents to create genuine inconsistencies in the causal history. But consistent-histories approaches deny this: only self-consistent causal histories are possible.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In a consistent-histories framework, backwards causal influences are always part of the self-consistent history that obtains; there is no paradoxical loop because the full history, including backwards influences, is coherent by construction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The logical impossibility charge conflates the possibility of causal inconsistency with the mere possibility of backwards causation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Backwards causation is not self-undermining; consistency conditions block paradox-generating loops; the logical impossibility charge conflates backwards causation with the ability to create inconsistent histories.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Worlds with backwards causation are fully coherent; temporal direction of causation is world-relative</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A possible world with the time-reverse of our laws of nature would be a world in which causation runs backwards relative to our temporal ordering; agents in that world would describe their world as one with forward causation, in their direction.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>From the Archimedean view, both worlds are equally coherent; neither temporal direction is privileged.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The asymmetry between forward and backwards causation is therefore a feature of particular nomological situations, not of the concept of causation itself.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Backwards causation worlds are fully coherent possible worlds; the causal arrow is world-relative and nomologically grounded, not conceptually fixed; this establishes the conceptual permissibility of retrocausality.</span></div>
+        </div>
+      </div>
+    </div><!-- end lewis -->
+
+    <!-- DUMMETT -->
+    <div class="speaker-panel" id="prop-dummett-panel">
+      <div id="prop-dummett-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>My argument in the 1964 paper was primarily conceptual: I aimed to show that the concept of backwards causation is coherent, not that backwards causation actually occurs. The subsequent literature has, I think, vindicated this more modest claim while going further toward showing that backwards causation may be not merely coherent but physically real.</p>
+        <p>The standard objection to backwards causation &mdash; that you cannot affect what has already happened &mdash; rests on a confusion. It conflates the epistemological claim that we cannot now change what we already know to have happened with the metaphysical claim that earlier events cannot be causally influenced by later ones. Once this confusion is dissolved, the concept of backwards causation is seen to be perfectly coherent, and the question becomes an empirical one: does it occur?</p>
+        <div class="pull">&ldquo;The question whether effects can precede their causes is no more senseless than the question whether effects can follow their causes. It is a substantive question about the way the world is, not a conceptual truth about the meaning of &lsquo;cause&rsquo;.&rdquo; &mdash; Dummett, 1964</div>
+        <span class="section">i. disentangling the objection</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The standard objection — confuses epistemic and causal senses of &ldquo;cannot affect the past&rdquo;; Dummett's classic dissolution</span>When we say we cannot affect the past, we typically mean one of two things. We may mean: we cannot change the past as it is known &mdash; we cannot make it the case that what we know to have happened did not happen. This is a trivially true epistemic claim. Or we may mean: no event that occurs later than an event E can be a cause of E. This is the substantive causal claim that retrocausality denies. The standard objection to backwards causation moves from the epistemic claim to the causal claim without justification. The epistemic claim is true; the causal claim is precisely what is at issue. The objection begs the question by assuming the causal claim in the formulation of the objection.</span></p>
+        <span class="section">ii. causal concepts do not require temporal priority</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Temporal priority not constitutive of causation — regularity and counterfactual accounts allow temporal direction as contingent</span>What are the constitutive features of causation? On regularity accounts, causation is a matter of constant conjunction between event types; on counterfactual accounts, it is a matter of counterfactual dependence; on process accounts, it is a matter of continuous physical processes connecting cause and effect. None of these analyses requires, as a matter of conceptual necessity, that causes precede effects. Temporal priority has been included in some definitions of causation, but this inclusion is either stipulative &mdash; simply building in the asymmetry by definition &mdash; or it rests on the contingent empirical fact that, in our world, causes do precede effects. Neither move establishes that backwards causation is conceptually impossible.</span></p>
+        <span class="section">iii. the bilking argument considered and rejected</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Bilking argument — only shows backwards causation is undetectable if always avoidable; does not show it is impossible</span>The bilking argument, associated with Black and others, holds that backwards causation would allow us to &ldquo;bilk&rdquo; the supposed cause: if E at time t2 is supposed to cause C at an earlier time t1, we can wait until t1 has passed, observe whether C occurred, and then arrange or refrain from bringing about E at t2. If C occurred, we refrain; if C did not occur, we bring about E. This seems to show that backwards causation is self-defeating. But the bilking argument shows only that backwards causation cannot be exploited for free manipulation of the past: if backwards causation obtains, there will be constraints on what we can bring about that prevent the bilking. The argument does not show that backwards causation is impossible; it shows that, if it obtains, there are correlations between our choices and earlier events that prevent exploitation. This is exactly what we should expect from a consistent retrocausal world.</span></p>
+        <span class="section">iv. the semantic case for coherence</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Semantic coherence — backwards causation claims are truth-apt; verificationism blocks the argument from unintelligibility</span>One might argue that claims about backwards causation are not merely false but unintelligible: that we simply do not know what it would mean for a later event to cause an earlier one, and that the appearance of sense is illusory. But this argument requires a strong verificationist semantics that is independently very difficult to defend. The claim that C (at t2) caused E (at t1, where t1 &lt; t2) is perfectly well-formed and truth-apt; we know what it says, and we know what evidence would bear on it. The fact that such claims are unfamiliar and perhaps not true in our world does not make them semantically defective. The argument from unintelligibility to impossibility requires verificationism, and verificationism is false.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-dummett-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The standard objection confuses epistemic with causal impossibility; it begs the question</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>&ldquo;We cannot affect the past&rdquo; means either: (a) we cannot change what we know to have happened (trivially true, epistemic); or (b) no later event can cause an earlier one (the substantive causal claim retrocausality denies).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The standard objection moves from (a) to (b) without justification; this conflates the epistemic with the causal claim and begs the question against retrocausality.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Once the two senses are distinguished, the standard objection dissolves; (a) is compatible with retrocausality, and (b) is the claim at issue.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The standard objection to backwards causation rests on a confusion between epistemic and causal senses of &ldquo;cannot affect&rdquo;; once dissolved, the objection fails and backwards causation remains conceptually open.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; No standard analysis of causation requires temporal priority as a conceptual necessity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Regularity, counterfactual, and process accounts of causation do not build temporal priority into the analysis as a conceptual requirement; they can be satisfied by backwards causal relations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Definitions of causation that include temporal priority are either stipulative or rest on contingent empirical facts about our world; neither establishes conceptual impossibility of backwards causation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Temporal priority is therefore a contingent feature of causal relations in our world, not a constitutive feature of causation as such.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>No standard analysis of causation conceptually requires temporal priority; backwards causation is fully coherent under regularity, counterfactual, and process accounts.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The bilking argument shows only that retrocausal worlds are consistent, not that backwards causation is impossible</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The bilking argument: if E (t2) causes C (t1, t1 &lt; t2), we can observe C at t1 and manipulate E at t2 to prevent correlation. This seems self-defeating.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But in a retrocausal world, correlations between choices at t2 and events at t1 are themselves part of the causal history; the bilking attempt would itself be correlated with the earlier event in a way that prevents contradiction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The bilking argument shows that retrocausal worlds are self-consistent (bilking is always frustrated), not that they are impossible.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The bilking argument does not establish the impossibility of backwards causation; it establishes only that retrocausal worlds are self-consistent — which is exactly what the retrocausalist claims.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Claims about backwards causation are semantically well-formed; unintelligibility requires verificationism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The claim &ldquo;C at t2 caused E at t1 (t1 &lt; t2)&rdquo; is truth-apt and meaningful; we understand what it asserts and what evidence would bear on it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The argument from unfamiliarity to unintelligibility requires a strong verificationist semantics; verificationism is independently very difficult to defend.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Without verificationism, the semantic argument against backwards causation fails; backwards causation claims are well-formed, truth-apt, and subject to empirical investigation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Backwards causation claims are semantically coherent; the argument from unintelligibility requires an indefensible verificationism; the question of retrocausality is substantive and empirical, not a matter of conceptual incoherence.</span></div>
+        </div>
+      </div>
+    </div><!-- end dummett -->
+
+    <!-- BERKOVITZ -->
+    <div class="speaker-panel" id="prop-berkovitz-panel">
+      <div id="prop-berkovitz-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>My argument focuses on the specific context that makes retrocausality most pressing: the interpretation of quantum non-locality. I want to show that retrocausal models are the most defensible response to the challenge posed by Bell&rsquo;s theorem, and that the standard objections to them misfire.</p>
+        <p>Bell&rsquo;s theorem establishes that no local hidden variable theory with purely forward-directed causal connections can reproduce the statistical predictions of quantum mechanics. This is one of the most important results in the foundations of physics. The question is: what should we conclude from it? The answer I defend is that we should permit causal connections to run backwards in time, allowing measurement settings to influence the values of hidden variables at the time of particle preparation.</p>
+        <div class="case-box">
+          <strong>The retrocausal hidden variable strategy.</strong><br><br>
+          In a standard Bell experiment, two particles are prepared in an entangled state and sent to spatially separated detectors where their properties are measured along chosen directions. The correlations between measurement outcomes violate Bell inequalities and cannot be reproduced by any local hidden variable model with forward causation only.<br><br>
+          The retrocausal strategy: allow the choice of measurement settings at each detector to influence, backwards in time, the hidden variable values at the moment of particle preparation. The correlation between the hidden variables and the measurement settings violates the &ldquo;statistical independence&rdquo; assumption in Bell&rsquo;s theorem, escaping the no-go result. Crucially, this does not permit superluminal signalling: the retrocausal influences are constrained to be consistent with the observed statistics, not to enable exploitation for communication.
+        </div>
+        <span class="section">i. retrocausality and the assumptions of Bell&rsquo;s theorem</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Bell's theorem — statistical independence assumption; retrocausal models violate it legitimately; not fine-tuned conspiracy</span>Bell&rsquo;s theorem derives its conclusion from several assumptions: locality, realism, and statistical independence (the measurement settings are uncorrelated with the hidden variables). Retrocausal models violate statistical independence: if measurement settings can influence past hidden variable values, then the settings and hidden variables are correlated. Critics argue that this correlation is a fine-tuned conspiracy &mdash; a suspicious coincidence that must be explained. But this criticism misidentifies what requires explanation. In a retrocausal model, the correlation between settings and hidden variables is not a conspiracy but a direct causal consequence of the retrocausal structure: the settings cause the hidden variable values to be what they are. No fine-tuning is needed; the correlation is explained by the retrocausal mechanism.</span></p>
+        <span class="section">ii. retrocausality versus non-locality</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Retrocausality vs non-locality — retrocausality preserves local causation; non-locality conflicts with special relativity more seriously</span>The standard response to Bell&rsquo;s theorem is to accept non-locality: to allow that measurements on one particle instantaneously influence the state of a distant particle. But non-locality creates a serious tension with special relativity: it implies that there is a privileged frame of reference (the one in which the non-local influence propagates instantaneously), and it threatens to undermine the relativistic picture of spacetime as a four-dimensional block. Retrocausality avoids this tension: the causal influences are local in spacetime (they travel along past-directed paths rather than faster-than-light paths) and are fully compatible with the spacetime structure of special relativity. Retrocausality is the more relativistically kosher option.</span></p>
+        <span class="section">iii. no superluminal signalling from retrocausality</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">No FTL signalling — retrocausal models constrained to preclude exploitation; signalling argument fails</span>The most common objection to retrocausal models is that they would allow superluminal signalling: if I can influence the past, I can signal information backwards in time and hence, by combining two retrocausal links, signal faster than light to a distant location. But this objection conflates two different things: causal influence and exploitable signalling. Retrocausal models are constructed so that the retrocausal influences are consistent with observed statistics and cannot be exploited for signalling. The constraints imposed by consistency with the forward-in-time statistics prevent any agent from using retrocausal influences to send signals. This is analogous to the way Bohmian mechanics is non-local but cannot be used for superluminal signalling due to the equilibrium distribution condition.</span></p>
+        <span class="section">iv. against the many-worlds and collapse alternatives</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against MWI and GRW — retrocausal models explain correlations; MWI has the preferred basis problem; GRW is ad hoc</span>Retrocausal hidden variable models compare favourably with the two most prominent alternatives to solving the measurement problem. Many-worlds avoids collapse and non-locality but faces the preferred basis problem (why do we observe outcomes in one particular basis rather than another?) and the probability problem (why do the Born rule probabilities have the values they do across branches?). GRW spontaneous collapse models introduce a new physical mechanism &mdash; spontaneous localisation &mdash; that is genuinely ad hoc: it is postulated solely to solve the measurement problem and has no independent theoretical motivation. Retrocausal models introduce retrocausality, which has independent motivation from time-symmetry arguments, and explain quantum correlations through a local causal mechanism. They are less ad hoc and no less empirically adequate.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-berkovitz-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Retrocausal models violate Bell&rsquo;s statistical independence assumption through a causal mechanism, not a conspiracy</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Bell&rsquo;s theorem requires statistical independence: measurement settings are uncorrelated with hidden variables. Retrocausal models violate this by allowing settings to influence past hidden variable values.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This violation is not a conspiracy or unexplained coincidence: the correlation is causally explained by the retrocausal mechanism — the setting causes the hidden variable to take the correlated value.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Fine-tuning objections misidentify what requires explanation; a causal explanation of the correlation is available and does not require unexplained coincidence.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Retrocausal models violate statistical independence through a causal mechanism rather than a conspiracy; the fine-tuning objection fails because the correlation is explained, not assumed.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Retrocausality is more compatible with special relativity than non-locality</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Non-local interpretations (Bohm) imply instantaneous superluminal influences and a privileged reference frame, creating serious tension with special relativity&rsquo;s denial of a privileged frame.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Retrocausal influences travel along past-directed paths in spacetime, not faster-than-light; they are local in the relativistic sense and do not require a privileged frame.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Retrocausality is therefore more relativistically well-motivated than non-locality as a response to Bell&rsquo;s theorem.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Retrocausal models are more compatible with special relativity than non-local alternatives; the causal influences are local in spacetime and do not introduce a preferred frame or superluminal propagation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Retrocausal models do not permit superluminal signalling; the signalling objection conflates influence with exploitation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Retrocausal influences are constrained by consistency with observed forward-in-time statistics; these constraints prevent agents from exploiting retrocausal influences for signalling.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The signalling objection conflates causal influence (which retrocausality entails) with exploitable signalling (which retrocausal models are designed to preclude).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is analogous to Bohmian non-locality, which involves superluminal influences but cannot be exploited for superluminal signalling due to equilibrium conditions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Retrocausal models do not permit superluminal signalling; the signalling objection conflates causal influence with exploitable communication; the analogy with Bohmian mechanics confirms that influence without exploitation is coherent.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Retrocausal models are less ad hoc than GRW and less problematic than many-worlds</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>GRW introduces spontaneous localisation with no independent motivation beyond solving the measurement problem; retrocausality has independent motivation from time-symmetry arguments in physics.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Many-worlds faces the preferred basis problem and probability problem; retrocausal models explain specific outcomes through local causal mechanisms without proliferating branches.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>On the criteria of independent motivation and explanatory completeness, retrocausal models are superior to the major alternatives.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Retrocausal hidden variable models are less ad hoc than GRW and more explanatorily complete than many-worlds; they represent the most defensible interpretation of quantum non-locality currently available.</span></div>
+        </div>
+      </div>
+    </div><!-- end berkovitz -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- RIGHT — Opposition -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','maudlin',this)">Maudlin</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','tooley',this)">Tooley</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','penrose',this)">Penrose</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','horwich',this)">Horwich</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','dowe',this)">Dowe</button>
+  </div>
+
+  <!-- MAUDLIN HEADER -->
+  <div class="col-header" id="opp-maudlin-header">
+    <div class="col-header-top"><span class="pill opp">Non-Local Realism</span><span class="col-subtitle">Tim Maudlin, 2011</span></div>
+    <div class="col-position">Quantum mechanics is irreducibly non-local, and we should accept this frankly rather than retreat to retrocausal epicycles; the attempt to restore locality through retrocausality purchases coherence at too high a cost, importing the paradoxes of backwards causation and violating the intuitive constraint that the past is causally settled; non-local Bohmian mechanics is the correct response to Bell&rsquo;s theorem.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','maudlin','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','maudlin','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- TOOLEY HEADER -->
+  <div class="col-header hidden" id="opp-tooley-header">
+    <div class="col-header-top"><span class="pill opp">Causal Realism &amp; Temporal Priority</span><span class="col-subtitle">Michael Tooley, 1997</span></div>
+    <div class="col-position">Causation is a real, irreducible relation in the world, and its direction is intrinsically connected to the direction of time; Tooley defends a causal realist account on which causes necessarily precede their effects as a matter of the nature of causation itself, not merely as a contingent feature of our world; retrocausality is not merely empirically absent but conceptually defective.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','tooley','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','tooley','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- PENROSE HEADER -->
+  <div class="col-header hidden" id="opp-penrose-header">
+    <div class="col-header-top"><span class="pill opp">Objective Reduction &amp; Temporal Asymmetry</span><span class="col-subtitle">Roger Penrose, 1989</span></div>
+    <div class="col-position">The apparent time-symmetry of fundamental physics is broken by quantum gravity at the Planck scale; objective reduction of the wave function by quantum gravitational effects introduces a genuine, objective temporal asymmetry into physics at the deepest level, undercutting the time-symmetric picture on which retrocausality depends; the causal arrow is not merely thermodynamic but fundamentally physical.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','penrose','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','penrose','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- HORWICH HEADER -->
+  <div class="col-header hidden" id="opp-horwich-header">
+    <div class="col-header-top"><span class="pill opp">Asymmetry of Causation &amp; Fork Asymmetry</span><span class="col-subtitle">Paul Horwich, 1987</span></div>
+    <div class="col-position">The asymmetry of causation is grounded in the fork asymmetry &mdash; the statistical fact that common causes precede their joint effects and that open forks (events with a common cause in the past but no common effect in the future) are ubiquitous while closed forks (events with a common effect in the future but no common cause in the past) are vanishingly rare; this statistical asymmetry grounds a robust causal asymmetry that retrocausal models cannot coherently preserve.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','horwich','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','horwich','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- DOWE HEADER -->
+  <div class="col-header hidden" id="opp-dowe-header">
+    <div class="col-header-top"><span class="pill opp">Conserved Quantity Process Theory</span><span class="col-subtitle">Phil Dowe, 2000</span></div>
+    <div class="col-position">Causation is constituted by the transmission of conserved physical quantities along worldlines; on this process theory, causal relations are grounded in the continuous physical processes that connect cause to effect, and these processes are constrained by the forward propagation of conserved quantities in time; retrocausal processes would require the backward propagation of conserved quantities, which conflicts with the thermodynamic arrow and is unobserved.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','dowe','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','dowe','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- MAUDLIN -->
+    <div class="speaker-panel active" id="opp-maudlin-panel">
+      <div id="opp-maudlin-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>The proposition has offered us an elegant strategy for dealing with quantum non-locality: instead of accepting that quantum mechanics is irreducibly non-local, permit causal influences to run backwards in time and restore locality through retrocausality. I want to argue that this strategy fails, and that the honest response to Bell&rsquo;s theorem is to accept non-locality frankly.</p>
+        <p>My position is that quantum mechanics is non-local in a deep and ineliminable sense, and that this non-locality should be accepted rather than explained away. The Bohmian interpretation makes the non-locality explicit: there is a wave function defined over configuration space that guides all particles non-locally, and measurements on one particle instantaneously affect the guiding wave for distant particles. This is not a defect of Bohmian mechanics; it is its most honest feature.</p>
+        <div class="case-box">
+          <strong>Why retrocausality is the wrong response to Bell.</strong><br><br>
+          Bell&rsquo;s theorem shows that any theory reproducing the quantum predictions must be non-local in some sense. The retrocausal strategy tries to recover local causality by running causal influences backwards in time. But this strategy has two fundamental problems.<br><br>
+          First, it does not actually eliminate non-locality; it relocates it. The retrocausal influences must be coordinated in a way that reproduces the quantum correlations, and this coordination itself introduces a form of non-local constraint: the values of hidden variables at preparation must be correlated with measurement settings at detection, across spacelike separation. The retrocausal model does not explain how this correlation arises without a non-local mechanism.<br><br>
+          Second, it introduces retrocausality, which brings its own suite of conceptual problems. We trade one mystery (non-locality) for another (backwards causation), without obvious gain.
+        </div>
+        <span class="section">i. non-locality as the honest diagnosis</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Non-locality — the honest diagnosis; retrocausality is an epicycle; Bohm accepts non-locality directly without paradox</span>The honest response to Bell&rsquo;s theorem is to accept that the world is non-local. Quantum mechanics, correctly understood, describes a non-local universe. The guiding wave in Bohmian mechanics is defined over configuration space and influences all particles non-locally; this is not a defect but a feature &mdash; it correctly represents the deep structure of quantum reality. The retrocausal strategy refuses to accept this diagnosis and instead introduces backwards causation to save locality. But locality is not worth saving at the cost of backwards causation. Non-locality is a surprising but coherent feature of the world; backwards causation introduces paradoxes of predictability, agency, and causal consistency that non-locality does not.</span></p>
+        <span class="section">ii. the coordination problem for retrocausal models</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Coordination problem — retrocausal correlations require non-local coordination; locality not genuinely restored</span>Retrocausal hidden variable models require that measurement settings at detection be correlated with hidden variable values at preparation. But in a Bell experiment, the measurement settings are chosen freely &mdash; they may even be determined by random number generators, cosmic ray detectors, or other ostensibly independent sources. For the retrocausal correlation to obtain, the hidden variable values at preparation must somehow track the measurement settings that will be freely chosen in the future. This tracking requires coordination across spacetime that is itself non-local in character: the preparation event must &ldquo;know&rdquo; what measurement will be performed. The retrocausal model does not eliminate non-locality; it redescribes it as backwards-in-time correlation. The non-locality is not resolved; it is merely relocated.</span></p>
+        <span class="section">iii. Bohmian mechanics as the superior alternative</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Bohmian mechanics — non-local but deterministic; no retrocausal paradoxes; empirically adequate; more honest</span>Bohmian mechanics accepts non-locality, avoids retrocausality, and provides a completely deterministic, empirically adequate interpretation of quantum mechanics. Particles have definite positions at all times; their trajectories are guided by the wave function through the quantum potential; measurement outcomes are determined by the initial positions of all particles, including those of the measuring apparatus. There are no measurement problem, no wave function collapse, no many-worlds. The non-locality is explicit: the quantum potential is defined over configuration space and influences all particles simultaneously. This is metaphysically costly, but it is honest, consistent, and empirically adequate. Retrocausal models offer a local but backwards-causal picture; Bohmian mechanics offers a non-local but forward-causal one. I prefer honest non-locality to paradoxical locality.</span></p>
+        <span class="section">iv. the predictability threat from retrocausality</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Predictability — retrocausality undermines stable predictive practice; interventionism requires causal asymmetry</span>A further objection to retrocausality concerns the foundations of predictive and scientific practice. Science proceeds by intervening on a system to determine the downstream effects of the intervention. This interventionist practice presupposes that interventions on the present are not causally influenced by the future: an intervention is precisely an event that is caused independently of the downstream effects it is being used to probe. If retrocausality obtains, this presupposition is violated: future events may causally influence what interventions occur, undermining the independence condition on which interventionist causal inference depends. The retrocausal picture is not merely surprising; it threatens the foundations of causal reasoning in science.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-maudlin-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Non-locality is the honest diagnosis of Bell&rsquo;s theorem; retrocausality is an epicycle trading one mystery for another</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Bell&rsquo;s theorem shows that any empirically adequate quantum theory must be non-local in some sense; this is a theorem, not a heuristic.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Retrocausal models accept this but relocate the non-locality into backwards-in-time correlations; they do not eliminate non-locality, they redescribe it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Accepting non-locality directly (Bohm) is more honest and avoids the additional paradoxes introduced by backwards causation; trading non-locality for retrocausality is not an improvement.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The retrocausal strategy is an epicycle: it does not resolve the non-locality diagnosed by Bell&rsquo;s theorem but merely relocates it while adding the additional problems of backwards causation; non-locality is the more honest diagnosis.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Retrocausal models face the coordination problem: the hidden variables must &ldquo;know&rdquo; future measurement settings</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>For retrocausal correlations to obtain, hidden variable values at preparation must track freely chosen measurement settings at detection. This requires coordination across a spacelike separation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This coordination is itself non-local in character: the preparation event must be sensitive to events at spacelike separation (the setting-choice).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Retrocausal models do not eliminate non-locality; they redescribe the non-local coordination as a backwards-in-time causal influence. The underlying non-locality remains.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The coordination problem shows that retrocausal models do not genuinely restore local causality; the non-local correlation between preparation and measurement is redescribed as retrocausal but not eliminated.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Bohmian mechanics is the superior alternative: non-local but forward-causal, deterministic, and empirically adequate</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Bohmian mechanics provides a deterministic, empirically adequate interpretation with definite particle positions at all times; the measurement problem is solved without collapse or many-worlds.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>It accepts non-locality explicitly (the guiding wave is defined over configuration space) without introducing retrocausality or backwards causation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Honest non-locality without retrocausal paradoxes is preferable to the retrocausal strategy of recovering locality at the cost of backwards causation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Bohmian mechanics is the superior response to Bell&rsquo;s theorem: it accepts non-locality honestly, avoids retrocausal paradoxes, and is fully deterministic and empirically adequate.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Retrocausality undermines the independence condition on which interventionist causal inference depends</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Interventionist causal inference requires that interventions are causally independent of the downstream effects they probe; this independence grounds the ability to use interventions to identify causal structure.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If retrocausality obtains, future events may causally influence which interventions are made, violating the independence condition.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Retrocausality therefore threatens the foundations of causal reasoning in science, not merely in physics but in any domain that uses interventions to identify causal structure.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Retrocausality undermines the interventionist foundations of scientific causal inference; this is a further cost of the retrocausal strategy that non-locality does not incur.</span></div>
+        </div>
+      </div>
+    </div><!-- end maudlin -->
+
+    <!-- TOOLEY -->
+    <div class="speaker-panel" id="opp-tooley-panel">
+      <div id="opp-tooley-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>My argument is philosophical rather than physical: I want to establish that causation has an intrinsic temporal direction, and that retrocausality is not merely empirically absent but conceptually defective.</p>
+        <p>The proposition has argued, following Lewis, that the temporal direction of causation is contingent &mdash; a feature of particular worlds, not of causation as such. I deny this. On my causal realist account, causation is an irreducible, primitive relation that holds between events in a world. This relation has an intrinsic direction, and that direction is connected to the direction of time in a way that is not contingent but constitutive. A relation of influence that runs from later to earlier events is not a backwards causal relation; it is simply not a causal relation at all.</p>
+        <div class="pull">&ldquo;The concept of causation is the concept of a relation with an intrinsic direction; this direction is not a contingent feature of particular worlds but constitutive of the causal relation as such. To speak of backwards causation is to speak of a relation that lacks this constitutive direction &mdash; which is to say, a relation that is not causation.&rdquo; &mdash; Tooley, 1997</div>
+        <span class="section">i. causal realism and the intrinsic direction of causation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Causal realism — causation is irreducible and intrinsically directed; Lewis&rsquo;s counterfactual analysis misidentifies contingent features as constitutive</span>Lewis&rsquo;s counterfactual analysis of causation is reductive: it analyses causal relations in terms of patterns of counterfactual dependence among events. On this analysis, the temporal direction of causation is explained by the contingent asymmetry of counterfactual dependence in our world. But I argue that this analysis misidentifies the nature of causation. Causation is a primitive, irreducible relation; it is not analysable in terms of counterfactual patterns. The intrinsic direction of causation &mdash; the fact that causes produce effects, not the other way around &mdash; is constitutive of the causal relation, not a contingent feature of its instantiation in a particular world. The counterfactual analysis, by reducing causation to counterfactual patterns, loses what is essential to it.</span></p>
+        <span class="section">ii. the production asymmetry</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Production asymmetry — causation involves production not just correlation; production is intrinsically forward; not reversible</span>Causation is not merely constant conjunction or counterfactual dependence; it involves productive necessity &mdash; the cause brings about, produces, or necessitates the effect. This productive character of causation is what distinguishes causal from merely correlational relations. And production is intrinsically directed: a cause produces an effect; the effect does not produce the cause. This asymmetry is not derived from the direction of time; it is constitutive of what it means for one event to cause another. A relation that runs from a later event to an earlier one &mdash; even if it satisfies counterfactual and regularity conditions &mdash; does not have the character of production that causation requires. It is an influence relation of some kind, but it is not causation.</span></p>
+        <span class="section">iii. the growing block and the direction of causal influence</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Growing block — causal direction tied to ontological growth of past; past is fixed, future open; retrocausality inverts this</span>The growing block view of time &mdash; on which past and present events are ontologically real while future events are not yet actual &mdash; provides a metaphysical basis for the asymmetry of causation. Causes bring effects into existence; they increase the ontological inventory of the world. This is possible only if causes are ontologically prior to their effects, which requires causes to precede effects in time. A backwards causal relation would require a later event to bring into existence an earlier one &mdash; but the earlier event is already actual by the time the later one occurs. There is nothing to bring into existence. The growing block view therefore provides a metaphysical ground for the temporal direction of causation that is not merely thermodynamic or perspectival.</span></p>
+        <span class="section">iv. against Dummett on conceptual coherence</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Against Dummett — coherence requires more than non-contradiction; backwards causation conflicts with production; Dummett's analysis is too deflationary</span>Dummett argues that the concept of backwards causation is coherent because the standard objection conflates epistemic and causal senses of &ldquo;cannot affect.&rdquo; I accept Dummett&rsquo;s dissolution of the standard objection but deny his conclusion. Coherence, in the philosophically relevant sense, requires more than formal non-contradiction: it requires that the concept be genuinely instantiable, that we can make sense of what it would be for the concept to be satisfied. The concept of backwards causation fails this test not because it generates logical contradictions but because it conflicts with the constitutive features of causation: production, priority, and the asymmetry of bringing-into-existence. The concept is formally consistent but metaphysically vacuous: there is no possible world in which it is genuinely instantiated, because its instantiation would require the causal relation to lack its constitutive character.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-tooley-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Causation is an irreducible, intrinsically directed relation; Lewis&rsquo;s analysis loses what is essential</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Causation is a primitive, irreducible relation between events; the counterfactual analysis reduces it to patterns of counterfactual dependence, losing the intrinsic productive character of causal relations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The intrinsic direction of causation &mdash; causes produce effects, not vice versa &mdash; is constitutive of the causal relation, not a contingent feature of its instantiation in a particular world.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Lewis&rsquo;s account, by making causal direction contingent, misidentifies the nature of causation; the contingency claim follows from the reductive analysis, not from an independent investigation of causation itself.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Causation has an intrinsic direction constitutive of the relation itself; the Lewis-style argument that causal direction is contingent relies on a reductive analysis that misidentifies the nature of causation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The production asymmetry is constitutive of causation and is intrinsically forward-directed</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Causation involves productive necessity: a cause brings about or necessitates its effect; this productive character distinguishes causal from merely correlational relations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Production is intrinsically asymmetric: a cause produces an effect; the effect does not produce the cause. This asymmetry is not derived from temporal priority but is constitutive of what production means.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A relation that runs from a later to an earlier event may satisfy counterfactual conditions but lacks the character of production; it is therefore not causation properly speaking.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The production asymmetry is constitutive of causation and is intrinsically forward-directed; putative backwards causal relations lack the productive character of genuine causation and are therefore not causal relations.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The growing block provides a metaphysical basis for causal asymmetry independent of thermodynamics</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>On the growing block view, causes bring effects into ontological existence; this requires causes to precede effects, since what already exists cannot be brought into existence.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This metaphysical basis for causal asymmetry is independent of thermodynamics and initial conditions; it grounds the causal arrow in the ontological structure of time, not merely its statistical features.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Price&rsquo;s Archimedean view abstracts away from this ontological structure; the growing block shows that the abstraction loses something real about the nature of time and causation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The growing block provides a metaphysical basis for causal asymmetry that is independent of and more fundamental than the thermodynamic considerations Price and Lewis rely on; causal direction is ontologically grounded, not merely perspectival.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument IV &mdash; Against Dummett: backwards causation is metaphysically vacuous, not merely formally consistent</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Dummett shows that backwards causation is formally consistent; I accept this. But conceptual coherence requires more: the concept must be genuinely instantiable in a possible world.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Backwards causation conflicts with the constitutive features of causation (production, priority, bringing-into-existence); no possible world can instantiate a relation that is both causal and backwards.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The concept is formally consistent but metaphysically vacuous: it purports to describe a causal relation while lacking the constitutive features that make relations causal.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Backwards causation is metaphysically vacuous even if formally consistent; Dummett&rsquo;s coherence argument establishes only formal consistency, not genuine metaphysical possibility; the concept describes no genuinely possible causal relation.</span></div>
+        </div>
+      </div>
+    </div><!-- end tooley -->
+
+    <!-- PENROSE -->
+    <div class="speaker-panel" id="opp-penrose-panel">
+      <div id="opp-penrose-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>The proposition rests fundamentally on the claim that the laws of physics are time-symmetric at the fundamental level and that the temporal asymmetry we observe is merely thermodynamic and statistical. I want to challenge this foundational premise.</p>
+        <p>My argument is that time-symmetry breaks down at the level of quantum gravity, and that this breakdown introduces a genuine, objective temporal asymmetry into physics at the deepest level available to us. If the fundamental laws are in fact not time-symmetric, the entire scaffolding on which the retrocausal argument rests collapses.</p>
+        <div class="case-box">
+          <strong>The Weyl curvature hypothesis and objective temporal asymmetry.</strong><br><br>
+          The second law of thermodynamics &mdash; that entropy increases over time &mdash; is explained by the extraordinarily low entropy of the early universe. But this raises a deeper question: why was the early universe in such a low-entropy state? A fully time-symmetric fundamental physics has no answer to this question; it can only treat the low-entropy initial condition as a brute fact.<br><br>
+          My Weyl curvature hypothesis provides a deeper answer: the Weyl curvature tensor &mdash; a measure of spacetime curvature associated with gravitational degrees of freedom &mdash; is constrained to be zero at the initial singularity (the Big Bang) but is unconstrained at final singularities (black holes and the Big Crunch). This asymmetric constraint introduces an objective temporal asymmetry into physics at the deepest level. It is not a thermodynamic regularity but a fundamental boundary condition with physical content.
+        </div>
+        <span class="section">i. time-asymmetry at the level of quantum gravity</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Quantum gravity asymmetry — Weyl curvature hypothesis introduces objective temporal asymmetry; not merely thermodynamic</span>Price and the retrocausalists are right that the standard quantum mechanical and electrodynamic laws are time-symmetric. But this is not the whole story. When we consider the role of quantum gravity in wave function collapse &mdash; specifically, my proposal that quantum superpositions are resolved by quantum gravitational effects (Objective Reduction, or OR) &mdash; we find a process that is not time-symmetric. The OR process selects a definite outcome from a superposition, and this selection introduces a genuine temporal asymmetry: the world after OR is more classically determinate than before. This asymmetry is not reducible to the thermodynamic arrow; it is a consequence of the non-time-symmetric geometry of quantum gravity.</span></p>
+        <span class="section">ii. against the Archimedean view: the block universe and temporal becoming</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Against block universe — objective becoming is real; Archimedean view ignores what is distinctive about the present moment</span>Price&rsquo;s Archimedean view treats the universe as a four-dimensional block in which all events, past, present, and future, are equally real. From this perspective, there is no privileged present moment, no genuine temporal becoming, and the asymmetry of causation is merely perspectival. I reject this picture. Quantum mechanics, interpreted with OR, introduces a genuine process of temporal becoming: superpositions are resolved into definite outcomes, and this resolution is genuinely irreversible and temporally directed. The present moment is physically distinguished by the ongoing process of OR, which cannot be represented in the static block universe picture. The block universe view is not neutral; it presupposes that quantum superpositions are never genuinely resolved, which is precisely what OR denies.</span></p>
+        <span class="section">iii. the Weyl curvature hypothesis as a physical source of asymmetry</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Weyl curvature — constrains Big Bang to low Weyl curvature; explains thermodynamic arrow physically; time asymmetry is fundamental</span>The thermodynamic arrow of time &mdash; the increase of entropy &mdash; requires an explanation in terms of why the early universe was in such a special, low-entropy state. Pure time-symmetric physics offers no explanation; it treats the low-entropy initial condition as a brute unexplained fact. The Weyl curvature hypothesis provides a physical explanation: the geometry of spacetime near the initial singularity is constrained by a principle that sets Weyl curvature to zero. This principle is time-asymmetric: it applies to the initial singularity but not to final singularities. The thermodynamic arrow is therefore not a brute statistical fact but a consequence of a fundamental, asymmetric boundary condition in quantum gravity. Price&rsquo;s claim that the arrow is merely thermodynamic and not fundamental is therefore backwards: the thermodynamic arrow is itself a consequence of a more fundamental asymmetry.</span></p>
+        <span class="section">iv. implications for retrocausality</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Implications — if temporal asymmetry is fundamental (OR, Weyl), retrocausal models lose their theoretical motivation; the time-symmetric premise is false</span>The retrocausal programme depends on the premise that the fundamental laws of physics are time-symmetric and that temporal asymmetry is merely an emergent, thermodynamic phenomenon. If OR and the Weyl curvature hypothesis are correct, this premise is false: temporal asymmetry is built into the fundamental physics at the deepest level. The motivation for retrocausality evaporates. Why retreat to the theoretical complexities of backwards causation if the reason for doing so &mdash; time-symmetric fundamental physics &mdash; is itself not established? The Berkovitz and Price programme is constructed on a premise that the physics of quantum gravity may already refute.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-penrose-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Objective Reduction introduces genuine temporal asymmetry at the quantum gravity level</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Quantum superpositions are resolved by quantum gravitational effects (OR) rather than by thermodynamic decoherence; this OR process is not time-symmetric.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>OR introduces a genuine temporal asymmetry: the world after OR is more classically determinate than before, and this asymmetry is not reducible to the thermodynamic arrow.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If OR is correct, the fundamental physics is not time-symmetric; the retrocausalist&rsquo;s premise that the laws are time-symmetric fails.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Objective Reduction introduces genuine, non-thermodynamic temporal asymmetry at the fundamental level; the premise of time-symmetric fundamental physics on which retrocausality depends is falsified by OR.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Objective temporal becoming is real; the block universe picture presupposes the falsity of OR</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Price&rsquo;s Archimedean view treats all events as equally real in a static four-dimensional block; this presupposes that quantum superpositions are never genuinely resolved into definite outcomes.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>OR denies this: superpositions are genuinely resolved by quantum gravitational effects, introducing temporal becoming that the block universe cannot represent.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Archimedean view is not neutral but question-begging: it assumes the falsity of OR in order to motivate retrocausality.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The block universe / Archimedean view presupposes the falsity of OR and is therefore question-begging in this context; if OR is correct, genuine temporal becoming is real and the Archimedean view is false.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The Weyl curvature hypothesis explains the thermodynamic arrow as a consequence of fundamental asymmetry</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Weyl curvature hypothesis constrains the initial singularity to zero Weyl curvature, explaining why the early universe was in a special low-entropy state — a fact that time-symmetric physics leaves unexplained.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This hypothesis is time-asymmetric: it applies to the initial singularity but not to final singularities. The thermodynamic arrow is therefore a consequence of a fundamental asymmetric boundary condition, not a brute statistical fact.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Price&rsquo;s claim that temporal asymmetry is merely thermodynamic inverts the explanatory order: the thermodynamic arrow is itself explained by a deeper asymmetry.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Weyl curvature hypothesis explains the thermodynamic arrow as a consequence of fundamental temporal asymmetry in quantum gravity; Price&rsquo;s claim that asymmetry is &ldquo;merely thermodynamic&rdquo; inverts the true explanatory order.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; If temporal asymmetry is fundamental, the theoretical motivation for retrocausality dissolves</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The retrocausal programme is motivated by the premise that fundamental physics is time-symmetric; if that premise is false, the motivation for retrocausality is removed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>OR and the Weyl curvature hypothesis provide strong evidence that fundamental physics is not time-symmetric; temporal asymmetry is physically real at the deepest level.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Without the time-symmetry premise, there is no principled reason to prefer retrocausal models over forward-causal ones.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>If OR and the Weyl curvature hypothesis are correct, the theoretical motivation for retrocausality is undermined at its foundations; the retrocausal programme rests on a contested and possibly false physical premise.</span></div>
+        </div>
+      </div>
+    </div><!-- end penrose -->
+
+    <!-- HORWICH -->
+    <div class="speaker-panel" id="opp-horwich-panel">
+      <div id="opp-horwich-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>My argument focuses on what I call the fork asymmetry and its implications for the direction of causation. The fork asymmetry is a statistical fact about the world: open causal forks &mdash; in which a common cause produces correlated effects in the future &mdash; are ubiquitous, while closed forks &mdash; in which a common effect is produced by independent, correlated prior events &mdash; are vanishingly rare. I argue that this statistical asymmetry grounds a robust causal asymmetry that is not merely perspectival or thermodynamic in Price&rsquo;s dismissive sense, but is a deep structural feature of the world.</p>
+        <div class="pull">&ldquo;The asymmetry of causation is grounded in the fork asymmetry: in our world, correlations are systematically explained by common causes in the past, not by common effects in the future. This is not a mere projection of our perspective; it is an objective statistical feature of the world that any adequate theory of causation must respect.&rdquo; &mdash; Horwich, 1987</div>
+        <span class="section">i. the fork asymmetry explained</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Fork asymmetry — open forks ubiquitous, closed forks rare; objective statistical asymmetry; grounds causal direction</span>An open fork is a structure in which two events, C1 and C2, are correlated because they share a common cause in the past: there is a prior event A such that A causes both C1 and C2, and the correlation between C1 and C2 is screened off by A. A closed fork is the time-reverse: two events, E1 and E2, have a common effect in the future, F, and the correlation between E1 and E2 (if any) is screened off by F. In our world, open forks are extremely common &mdash; almost all correlations between events that are not causally related are explained by common causes in the past. Closed forks, by contrast, are extremely rare: it is unusual for two independent events to converge on a single common effect that screens off their prior independence. This asymmetry &mdash; the fork asymmetry &mdash; is what grounds the direction of causation.</span></p>
+        <span class="section">ii. the fork asymmetry is not merely perspectival</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Not merely perspectival — fork asymmetry is an objective statistical fact; not explained by observer position; Price over-deflates</span>Price argues that the asymmetry of causation is perspectival: it reflects our own temporally situated perspective as agents, not an objective feature of the world. I accept that there is a perspectival component to the way we represent causation, but I deny that the fork asymmetry is merely perspectival. The statistical fact that open forks are common and closed forks are rare is an objective fact about the world that holds independently of any observer&rsquo;s perspective. An agent with the reversed thermodynamic orientation would observe the same fork asymmetry, described in their own temporal terms: they would find that correlations are explained by prior common causes (in their temporal direction) rather than posterior common effects. The fork asymmetry is not perspectival; it is objective and world-level.</span></p>
+        <span class="section">iii. retrocausal models violate the fork asymmetry</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Retrocausality violates fork asymmetry — retrocausal correlations are closed forks; but closed forks are objective rarities</span>Retrocausal models of quantum entanglement require that measurement settings (future events) be correlated with hidden variable values (past events) in a way that is not explained by a prior common cause. This is precisely the structure of a closed fork: the correlated events (setting and hidden variable) have a common effect (the measurement outcome) rather than a common cause. But closed forks are objectively rare in our world. The retrocausal model does not merely challenge our perspective on the direction of causation; it requires the existence of systematic closed forks, which are objectively anomalous. This is a significant cost: the retrocausal model systematically violates the fork asymmetry, which is one of the deepest structural features of the causal order of our world.</span></p>
+        <span class="section">iv. the statistical grounds of causal asymmetry resist Price&rsquo;s deflationism</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Against Price's deflationism — fork asymmetry is physically, not merely anthropocentrically, grounded; time-symmetric physics is silent on it</span>Price&rsquo;s deflationism about causal asymmetry holds that the asymmetry is anthropocentric and thermodynamic, not fundamentally physical. But the fork asymmetry provides a physical, not merely anthropocentric, ground for causal direction. It is a fact about the statistical structure of the world, not merely about our perspective on it. Moreover, time-symmetric fundamental physics is simply silent on the fork asymmetry: it neither predicts it nor explains it. The fork asymmetry is a higher-level, but genuinely objective, structural feature of reality that physics with forward temporal structure must account for. Price&rsquo;s Archimedean view, which abstracts away from this structure, abstracts away from something real and physically significant.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-horwich-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The fork asymmetry is an objective statistical feature of the world grounding the direction of causation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Open forks (common cause &rarr; correlated effects) are ubiquitous; closed forks (independent causes &rarr; common effect with prior correlation screened off by the effect) are vanishingly rare in our world.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This asymmetry is an objective statistical fact about the structure of the world, not a perspectival projection; it grounds the direction of causation in the forward-temporal direction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The fork asymmetry provides an objective, physical basis for causal direction that is not merely thermodynamic in the dismissive sense Price intends.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The fork asymmetry is an objective statistical feature of the world that grounds forward causal direction; it is not merely perspectival or thermodynamic in a philosophically dismissible sense.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The fork asymmetry is objective and world-level; Price&rsquo;s perspectivalism over-deflates</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Price argues the causal asymmetry is perspectival. But the statistical fact that open forks are common and closed forks rare holds independently of any observer&rsquo;s perspective.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>An agent with reversed thermodynamic orientation would observe the same asymmetry described in their terms: correlations explained by prior (in their temporal direction) common causes rather than posterior common effects.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The fork asymmetry is therefore objective and world-level; Price&rsquo;s perspectivalism abstracts away from an objective feature of causal structure.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The fork asymmetry is an objective feature of the world rather than a perspectival projection; Price&rsquo;s deflationism over-deflates by treating an objective structural fact as a mere artefact of our embedded perspective.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Retrocausal quantum models require systematic closed forks, which are objectively anomalous</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Retrocausal models require correlations between future measurement settings and past hidden variable values unexplained by a prior common cause; this has the structure of a closed fork.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Closed forks are objectively rare in our world; the retrocausal model requires systematic closed forks at the quantum level, violating the fork asymmetry.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is a significant cost: it is not merely that the model challenges our perspective, but that it requires the systematic occurrence of a type of structure that is objectively anomalous.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Retrocausal quantum models violate the fork asymmetry by requiring systematic closed forks; since closed forks are objectively rare, this is a significant theoretical cost independent of perspectival considerations.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument IV &mdash; The fork asymmetry resists Price&rsquo;s deflationism: it is physical, objective, and unexplained by time-symmetric physics</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Price&rsquo;s deflationism treats causal asymmetry as anthropocentric; but the fork asymmetry is a physical fact about the statistical structure of the world, not a feature of our representation of it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Time-symmetric fundamental physics is silent on the fork asymmetry: it neither predicts nor explains the ubiquity of open forks and rarity of closed forks.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Archimedean view abstracts away from the fork asymmetry, thereby abstracting away from an objective structural feature of reality that any adequate account of causation must respect.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The fork asymmetry resists Price&rsquo;s deflationism: it is an objective physical fact that time-symmetric physics cannot explain; the Archimedean view loses genuine physical content by abstracting away from it.</span></div>
+        </div>
+      </div>
+    </div><!-- end horwich -->
+
+    <!-- DOWE -->
+    <div class="speaker-panel" id="opp-dowe-panel">
+      <div id="opp-dowe-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>My process theory of causation holds that causation is constituted by the transmission of conserved physical quantities &mdash; energy, momentum, charge &mdash; along worldlines in spacetime. I want to argue that this account of causation is more defensible than the counterfactual and transactional alternatives, and that it provides principled grounds for rejecting retrocausality.</p>
+        <p>On my account, a causal process is a worldline along which a conserved quantity is transmitted; a causal interaction is an intersection of causal processes at which conserved quantities are exchanged. Causation is constituted by these physical processes and interactions. This account has the virtue of being directly grounded in the laws of conservation in physics, and it explains why causation has the structural features it does &mdash; including, I shall argue, its temporal direction.</p>
+        <div class="case-box">
+          <strong>The conserved quantity process theory.</strong><br><br>
+          A causal process: a worldline along which a conserved quantity (energy-momentum, charge, lepton number, etc.) is transmitted continuously. A causal interaction: an intersection of two or more worldlines at which conserved quantities are exchanged between the processes.<br><br>
+          Causation consists in these processes and interactions; causal relations are grounded in the physical structure of the transmission. This is not a reductive analysis of causation in terms of counterfactuals; it is an account of what causation physically consists in. The theory has direct empirical content: causal claims are answerable to the physics of conserved quantities.
+        </div>
+        <span class="section">i. causal processes are worldlines of conserved quantity transmission</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Conserved quantity process — causal processes are physical worldlines; not abstract counterfactual relations; directly grounded in physics</span>The key advantage of the process theory over counterfactual and regularity accounts is that it grounds causation directly in the physics. A causal process is not a pattern of counterfactual dependencies among abstract events; it is a physical worldline along which energy, momentum, or another conserved quantity is transmitted continuously. This grounding gives the process theory a directness and concreteness that counterfactual accounts lack. It also provides a natural account of why causal processes are continuous &mdash; because conserved quantity transmission is continuous &mdash; and why causal processes can be traced through space and time as physical entities. The retrocausal account, by contrast, relies on abstract counterfactual or wave-function-based relations that lack this physical concreteness.</span></p>
+        <span class="section">ii. the directionality of conserved quantity transmission</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Transmission direction — conserved quantities transmitted along worldlines in forward temporal direction; thermodynamic arrow grounds this; retrocausal transmission is unobserved</span>Conserved quantity transmission along worldlines has a direction in spacetime. In our world, this direction coincides with the forward temporal direction: energy and momentum flow from past to future along causal worldlines. This directionality is grounded in the thermodynamic arrow and in the boundary conditions of the universe. Retrocausal processes would require conserved quantities to be transmitted along past-directed worldlines &mdash; in the direction of decreasing entropy &mdash; which is observationally undetected and thermodynamically extraordinary. The process theory does not rule out retrocausal transmission on purely conceptual grounds, but it requires that retrocausal processes be identified with specific physical worldlines along which conserved quantities flow backwards; no such worldlines have been found, and positing them ad hoc is theoretically costly.</span></p>
+        <span class="section">iii. against the transactional interpretation</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against TI — Cramer&rsquo;s offer/confirmation waves are not conserved quantity processes; they are abstract, not physical</span>Cramer&rsquo;s Transactional Interpretation postulates offer waves and confirmation waves that propagate forwards and backwards in time respectively, completing transactions that determine quantum outcomes. But these waves, as Cramer describes them, are not conserved quantity processes in my sense: they do not carry conserved quantities along worldlines in the way that physical causal processes do. The offer wave in the TI is essentially the quantum wave function &mdash; a mathematical object defined over configuration space, not a physical process in spacetime. Attributing physical reality to the wave function and its advanced counterpart is a substantial and contested metaphysical commitment. The process theory requires that causal claims be answerable to the physics of actual physical processes, and the TI&rsquo;s abstract waves do not meet this standard.</span></p>
+        <span class="section">iv. the absences objection and backwards causation</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Absences objection — retrocausal models typically involve negative causal claims (absences); process theory struggles with these; but forwards causation handles them better</span>A final consideration concerns the role of absences in retrocausal models. In a retrocausal Bell experiment, the measurement settings influence past hidden variables not through the transmission of conserved quantities but through the absence of certain settings &mdash; through what is not chosen rather than what is. This reliance on absences is problematic for any process theory: absences are not physical processes, and their causal role is difficult to account for on a conserved quantity approach. But this is a problem for any causal model that relies on what could have been but was not done; retrocausal models that depend on the absence of certain future interventions inherit this problem in a particularly acute form. Forward causal models, which typically involve positive physical processes, are better positioned to accommodate the process theory&rsquo;s requirements.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-dowe-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The process theory grounds causation directly in physics; counterfactual and abstract accounts lose physical concreteness</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A causal process is a worldline along which a conserved quantity is transmitted continuously; this grounding is directly physical, not abstract or relational in the counterfactual sense.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Counterfactual accounts of causation are abstract: they concern patterns of dependence among event-types, not physical processes in spacetime. They lose the concreteness and continuity of causal processes.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The process theory is therefore more directly grounded in the physics and more capable of identifying causal processes as physical entities in spacetime.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The process theory is more physically adequate than counterfactual accounts; it grounds causal claims directly in the physics of conserved quantity transmission along worldlines.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Conserved quantity transmission is forward-directed; retrocausal transmission is unobserved and thermodynamically costly</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In our world, conserved quantities flow along worldlines in the forward temporal direction, grounded in the thermodynamic arrow and boundary conditions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Retrocausal processes would require conserved quantity transmission along past-directed worldlines; this is both unobserved and would require entropy-decreasing physical processes.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Positing such processes ad hoc to account for quantum correlations is theoretically costly and empirically unsupported.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>On the process theory, retrocausal models face a significant empirical burden: they must identify specific worldlines of backward conserved quantity transmission, which are unobserved; this is a decisive disadvantage relative to forward-causal models.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Cramer&rsquo;s offer and confirmation waves are not conserved quantity processes; the TI lacks physical concreteness</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Cramer&rsquo;s offer and confirmation waves are essentially the quantum wave function and its advanced counterpart; they are mathematical objects defined over configuration space, not physical worldlines carrying conserved quantities.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The process theory requires causal processes to be physical worldlines of conserved quantity transmission; the TI&rsquo;s abstract waves do not meet this standard.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The TI therefore does not provide the kind of physically grounded retrocausal mechanism that would satisfy a process-theoretic account of causation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The TI fails the process theory&rsquo;s standard of physical concreteness; its offer and confirmation waves are abstract mathematical objects, not physical conserved quantity processes; retrocausal transactions are not causal in the process-theoretic sense.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument IV &mdash; Retrocausal models rely on absences; this is particularly problematic for process-theoretic causation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Retrocausal Bell models typically involve the influence of future measurement settings — including what settings are not chosen — on past hidden variables; this relies on absences as causal factors.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Absences are not physical processes and cannot transmit conserved quantities; they are therefore difficult to accommodate within the process theory.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Forward causal models typically involve positive physical processes; they are better positioned to satisfy process-theoretic requirements. Retrocausal models inherit absence-based causal claims in an acute form.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Retrocausal models&rsquo; reliance on absences as causal factors is a problem for the process theory; forward causal models are better suited to the process-theoretic requirement that causation be constituted by positive physical processes of conserved quantity transmission.</span></div>
+        </div>
+      </div>
+    </div><!-- end dowe -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'price',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'maudlin',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
