@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Science of Voting — The Symposium</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 9px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.tbl{width:100%;border-collapse:collapse;font-family:sans-serif;font-size:11.5px;margin:.5rem 0 .9rem;background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;overflow:hidden}
+.tbl th{background:var(--bg4);color:var(--text);font-weight:600;padding:5px 9px;text-align:left;border-bottom:1px solid var(--bdr2);letter-spacing:.04em;font-size:10.5px;text-transform:uppercase}
+.tbl td{padding:5px 9px;color:var(--text2);border-bottom:1px solid var(--bdr);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl .winner{color:var(--prop-green);font-weight:700}
+.tbl .loser{color:var(--opp-red)}
+.tbl .hi{color:var(--a1tip);font-weight:600}
+.tbl .note{font-size:10px;color:var(--text3);font-style:italic;margin-top:2px}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.realworld{font-family:sans-serif;font-size:11px;background:rgba(200,169,90,.08);border:1px solid rgba(200,169,90,.25);border-radius:4px;padding:6px 10px;margin:.6rem 0 .85rem;color:var(--text2);line-height:1.65}
+.realworld strong{color:var(--gold);font-weight:600}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Condorcet (1785) &bull; Borda (1781) &bull; Arrow (1951) &bull; Gibbard (1973) &bull; Saari (1995) &bull; Brams &amp; Fishburn (1978) &bull; Balinski &amp; Laraki (2010) &bull; Black (1958) &bull; Young (1988) &bull; Sen (1970)</div>
+  <div class="motion-title">&ldquo;This House Believes that majority-pairwise methods best capture the democratic will &mdash; and that positional, cardinal, and grading rules systematically distort it in ways their proponents have not overcome&rdquo;</div>
+  <div class="motion-sub">Proposition &bull; Condorcet &middot; Arrow &middot; Young &nbsp;&mdash;&nbsp; Opposition &bull; Borda/Saari &middot; Brams (Approval) &middot; Balinski &amp; Laraki (Majority Judgment) &middot; Sen &middot; Black</div>
+</div>
+
+<div class="columns">
+
+<!-- LEFT — PROPOSITION -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','condorcet',this)">Condorcet</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','arrow',this)">Arrow</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','young',this)">Young</button>
+  </div>
+
+  <!-- CONDORCET HEADER -->
+  <div class="col-header" id="prop-condorcet-header">
+    <div class="col-header-top"><span class="pill prop">Pairwise Majority / Condorcet Winner</span><span class="col-subtitle">M.J.A.N. de Caritat, Marquis de Condorcet — 1785</span></div>
+    <div class="col-position">The only rule consistent with the natural meaning of majority preference is one that elects the candidate who beats every other candidate in a head-to-head majority vote; any rule that can elect a candidate the majority prefers less than some available alternative has failed to represent the collective will; Borda&rsquo;s point-scoring is a mathematical trick that launders minority preferences into victory.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','condorcet','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','condorcet','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- ARROW HEADER -->
+  <div class="col-header hidden" id="prop-arrow-header">
+    <div class="col-header-top"><span class="pill prop">Impossibility / Condorcet Foundations</span><span class="col-subtitle">Kenneth Arrow — Social Choice and Individual Values, 1951</span></div>
+    <div class="col-position">No voting rule can simultaneously satisfy all of the minimal conditions we require of a fair aggregation procedure &mdash; universal domain, Pareto efficiency, independence of irrelevant alternatives, and non-dictatorship; the Condorcet paradox is a special case of this deeper impossibility; but the impossibility result itself vindicates pairwise majoritarianism as the uniquely well-motivated baseline from which all other methods deviate.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','arrow','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','arrow','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- YOUNG HEADER -->
+  <div class="col-header hidden" id="prop-young-header">
+    <div class="col-header-top"><span class="pill prop">Probabilistic Condorcet / Kemeny Rule</span><span class="col-subtitle">H. Peyton Young — APSR, 1988 / Social Choice and Welfare</span></div>
+    <div class="col-position">Condorcet&rsquo;s method can be given a rigorous probabilistic foundation: if each voter has an independent probability greater than ½ of correctly identifying the better of any two candidates, then the procedure that maximises the likelihood of electing the correct candidate is exactly the Kemeny rule &mdash; which always elects the Condorcet winner when one exists; this is a decisive advantage over positional and approval methods which have no analogous epistemic foundation.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','young','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','young','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- CONDORCET -->
+    <div class="speaker-panel active" id="prop-condorcet-panel">
+      <div id="prop-condorcet-speech" class="speech-text">
+        <p class="salut">Monsieur Borda has proposed a method of election which, I must confess, possesses considerable mathematical elegance. He assigns to each candidate a number of points proportional to their position in each voter&rsquo;s ranking. The candidate with the most points wins. This is simple. It is reproducible. And it is, I shall demonstrate, wrong &mdash; wrong in a way that reveals a fundamental misunderstanding of what a vote is.</p>
+        <p>A vote is an expression of preference between candidates. When you ask voters to rank three candidates, you are asking them three questions: do you prefer A to B? Do you prefer A to C? Do you prefer B to C? These are three distinct propositions, and the electorate&rsquo;s answer to each is a majority verdict. The only procedure consistent with the meaning of those verdicts is one that respects every majority verdict: the procedure that elects the candidate who wins a majority verdict against every rival in direct comparison. This is what I call the candidate of the majority &mdash; or, as posterity seems to have named it, the Condorcet winner.</p>
+
+        <span class="section">i. the founding example: borda misidentifies the winner</span>
+        <p>Consider the election that has defined this debate. There are three candidates and twenty-one voters:</p>
+        <table class="tbl">
+          <tr><th>Group</th><th>Size</th><th>Preference Order</th></tr>
+          <tr><td>Group 1</td><td>8 voters</td><td>A &gt; B &gt; C</td></tr>
+          <tr><td>Group 2</td><td>7 voters</td><td>B &gt; C &gt; A</td></tr>
+          <tr><td>Group 3</td><td>6 voters</td><td>C &gt; A &gt; B</td></tr>
+        </table>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Borda elects B — plurality elects A — Condorcet elects C; the three rules disagree on the same ballot</span>Under <strong>plurality</strong> (first-place votes only): A gets 8, B gets 7, C gets 6. A wins.
+        Under <strong>Borda</strong> (3 pts first, 2 pts second, 1 pt third): A gets 8&times;3+7&times;1+6&times;2 = 24+7+12 = <strong>43</strong>; B gets 8&times;2+7&times;3+6&times;1 = 16+21+6 = <strong>43</strong>; C gets 8&times;1+7&times;2+6&times;3 = 8+14+18 = <strong>40</strong>. On a tie-break B wins (or the tie must be resolved arbitrarily). Under <strong>pairwise majority</strong>: A vs B — Groups 1 and 3 prefer A (14 vs 7), A beats B. A vs C — Groups 1 and 2 prefer... wait. Group 1: A&gt;C. Group 2: C&gt;A. Group 3: C&gt;A. So C beats A 13 to 8. B vs C — Groups 1 and 2 prefer B. B beats C 15 to 6.</span></p>
+        <table class="tbl">
+          <tr><th>Method</th><th>Scores / Results</th><th>Winner</th></tr>
+          <tr><td>Plurality</td><td>A: 8 &nbsp;|&nbsp; B: 7 &nbsp;|&nbsp; C: 6</td><td class="winner">A</td></tr>
+          <tr><td>Borda Count</td><td>A: 43 &nbsp;|&nbsp; B: 43 &nbsp;|&nbsp; C: 40</td><td class="winner">B (tie-break)</td></tr>
+          <tr><td>Pairwise (Condorcet)</td><td>C beats A 13–8; B beats C 15–6; A beats B 14–7</td><td class="loser">No Condorcet winner! (cycle)</td></tr>
+        </table>
+        <p class="note" style="font-family:sans-serif;font-size:11px;color:var(--text3);margin-bottom:.8rem">Note: this profile produces a Condorcet cycle. I use a different profile below to show when the methods genuinely disagree.</p>
+
+        <p>Let me show the cleaner case &mdash; where a Condorcet winner exists and Borda overrides it:</p>
+        <table class="tbl">
+          <tr><th>Group</th><th>Size</th><th>Preference Order</th></tr>
+          <tr><td>Group 1</td><td>6</td><td>A &gt; B &gt; C</td></tr>
+          <tr><td>Group 2</td><td>5</td><td>B &gt; A &gt; C</td></tr>
+          <tr><td>Group 3</td><td>4</td><td>C &gt; B &gt; A</td></tr>
+        </table>
+        <table class="tbl">
+          <tr><th>Method</th><th>Calculation</th><th>Winner</th></tr>
+          <tr><td>Pairwise: A vs B</td><td>A preferred by Groups 1 (6 voters): <strong>6</strong> vs B preferred by Groups 2+3 (9 voters): <strong>9</strong></td><td class="loser">B beats A, 9–6</td></tr>
+          <tr><td>Pairwise: A vs C</td><td>A preferred by Groups 1+2 (11): <strong>11</strong> vs C (4): <strong>4</strong></td><td class="winner">A beats C, 11–4</td></tr>
+          <tr><td>Pairwise: B vs C</td><td>B preferred by Groups 1+2 (11): <strong>11</strong> vs C (4): <strong>4</strong></td><td class="winner">B beats C, 11–4</td></tr>
+          <tr><td><strong>Condorcet winner</strong></td><td colspan="2">B beats everyone → <span class="winner">B is the Condorcet winner</span></td></tr>
+          <tr><td>Borda Count</td><td>A: 6×3+5×2+4×1 = 18+10+4 = <strong>32</strong>&nbsp; B: 6×2+5×3+4×2 = 12+15+8 = <strong>35</strong>&nbsp; C: 6×1+5×1+4×3 = 6+5+12 = <strong>23</strong></td><td class="winner">B — Borda agrees here</td></tr>
+          <tr><td>Plurality</td><td>A: 6 &nbsp;|&nbsp; B: 5 &nbsp;|&nbsp; C: 4</td><td class="loser">A wins — overrides B the Condorcet winner!</td></tr>
+        </table>
+        <div class="realworld"><strong>Real-world parallel:</strong> This is the chronic pathology of First Past the Post, the system used in British and American parliamentary and congressional elections. In a three-way race where the moderate is broadly preferred, plurality can hand victory to the most polarising first-preference leader. The 2000 US election provides a real case: Gore was probably the Condorcet winner (beating both Bush and Nader in head-to-head polls), yet Bush won under FPTP.</div>
+
+        <span class="section">ii. the meaning of a vote: why pairwise comparison is natural</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Vote = binary preference; Borda conflates ordinal position with cardinal value; positions are not utilities</span>What does it mean to rank A above B above C? It means precisely: I prefer A to B, I prefer A to C, and I prefer B to C. Nothing more. The Borda count assigns point weights to these positions &mdash; first place is worth 3 points, second 2 points, third 1 point. But why? The difference in my enthusiasm between my first and second choice may be enormous or negligible. Borda&rsquo;s weights are entirely arbitrary. They impose a cardinal structure on purely ordinal information. The pairwise method does not do this. It asks only what the ordinal ranking implies, which is a series of binary preferences, and it aggregates those preferences by majority vote. This is the minimal, least presumptuous method available. It assumes nothing about the intensity of preferences &mdash; only about their direction.</span></p>
+
+        <span class="section">iii. the condorcet paradox and what it truly shows</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Condorcet cycle — a genuine collective irrationality; frequency is low empirically; no alternative avoids it by pretending it doesn&rsquo;t exist</span>I am aware that my method has a famous weakness: it can produce a cycle in which A beats B, B beats C, and C beats A, with no Condorcet winner. This is the paradox of voting. I discovered it. I am not embarrassed by it. What it shows is that when the electorate is genuinely divided in a cyclic way, there is no unambiguous majority will to be expressed, and the task of the electoral system is to acknowledge this honestly and resolve the cycle by some principled method &mdash; not to paper over it by assigning arbitrary weights and pretending the ambiguity does not exist. The Borda count does not solve the Condorcet paradox. It ignores it. It will always produce a winner, but in a cyclic profile that winner has no claim to represent the majority will. It simply reflects the arbitrary choice of the weight vector 3-2-1.</span></p>
+
+        <span class="section">iv. strategic manipulation: borda&rsquo;s catastrophic vulnerability</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Borda manipulation — bury rivals by ranking them last; clone strategy; pairwise methods more resistant</span>Any serious evaluation of a voting rule must consider its vulnerability to strategic manipulation. Consider what a rational voter can do under the Borda count. If my true preference is A&gt;B&gt;C, but I know B is my main rival&rsquo;s favourite, I can misreport my preference as A&gt;C&gt;B, moving B from second to last place and reducing B&rsquo;s score by 1 point per ballot. This &ldquo;burying&rdquo; strategy is simple, effective, and rational. Indeed, the Borda count is uniquely vulnerable to what is called clone manipulation: a party can increase its candidate&rsquo;s total Borda score by fielding multiple similar candidates, diluting the scores of rivals. This is not a hypothetical concern. It is a dominant strategy in any Borda election in which parties have more than one potential candidate. Pairwise methods are not immune to manipulation &mdash; no method is, by the Gibbard-Satterthwaite theorem &mdash; but they are substantially less vulnerable because a voter can only improve her favourite&rsquo;s pairwise record by reporting pairwise preferences differently, which typically requires misreporting in ways that damage other preferred candidates.</span></p>
+
+        <p><em>The majority method is imperfect. But its imperfections are honest. I yield the floor.</em></p>
+      </div>
+      <div id="prop-condorcet-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Plurality and Borda both elect non-Condorcet-winners; pairwise majority is the only method consistent with majority preference</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the 15-voter profile (6: A&gt;B&gt;C, 5: B&gt;A&gt;C, 4: C&gt;B&gt;A), B is the Condorcet winner — beating A 9–6 and C 11–4. Every other method should respect this verdict.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Plurality elects A (6 first-place votes), who loses to B in a head-to-head. Borda correctly elects B here, but in many profiles (21-voter example) Borda produces different winners from Condorcet, dictated by its arbitrary 3-2-1 weighting.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Any method that can elect A when B beats A by majority vote has failed to represent the collective preference; only the pairwise method cannot make this error by construction.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Condorcet criterion is the minimal necessary condition of majority rule; any system that violates it demonstrably elects a candidate the majority prefers less, and this is a decisive objection to plurality and to Borda in contested profiles.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Borda weights are arbitrary; pairwise majority makes no cardinal assumptions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A voter who ranks A&gt;B&gt;C provides three binary preferences. Borda assigns scores 3-2-1, implying the A-to-B gap equals the B-to-C gap. But voters report no such information; the gaps may be wildly different.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A different weight vector — say 10-2-1 — would often produce a different winner from the same ballots. The Borda count's result depends on an arbitrary choice of weights that cannot be derived from ordinal ballots.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Pairwise majority uses only the ordinal information the ballot contains — binary preference direction — and makes no further assumptions. It is the uniquely assumption-minimal method.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Borda's point weighting imposes spurious cardinal structure on ordinal data; pairwise majority is the minimal method because it extracts only what ballots actually contain — direction of preference, not magnitude.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — The Condorcet paradox is an honest acknowledgement of genuine collective irrationality; Borda papers over it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When A beats B, B beats C, C beats A by majority, there is no coherent majority will; the electorate is genuinely cycling. Any method that produces a winner in this case is imposing an arbitrary resolution.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Borda always produces a winner, but in a cyclic profile that winner simply reflects the 3-2-1 weight choice; it does not represent majority preference in any sense because no majority preference is stably defined.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Condorcet method acknowledges the cycle honestly; resolution methods (Black's fallback to Borda, Kemeny's rule) then handle the tie in a principled way rather than pretending no ambiguity exists.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Condorcet paradox is an honest feature, not a bug; Borda's guarantee of a unique winner in cyclic profiles is not a virtue but a disguised arbitrariness; only the pairwise method is transparent about when majority will is genuinely indeterminate.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Borda is catastrophically vulnerable to burying and clone strategies; pairwise methods are more resistant</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Under Borda, ranking a rival last costs them (n-1) points per ballot; a voter who buries a rival by misreporting gains a linear advantage that is rational and easy to compute.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The clone strategy: a party can run k similar candidates, each collecting Borda points, diluting rivals' totals. With k clones the party's total increases linearly with k, incentivising candidate proliferation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Pairwise methods require a voter to misreport binary preferences in ways that typically damage preferred candidates to help others — a more costly and less tractable manipulation than Borda's straightforward burying.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Borda's vulnerability to burying and cloning is a fundamental defect that makes it practically unworkable in competitive elections; pairwise majority, while not manipulation-proof, is substantially more resistant to these dominant-strategy manipulations.</span></div>
+        </div>
+      </div>
+    </div><!-- end condorcet -->
+
+    <!-- ARROW -->
+    <div class="speaker-panel" id="prop-arrow-panel">
+      <div id="prop-arrow-speech" class="speech-text">
+        <p class="salut">My theorem is often misread. It is described as showing that no voting system is fair. What it actually shows is more precise and more illuminating: it shows that no aggregation procedure over ranked preferences can simultaneously satisfy four conditions that any reasonable democrat would endorse. The theorem does not counsel despair. It tells us exactly which condition must be sacrificed, and in doing so it clarifies the stakes.</p>
+        <p>Let me state the conditions clearly, because they are often garbled in popular presentations. <strong>Universality</strong>: the rule must work for any possible combination of voter preferences. <strong>Pareto efficiency</strong>: if every voter prefers A to B, the rule must rank A above B. <strong>Independence of Irrelevant Alternatives (IIA)</strong>: the social ranking of A versus B must depend only on voters&rsquo; preferences between A and B &mdash; not on how they rank C or D. <strong>Non-dictatorship</strong>: no single voter&rsquo;s preferences always determine the social ranking regardless of all others. My theorem: no rule satisfies all four.</p>
+
+        <span class="section">i. the theorem stated and demonstrated</span>
+        <table class="tbl">
+          <tr><th>Condition</th><th>Informal meaning</th><th>Violated by</th></tr>
+          <tr><td>Universality (U)</td><td>Works for any preference profile</td><td>Majority rule (Condorcet cycles)</td></tr>
+          <tr><td>Pareto (P)</td><td>Unanimous preferences respected</td><td>No standard method violates this</td></tr>
+          <tr><td>IIA</td><td>A vs B ranking unaffected by C&rsquo;s presence</td><td>Borda, IRV, plurality, Approval</td></tr>
+          <tr><td>Non-dictatorship (ND)</td><td>No single voter decides everything</td><td>Dictatorship (trivially satisfies U+P+IIA)</td></tr>
+          <tr><td colspan="3" class="note">Arrow&rsquo;s theorem: U + P + IIA + ND → contradiction. Every non-dictatorial method violates IIA (or fails universality under some profiles).</td></tr>
+        </table>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Arrow&rsquo;s theorem — IIA violation implies all ranked methods susceptible to agenda manipulation; Condorcet is the least bad</span>The condition that is sacrificed by virtually every non-dictatorial rule is IIA. This is deeply important for democratic theory. Violation of IIA means that whether A or B wins the election can depend on whether a third candidate C is on the ballot &mdash; even if no voter changes their mind about A versus B. This is the mathematical foundation of the spoiler effect. When Ralph Nader runs in 2000 and takes votes from Gore, Bush wins even though a majority might prefer Gore to Bush; C&rsquo;s irrelevant presence has changed the A-versus-B outcome. Plurality voting, Borda, and IRV all violate IIA routinely and dramatically. The Condorcet method violates IIA only when there is a cycle &mdash; precisely when there is no majority preference to protect.</span></p>
+
+        <div class="realworld"><strong>Real-world parallel — The spoiler effect in US elections:</strong> Nader 2000 (Gore loses Florida by 537 votes; Nader takes 97,000). Perot 1992 (Clinton 43%, Bush 38%, Perot 19% — Perot almost certainly harmed Bush). The spoiler effect is not an accident; it is a theorem. IIA violation in plurality systems structurally produces two-party dominance (Duverger's Law) by making it rational to abandon your true first preference and vote strategically for a lesser evil.</div>
+
+        <span class="section">ii. why the impossibility vindicates condorcet rather than undermining it</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Condorcet as the least-bad response to impossibility — IIA violation only in cycles; Borda violates IIA systematically always</span>Some read my theorem as an equally devastating objection to all voting rules, leaving us to choose arbitrarily. I do not accept this reading. The Condorcet criterion, combined with a cycle-resolution rule, violates IIA <em>only when majority will is genuinely cyclical</em> &mdash; when, that is, there is no determinate majority preference to protect. In all other cases, Condorcet methods satisfy IIA by construction: if everyone who preferred A to B before C was introduced still prefers A to B, then the Condorcet comparison A-versus-B is unaffected by C. Borda violates IIA in <em>all</em> cases where C&rsquo;s presence could redistribute Borda points between A and B. The Condorcet method&rsquo;s IIA violation is confined to the very situation in which IIA cannot be satisfied by any non-dictatorial rule. Borda&rsquo;s is not.</span></p>
+
+        <span class="section">iii. the gibbard-satterthwaite corollary: all rules are manipulable</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">G-S theorem — all non-dictatorial rules with ≥3 outcomes are manipulable; not an argument for Borda specifically; reduces to choosing which manipulation is least harmful</span>Gibbard and Satterthwaite proved a related and equally important result: any non-dictatorial voting rule with three or more possible outcomes is manipulable by strategic voting. This is often taken as an objection specifically to pairwise methods, because Condorcet methods can be manipulated by voters who misreport preferences to create or escape cycles. But notice that the theorem applies with full force to Borda, approval voting, and all positional methods. The question is not which rule is manipulation-proof &mdash; none is &mdash; but which rule makes manipulation most costly and least rewarding. I believe the evidence favours pairwise methods, but this is an empirical question rather than a theoretical one. What the theorem rules out is the claim that any competing method has solved the problem of strategic misrepresentation. None has.</span></p>
+
+        <span class="section">iv. escaping the theorem: cardinal and grading methods</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Cardinal escape — range voting and majority judgment escape Arrow by using cardinal information; but invite strategic score inflation</span>The elegance of the Arrow escape route chosen by Balinski-Laraki&rsquo;s Majority Judgment and by range voting is that they use information beyond ordinal rankings &mdash; voters assign grades or scores rather than rankings. Arrow&rsquo;s theorem applies only to ordinal preference aggregation, so these methods technically evade it. But they face a different and perhaps more severe problem: strategic manipulation of scores. If I know my candidate needs a higher median grade to beat a rival, I have every incentive to give my candidate the maximum grade and my rival the minimum, regardless of my true assessment. The cardinal escape from Arrow thus invites a cardinal version of strategic misrepresentation that makes Gibbard-Satterthwaite look mild. Brams&rsquo; approval voting faces the identical problem: the strategic question of which candidates to approve is precisely the question of how to manipulate a binary score.</span></p>
+        <p><em>The theorem is not counsel of nihilism. It is a map of the terrain. The Condorcet approach remains the most defensible path through it.</em></p>
+      </div>
+      <div id="prop-arrow-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Arrow's theorem shows IIA violation is universal; Condorcet violates it only where no majority preference exists</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Arrow's theorem: U + P + IIA + ND → contradiction. Every non-dictatorial rule must violate IIA on some profile.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Condorcet methods violate IIA only on profiles with cycles — the exact profiles where no stable majority preference over A and B exists regardless of C's presence. In all acyclic profiles, Condorcet satisfies IIA.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Borda and plurality violate IIA on profiles with a clear Condorcet winner — precisely the profiles where a stable majority preference exists and ought to be protected.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Condorcet methods violate IIA only where IIA is impossible to satisfy non-dictatorially; Borda and plurality violate IIA where IIA is both possible and desirable to satisfy — a decisive asymmetry favouring Condorcet.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — The spoiler effect is IIA violation in practice; it is endemic in plurality and Borda, not in Condorcet</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The spoiler effect: adding C to the ballot changes the A-vs-B outcome even without changing any voter's A-vs-B preference. This is IIA violation in practice, not merely in theory.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Under plurality, any candidate who takes votes from a similar candidate is a spoiler: Nader/Gore/Bush in 2000, Perot/Bush/Clinton in 1992. The spoiler effect is structurally endemic in FPTP.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Under Condorcet, adding a new candidate changes the outcome only if that candidate enters the top cycle — which requires a genuine change in majority-preference structure, not a mere splitting of first-place votes.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The spoiler effect is the democratic cost of IIA violation; it is endemic in plurality and Borda but contingent in Condorcet; this is a decisive practical advantage for pairwise majority methods.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Gibbard-Satterthwaite applies universally; it cannot be used to single out pairwise methods</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>G-S theorem: every non-dictatorial voting rule with three or more outcomes is manipulable by strategic voting on some profile. This includes Borda, approval, majority judgment, IRV, and all Condorcet methods.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The manipulability objection cannot be used to prefer any particular rule over others without showing that manipulation is more frequent, easier, or more consequential under that rule — an empirical question on which the evidence does not favour Borda.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Borda's burying and cloning strategies are dominant — straightforward to compute and reliably effective; Condorcet manipulation typically requires creating cycles, which is harder to engineer reliably.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>G-S applies universally and cannot be used to privilege Borda or approval over Condorcet; on the dimension of manipulation ease, the evidence favours pairwise methods.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Cardinal escapes from Arrow invite strategic score inflation worse than ordinal manipulation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Majority judgment and range voting escape Arrow's theorem by using cardinal grades rather than ordinal rankings. Arrow's theorem does not apply to cardinal aggregation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But cardinal aggregation invites a different manipulation: strategic grade assignment, where a voter gives her preferred candidate the maximum possible grade and rivals the minimum, regardless of true assessments.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Under strategic cardinal voting, the information content of grades collapses: they become binary approval/disapproval signals, making the elaborate grading mechanism pointless and the method equivalent to a manipulated approval vote.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The cardinal escape from Arrow's theorem is illusory in practice; strategic score inflation reduces cardinal methods to approval voting under adversarial conditions, and this strategic collapse is arguably worse than the ordinal manipulations it was designed to avoid.</span></div>
+        </div>
+      </div>
+    </div><!-- end arrow -->
+
+    <!-- YOUNG -->
+    <div class="speaker-panel" id="prop-young-panel">
+      <div id="prop-young-speech" class="speech-text">
+        <p class="salut">I want to provide what has been missing from Condorcet&rsquo;s original presentation: a rigorous probabilistic foundation for the pairwise method that shows it is not merely reasonable but uniquely optimal under a coherent epistemic model of collective decision-making.</p>
+        <p>Condorcet believed &mdash; and I believe he was right &mdash; that elections are not merely preference aggregation exercises. They are truth-tracking procedures. There is typically some fact of the matter about which candidate would govern best, or which policy would be most beneficial, or which judgment is most accurate. The electorate functions as a jury: each voter has some probability of identifying the truth. Condorcet&rsquo;s Jury Theorem shows that, if each voter has an independent probability greater than one-half of getting the right answer, the majority verdict converges to certainty as the electorate grows. My contribution is to show that this probabilistic reasoning uniquely justifies the Kemeny rule &mdash; which always elects the Condorcet winner when one exists.</p>
+
+        <span class="section">i. the jury theorem and its voting implications</span>
+        <table class="tbl">
+          <tr><th>Voters</th><th>p (prob. correct)</th><th>P(majority correct)</th></tr>
+          <tr><td>1</td><td>0.55</td><td>0.55</td></tr>
+          <tr><td>5</td><td>0.55</td><td>0.593</td></tr>
+          <tr><td>25</td><td>0.55</td><td>0.704</td></tr>
+          <tr><td>101</td><td>0.55</td><td>0.871</td></tr>
+          <tr><td>1001</td><td>0.55</td><td>0.987</td></tr>
+          <tr><td colspan="3" class="note">As long as each voter is more likely right than wrong (p &gt; 0.5), majority rule converges to near-certainty. This is the Condorcet Jury Theorem.</td></tr>
+        </table>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Jury theorem — probabilistic grounding for majority rule; Kemeny maximises likelihood of correct ranking; uniquely justified</span>Now consider the full ranking problem: not just electing one candidate but producing the society&rsquo;s ordering of all candidates. If each voter has probability p &gt; ½ of correctly identifying the better of any two candidates, and if these binary judgments are made independently, then the maximum-likelihood estimate of the correct social ranking is the ranking that agrees with the most pairwise majority verdicts. This is precisely the Kemeny rule. The Kemeny winner &mdash; the ranking that minimises the total number of pairwise disagreements with the voters &mdash; is the ranking most likely to be correct under this model. And the Condorcet winner, when one exists, is always ranked first by the Kemeny rule. No other standard rule &mdash; not Borda, not plurality, not approval &mdash; can be derived from this or any analogous probabilistic model.</span></p>
+
+        <span class="section">ii. the kemeny rule in practice: what it computes</span>
+        <p>In the 15-voter profile above, Kemeny finds the ranking that maximises agreement with majority verdicts:</p>
+        <table class="tbl">
+          <tr><th>Candidate pair</th><th>Majority verdict</th><th>Margin</th></tr>
+          <tr><td>B vs A</td><td>B preferred</td><td>9 – 6 = 3</td></tr>
+          <tr><td>B vs C</td><td>B preferred</td><td>11 – 4 = 7</td></tr>
+          <tr><td>A vs C</td><td>A preferred</td><td>11 – 4 = 7</td></tr>
+          <tr><td><strong>Kemeny ranking</strong></td><td colspan="2"><span class="winner">B &gt; A &gt; C</span> — agrees with all three majority verdicts; total score = 3+7+7 = 17. Any other ranking disagrees with at least one.</td></tr>
+        </table>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Kemeny rule — maximum-likelihood ranking; agrees with all pairwise verdicts when Condorcet winner exists; quantifies cycle severity</span>When a Condorcet winner exists, the Kemeny ranking always places them first and is straightforward to compute: it simply reports the pairwise majority ordering. When there is a cycle, Kemeny finds the ranking that disagrees with the fewest pairwise verdicts, weighted by margin &mdash; a principled resolution that gives priority to the largest majority verdicts. This is not arbitrary. It is the resolution that maximises the probability of being correct under the epistemic model.</span></p>
+
+        <span class="section">iii. against borda&rsquo;s epistemic pretensions</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Borda has no epistemic foundation — point weights are not derived from any probabilistic model; Kemeny uniquely derivable</span>Saari and others argue that the Borda count is the most consistent positional rule. But consistency within a family of similarly-unjustified rules is no recommendation. Borda&rsquo;s 3-2-1 weights cannot be derived from any coherent model of what we are trying to achieve in an election. They are the simplest integer weights, chosen for convenience, not for epistemic justification. Kemeny&rsquo;s rule, by contrast, is uniquely derivable from the maximum-likelihood model. It is not one choice among many; it is the choice imposed by the structure of the problem. When we ask what ranking best represents the information in voters&rsquo; ballots, conditional on a reasonable model of voter competence, the answer is Kemeny. When we ask the same question about Borda, there is no coherent answer, because Borda is not trying to estimate anything.</span></p>
+
+        <span class="section">iv. political applications: supermajority rules and the epistemic argument</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Supermajority — political application of jury theorem logic; constitutional entrenchment requires higher epistemic standard; two-thirds threshold not arbitrary</span>The epistemic grounding for pairwise majority has direct applications in political design. Consider the US Senate&rsquo;s supermajority requirement for treaty ratification, constitutional amendments, and overriding a veto: two-thirds of the Senate must agree. Why two-thirds rather than a simple majority? The implicit reasoning is probabilistic: for decisions of constitutional importance, we require not merely that the majority is more likely right than wrong, but that the evidence is sufficiently strong &mdash; that the probability of correctness is high enough to justify imposing the outcome on a large dissenting minority over a very long time horizon. The supermajority threshold corresponds, in the Condorcet framework, to a higher minimum winning margin. It is not an arbitrary institutional quirk; it is the application of the jury theorem to decisions that must be robust to future information.</span></p>
+        <div class="realworld"><strong>Real-world parallel — Supermajority rules in legislative practice:</strong> US Senate cloture (60/100), constitutional amendment (two-thirds of Congress + three-quarters of states), EU qualified majority (55% of member states + 65% of EU population). These graduated thresholds can be understood as varying epistemic standards for different types of collective decisions — proportional to the reversibility cost of error.</div>
+        <p><em>The pairwise method has a foundation. Borda does not. On this ground alone, the argument is settled.</em></p>
+      </div>
+      <div id="prop-young-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The Kemeny rule is the unique maximum-likelihood estimator under the Condorcet jury model</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If each voter independently has probability p &gt; ½ of correctly identifying the better of any two candidates, the maximum-likelihood estimate of the correct social ranking maximises the number of pairwise majority verdicts it agrees with.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The ranking that maximises agreement with pairwise majority verdicts (weighted by margin) is exactly the Kemeny ranking — which always places the Condorcet winner first when one exists.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No other standard voting rule — not Borda, plurality, approval, or majority judgment — can be derived from this or any analogous probabilistic model of voter competence.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Kemeny/Condorcet approach is uniquely justified by the epistemic model of elections as truth-tracking procedures; it is not one option among equals but the uniquely derivable optimal procedure under a coherent model.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — The Condorcet Jury Theorem shows majority rule converges to certainty; this vindicates pairwise aggregation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>By the Jury Theorem, if each of n voters has independent probability p &gt; ½ of being correct, P(majority correct) increases monotonically toward 1 as n grows. For p=0.55 and n=1001, P(majority correct) ≈ 0.987.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This convergence provides a frequentist rationale for pairwise majority: large electorates are highly reliable truth-trackers, provided each voter is more likely right than wrong.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No analogous theorem exists for Borda point aggregation; adding voters does not guarantee convergence to a correct ranking under any coherent epistemic model because Borda's weights are not derived from any such model.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Jury Theorem provides a convergence guarantee for pairwise majority that has no analogue in Borda or other positional methods; this is a strong theoretical advantage for the Condorcet approach.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Borda's weights have no epistemic foundation; they cannot be derived from any coherent model</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Borda weights 3-2-1 (for three candidates) are convenient but arbitrary; weights 10-3-1 or 4-2-1 would produce different winners from the same ballots.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No epistemic model — no probabilistic account of what elections are trying to achieve — uniquely generates the Borda weights; they are chosen for mathematical convenience, not for theoretical justification.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Kemeny's rule, by contrast, is the unique solution to the maximum-likelihood estimation problem; its derivation is not a choice but a mathematical consequence of the epistemic model.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Borda's theoretical advantage — internal consistency within a family of positional rules — is worthless because the family as a whole lacks epistemic foundation; Kemeny's theoretical advantage is unique derivability from a well-defined model.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Supermajority rules in political practice are applications of jury-theorem logic to high-stakes decisions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Supermajority requirements (two-thirds, three-quarters) correspond to higher epistemic standards: requiring not just that the majority is more likely right, but that the evidence strongly favours the outcome.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>For constitutionally entrenched decisions with high reversal costs, a higher threshold is appropriate: the cost of error is asymmetric, favouring caution.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This graduated epistemic rationale for varying majority thresholds is coherent only in a pairwise-majority framework; Borda and approval have no analogous principled account of why different thresholds should apply to different decision types.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Supermajority requirements in political practice are best understood as applications of jury-theorem logic; the Condorcet framework is the natural home for principled variation of majority thresholds by decision type.</span></div>
+        </div>
+      </div>
+    </div><!-- end young -->
+
+  </div>
+</div><!-- end prop col -->
+
+
+<!-- RIGHT — OPPOSITION -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','saari',this)">Saari (Borda)</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','brams',this)">Brams (Approval)</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','balinski',this)">Balinski &amp; Laraki</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','sen',this)">Sen</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','black',this)">Black (IRV)</button>
+  </div>
+
+  <!-- SAARI HEADER -->
+  <div class="col-header" id="opp-saari-header">
+    <div class="col-header-top"><span class="pill opp">Borda Count / Geometric Social Choice</span><span class="col-subtitle">Donald Saari — Geometry of Voting, 1994</span></div>
+    <div class="col-position">The Borda count is the uniquely consistent positional rule: it is the only method in which voters&rsquo; preferences about irrelevant alternatives cannot produce paradoxical outcomes, because it uses all the information in the ballot rather than discarding intensity information; the Condorcet criterion is a fetish that elevates one narrow aspect of majority preference over all others, and the paradoxes of Condorcet methods are far more frequent and more severe than their defenders admit.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','saari','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','saari','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BRAMS HEADER -->
+  <div class="col-header hidden" id="opp-brams-header">
+    <div class="col-header-top"><span class="pill opp">Approval Voting</span><span class="col-subtitle">Steven Brams &amp; Peter Fishburn — 1978 / 2007</span></div>
+    <div class="col-position">Approval voting &mdash; where each voter votes for as many candidates as they find acceptable &mdash; is both theoretically superior to ranked methods and practically implementable without any change to existing ballot infrastructure; it elects the candidate with the broadest coalition of support, eliminates the spoiler effect within the set of approved candidates, and gives voters an expressive honesty that ranked methods deny them.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','brams','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','brams','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BALINSKI HEADER -->
+  <div class="col-header hidden" id="opp-balinski-header">
+    <div class="col-header-top"><span class="pill opp">Majority Judgment</span><span class="col-subtitle">Michel Balinski &amp; Rida Laraki — 2010</span></div>
+    <div class="col-position">The traditional model of voting &mdash; aggregating ranked preferences &mdash; is fundamentally wrong; voters should judge candidates against an absolute standard (Excellent, Good, Acceptable, Poor, Reject) rather than ranking them against each other; the median of these grades is the only aggregation rule immune to strategic grade inflation while respecting the meaning of the grades themselves; Arrow&rsquo;s theorem and the Condorcet paradox are artifacts of the ranking model and disappear when judging replaces ranking.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','balinski','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','balinski','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- SEN HEADER -->
+  <div class="col-header hidden" id="opp-sen-header">
+    <div class="col-header-top"><span class="pill opp">Social Choice &amp; Liberal Rights</span><span class="col-subtitle">Amartya Sen — Collective Choice and Social Welfare, 1970</span></div>
+    <div class="col-position">The entire framework of social choice theory &mdash; Condorcet and Borda alike &mdash; is built on a model of preference aggregation that ignores the interpersonal comparability of welfare and the lexical priority of individual rights; no aggregation rule that treats preferences as the raw input can adequately represent justice; the impossibility results show not that we need a better rule but that the preference-aggregation framework is the wrong model for democratic collective choice.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','sen','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','sen','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BLACK / IRV HEADER -->
+  <div class="col-header hidden" id="opp-black-header">
+    <div class="col-header-top"><span class="pill opp">Instant Runoff Voting / Single Transferable Vote</span><span class="col-subtitle">Duncan Black (1948) &amp; the IRV tradition</span></div>
+    <div class="col-position">Instant Runoff Voting guarantees the winner has a true majority after preferences are transferred, eliminates the spoiler effect in practice, and is the only system with a genuine claim to be used in real elections at scale; the Condorcet method has no practical implementation that voters or governments find workable, and the Kemeny rule&rsquo;s computational requirements are NP-hard for large candidate fields; Black&rsquo;s median voter theorem shows that under single-peaked preferences &mdash; which are very common in one-dimensional political contests &mdash; majority rule and Condorcet agree, removing the case for complex alternatives.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','black','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','black','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- SAARI -->
+    <div class="speaker-panel active" id="opp-saari-panel">
+      <div id="opp-saari-speech" class="speech-text">
+        <p class="salut">Condorcet and Arrow have presented the pairwise method as though it were a neutral, minimal, assumption-free aggregation of binary preferences. I want to show that this characterisation is false. Pairwise majority systematically discards information that voters provide in their ballots, and the paradoxes it produces &mdash; including the famous Condorcet cycle &mdash; are direct consequences of that discarding. The Borda count uses more of the ballot&rsquo;s information, and as a result it generates fewer and less severe paradoxes.</p>
+        <p>Let me make the geometric argument precise, because it is the decisive one. Represent any preference profile as a point in a high-dimensional space, where each coordinate corresponds to the number of voters with a particular preference order. The Borda count divides this space into regions in which each candidate wins. The Condorcet method divides it differently. And crucially: the regions of paradox &mdash; the profiles where Condorcet produces no winner &mdash; are not small edge cases. They are a substantial fraction of the profile space, especially as the number of candidates grows.</p>
+
+        <span class="section">i. the reversal symmetry argument: borda uses ballot information condorcet discards</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Reversal symmetry — Borda satisfies it; plurality and Condorcet methods can fail it; discarded information causes paradoxes</span>Here is a decisive test. Suppose we take every voter&rsquo;s preference order and reverse it completely: the voter who ranked A&gt;B&gt;C now ranks C&gt;B&gt;A. We have replaced every preference with its exact opposite. Any sensible rule should now either elect the original loser or at least not elect the same candidate as before. This is the <strong>reversal symmetry</strong> criterion. The Borda count satisfies it: if you reverse all preferences, the Borda winner becomes the Borda loser. Plurality voting fails it: there are profiles in which reversing all preferences produces the same plurality winner. Condorcet methods can also fail it when the reversal creates a cycle with the same top-cycle set as before. This is not a minor pathology. It shows that plurality and Condorcet methods are ignoring information that voters are providing &mdash; information that the Borda count uses.</span></p>
+        <table class="tbl">
+          <tr><th>Method</th><th>Satisfies Reversal Symmetry?</th><th>Implication</th></tr>
+          <tr><td>Borda Count</td><td class="winner">Yes — always</td><td>Uses all ordinal information in ballot</td></tr>
+          <tr><td>Plurality</td><td class="loser">No — can fail</td><td>Ignores all but first-place information</td></tr>
+          <tr><td>IRV / AV</td><td class="loser">Can fail</td><td>Path-dependent elimination loses information</td></tr>
+          <tr><td>Condorcet methods</td><td class="loser">Can fail in cyclic profiles</td><td>Discards intensity information between positions</td></tr>
+        </table>
+
+        <span class="section">ii. the borda count is the uniquely consistent positional rule</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Borda as uniquely consistent — minimum paradox frequency among positional methods; geometric proof via Saari decomposition</span>Among all positional rules &mdash; rules that assign a fixed score to each rank position &mdash; I have shown geometrically that the Borda count minimises the frequency of paradoxical outcomes. More precisely: I can decompose any preference profile into a &ldquo;Borda component&rdquo; that drives the Borda winner, and a &ldquo;reversal component&rdquo; that is pure noise in the sense of being symmetric and cancelling out. The Condorcet paradox and the divergence between Condorcet and Borda winners are both generated by this reversal component. When the Borda count disagrees with the Condorcet winner, it is because the reversal component has created a misleading pairwise signal that the Borda count &mdash; correctly &mdash; discounts.</span></p>
+        <table class="tbl">
+          <tr><th>Positional Rule</th><th>Score vector (3 candidates)</th><th>Paradox frequency</th></tr>
+          <tr><td>Plurality</td><td>(1, 0, 0)</td><td class="loser">Highest — ignores 2nd and 3rd place</td></tr>
+          <tr><td>Anti-plurality (vote against)</td><td>(1, 1, 0)</td><td class="loser">High — ignores relative ordering</td></tr>
+          <tr><td class="winner">Borda Count</td><td class="winner">(2, 1, 0) — equally spaced</td><td class="winner">Lowest — uniquely consistent</td></tr>
+          <tr><td colspan="3" class="note">Saari (1994): for any profile, Borda produces the most consistent election outcomes across subsets of candidates. Any other score vector introduces additional paradoxes.</td></tr>
+        </table>
+
+        <span class="section">iii. the condorcet criterion is a dangerous fetish</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Condorcet criterion dangerous — narrow majority ignores intensity; example where Condorcet elects a widely-disliked minority winner</span>Condorcet insists that if A beats B by a single vote in a head-to-head comparison, A must win, regardless of how strongly B is preferred by everyone else. Consider the following profile with 100 voters:</p>
+        <table class="tbl">
+          <tr><th>Group</th><th>Size</th><th>Preference</th></tr>
+          <tr><td>Group 1</td><td>51</td><td>A &gt; B &gt; C &gt; D (mildly prefer A)</td></tr>
+          <tr><td>Group 2</td><td>49</td><td>B &gt; C &gt; D &gt; A (strongly prefer B; A is worst)</td></tr>
+        </table>
+        <p>A is the Condorcet winner (51–49 in a head-to-head), but 49% of voters rank A last. Under Borda (4-3-2-1 scoring): A gets 51&times;4+49&times;1 = 204+49 = <strong>253</strong>. B gets 51&times;3+49&times;4 = 153+196 = <strong>349</strong>. B wins by a landslide. Which reflects the collective preference better? A majority that barely prefers A to B, or the Borda verdict that captures the intensity of everyone&rsquo;s preferences? <span class="hl" data-arg="3"><span class="tooltip">Condorcet winner can be disliked by almost all voters; Borda captures preference intensity; Condorcet ignores it</span>The Condorcet criterion says A must win. This is not an expression of democratic common sense; it is a fetish for narrow binary majorities that ignores everything else the ballot tells us.</span></p>
+
+        <span class="section">iv. the political case: proportional representation and borda&rsquo;s centrist tendency</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Borda elects centrists — reduces polarisation; FPTP amplifies extremism; Borda empirically produces more moderate winners</span>There is a political dimension to this debate that the pairwise camp consistently ignores. The Borda count systematically favours centrist candidates &mdash; candidates who are highly ranked by voters across the political spectrum. Plurality and FPTP systematically favour candidates with a passionate base, even when those candidates are strongly disliked by a large fraction of the electorate. The polarisation of contemporary democratic politics is partly a consequence of FPTP and primary systems that reward partisan intensity over cross-partisan appeal. The Borda count would produce a more moderate political culture, because it gives weight to being broadly acceptable, not just intensely preferred by a plurality. This is not a defect. It is precisely the centrist aggregation property that democratic theory ought to value.</span></p>
+        <div class="realworld"><strong>Real-world parallel:</strong> The Eurovision Song Contest uses a Borda-style point allocation (12, 10, 8...1) across countries. The winner is rarely any single country&rsquo;s top choice but typically the song with the broadest cross-national appeal. This is the Borda property in action: broad acceptability over narrow plurality. The same logic applies to party-list proportional representation systems, which reward broad coalitions over narrow pluralities in ways FPTP does not.</div>
+        <p><em>The Condorcet criterion tells half the story. The Borda count tells the whole story. I yield the floor.</em></p>
+      </div>
+      <div id="opp-saari-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Reversal symmetry: Borda uses all ballot information; Condorcet and plurality discard information that generates paradoxes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Reversal symmetry: if every voter's preference is reversed, any reasonable rule should not elect the same candidate. Borda satisfies this; plurality and Condorcet can fail it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Failure of reversal symmetry reveals that a method is ignoring information the ballot contains; the Condorcet cycle is generated by the interaction of reversal pairs that the Borda count's symmetric weighting cancels out.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Borda count's equal spacing of weights (k-1, k-2, ..., 1, 0) is the unique positional rule that treats symmetrically the contribution of each rank position, extracting maximum information from the ordinal ballot.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Borda count uses more of the information in voters' ballots than any other positional rule; the Condorcet paradox and the divergence between Condorcet and Borda winners arise from information that pairwise majority discards and Borda correctly uses.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Borda is the uniquely consistent positional rule, minimising paradox frequency across all profiles</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Any preference profile can be decomposed geometrically into a Borda component (determining the Borda winner) and reversal pairs (symmetric noise). Condorcet cycles arise from reversal pairs; the Borda count cancels reversal pairs by design.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Among all positional rules with score vector (s₁, s₂, s₃), the Borda count (2, 1, 0) minimises the frequency of paradoxical outcomes — profiles where the rule gives inconsistent rankings as candidates are added or removed.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Plurality (1, 0, 0) maximises paradox frequency; Borda minimises it; this is a mathematical theorem, not an empirical claim.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Borda count is mathematically uniquely justified as the most consistent positional rule; its internal consistency advantage over all alternatives is a theorem, not a design preference.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — The Condorcet criterion is a fetish: narrow majorities override strong minority preferences</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the 100-voter example (51: A&gt;B&gt;C&gt;D, 49: B&gt;C&gt;D&gt;A), A is the Condorcet winner (51–49) but 49% rank A last. Borda correctly elects B (349 vs 253), reflecting the much stronger preference for B across the full profile.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Condorcet criterion says A must win, ignoring the intensity information that shows B is broadly preferred. This is a case where majority rule produces an outcome that 49% find maximally objectionable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A sensible aggregation rule should give some weight to the intensity of preferences, not merely their direction. The Borda count is the natural ordinal approximation of this intensity-sensitive aggregation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Condorcet criterion is not a universal axiom of democratic theory but a special case of majoritarian reasoning that ignores preference intensity; the Borda count's ability to use intensity information makes it superior in cases where the Condorcet winner is broadly disliked.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Borda rewards centrist candidates; FPTP and Condorcet amplify polarisation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Borda count gives weight to being ranked highly across the full electorate, not merely to being the first preference of a plurality. It therefore systematically favours broadly acceptable, centrist candidates.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>FPTP and primary systems reward candidates with passionate bases; the winner can be strongly disliked by a majority. This incentive structure produces political polarisation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Democratic theory has strong reasons to prefer rules that aggregate preferences broadly rather than amplifying the intensity of committed minorities; Borda is the positional rule that best achieves this.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Borda count's centrist tendency is a democratic virtue, not a defect; polarisation is partly a product of rules that reward narrow pluralities over broad acceptability, and Borda corrects this structural pathology.</span></div>
+        </div>
+      </div>
+    </div><!-- end saari -->
+
+    <!-- BRAMS -->
+    <div class="speaker-panel" id="opp-brams-panel">
+      <div id="opp-brams-speech" class="speech-text">
+        <p class="salut">Both sides of this debate have assumed that voters must rank candidates. I want to challenge that assumption, because it is responsible for most of the pathologies that both Condorcet and Borda have been trying &mdash; and failing &mdash; to fix. Approval voting replaces the ranking question with a simpler and more honest question: for each candidate, do you find them acceptable? This is a binary judgment that voters can make honestly and without strategic calculation, and it produces winners with genuine majority coalitions of support.</p>
+
+        <span class="section">i. what approval voting is and why it is different</span>
+        <table class="tbl">
+          <tr><th>Method</th><th>Ballot format</th><th>Information used</th></tr>
+          <tr><td>Plurality</td><td>Vote for one</td><td>Top preference only</td></tr>
+          <tr><td>Borda</td><td>Rank all candidates</td><td>Full ordinal ranking</td></tr>
+          <tr><td>IRV</td><td>Rank all candidates</td><td>Sequential ordinal ranking</td></tr>
+          <tr><td class="winner">Approval Voting</td><td class="winner">Approve any subset</td><td class="winner">Acceptability threshold for each candidate</td></tr>
+          <tr><td>Majority Judgment</td><td>Grade each candidate</td><td>Absolute quality judgment per candidate</td></tr>
+        </table>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Approval voting — honest expression; no spoiler effect among approved candidates; tends to elect Condorcet winner</span>The approval ballot does not ask voters to choose among candidates. It asks them, for each candidate, whether that candidate would be acceptable. This is a different and less constrained question. Under plurality, I must choose just one candidate, and if my true favourite has no chance of winning, I face a dilemma: vote my conscience and waste my vote, or vote strategically for a lesser evil. Approval voting eliminates this dilemma. I can approve both my true favourite and the lesser evil, expressing my genuine preference without penalty. The spoiler effect disappears within the approved set: adding or removing an approved candidate does not change my approval of others.</span></p>
+
+        <span class="section">ii. a worked example: approval beats plurality and rivals condorcet</span>
+        <table class="tbl">
+          <tr><th>Group</th><th>Size</th><th>Sincere ranking</th><th>Approvals (threshold: top 2)</th></tr>
+          <tr><td>Group 1</td><td>40</td><td>A &gt; B &gt; C</td><td>A, B</td></tr>
+          <tr><td>Group 2</td><td>35</td><td>B &gt; A &gt; C</td><td>B, A</td></tr>
+          <tr><td>Group 3</td><td>25</td><td>C &gt; B &gt; A</td><td>C, B</td></tr>
+        </table>
+        <table class="tbl">
+          <tr><th>Method</th><th>Calculation</th><th>Winner</th></tr>
+          <tr><td>Plurality</td><td>A: 40, B: 35, C: 25</td><td class="winner">A (40% — no majority)</td></tr>
+          <tr><td>Approval (top-2 threshold)</td><td>A: 40+35=75, B: 40+35+25=100, C: 25</td><td class="winner">B — majority coalition</td></tr>
+          <tr><td>Pairwise: B vs A</td><td>B preferred by Groups 2+3: 60 vs 40</td><td class="winner">B beats A — B is Condorcet winner</td></tr>
+          <tr><td>Borda</td><td>A: 40×3+35×2+25×1=225; B: 40×2+35×3+25×2=235; C: 40×1+35×1+25×3=150</td><td class="winner">B — Borda, Approval, Condorcet all agree</td></tr>
+          <tr><td colspan="3" class="note">Only plurality fails. Approval, Condorcet, and Borda all elect B, the genuinely most broadly supported candidate.</td></tr>
+        </table>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Approval tends to elect Condorcet winner; avoids spoiler effect; simpler than ranked methods; no Arrow violations in meaningful sense</span>Notice that approval voting, Condorcet, and Borda all agree in this profile. The plurality system is the outlier. Approval voting frequently elects the Condorcet winner because the broadly preferred candidate tends to receive approval from voters across the political spectrum. And it does so without requiring voters to rank candidates &mdash; a cognitive task that produces significant noise and strategic manipulation under Borda.</span></p>
+
+        <span class="section">iii. approval voting and arrow&rsquo;s theorem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Approval escapes Arrow in a meaningful sense — uses non-ordinal information; IIA satisfied differently; Gibbard-Satterthwaite less severe</span>Arrow&rsquo;s theorem applies to voting rules that aggregate ordinal preference rankings into a social ranking. Approval voting does not use ordinal rankings; it uses dichotomous (approve/disapprove) judgments. The theorem technically applies in modified form to dichotomous domains, but the IIA condition has different force: adding an unapproved candidate does not change any existing approval, so IIA is automatically satisfied within the approved set. The strategic manipulation concern also has a different character: the key question is where to set your approval threshold, not how to rank candidates relative to one another. This is a simpler, more tractable strategic calculation, and for most voters the honest threshold (approve all candidates you find genuinely acceptable) is also the strategically optimal one.</span></p>
+
+        <span class="section">iv. the real-world case for approval: US primaries and multi-candidate elections</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Approval in practice — St. Louis Missouri 2021; France presidential; reduces polarisation; majority support guaranteed</span>Approval voting is not merely theoretical. St. Louis, Missouri adopted it for primary elections in 2021 and saw measurable reductions in strategic voting, spoiler complaints, and plurality winners without majority support. The Association for the Selection of the President ran approval voting experiments alongside French presidential elections in 2002 and 2007: in 2007, Royal and Bayrou would both have beaten Sarkozy in approval runoffs; the approved winner was the Condorcet winner in each case. The practical argument for approval is simple: it gives every voter the ability to honestly express support for any acceptable candidate, it guarantees the winner has the broadest coalition of approval, and it requires no change to ballot counting infrastructure beyond counting marks for each candidate separately.</span></p>
+        <div class="realworld"><strong>Real-world parallel — Multi-party legislative elections:</strong> Approval voting naturally extends to multi-member districts in a way that allows voters to support both a first-choice party and an acceptable alternative, reducing the wasted-vote problem that makes third parties unviable under FPTP. The US Senate majority-building coalition requirements implicitly demand approval-style thinking: a bill must attract 60 votes, which requires approval across the full ideological spectrum, not merely support from the largest bloc.</div>
+        <p><em>Stop ranking. Start approving. The mathematics and the politics both point the same way.</em></p>
+      </div>
+      <div id="opp-brams-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Approval voting eliminates the strategic dilemma of sincere vs tactical voting</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Under plurality, voters whose preferred candidate cannot win face a strategic dilemma: vote sincerely and waste their vote, or vote tactically for a lesser evil. This is the source of two-party duopoly under FPTP (Duverger's Law).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Approval voting eliminates this dilemma: a voter can approve both their true favourite and the acceptable alternative without penalty, because approvals are independent — approving one candidate does not harm another approved candidate.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This makes honest voting strategically optimal for most voters: the threshold strategy (approve all candidates you sincerely find acceptable) is a Nash equilibrium under mild assumptions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Approval voting eliminates the fundamental strategic dilemma that produces wasted votes, spoiler effects, and two-party duopoly under plurality; it is the unique simple rule that makes sincere voting strategically safe.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Approval voting reliably elects the Condorcet winner without requiring ranked ballots</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the 100-voter profile, approval voting elects B (100 approvals vs A's 75 vs C's 25), and B is also the Condorcet winner. This convergence is not coincidental: the broadly preferred candidate tends to receive approval from across the political spectrum.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Experimental evidence from French presidential elections shows approval voting electing the Condorcet winner in each tested election cycle.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Approval achieves this without the cognitive burden of full ranking, the strategic vulnerability of Borda, or the computational complexity of Kemeny.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Approval voting reliably delivers the Condorcet outcome without the costs of ranked methods; it is a parsimonious, strategically robust, and practically implementable approximation to the Condorcet ideal.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Approval voting escapes Arrow's theorem by using non-ordinal information; IIA is satisfied within the approved set</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Arrow's theorem applies to rules aggregating complete ordinal rankings. Approval voting uses dichotomous (approve/disapprove) judgments — not ordinal rankings — and the theorem's conditions apply with different force.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Within the approved set, adding or removing an unapproved candidate does not change any voter's existing approvals: IIA is automatically satisfied within the domain that matters most.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The strategic manipulation concern reduces to threshold choice rather than full ranking manipulation; for most voters, the honest threshold is also strategically optimal, making sincere voting a dominant strategy in many profiles.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Approval voting escapes Arrow's theorem's most damaging implications by using a different ballot structure; within its natural domain it satisfies IIA automatically, which ranked methods cannot do.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Approval voting is practically implementable now; complex ranked methods are not</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Approval voting requires only that voters mark as many candidates as they approve; existing ballot infrastructure counts these marks trivially. No new voting machines, no ranked-ballot software, no RCV tabulation complexity.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Condorcet's Kemeny rule is NP-hard to compute for large candidate fields: finding the ranking that minimises pairwise disagreements is computationally intractable in theory (though tractable in practice for typical political elections with few candidates).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Practical implementability is a genuine democratic virtue: a theoretically superior rule that governments cannot implement is inferior to a good-enough rule that can be adopted immediately.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Approval voting's practical implementability gives it a decisive advantage over theoretically superior but computationally complex alternatives; it is the reform that can actually happen, producing dramatic improvement over plurality at negligible cost.</span></div>
+        </div>
+      </div>
+    </div><!-- end brams -->
+
+    <!-- BALINSKI & LARAKI -->
+    <div class="speaker-panel" id="opp-balinski-panel">
+      <div id="opp-balinski-speech" class="speech-text">
+        <p class="salut">Condorcet, Borda, Arrow, and Brams have all assumed that the correct input to a voting procedure is a ranking of candidates relative to one another. I want to challenge this assumption at its root. Voters do not naturally think in terms of relative rankings. They think in terms of absolute quality judgments: this candidate is good, this one is acceptable, this one is excellent. The natural ballot is not a ranking but a report card. And once we adopt the report card model, Arrow&rsquo;s theorem and the Condorcet paradox become historical curiosities rather than binding constraints.</p>
+        <p>Our proposed method, Majority Judgment, asks each voter to assign a grade to each candidate from a common language of grades: Excellent, Very Good, Good, Acceptable, Poor, or Reject. The winner is the candidate with the highest median grade &mdash; the grade that at least half the voters assign at or above.</p>
+
+        <span class="section">i. why the median is the right aggregation of grades</span>
+        <table class="tbl">
+          <tr><th>Voter</th><th>Grade for A</th><th>Grade for B</th><th>Grade for C</th></tr>
+          <tr><td>Voter 1–30</td><td>Excellent</td><td>Good</td><td>Reject</td></tr>
+          <tr><td>Voter 31–55</td><td>Poor</td><td>Very Good</td><td>Poor</td></tr>
+          <tr><td>Voter 56–100</td><td>Reject</td><td>Acceptable</td><td>Excellent</td></tr>
+          <tr><td><strong>Majority grade</strong></td><td class="loser">Poor (median)</td><td class="winner">Good (median)</td><td class="loser">Poor (median)</td></tr>
+          <tr><td colspan="4" class="note">B&rsquo;s median grade is Good because 55 of 100 voters grade B at Good or above. A&rsquo;s median is Poor; C&rsquo;s median is Poor. Majority Judgment elects B.</td></tr>
+        </table>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Median grade — robust to strategic inflation; majority judgment; Arrow&rsquo;s theorem does not apply to grading</span>Why the median rather than the mean? Because the median is the grade that at least half the voters have assigned at or above &mdash; it is the grade that a majority finds as an accurate or better assessment. This has a crucial strategic property: a voter who wishes to manipulate cannot improve the median by assigning a grade that is strategically inflated or deflated, unless they are already in a position where their grade is at the current median. More precisely: if I assign A a grade of Excellent when my honest assessment is Good, I improve A&rsquo;s median only if A&rsquo;s current median is below Good. If A is already winning, my inflation achieves nothing. This strategy-proofness property &mdash; in the technical sense that the range of profitable manipulation is narrowly constrained &mdash; is the key advantage of majority judgment over both mean-based aggregation (range voting) and ordinal methods.</span></p>
+
+        <span class="section">ii. majority judgment avoids both arrow and condorcet paradox</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Escapes Arrow — grading not ranking; IIA satisfied within grade language; no Condorcet cycles possible in grade profiles</span>Arrow&rsquo;s theorem says: no rule aggregating ordinal rankings satisfies U + P + IIA + ND. Majority judgment does not aggregate ordinal rankings. It aggregates grade assignments from a common language. This is a fundamentally different mathematical object. The IIA condition has a different and more natural meaning: adding a new candidate does not change any voter&rsquo;s grade for existing candidates, so the relative grade-based comparison between any two candidates is unaffected by the presence of a third. The Condorcet paradox cannot arise because grades are absolute, not comparative: there is no pairwise cycle in a profile of absolute grade assignments. These are not minor technical advantages; they remove two of the most serious pathologies in social choice theory.</span></p>
+
+        <span class="section">iii. against approval voting: grades carry more information</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Grades vs binary approval — richer information; approval loses cardinal information; majority judgment uses it without strategic collapse</span>Brams&rsquo; approval voting is a dichotomous special case of grading: approve (= Good or above) or disapprove. But why discard the richer information that voters can provide? A voter who considers one candidate Excellent and another merely Acceptable expresses a meaningful distinction that approval voting collapses into the same binary approve signal. Majority judgment preserves this distinction. And unlike mean-based cardinal rules (range voting), the median aggregation does not incentivise extreme grades: assigning Excellent to my favourite does not hurt if the current median is already Good, and it does not help if the current median is already above Excellent. The median is the natural strategic equilibrium of grade-based voting.</span></p>
+
+        <span class="section">iv. the political application: evaluation vs election</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Evaluation model — voters as assessors not rankers; parallel to Michelin stars, academic grading, judicial assessment</span>The grading model maps naturally onto how citizens actually think about candidates. When I ask myself whether Candidate X should be my president, I do not primarily ask how she compares to Candidate Y. I ask: is she competent? Is she honest? Would she handle a crisis well? These are absolute judgments against a standard of performance, not relative rankings. Majority judgment formalises this natural evaluative mode. It is the voting method used implicitly by every academic department evaluating hiring candidates, every wine jury assessing vintages, every Michelin inspector grading restaurants. It is, I submit, also the method most consistent with what democratic citizens are actually trying to do when they vote.</p>
+        <div class="realworld"><strong>Real-world parallel:</strong> Academic peer review uses grade-based assessment (strong accept, accept, weak accept, reject) rather than ranking papers against one another. The Eurovision judging combines national jury scores (graded evaluation) with televote (plurality). Olympic judging uses cardinal scores whose average (or trimmed mean) is computed — a mean rather than median, but the same evaluative model. Majority Judgment proposes to formalise this natural evaluative approach for democratic elections.</div>
+        <p><em>The question is not which ranking rule is best. The question is whether ranking is the right model at all. We believe it is not.</em></p>
+      </div>
+      <div id="opp-balinski-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The median grade is uniquely robust to strategic manipulation among grading aggregation rules</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A voter can improve candidate A's median grade only if A's current median is below their assigned grade. If A is already winning, inflation achieves nothing. If A is losing badly, extreme inflation still does not change the median unless the voter is already at the marginal position.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Mean-based aggregation (range voting) is strategically vulnerable: rational voters should assign maximum grade to their favourite and minimum to rivals, making mean aggregation collapse to approval voting under strategic play.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The median is uniquely resistant to this collapse: strategic grade inflation moves the median only at the margin, constraining the range of profitable manipulation to a narrower set of situations than any alternative aggregation of grades.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The median is the uniquely strategy-robust aggregation of grades; it preserves the information content of grading without incentivising the extreme-grade strategies that collapse mean-based rules into binary approval.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Majority judgment is exempt from Arrow's theorem and cannot produce Condorcet cycles</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Arrow's theorem applies to rules aggregating ordinal rankings. Majority judgment aggregates grade assignments from an absolute common language; it is not an ordinal ranking aggregation and the theorem does not apply.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Condorcet paradox arises when pairwise majority preferences are cyclic. Grades are absolute, not relational; there is no mechanism by which grade profiles produce pairwise cycles, since A's median grade is independent of B's median grade.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Majority judgment satisfies IIA in a natural sense: adding or removing a candidate does not change any voter's grade for existing candidates, preserving comparisons between any two candidates regardless of the presence of others.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Majority judgment removes two of the most fundamental pathologies in social choice theory — Arrow's impossibility and the Condorcet paradox — by adopting the grading model rather than the ranking model.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Grades carry more information than binary approvals; majority judgment uses this information without strategic collapse</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Approval voting reduces all preference information to a binary approve/disapprove distinction, losing the distinction between Excellent, Good, and Acceptable candidates who are all "approved."</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Majority judgment preserves richer distinctions while remaining resistant to strategic grade inflation, because the median aggregation is not improved by arbitrary grade assignment in the way the mean is.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>More information with equivalent strategic robustness is strictly better; majority judgment dominates approval voting in both dimensions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Majority judgment is strictly superior to approval voting: it uses richer grade information without sacrificing strategic robustness, because median aggregation is resistant to the extreme-grade strategies that would exploit mean aggregation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — The evaluation model maps onto how citizens naturally think about candidates</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Citizens naturally evaluate candidates against an absolute standard of political performance — competence, honesty, crisis management — not primarily against one another in relative terms.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This evaluative mode is formalised by the grading approach; it is used by every institution that assesses quality seriously: academic peer review, judicial evaluation, professional certification.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A voting method aligned with natural evaluative cognition is less susceptible to strategic distortion because voters can report their honest assessments in familiar terms.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The grading model is not merely mathematically superior but cognitively natural; majority judgment formalises the evaluative mode that citizens actually employ, reducing the gap between honest and strategic voting.</span></div>
+        </div>
+      </div>
+    </div><!-- end balinski -->
+
+    <!-- SEN -->
+    <div class="speaker-panel" id="opp-sen-panel">
+      <div id="opp-sen-speech" class="speech-text">
+        <p class="salut">I want to step back from the technical debate about which aggregation rule is best and raise a more fundamental question: is preference aggregation the right framework for democratic collective choice at all?</p>
+        <p>The social choice literature, from Condorcet to Balinski-Laraki, has proceeded on the assumption that what voters bring to an election are preferences &mdash; rankings or gradings of candidates &mdash; and that the task of democratic theory is to aggregate these preferences into a social choice. I do not deny that preference aggregation is part of democracy. I deny that it is the whole of it. And I have shown, in my 1970 impossibility result, that even within the preference-aggregation framework, there are conflicts between collective rationality and individual rights that no aggregation procedure can resolve.</p>
+
+        <span class="section">i. the impossibility of the paretian liberal</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Sen&rsquo;s liberal paradox — Pareto and minimal liberty are incompatible; preference aggregation violates rights even when consistent</span>My result &mdash; the Impossibility of the Paretian Liberal &mdash; shows that even a minimal condition of individual liberty is incompatible with the Pareto principle under preference aggregation. The minimal liberty condition says: for each person, there is at least one pair of social states such that their preference determines the social choice between them. For example, if I prefer to read a book in my bedroom, the social choice between the state where I read it and the state where I do not should be determined by my preference, not by any social aggregation. This seems uncontroversial. But when combined with the Pareto principle and unrestricted domain, it produces a contradiction: there are preference profiles in which any consistent social choice violates either liberty or Pareto. The aggregation model, even at its best, cannot respect both principles simultaneously.</span></p>
+
+        <span class="section">ii. why preference intensities matter and the aggregation model ignores them</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Cardinal utility — interpersonal comparability essential for welfare judgments; Arrow model excludes it; Sen&rsquo;s extension includes it</span>Arrow&rsquo;s framework, and most of the subsequent social choice literature, restricts individual inputs to ordinal preference rankings. This restriction was methodologically motivated: we cannot directly observe the intensity of preferences or compare them across persons. But this restriction is also responsible for most of the impossibility results. Once we allow cardinal utility information &mdash; information about the intensity of preferences, and potentially about interpersonal comparisons of welfare &mdash; the impossibility results weaken or disappear. I have shown that with sufficient cardinal information, a social welfare function can be constructed that satisfies all of Arrow&rsquo;s conditions except IIA, which can be relaxed in a principled way. The debate between Condorcet and Borda is partly a debate about how much cardinal information to use: pairwise majority uses none; Borda uses the implicit cardinal information in rank positions; majority judgment uses explicit grade information. The right answer is to use more cardinal information, not less.</span></p>
+
+        <span class="section">iii. collective choice requires capability, not just preference</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Capability approach — voting systems must enable participation; preferences formed under inequality are distorted; aggregation is not enough</span>Even if we solved the aggregation problem perfectly, we would not have solved the democratic problem. Democracy is not only about aggregating the preferences that people happen to have. It is about ensuring that the conditions under which preferences are formed are themselves just. A preference formed under conditions of severe deprivation &mdash; an adaptive preference that accepts as inevitable something that ought to be challenged &mdash; is not the kind of preference that deserves equal weight in democratic aggregation. The capability approach I have developed in welfare economics applies here: what matters is not only what people prefer but whether they have the real opportunity to form and express preferences freely. A voting system that produces a formally correct aggregation of preferences formed under conditions of domination and distorted information is not truly democratic, regardless of how elegant its mathematics.</span></p>
+
+        <span class="section">iv. the democratic case for deliberation over aggregation</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Deliberative democracy — preferences should be transformed by democratic process, not merely aggregated; aggregation model treats preferences as fixed</span>The preference-aggregation model treats preferences as fixed inputs: people arrive at the voting booth with their preferences fully formed, and the voting rule aggregates them. But democratic theory in the deliberative tradition &mdash; from Habermas to Rawls&rsquo;s public reason &mdash; holds that democracy is a process of collective reasoning in which preferences ought to be transformed by the exchange of reasons. The best arguments should win, and winning should transform what people prefer, not merely aggregate what they happened to prefer before they began to reason together. No voting rule &mdash; Condorcet, Borda, approval, or majority judgment &mdash; can do this. The aggregation model is at most a component of democratic legitimacy, not its foundation.</span></p>
+        <div class="realworld"><strong>Real-world parallel — Deliberative polls and citizen assemblies:</strong> Citizens&rsquo; assemblies in Ireland (on abortion, same-sex marriage), Canada, and the UK have demonstrated that when citizens are given information, time, and the conditions for genuine deliberation, their preferences change substantially and productively. The outcomes of these assemblies systematically diverge from what polling of initial preferences would predict. This is evidence that aggregating pre-deliberative preferences is not what democratic theory should be trying to do.</div>
+        <p><em>The question is not which voting rule produces the best aggregation of given preferences. The question is what kind of collective reasoning we wish to enable. No aggregation rule answers that question.</em></p>
+      </div>
+      <div id="opp-sen-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Sen's liberal paradox: preference aggregation is incompatible with minimal individual liberty</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Minimal liberty: for each person there is at least one pair of social states such that their preference determines the social choice between them — a weak condition giving each individual a protected personal sphere.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Combined with the Pareto principle and unrestricted domain, minimal liberty produces a contradiction: there are preference profiles in which any consistent social choice violates either the protected personal sphere or Pareto efficiency.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This impossibility is independent of which aggregation rule is used; it is a consequence of the preference-aggregation framework itself, not of any particular rule's failures.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Sen's liberal paradox shows that the preference-aggregation model is itself inconsistent with liberal democratic values; no choice of voting rule — Condorcet, Borda, approval, or majority judgment — resolves this conflict.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Ordinal preference aggregation discards cardinal information essential for welfare and rights judgments</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Arrow's framework excludes cardinal utility and interpersonal comparisons; this exclusion produces most impossibility results, because it deprives the aggregation rule of information needed to resolve conflicts.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>With sufficient cardinal information — interpersonally comparable utilities — Arrow's conditions can largely be satisfied; the impossibility is an artifact of the ordinal restriction, not of aggregation per se.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The right response to the impossibility results is therefore not to choose the best ordinal rule but to use cardinal information — which majority judgment partially does, and which full welfare-theoretic approaches do more completely.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ordinal preference aggregation framework artificially creates impossibility by excluding cardinal information; enriching the information base removes most impossibilities and makes the Condorcet-vs-Borda debate a second-order question.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Adaptive preferences undermine preference aggregation's democratic credentials</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Preferences formed under conditions of systematic inequality, domination, or distorted information are not the autonomous preferences that democratic theory aims to aggregate; they are adaptive responses to unjust circumstances.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A voting system that formally correctly aggregates preferences formed under these conditions is not genuinely democratic; it reproduces the distortions of the conditions under which preferences were formed.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Genuine democratic legitimacy requires attention to capability — to whether people have the real opportunity to form and express preferences freely — not only to the formal properties of the aggregation rule.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The preference-aggregation model's democratic credentials depend on the justice of the conditions under which preferences are formed; improving the aggregation rule while leaving those conditions unjust achieves only formal, not substantive, democratic legitimacy.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Deliberative democracy requires preference transformation, not aggregation of fixed preferences</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The deliberative tradition holds that democratic legitimacy requires that collective decisions be shaped by the exchange of reasons; preferences should be transformed by the process of reasoning together, not merely aggregated in their pre-deliberative form.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Citizens' assembly evidence shows that deliberation systematically and productively changes preferences; outcomes diverge substantially from aggregations of initial preferences, suggesting that pre-deliberative preference aggregation fails to represent the considered democratic will.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No voting rule can substitute for deliberation; aggregation is at most a terminal mechanism for a process that should include extensive reason-giving, information exchange, and genuine dialogue.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The aggregation model treats preferences as fixed inputs; deliberative democracy requires preferences to be transformed by the democratic process itself; no voting rule resolves this, because the question is about the nature of democracy, not the mechanics of aggregation.</span></div>
+        </div>
+      </div>
+    </div><!-- end sen -->
+
+    <!-- BLACK / IRV -->
+    <div class="speaker-panel" id="opp-black-panel">
+      <div id="opp-black-speech" class="speech-text">
+        <p class="salut">I want to make the case for Instant Runoff Voting &mdash; ranked-choice voting as it is practiced &mdash; not as a theoretically perfect system, but as the best available system for large-scale democratic elections in the real world. The perfect is the enemy of the good. Condorcet&rsquo;s Kemeny rule is NP-hard to compute in the general case. Majority judgment requires a radical change in ballot format that electorates have not been prepared to accept. Approval voting produces indeterminate outcomes when voters disagree about how to set their approval threshold. IRV is used in Australia, Ireland, Scotland, Maine, Alaska, and dozens of other jurisdictions. It works. It produces majority winners. It eliminates the most egregious spoiler effects. And it is compatible with the foundational result that every serious voting theorist acknowledges: Black&rsquo;s median voter theorem.</p>
+
+        <span class="section">i. black&rsquo;s median voter theorem: when it matters most, condorcet and irv agree</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Median voter theorem — single-peaked preferences → Condorcet winner = median voter&rsquo;s preferred candidate; IRV finds this in most real elections</span>Duncan Black proved in 1948 that when voter preferences are single-peaked &mdash; when each voter has a most-preferred policy position on a one-dimensional spectrum, and preferences decline monotonically on either side &mdash; majority rule always produces a unique Condorcet winner: the candidate preferred by the median voter. This is not a rare special case. Most political contests, especially in legislative elections, are fought on a roughly one-dimensional spectrum of left-right or liberal-conservative preferences. When this structure obtains, all of the complications of Condorcet cycles vanish: the median voter is the Condorcet winner, and any reasonable rule should elect the median voter. IRV, in practice, reliably identifies the median voter in such elections.</span></p>
+        <table class="tbl">
+          <tr><th>Electoral context</th><th>Single-peaked?</th><th>Condorcet winner exists?</th><th>IRV result</th></tr>
+          <tr><td>Left-right legislative race (3 candidates)</td><td>Yes (typically)</td><td class="winner">Yes — median voter&rsquo;s candidate</td><td class="winner">Elects median voter&rsquo;s candidate</td></tr>
+          <tr><td>Multi-dimensional policy space (5+ candidates)</td><td>No</td><td>May not exist</td><td>Eliminates minority candidates sequentially</td></tr>
+          <tr><td>Centrist candidate squeezed by two strong flanks</td><td>Partially</td><td class="winner">Centrist is Condorcet winner</td><td class="loser">IRV may fail: centrist eliminated early</td></tr>
+          <tr><td colspan="4" class="note">The &ldquo;centre squeeze&rdquo; is IRV&rsquo;s known pathology. It occurs when the Condorcet winner has few first-place votes despite being broadly preferred. This is the case that Condorcet methods uniquely handle correctly.</td></tr>
+        </table>
+
+        <span class="section">ii. the monotonicity problem in irv: how serious is it?</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Monotonicity failure — getting more votes can cause you to lose under IRV; theoretically problematic but empirically rare in political elections</span>IRV has a known and genuine theoretical defect: non-monotonicity. It is possible, in certain profiles, for a candidate to win with some vote distribution but lose if they receive additional first-place votes (because more votes change the elimination order). This is the most serious theoretical objection to IRV. I do not dismiss it. But I note that the profiles producing monotonicity failure are highly specific and empirically rare in political elections. A 2011 study of Australian elections found no confirmed instances of monotonicity failure in over a century of IRV elections at the federal level. The frequency of centre-squeeze failures &mdash; where IRV misidentifies the Condorcet winner &mdash; is also low, though non-zero. These are genuine costs, but they are marginal costs against the background of an otherwise well-functioning system.</span></p>
+
+        <span class="section">iii. irv in practice: australia, ireland, and the real-world test</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">IRV in Australia and Ireland — multi-decade track record; stable multi-party democracy; proportional outcomes without list systems</span>Australia has used the Alternative Vote (the Australian term for IRV) for federal House elections since 1918. Ireland has used the Single Transferable Vote &mdash; a proportional extension of IRV to multi-member districts &mdash; since 1922. Neither country has a chronic spoiler problem. Neither has the two-party duopoly that FPTP systematically produces. Irish elections produce genuinely proportional outcomes that reflect the breadth of voter preferences. Australian elections produce single-member district representation without the systematic distortion of FPTP. These are not theoretical systems. They are century-long track records. I submit that a century of stable democratic practice is worth more than the NP-hardness of the Kemeny computation.</span></p>
+
+        <span class="section">iv. the political case: why irv improves on plurality in every dimension that matters</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">IRV vs FPTP — eliminates spoiler effect in practice; produces majority winners; reduces negative campaigning; candidates appeal beyond core</span>IRV produces majority winners: by the final round, someone has more than 50% of the counted vote. Under FPTP, the winner may have 30%. IRV eliminates the strategic dilemma of voting for a doomed third-party candidate: your vote is not wasted, because if your candidate is eliminated, your second preference counts. IRV reduces negative campaigning: a candidate who alienates supporters of other parties cannot attract their second-preference votes. These are observable consequences of IRV&rsquo;s structure, confirmed by the political cultures of countries that use it. Whatever its theoretical defects &mdash; and I have acknowledged them honestly &mdash; IRV is a dramatic improvement over FPTP, is implementable with existing ranked-ballot infrastructure, and has produced stable democratic governance in several countries for over a century.</span></p>
+        <div class="realworld"><strong>Real-world parallel:</strong> The 2022 Alaska special congressional election demonstrated IRV&rsquo;s benefits: a Democrat won in a historically Republican district by attracting second-preference votes from moderate Republican voters after the most extreme Republican was eliminated. This is exactly the centrist-coalition outcome that IRV is designed to produce &mdash; the candidate with the broadest acceptable coalition wins, not the candidate with the most passionate minority base.</div>
+        <p><em>In the real world, the theoretically perfect is unimplementable and the implementable is not theoretically perfect. IRV is the best available compromise. I yield the floor.</em></p>
+      </div>
+      <div id="opp-black-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — Black's median voter theorem: under single-peaked preferences IRV finds the Condorcet winner</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Black's theorem: when all voter preferences are single-peaked on a one-dimensional issue space, a unique Condorcet winner exists — the candidate preferred by the median voter.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Most political elections are substantially one-dimensional; the centre-squeeze failure of IRV — where IRV fails to elect the Condorcet winner — requires a highly specific profile in which the Condorcet winner has few first-place votes. This is unusual in practice.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In the typical political election under single-peaked preferences, IRV reliably identifies the Condorcet winner, giving it the most important practical advantage without the computational complexity of Kemeny.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Black's theorem shows that in the most common political election structure, IRV and Condorcet agree; the theoretical divergence between the methods is mostly a feature of highly unusual or multi-dimensional preference profiles.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — IRV's monotonicity failure is theoretically real but empirically rare; theoretical defects must be weighed against practical performance</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>IRV's monotonicity failure — getting more votes can cause a candidate to lose — requires a specific and unusual profile structure; century-long Australian data shows no confirmed instances at federal level.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>All real voting systems have theoretical defects: Condorcet methods have cycles; Borda has cloning and burying; approval has threshold indeterminacy. The question is which defects matter in practice.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Empirical frequency of failure, not theoretical possibility, is the right criterion for evaluating practical voting systems; by this standard, IRV's known defects are marginal compared to FPTP's chronic pathologies.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>IRV's monotonicity failure is a genuine but empirically rare defect that must be weighed against its practical performance; on this balanced assessment, IRV outperforms all other systems that have been implemented at scale.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Australia and Ireland provide century-long evidence of IRV producing stable democratic outcomes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Australia has used IRV for federal House elections since 1918; Ireland has used STV since 1922; both produce multi-party democracy without chronic spoiler effects or two-party duopoly.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No other competing system — not Condorcet, not Borda, not approval, not majority judgment — has been implemented at national scale with this track record. Century-long democratic stability is empirical evidence of a high order.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Theoretical superiority of a system that cannot be implemented or that no electorate has accepted is a lesser recommendation than the demonstrated practical performance of IRV.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Australia and Ireland's century-long track record is the most compelling evidence in this debate; IRV demonstrably produces better democratic outcomes than FPTP and has no peer among implementable reforms in terms of validated real-world performance.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — IRV produces majority winners, eliminates strategic dilemmas, and reduces negative campaigning</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>IRV guarantees that the winner has a majority (50%+) of the counted vote in the final round, unlike plurality where a candidate can win with 30%. This majority guarantee has direct democratic legitimacy.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>IRV eliminates the strategic dilemma of voting for unviable candidates: voters can express their true first preference without wasting their vote, because lower preferences are counted if their first choice is eliminated.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>IRV incentivises candidates to appeal beyond their core base: a candidate who alienates other parties' supporters cannot attract their transfer votes. This structurally reduces negative campaigning.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>IRV produces majority winners, honest voting, and constructive campaigning — three concrete improvements over FPTP that are observable in the political cultures of countries using it; these practical advantages justify its adoption regardless of its theoretical shortcomings relative to Condorcet.</span></div>
+        </div>
+      </div>
+    </div><!-- end black -->
+
+  </div>
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'condorcet',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'saari',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
