@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Paradox of Not Voting — The Symposium</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 9px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.tbl{width:100%;border-collapse:collapse;font-family:sans-serif;font-size:11.5px;margin:.5rem 0 .9rem;background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;overflow:hidden}
+.tbl th{background:var(--bg4);color:var(--text);font-weight:600;padding:5px 9px;text-align:left;border-bottom:1px solid var(--bdr2);letter-spacing:.04em;font-size:10.5px;text-transform:uppercase}
+.tbl td{padding:5px 9px;color:var(--text2);border-bottom:1px solid var(--bdr);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl .pos{color:var(--prop-green);font-weight:700}
+.tbl .neg{color:var(--opp-red);font-weight:700}
+.tbl .eq{color:var(--a1tip);font-weight:600}
+.tbl .note{font-size:10px;color:var(--text3);font-style:italic;padding:5px 9px}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.mathbox{background:rgba(200,169,90,.07);border:1px solid rgba(200,169,90,.25);border-radius:5px;padding:.75rem 1rem;margin:.6rem 0 .9rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.85}
+.mathbox .mbtitle{color:var(--gold);font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:block}
+.mathbox .formula{color:var(--text);font-style:italic;font-size:13px;margin:.3rem 0}
+.mathbox .fdef{font-size:11px;color:var(--text3);margin-top:4px}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Downs (1957) &bull; Riker &amp; Ordeshook (1968) &bull; Parfit (1984) &bull; Brennan &amp; Lomasky (1993) &bull; Goldman (1999) &bull; Tuck (2008) &bull; Jason Brennan (2011) &bull; Barnett (2020)</div>
+  <div class="motion-title">&ldquo;This House Believes that voting is rationally and morally obligatory for the informed citizen &mdash; and that the paradox of not voting rests on decision-theoretic errors, a cramped model of causation, and a failure to take seriously what elections are actually for&rdquo;</div>
+  <div class="motion-sub">Proposition: voting is rational &amp; obligatory &bull; Parfit &middot; Goldman &middot; Tuck &middot; Barnett &nbsp;&mdash;&nbsp; Opposition: the paradox stands &bull; Downs &middot; Riker &amp; Ordeshook &middot; Brennan &amp; Lomasky &middot; Jason Brennan</div>
+</div>
+
+<div class="columns">
+
+<!-- LEFT — PROPOSITION -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','parfit',this)">Parfit</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','goldman',this)">Goldman</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','tuck',this)">Tuck</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','barnett',this)">Barnett</button>
+  </div>
+
+  <!-- PARFIT HEADER -->
+  <div class="col-header" id="prop-parfit-header">
+    <div class="col-header-top"><span class="pill prop">Expected Value &amp; Moral Mathematics</span><span class="col-subtitle">Derek Parfit — Reasons and Persons, Ch. 3 (1984)</span></div>
+    <div class="col-position">The orthodox dismissal of voting as instrumentally irrational commits one of the five mistakes in moral mathematics: it treats a tiny probability affecting millions as negligible, when the correct rule is that very small chances must not be ignored when they bear on very many people. The large number of people affected roughly cancels out the smallness of the probability. A consequentialist must vote.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','parfit','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','parfit','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- GOLDMAN HEADER -->
+  <div class="col-header hidden" id="prop-goldman-header">
+    <div class="col-header-top"><span class="pill prop">Causal Responsibility Approach</span><span class="col-subtitle">Alvin Goldman — Social Philosophy &amp; Policy, 1999</span></div>
+    <div class="col-position">The pivot-probability model of voting is built on the wrong theory of causation. Whether your vote matters is not determined by whether it is counterfactually necessary for the outcome. A vote is a partial cause of a majority just as a single raindrop is a partial cause of a flood. The causal responsibility you bear for an electoral outcome is real even when the outcome would have occurred without your individual contribution.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','goldman','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','goldman','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- TUCK HEADER -->
+  <div class="col-header hidden" id="prop-tuck-header">
+    <div class="col-header-top"><span class="pill prop">Free Riding &amp; Threshold Logic</span><span class="col-subtitle">Richard Tuck — Free Riding (Harvard UP, 2008)</span></div>
+    <div class="col-position">The decision-theoretic case against voting depends on treating negligibility as a sharp, principled concept, but the sorites paradox shows it is not. The logic of sufficiency &mdash; whether your contribution is part of a sufficient coalition for victory &mdash; replaces the logic of necessity. Voting is not a free-riding problem and not a prisoner&rsquo;s dilemma; it is a coordination game in which each participant contributes to a threshold crossing, and that contribution is causally real.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','tuck','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','tuck','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BARNETT HEADER -->
+  <div class="col-header hidden" id="prop-barnett-header">
+    <div class="col-header-top"><span class="pill prop">Updated Expected Value Defence</span><span class="col-subtitle">Zach Barnett — Philosophy &amp; Public Affairs, 2020</span></div>
+    <div class="col-position">The probability that a single vote is decisive is at least 1/N, where N is the number of voters; under this model, voting is instrumentally rational whenever the average social benefit of electing the better candidate exceeds twice the individual cost of voting. Under any plausible estimate of electoral stakes, this condition is easily satisfied. The expected-value defence of voting is correct and has been prematurely abandoned by the philosophical consensus.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','barnett','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','barnett','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- PARFIT -->
+    <div class="speaker-panel active" id="prop-parfit-panel">
+      <div id="prop-parfit-speech" class="speech-text">
+        <p class="salut">In Chapter 3 of Reasons and Persons I described five mistakes in moral mathematics. The third of these mistakes is what I call the mistake of ignoring tiny chances. The case of voting illustrates it perfectly. I want to show that the apparently conclusive argument against the rationality of voting is a sophisticated instance of this mistake, and that correcting it transforms the conclusion entirely.</p>
+        <p>The Downsian argument runs as follows. If I vote, the probability that my single vote will be decisive &mdash; that it will make the difference between my preferred candidate winning and losing &mdash; is approximately one in a hundred million in a large national election. This probability is so small as to be effectively zero. Therefore the expected benefit of voting is the possible benefit multiplied by effectively zero, which gives a figure smaller than the certain cost of travelling to the polling station. Therefore voting is irrational.</p>
+        <p>This argument has been taken to be devastating. I believe it is deeply confused.</p>
+
+        <div class="mathbox">
+          <span class="mbtitle">The Downsian formula and its hidden mistake</span>
+          <div class="formula">U(vote) = P &times; B &minus; C</div>
+          <div class="fdef">P = probability of being the pivotal voter &asymp; 1/100,000,000 (in a US presidential election)</div>
+          <div class="fdef">B = personal benefit if preferred candidate wins (a private good)</div>
+          <div class="fdef">C = cost of voting (time, inconvenience) &asymp; £5&ndash;£20 equivalent</div>
+          <div class="fdef" style="margin-top:8px;color:var(--a4tip)">Downsian verdict: P &times; B &asymp; 0 &lt; C &nbsp;&rarr;&nbsp; Do not vote</div>
+          <div class="fdef" style="margin-top:8px;color:var(--prop-green)">Parfit&rsquo;s correction: B must include your share of the expected benefit to 200 million other people. B is not a private good but a social good. When B is measured as the social benefit, P &times; B is no longer negligible.</div>
+        </div>
+
+        <span class="section">i. the third mistake: treating tiny chances as negligible when stakes are massive</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The mistake — ignoring tiny probabilities when large numbers of people are affected; P × (200m benefit) is not negligible</span>The decisive error is in the specification of B. Downs treats B as the private benefit to the voter if the preferred candidate wins. But this is wrong. A consequentialist &mdash; or any altruist &mdash; must include the benefit to all persons affected by the election outcome. A presidential election affects two hundred million people. Even if the chance of being pivotal is one in a hundred million, the expected benefit to me of voting is: (1/100,000,000) &times; (benefit to 200 million people of electing the superior candidate). The large number of people affected &mdash; two hundred million &mdash; roughly cancels out the smallness of the pivot probability. The expected benefit is approximately equal to the average benefit per person of electing the better candidate. If this average benefit exceeds half the cost of voting, voting is rational. I must be extremely cynical about the difference between good and bad government to deny that it does.</span></p>
+
+        <span class="section">ii. the general rule about tiny probabilities</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">General rule — never ignore tiny probabilities when affecting very many people OR when the chance will be taken many times; both conditions apply to voting</span>I stated a general rule: we can usually ignore a very small chance. But we should not do so when we may affect a very large number of people, or when the chance will be taken a very large number of times. Both of these conditions are satisfied in the case of voting. My vote has a tiny chance of affecting the election; but if it does affect it, the effect is felt by hundreds of millions of people. The tiny probability is exactly compensated by the enormity of the stakes. The product P &times; B is not negligible. The rule that says &ldquo;ignore very small probabilities&rdquo; applies when the stakes are small &mdash; when P &times; B is genuinely close to zero regardless of P&rsquo;s size. In the voting case, the stakes are so large that the rule fails to apply.</p>
+
+        <span class="section">iii. the numerical demonstration</span>
+        <table class="tbl">
+          <tr><th>Parameter</th><th>Downsian version (private B)</th><th>Parfit&rsquo;s version (social B)</th></tr>
+          <tr><td>P (pivot probability)</td><td>1 in 100,000,000</td><td>1 in 100,000,000 (same)</td></tr>
+          <tr><td>B (benefit if pivotal)</td><td>Private: £50 to voter</td><td>Social: £0.50/person × 200m people = £100m</td></tr>
+          <tr><td>P × B (expected benefit)</td><td class="neg">£50 / 10⁸ = £0.0000005 (negligible)</td><td class="pos">£100m / 10⁸ = £1.00 (not negligible)</td></tr>
+          <tr><td>C (cost of voting)</td><td>£0.50 (time + travel)</td><td>£0.50 (same)</td></tr>
+          <tr><td>U(vote) = P×B − C</td><td class="neg">Strongly negative → Don&rsquo;t vote</td><td class="pos">Positive (£0.50) → Vote!</td></tr>
+          <tr><td colspan="3" class="note">The entire Downsian conclusion turns on treating B as a private good. Once B is measured as the social good affected by the election, the expected value of voting is positive and significant — approximately equal to the average benefit per person of better governance.</td></tr>
+        </table>
+
+        <span class="section">iv. the altruist and the consequentialist both must vote</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Moral obligation — altruist and consequentialist cannot rationally abstain once social B is included; even a modest belief in the difference between candidates suffices</span>This analysis applies not only to the self-interested voter &mdash; who might still reasonably abstain if they care only about themselves &mdash; but to any person who gives any weight to the welfare of others. An altruist who gives equal weight to her own and others&rsquo; welfare must include in B the benefit that better government confers on everyone. And the product of a one-in-a-hundred-million chance with a benefit to two hundred million people is very significant. If the altruist does not ignore very tiny chances when very large numbers of people are affected, she will often have a moral reason to make a contribution. The expected benefit she would give to others would be greater than the cost of her contribution. Only extraordinary cynicism &mdash; the belief that it makes no meaningful difference which candidate wins for the two hundred million affected &mdash; could justify abstention on consequentialist grounds.</span></p>
+
+        <span class="section">v. the mistake about the &ldquo;share of the total&rdquo;</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Share-of-the-total mistake — each voter&rsquo;s contribution is not 1/N of the total outcome; the correct view is the marginal / expected-value view</span>There is a further mistake that reinforces the voting error. Some argue: &ldquo;If one million people vote to produce outcome X, my share of the credit for producing X is one in a million. This is negligible.&rdquo; This is what I call the Share of the Total view, and it is wrong. The correct view &mdash; the Marginalist view &mdash; is that the value of your act is its expected marginal contribution to the outcome, not your share of the total contribution. The expected marginal contribution of your vote &mdash; the probability that it changes the outcome multiplied by the value of changing the outcome &mdash; is not the same as 1/N times the value of the outcome. The Share of the Total view understates the expected value of pivotal acts, while the Marginalist view captures it correctly. Once the correct view is in place, the mathematical argument against voting collapses.</span></p>
+        <p><em>The paradox of voting is not a paradox. It is a mistake. I yield the floor.</em></p>
+      </div>
+      <div id="prop-parfit-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — B must be measured as a social good; with social B, the expected value of voting is positive</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Downsian formula U = P×B − C treats B as the private benefit to the voter of her preferred candidate winning. But any consequentialist or altruist must include the benefit to all persons affected by the election outcome.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A presidential election affects approximately 200 million people. Social B = (average benefit per person of better governance) × 200 million. Even at £0.50 per person average benefit, social B = £100 million.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>P × social B = (1/10⁸) × £10⁸ = £1.00. This exceeds any reasonable estimate of C (the cost of voting). The expected value of voting is therefore positive for any altruistic agent.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Once B is correctly measured as a social good, the expected value of voting is positive and the Downsian conclusion is reversed; the paradox rests on an error in specifying what the voter cares about.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — The general rule about tiny probabilities: do not ignore them when many people are affected</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Parfit's rule: tiny probabilities may usually be ignored. Exception: when the probability bears on very many people, or when the chance is taken very many times, tiny probabilities must be included in expected-value calculations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Voting satisfies the exception condition: a pivot probability of 1/10⁸ bearing on 200 million people produces an expected social effect that is non-negligible. The large number compensates the small probability.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Downsian analyst who ignores the probability of pivotality because it is small is applying the general rule in a case where the exception specifically applies.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The rule "ignore tiny probabilities" does not apply to voting; the exceptional condition — many people affected — is satisfied, and the probability must be included in the calculation; the Downsian omission is a logical error.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — The altruist cannot rationally abstain once social benefit is included; only extreme cynicism about governance quality justifies abstention</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>An altruist who gives weight to others' welfare must include social B in her expected-value calculation. With social B included, U(vote) = P × social B − C ≈ £1.00 − £0.50 &gt; 0.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>For abstention to be rational, the altruist must believe that the two candidates are so similar in their governance quality that the expected social benefit of electing the better one is less than half the voting cost. This is an extremely cynical position.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Any plausible belief that government quality matters — that better policies produce meaningfully better outcomes for citizens — suffices to make voting rational for the altruist.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The altruist has a moral reason to vote whenever she believes that good governance meaningfully differs from bad governance in its effect on citizens — a belief that only extreme cynicism could deny.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — The Share of the Total view is mistaken; the Marginalist view correctly identifies the value of individual contributions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Share-of-the-Total view: each of N voters contributing to outcome X has credit equal to 1/N of X's value. This implies negligible individual credit in large electorates.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Marginalist view: the value of your act is its expected marginal contribution — the probability it changes the outcome multiplied by the value of that change. This is P × B, not (1/N) × total value.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Marginalist view is correct: it captures the causal structure of the decision (your vote either tips the election or it doesn't), while the Share-of-the-Total view distorts it by dividing credit across all participants regardless of their marginal role.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The correct framework for evaluating individual contributions to collective outcomes is the Marginalist view; under this view, the expected value of a vote is P × social B, which is positive for any plausible election, not 1/N × total benefit, which appears negligible.</span></div>
+        </div>
+      </div>
+    </div><!-- end parfit -->
+
+    <!-- GOLDMAN -->
+    <div class="speaker-panel" id="prop-goldman-panel">
+      <div id="prop-goldman-speech" class="speech-text">
+        <p class="salut">I want to approach the question of why citizens should vote from a different angle from Parfit's &mdash; not through expected value but through causal responsibility. My argument is that the pivot-probability model of causal efficacy that underlies the Downsian paradox is built on a philosophically deficient theory of causation. Once we replace it with the correct theory, the problem dissolves.</p>
+        <p>The standard rational-choice model assumes that your vote is causally efficacious &mdash; that it matters &mdash; only if it is decisive: only if, had you voted differently, the outcome would have been different. This is what philosophers call a counterfactual theory of causation. Your vote matters if and only if, in the closest possible world where you abstain, your candidate loses. In any election with more than a handful of votes, this condition is almost certainly not satisfied. Therefore, the standard model concludes, your vote has no causal efficacy. Therefore, you have no reason to vote.</p>
+
+        <div class="case-box">
+          <strong>Why the counterfactual theory of causation gives the wrong answer.</strong><br><br>
+          Consider a firing squad that shoots a prisoner. Twenty soldiers fire simultaneously. Under the counterfactual theory: is any single soldier causally responsible for the prisoner&rsquo;s death? If soldier A had not fired, the prisoner would have died anyway — the other nineteen bullets would have killed him. Therefore, by the counterfactual theory, soldier A is not causally responsible for the death. Nor is soldier B. Nor any of the twenty. The counterfactual theory implies that nobody is causally responsible for the prisoner&rsquo;s death. This is clearly wrong. The correct theory must say that each soldier&rsquo;s shot is a partial cause of the death, even though no single shot was necessary for the death to occur.
+        </div>
+
+        <span class="section">i. causal responsibility without counterfactual necessity</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Partial causation — a vote is a partial cause of a majority even when not counterfactually necessary; like each raindrop in a flood</span>The correct theory of causation for collective outcomes is a theory of partial causation rather than counterfactual necessity. Your vote does not need to be necessary for the outcome in order to be a partial cause of it. Each soldier&rsquo;s shot is a partial cause of the prisoner&rsquo;s death; each raindrop is a partial cause of a flood; each vote in a victorious majority is a partial cause of the electoral outcome. The fact that the other nineteen soldiers would still have shot, that rain would still have fallen without your single drop, that the majority would still have prevailed without your individual ballot &mdash; none of this removes your causal contribution. You contributed to a sufficient cause of the outcome. Your contribution is real, even when it is not necessary.</span></p>
+
+        <span class="section">ii. the moral significance of partial causation</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Moral significance — partial causal responsibility grounds moral credit and blame; a voter who helps elect a disastrous government bears partial responsibility for its acts</span>If partial causal responsibility is real, then it grounds moral credit and moral blame. If I vote for a candidate who wins and governs well, I bear partial causal responsibility for those good outcomes &mdash; a genuine share of the credit. If I vote for a candidate who wins and governs badly, I bear partial causal responsibility for those bad outcomes. And if I abstain when my preferred candidate loses by a margin that my vote would have been part of overcoming, I bear some responsibility for the bad governance that follows. The causal responsibility analysis therefore gives voting a moral dimension that the counterfactual analysis denies. Voting is not merely an expression of preference or a civic ritual; it is an act through which citizens bear genuine causal responsibility for collective outcomes.</span></p>
+
+        <span class="section">iii. the flood analogy and its limits</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Flood analogy — single raindrop as partial cause of flood; your vote as partial cause of the electoral margin; the analogy is imperfect but the causal structure is the same</span>Let me state the analogy precisely and acknowledge its limits. A flood is caused by many thousands of raindrops falling on a watershed. No single raindrop is counterfactually necessary for the flood &mdash; the flood would have occurred without any given drop. But each raindrop is a partial cause of the flood. The flood is the aggregate outcome of many partial causes, each of which contributes to making the flood more severe, more extensive, or more certain. The electoral analogy: the majority is the aggregate outcome of many votes, each of which contributes to making the majority larger, the margin of victory wider, the mandate stronger. The limit of the analogy is that elections are binary &mdash; the margin by which you win is irrelevant to whether you win. But I argue that even in binary elections, the concept of partial causation applies: your vote is a partial cause of the winning coalition that produced the outcome.</span></p>
+
+        <span class="section">iv. the epistemological dimension: why voters should be epistemically responsible</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Epistemic responsibility — moral causal responsibility requires epistemically informed voting; partial causation of bad outcomes is still bad; Goldman anticipates Jason Brennan</span>There is an important corollary to the causal responsibility approach: if you bear partial causal responsibility for electoral outcomes, you have an obligation to discharge that responsibility well. This means voting on the basis of good information and sound reasoning about which candidates or policies will produce better outcomes. A voter who votes for a harmful candidate, reasoning from false beliefs or distorted reasoning, bears partial causal responsibility for the harms that result. This is not merely a moral failing in how one votes; it is the moral failing of bearing partial causal responsibility for bad outcomes when one could have avoided it by acquiring better information or by abstaining. The causal responsibility approach therefore contains within it an epistemic component: citizens should vote, but they should vote responsibly, which means voting on the basis of warranted beliefs about the public good.</span></p>
+        <p><em>Your vote is a partial cause of government. Treat it accordingly. I yield the floor.</em></p>
+      </div>
+      <div id="prop-goldman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The counterfactual theory of causation gives wrong answers; partial causation is the correct framework</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The counterfactual theory: event A causes event B iff, if A had not occurred, B would not have occurred. Applied to voting: your vote causes the electoral outcome iff, if you had not voted, the outcome would have been different.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Counterexample: in a firing squad of 20 soldiers, no single soldier is causally responsible for the prisoner's death by the counterfactual theory (the other 19 would have killed him anyway). But this is clearly wrong — each soldier is partially causally responsible.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The correct theory: A is a partial cause of B if A is part of a sufficient set of conditions for B, even if A is not necessary for B. Under this theory, each vote in a winning majority is a partial cause of the electoral outcome.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The counterfactual theory of causation that underlies the Downsian paradox gives the wrong answer for collective action cases; the partial causation theory gives the right answer and restores the causal efficacy of individual votes.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Partial causal responsibility grounds genuine moral credit and blame for electoral outcomes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If each voter bears partial causal responsibility for the electoral outcome, voters who help elect a good government bear partial credit for its achievements; voters who help elect a bad government bear partial blame for its failures.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This moral significance is real and not diminished by the fact that no individual vote was counterfactually necessary; the firing squad soldier bears moral responsibility for the prisoner's death even though the death was overdetermined.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Abstainers who could have contributed to the margin that would have produced a different outcome bear some responsibility for the outcome they could have helped prevent.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Partial causal responsibility grounds genuine moral stakes in voting; voting is not merely a ritual or expression but an act through which citizens bear real causal and moral responsibility for collective governance outcomes.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — A vote is a partial cause of the electoral majority, analogous to a raindrop as a partial cause of a flood</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A raindrop is a partial cause of a flood even when no single drop is counterfactually necessary for the flood. Each drop contributes to the aggregate sufficient cause of the flood.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A vote in a winning majority is a partial cause of the electoral outcome in the same way: it contributes to the aggregate sufficient cause (the winning coalition) that produced the outcome.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The binary character of elections modifies but does not eliminate the analogy: the winning coalition is sufficient for the binary outcome, and each vote in that coalition is a partial cause of the coalition's existence.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The flood analogy demonstrates that partial causation is the correct framework for collective outcomes; each vote is a genuine partial cause of the electoral outcome, and this partial causation grounds both rational motivation and moral responsibility.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Causal responsibility implies epistemic responsibility: vote only when warranted beliefs support the choice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If bearing partial causal responsibility for electoral outcomes is morally significant, then discharging that responsibility well requires voting on the basis of warranted beliefs about which candidates or policies will produce better outcomes.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A voter who votes on the basis of false beliefs or distorted reasoning bears partial causal responsibility for the harms resulting from the candidate they helped elect; this is a moral failing grounded in their epistemic negligence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The duty to vote responsibly therefore has an epistemic component: citizens should acquire warranted beliefs about the public good before voting, or else abstain to avoid bearing partial causal responsibility for outcomes their votes could harm.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The causal responsibility approach implies both a reason to vote (to bear causal responsibility for good outcomes) and an epistemic duty (to vote on warranted beliefs, not ignorance or bias); the two are inseparable.</span></div>
+        </div>
+      </div>
+    </div><!-- end goldman -->
+
+    <!-- TUCK -->
+    <div class="speaker-panel" id="prop-tuck-panel">
+      <div id="prop-tuck-speech" class="speech-text">
+        <p class="salut">My argument in Free Riding is that the modern consensus against the rationality of collective action &mdash; the consensus that holds that voting and other collective contributions are irrational because individually negligible &mdash; is a historically contingent and philosophically confused product of a particular tradition in economic theory. It would have seemed completely alien to political thinkers before the twentieth century. And the philosophical basis for it is weaker than its proponents acknowledge.</p>
+        <p>Let me start with the philosophical difficulty at the heart of the negligibility argument. The claim that your single vote is negligible rests on the claim that a contribution is causally significant only if it makes a difference to the outcome &mdash; only if, without it, the outcome would have been different. But the concept of negligibility is not sharp in the way this argument requires.</p>
+
+        <div class="case-box">
+          <strong>The sorites paradox and negligibility.</strong><br><br>
+          A heap of sand consists of many grains. Remove one grain: is it still a heap? Yes. Remove another: still a heap. Repeat. At some point, you no longer have a heap &mdash; but there is no precise moment at which a heap becomes a non-heap. The sorites paradox shows that &ldquo;heap&rdquo; is a vague predicate: there is no sharp threshold.<br><br>
+          The negligibility argument about voting assumes that &ldquo;makes a difference&rdquo; is a sharp predicate: a contribution either makes a difference or it does not. But negligibility, like heap-size, is a vague concept. The step from &ldquo;your vote is one of a large number of votes that together produce the majority&rdquo; to &ldquo;your vote makes no difference&rdquo; is as invalid as the step from &ldquo;removing one grain leaves a heap&rdquo; to &ldquo;removing all grains leaves a heap.&rdquo;
+        </div>
+
+        <span class="section">i. the logic of sufficiency: your vote is part of a sufficient coalition</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Sufficiency logic — your vote is part of a sufficient set for victory; the threshold problem; Tuck&rsquo;s threshold logic replaces the pivot-probability logic</span>The decision theory underlying the paradox of voting uses the logic of necessity: your vote is causally significant only if it is necessary for the outcome. I want to replace this with the logic of sufficiency. A majority of votes is a sufficient condition for electoral victory. Your vote is one element of that sufficient set. Just as each plank of a raft contributes to the raft&rsquo;s capacity to float &mdash; even though no single plank is necessary for the raft to float &mdash; each vote in a winning majority contributes to the majority&rsquo;s capacity to produce the outcome. The sufficiency logic does not require your vote to be the last grain that tips the heap. It requires only that your vote is part of the sufficient set. And every vote cast for the winning candidate satisfies this condition.</span></p>
+
+        <span class="section">ii. voting is not a prisoner&rsquo;s dilemma</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Not a prisoner&rsquo;s dilemma — prisoner&rsquo;s dilemma has dominant strategy of defection; voting is better modelled as a coordination game or assurance game; Tuck&rsquo;s restructuring</span>The free-rider analysis of voting treats it as a prisoner&rsquo;s dilemma: whatever others do, you are better off not voting (you save the cost without losing the benefit, since the outcome depends on others). But this is the wrong game-theoretic model. A prisoner&rsquo;s dilemma is a case where the dominant strategy &mdash; the strategy that is best regardless of what others do &mdash; is to defect. In voting, defection (abstention) is only dominant if you treat the outcome as fixed by others&rsquo; choices. But the outcome is not fixed by others&rsquo; choices; it is determined by the aggregate of all choices including yours. Voting is better modelled as a coordination game or an assurance game: your vote has value if it coordinates with enough other votes to produce a majority. In an assurance game, the rational strategy depends on what you expect others to do. If you expect enough others to vote, voting is rational. And in a democracy, the expectation that others will vote is generally warranted.</span></p>
+
+        <span class="section">iii. the historical argument: negligibility is a modern confection</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Historical argument — the idea that individual contribution to collective action is irrational was not held before Olson and modern economics; it would have seemed bizarre to Aristotle or Locke</span>I make a historical argument in Free Riding that the consensus against collective action is historically contingent &mdash; a product of the mid-twentieth century economics of Olson and the public choice school, not a timeless truth about rationality. The idea that collaboration was irrational even where the participants received clear individual benefits from the collaborative activity was not one that had fully occurred to anyone before Mancur Olson&rsquo;s Logic of Collective Action in 1965. Aristotle thought citizens had reasons to participate in the polis. Locke thought individuals had reasons to maintain civil society. Rousseau thought the general will had a reality independent of individual wills. These thinkers were not naive about the logic of collective action; they were working with a different and arguably better model of it. The negligibility argument is not the verdict of timeless reason. It is a recent theoretical innovation that should not command the deference it has been given.</span></p>
+
+        <span class="section">iv. the chicken game: voting sustains democracy itself</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Democratic sustaining — voting sustains the institution of democracy itself; abstention risks institutional collapse; chicken game structure; worst outcome is collapse of democratic practice</span>Even if we accept the prisoner&rsquo;s dilemma model, the correct payoff matrix for voting is not the one typically assumed. The worst case for collective abstention is not merely &ldquo;your candidate loses.&rdquo; The worst case is the collapse of democratic practice itself. If enough citizens conclude that voting is irrational and abstain, democratic legitimacy is undermined, turnout falls below the threshold that confers political authority on election outcomes, and authoritarian alternatives become more viable. This restructures the game from a prisoner&rsquo;s dilemma to a chicken game: both players prefer the other to swerve, but both prefer swerving to the collision. In a chicken game, if you expect the other player to defect, your best response is to cooperate. If you expect mass abstention, the case for voting is strengthened, not weakened, because you are one of the cooperators on whom democratic viability depends.</span></p>
+        <p><em>The negligibility argument is philosophically confused and historically parochial. I yield the floor.</em></p>
+      </div>
+      <div id="prop-tuck-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The sorites paradox shows negligibility is vague; the negligibility argument against voting is invalid</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The negligibility argument: your single vote makes no difference because it is negligibly small relative to the total vote. But "makes a difference" / "negligible" are vague predicates — there is no sharp threshold at which a contribution crosses from difference-making to negligible.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The sorites paradox: just as there is no precise moment when removing one grain of sand from a heap makes it a non-heap, there is no precise number of votes below which a vote is "negligible" and above which it is not.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An argument that treats "negligible" as a sharp predicate in contexts where it is vague commits a logical error; the step from "one vote is small" to "one vote makes no difference" is an instance of sorites reasoning and is invalid.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The negligibility argument against voting is logically invalid because it treats a vague predicate as sharp; the concept of "making no difference" is not well-defined in contexts of mass collective action.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — The logic of sufficiency: your vote is part of a sufficient coalition for victory</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A majority is a sufficient condition for electoral victory. Your vote, as part of a majority, is an element of a sufficient cause of the outcome — even though it is not a necessary cause.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Just as each plank of a raft contributes to the raft's flotation capacity even though no single plank is necessary, each vote in a winning coalition contributes to the coalition's sufficient cause of victory.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The logic of sufficiency does not require your vote to be the pivotal last grain; it requires only that your vote is part of the sufficient set — a condition satisfied by every vote cast for the winning candidate.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The sufficiency logic replaces the necessity logic of the Downsian model; under sufficiency, your vote is causally significant whenever it is part of the winning coalition, regardless of whether it is the pivotal vote.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Voting is a coordination/assurance game, not a prisoner's dilemma; rational strategy depends on others' expected behaviour</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The prisoner's dilemma model of voting treats abstention as dominant: you are better off not voting regardless of others' choices. But this requires treating others' choices as fixed, which is false — others' choices and yours jointly determine the outcome.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In an assurance game, your rational strategy depends on what others do: if you expect enough others to vote, voting is rational because your vote contributes to the sufficient coalition. If mass abstention is expected, voting is even more valuable as a sustaining act.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In a democracy where high turnout is expected, the rational expectation that others will vote makes voting individually rational even under the assurance game model.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Voting is not a prisoner's dilemma but an assurance game; rational strategy depends on expected participation, which in functioning democracies is high enough to make individual voting rational under the coordination model.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Collective abstention risks democratic collapse; voting sustains democracy itself, not just individual outcomes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The payoff matrix for voting should include the value of sustaining democratic institutions. If enough citizens abstain, democratic legitimacy erodes below the threshold at which electoral outcomes command political authority.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This restructures the game: the worst outcome is not your candidate losing but the collapse of democratic practice itself. The game is then chicken (collision is worse for both than either swerving), not a prisoner's dilemma.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In a chicken game, if you expect the other player to defect, your best response is to cooperate; mass abstention is therefore the strongest reason to vote, not the strongest reason to abstain.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The correct payoff matrix for voting includes the value of sustaining democratic institutions; once included, the game is chicken rather than a prisoner's dilemma, and the rational strategy reverses: vote especially when abstention is widespread.</span></div>
+        </div>
+      </div>
+    </div><!-- end tuck -->
+
+    <!-- BARNETT -->
+    <div class="speaker-panel" id="prop-barnett-panel">
+      <div id="prop-barnett-speech" class="speech-text">
+        <p class="salut">I want to reopen what has been prematurely closed. The philosophical consensus, following Jason Brennan and others, holds that voting to change the outcome is irrational because the probability of casting the decisive vote is vanishingly small. I think this consensus is incorrect, and I want to prove it mathematically.</p>
+        <p>My central claim is that the probability of a single vote being decisive in a competitive election is at least 1/N, where N is the number of voters. This is not a bold or exotic claim. It follows from very basic probability theory about competitive elections. And once you accept it, the expected-value argument for voting falls immediately into place.</p>
+
+        <div class="mathbox">
+          <span class="mbtitle">Barnett&rsquo;s key theorem and its derivation</span>
+          <div class="formula">P(decisive) &ge; 1/N</div>
+          <div class="fdef">where N = number of voters casting ballots</div>
+          <div class="fdef" style="margin-top:8px"><strong>Intuition:</strong> In a randomly-drawn close election with N voters, the outcome is uniformly distributed across a range of possible margins. The probability that the outcome falls exactly at 0 (a tie, where your vote is decisive) is approximately 1/N. In competitive elections with genuine uncertainty, this probability is non-trivial — on the order of 10⁻⁸ to 10⁻⁶ for national elections.</div>
+          <div class="fdef" style="margin-top:8px"><strong>Barnett&rsquo;s rationality condition:</strong> Voting is rational when:</div>
+          <div class="formula">P(decisive) &times; Social B &ge; C</div>
+          <div class="formula">(1/N) &times; Social B &ge; C</div>
+          <div class="formula">Social B &ge; N &times; C</div>
+          <div class="fdef">i.e., the average social benefit of electing the better candidate must be at least twice the individual cost of voting.</div>
+        </div>
+
+        <span class="section">i. the key theorem: p(decisive) ≥ 1/n</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">P(decisive) ≥ 1/N — derived from basic probability; competitive election assumption; binomial model; non-trivial probability for close races</span>Consider a two-candidate election with N voters. Model each vote as an independent Bernoulli trial with probability p that any given voter votes for Candidate A. If the election is genuinely competitive &mdash; if there is real uncertainty about the winner &mdash; then the distribution of vote shares has substantial probability mass near the 50% threshold. By a basic result in binomial probability, the probability that the election is exactly tied (the condition under which your vote is decisive) is at least 1/N for a random election drawn from a competitive distribution. This is the minimum; for genuinely close elections, the probability of a decisive vote is substantially higher. The key insight is that elections that end up close are not random: if the pre-vote polling shows a close race, the probability of a decisive vote is much higher than 1/N for the population of close elections.</span></p>
+
+        <table class="tbl">
+          <tr><th>Election size N</th><th>P(decisive) ≥ 1/N</th><th>Example social B (national election)</th><th>P × Social B</th><th>Typical C</th><th>Rational?</th></tr>
+          <tr><td>10,000 (local)</td><td>≥ 1/10,000 = 0.01%</td><td>£1m total social stakes</td><td class="pos">£100</td><td>£2</td><td class="pos">Yes (50×)</td></tr>
+          <tr><td>1,000,000 (state/regional)</td><td>≥ 1/10⁶ = 0.0001%</td><td>£100m total social stakes</td><td class="pos">£100</td><td>£3</td><td class="pos">Yes (33×)</td></tr>
+          <tr><td>100,000,000 (national)</td><td>≥ 1/10⁸ = 0.000001%</td><td>£10bn total social stakes</td><td class="pos">£100</td><td>£5</td><td class="pos">Yes (20×)</td></tr>
+          <tr><td colspan="6" class="note">Even with the minimal probability estimate 1/N, expected value exceeds voting cost whenever social stakes exceed N × C. For any realistic election, total social stakes vastly exceed N × cost of voting.</td></tr>
+        </table>
+
+        <span class="section">ii. the rationality condition in plain terms</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Rationality condition — social B must exceed N × C; for any plausible election this is satisfied; Brennan&rsquo;s dismissal depends on implausibly low social B</span>The rationality condition for voting is: the average social benefit of electing the better candidate must be at least twice the individual cost of voting. In a US presidential election with a voting cost of roughly five dollars in time and inconvenience, the condition requires the average social benefit to exceed ten dollars per voter. Given that government policy affects hundreds of millions of dollars of economic output, trillions of dollars of healthcare, defence, and environmental outcomes &mdash; the condition is satisfied by a factor of thousands. The only way to deny it is to claim that the two candidates are so indistinguishable in their governance quality that the expected social benefit of electing the better one is literally less than ten dollars for a country of three hundred million people. This is not a realistic position.</span></p>
+
+        <span class="section">iii. the upset model: competitive elections are more likely to be close</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Upset model — elections that end up unexpectedly close have much higher pivot probability; condition on competitive elections, not all elections</span>A key refinement of the probability estimate is the observation that elections that are genuinely competitive &mdash; where real uncertainty exists about the winner &mdash; have higher pivot probabilities than the naive 1/N suggests. If polling shows a close race, the election is drawn from a distribution that places substantial probability on a narrow margin. Historical analysis of national elections shows that approximately 5% of elections with ten percentage points or less polling margin end in upsets &mdash; results far closer than predicted. When you condition on the election being close enough to be uncertain, the probability that your vote is decisive is substantially above 1/N. Barnett&rsquo;s model gives the minimum case; the realistic case for competitive elections is considerably more favourable.</span></p>
+
+        <span class="section">iv. against jason brennan&rsquo;s dismissal</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Jason Brennan — Brennan uses implausibly low pivot probability estimates; does not apply correct social B; expected value argument is not as weak as he claims</span>Jason Brennan&rsquo;s Ethics of Voting dismisses the expected-value argument for voting by accepting that the pivot probability is vanishingly small and that the social benefit is insufficient to compensate. But his analysis underestimates both the pivot probability &mdash; which, as I have shown, is at least 1/N &mdash; and the social benefit, which he treats as the voter&rsquo;s private expected utility from better governance rather than the aggregate social benefit affecting all citizens. Brennan also notes, correctly, that the expected-value argument is a double-edged sword: if votes can do expected good, they can also do expected harm. This is true. It generates an epistemic obligation to vote well, not an argument against voting. The solution to the risk of harmful votes is epistemic reform &mdash; better-informed voters &mdash; not a universal recommendation to abstain.</span></p>
+        <p><em>The mathematics supports voting. The consensus was premature. I yield the floor.</em></p>
+      </div>
+      <div id="prop-barnett-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — P(decisive) ≥ 1/N follows from basic probability; it gives a non-trivial lower bound on pivot probability</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In a competitive N-voter election modelled as N independent Bernoulli trials, the probability that the margin of victory is zero (the decisive vote condition) is at least 1/N. This follows from the binomial distribution over competitive elections.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>For genuinely competitive elections — those with real uncertainty about the winner — the pivot probability is substantially higher than 1/N, because the distribution of outcomes is concentrated near the 50% threshold.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>1/N is the minimum bound across all election types; for the class of competitive elections where voting is most plausibly rational, P(decisive) >> 1/N.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The pivot probability is at least 1/N; for competitive elections it is substantially higher; this non-trivial lower bound, combined with large social stakes, makes the expected-value calculation positive for voting.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — The rationality condition (Social B ≥ N × C) is satisfied by any realistic estimate of electoral stakes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Voting is rational when P(decisive) × Social B ≥ C, i.e. when (1/N) × Social B ≥ C, i.e. when Social B ≥ N × C.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>For a national election with N = 100 million voters and voting cost C = £5, the condition requires Social B ≥ £500 million. This is the total social benefit of electing the better candidate.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Government policy affects trillions of pounds/dollars of economic output, healthcare, defence, and environmental outcomes; the expected differential social benefit of better vs. worse governance vastly exceeds £500 million. The condition is satisfied by orders of magnitude.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The rationality condition for voting is easily satisfied by any realistic estimate of the social stakes of governance; denying it requires the implausible belief that good and bad government produce nearly identical outcomes for society.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Conditioning on competitive elections substantially increases the pivot probability above the naive 1/N</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The pivot probability 1/N is the minimum over all possible elections, including those where one candidate leads by 20 points. In elections with genuine uncertainty (narrow polling margins), the distribution of outcomes is concentrated near the tie point.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Historical analysis shows that approximately 5% of competitive elections (polling margin ≤ 10 points) end in upsets; when conditioned on close elections, the pivot probability is substantially higher than 1/N.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The voter who is deciding whether to vote in a genuinely uncertain election is conditioning on being in the class of competitive elections; the relevant probability for their decision is the conditional pivot probability, not the unconditional minimum.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The relevant pivot probability for a voter in a competitive election is substantially above 1/N; Barnett's theorem gives the minimum bound, and realistic competitive elections considerably exceed it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Jason Brennan's dismissal of the expected-value argument misestimates both P and B</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Brennan dismisses the expected-value defence of voting by accepting implausibly low pivot probability estimates and treating B as private benefit rather than social benefit. Both errors understate the expected value of voting.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Brennan's observation that expected-value arguments cut both ways — if votes can do expected good, they can do expected harm — generates an epistemic duty to vote well, not a duty to abstain. The solution to harmful voting is epistemic improvement, not universal abstention.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The expected-value defence of voting is more robust than the consensus acknowledges; Barnett's 2020 paper demonstrates this rigorously and the consensus should revise its position accordingly.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Brennan's dismissal of the expected-value argument relies on underestimates of both P and B; corrected estimates restore the positive expected value of voting; the appropriate response to expected harmful voting is epistemic reform, not abstention.</span></div>
+        </div>
+      </div>
+    </div><!-- end barnett -->
+
+  </div>
+</div><!-- end prop col -->
+
+
+<!-- RIGHT — OPPOSITION -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','downs',this)">Downs</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','riker',this)">Riker &amp; Ordeshook</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','brennanl',this)">Brennan &amp; Lomasky</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','brennanj',this)">Jason Brennan</button>
+  </div>
+
+  <!-- DOWNS HEADER -->
+  <div class="col-header" id="opp-downs-header">
+    <div class="col-header-top"><span class="pill opp">The Founding Paradox</span><span class="col-subtitle">Anthony Downs — An Economic Theory of Democracy (1957)</span></div>
+    <div class="col-position">A rational, self-interested voter in a large electorate will almost never vote. The probability of casting the decisive vote is so small that the expected benefit of voting is less than the certain cost of going to the polls. The fact that millions of people do vote is therefore the genuine paradox that requires explanation &mdash; not a refutation of the theory, but an anomaly it must confront honestly.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','downs','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','downs','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- RIKER/ORDESHOOK HEADER -->
+  <div class="col-header hidden" id="opp-riker-header">
+    <div class="col-header-top"><span class="pill opp">Calculus of Voting + D-Term</span><span class="col-subtitle">William Riker &amp; Peter Ordeshook — APSR, 1968</span></div>
+    <div class="col-position">We accept Downs&rsquo;s core result: the instrumental case for voting cannot succeed because P × B &lt; C for any rational self-interested voter in a large election. We add a D term — the value of performing a civic duty, the satisfaction of expressing allegiance, the expressive return from participating in democracy — which explains why people vote without rescuing the instrumental argument. Voting is rational only when D is positive; it is not instrumentally rational in the Downsian sense.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','riker','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','riker','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BRENNAN/LOMASKY HEADER -->
+  <div class="col-header hidden" id="opp-brennanl-header">
+    <div class="col-header-top"><span class="pill opp">Expressive Voting Theory</span><span class="col-subtitle">Geoffrey Brennan &amp; Loren Lomasky — Democracy and Decision (1993)</span></div>
+    <div class="col-position">Voting is best understood as an expressive act, not an instrumental one. The negligible pivot probability decouples the voter&rsquo;s expressed preference from any causal responsibility for the outcome &mdash; which is precisely why voters are free to express their sincere preferences without strategic calculation. The expressive theory explains the behaviour of real voters far better than any instrumental account, and reveals a disturbing implication: democratic majorities reflect not considered judgments but unconstrained expressive impulses.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','brennanl','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','brennanl','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- JASON BRENNAN HEADER -->
+  <div class="col-header hidden" id="opp-brennanj-header">
+    <div class="col-header-top"><span class="pill opp">Ethics of Voting / Epistemic Duty to Abstain</span><span class="col-subtitle">Jason Brennan — The Ethics of Voting (Princeton UP, 2011)</span></div>
+    <div class="col-position">The question &ldquo;is it rational to vote?&rdquo; is less important than the question &ldquo;is it ethical to vote without adequate knowledge?&rdquo; Because individual votes rarely matter instrumentally, there is no strong duty to vote at all. But there is a strong duty not to vote badly. Citizens who are ignorant of basic political facts, who reason from bias or misinformation, or who vote from tribal loyalty rather than considered judgment of the public good, impose a collective epistemic harm on the democratic process &mdash; and they have a duty to abstain.
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','brennanj','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','brennanj','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- DOWNS -->
+    <div class="speaker-panel active" id="opp-downs-panel">
+      <div id="opp-downs-speech" class="speech-text">
+        <p class="salut">I want to state the paradox of voting as precisely as I can, and then respond to each of the attempted solutions offered by the proposition.</p>
+        <p>In An Economic Theory of Democracy I applied the standard tools of microeconomic analysis to political behaviour. The central assumption is that voters are rational utility-maximisers: they act to maximise their expected utility, weighing costs against expected benefits. The application of this model to the voting decision yields a striking conclusion: in any large electorate, it is almost never rational for a self-interested voter to go to the polls.</p>
+
+        <div class="mathbox">
+          <span class="mbtitle">The Downsian calculus, precisely stated</span>
+          <div class="formula">R = P &times; B &minus; C</div>
+          <div class="fdef">R = net benefit of voting (in utils)</div>
+          <div class="fdef">P = probability your vote is decisive (pivot probability)</div>
+          <div class="fdef">B = your private benefit from your preferred candidate winning over the alternative</div>
+          <div class="fdef">C = cost of voting (time, information acquisition, inconvenience)</div>
+          <div class="fdef" style="margin-top:8px"><strong>The key numbers:</strong> In a US presidential election with 100 million voters, P ≈ 1/100,000,000. Even if B = £100,000 (an implausibly large private benefit), P×B = £0.001. Any positive C exceeds this. Rational voter abstains.</div>
+          <div class="fdef" style="margin-top:6px;color:var(--a4tip)">Note: Parfit replaces private B with social B. This is legitimate for altruists, but it changes the model: the voter is now maximising social welfare, not personal utility. This is a different voter model, not a correction to the original.</div>
+        </div>
+
+        <span class="section">i. the core result: in large electorates, p×b &lt; c for any self-interested voter</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Core result — P×B < C for any private B; this is mathematical, not contestable; Parfit changes the model rather than correcting it</span>The mathematical core of my result is unassailable for the model as specified. If B is the voter&rsquo;s private benefit from better governance &mdash; the improvement in her own welfare &mdash; and P is the probability of being decisive, then in any election with more than a few thousand voters, P × B is far less than any positive C. This is arithmetic. The only way to challenge it is to change the model. Parfit changes B from a private good to a social good. But this is a different model &mdash; a model in which voters act as social welfare maximisers rather than personal utility maximisers. This is not a correction to the rational-choice model; it is a replacement of the rational-choice model with an altruistic model. The paradox of voting, for self-interested rational agents, stands.</span></p>
+
+        <span class="section">ii. the self-interest assumption: why it cannot simply be abandoned</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Self-interest is the standard assumption — abandoning it to rescue voting creates a new problem: why do voters not act altruistically everywhere? Inconsistency in the altruistic model</span>Why does it matter whether the voter is self-interested or altruistic? Because the self-interest assumption is the standard, well-motivated assumption of economics, grounded in the observation that most agents in most contexts behave in ways consistent with maximising their own welfare. If we rescue voting by attributing altruistic motivations to voters, we create a new problem: why do these altruistic citizens restrict their altruism to the voting booth? If they care about social welfare sufficiently to absorb voting costs on behalf of others, why do they not donate their income to maximise social welfare more directly? The selective altruism required to rescue the voting model is internally inconsistent. Either voters are systematically altruistic &mdash; in which case the entire framework of self-interested rational choice needs revision across all domains &mdash; or they are not &mdash; in which case the voting paradox stands.</span></p>
+
+        <span class="section">iii. the rational ignorance corollary</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Rational ignorance — if voting is irrational, acquiring information to vote well is even more irrational; cost of information acquisition exceeds expected benefit</span>My argument extends beyond the act of voting to the act of becoming informed. If the expected benefit of voting is less than the cost, the expected benefit of becoming sufficiently informed to vote well is even less than the cost &mdash; because information acquisition requires time and effort beyond the mere act of voting. The rational voter not only has no reason to vote; she has no reason to become an informed citizen. This is the rational ignorance hypothesis: the optimal level of political information for a rational self-interested voter is essentially zero. The fact that many citizens invest heavily in political information &mdash; reading newspapers, watching debates, discussing politics &mdash; is therefore doubly paradoxical from the rational-choice perspective. It is these observations, and their tension with actual citizen behaviour, that make the paradox genuine and important.</span></p>
+
+        <span class="section">iv. in defence of the paradox: why it should not be dissolved</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Value of the paradox — the paradox illuminates real democratic pathologies; rational ignorance is real; the paradox should be acknowledged, not argued away</span>My critics &mdash; Parfit, Goldman, Tuck, Barnett &mdash; all seek to dissolve the paradox by showing that voting is rational after all. I resist this project, not because I think non-voting is the right recommendation, but because the paradox is genuine and important. It illuminates real features of democratic politics: the prevalence of rational ignorance among voters, the incentive for parties to appeal to expressive rather than policy preferences, the dominance of non-instrumental motivations in actual voting behaviour. These are real pathologies of democratic systems that become invisible if we dissolve the paradox by attributing altruistic social-welfare maximisation to all voters. The paradox should be acknowledged and lived with, not argued away by changing the model&rsquo;s assumptions.</span></p>
+        <p><em>The paradox stands. Understanding it honestly is the beginning of democratic wisdom. I yield the floor.</em></p>
+      </div>
+      <div id="opp-downs-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The core result is mathematical: for self-interested voters, P×B &lt; C in any large electorate</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>P (pivot probability) ≈ 1/N in a competitive election with N voters. For N = 100 million, P ≈ 10⁻⁸. B (private benefit from preferred candidate winning) is bounded by the voter's private utility gain — plausibly £50–£1,000. P×B ≈ £0.0005–£0.00001.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>C (cost of voting) is positive for any voter: time, travel, information acquisition — minimally £0.50 equivalent. For virtually any voter, P×B &lt;&lt; C.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is arithmetic, not contestable within the model as specified. The proposition's responses change the model (to social B) rather than correcting the arithmetic.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The paradox of voting is mathematically valid for self-interested rational agents in large electorates; resolving it requires either changing the model's assumptions (as Parfit does) or accepting the paradox and explaining voting by other means.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Rescuing voting via altruistic social B creates an internal inconsistency in rational-choice theory</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Parfit's resolution attributes social-welfare maximisation to voters: B = social benefit to all 200 million people. But this is altruistic, not self-interested, motivation — a different model.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If voters are sufficiently altruistic to absorb voting costs for social benefit, why do they not donate income to effective charities, where the marginal return on social welfare is far higher? The selective altruism of voting booth altruism is internally inconsistent.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Either rational-choice theory must be revised across all domains to incorporate altruism — a major theoretical revision — or the rescue of voting via social B is ad hoc, invoked only to save voting while leaving the rest of the self-interest model intact.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The altruistic resolution of the voting paradox is internally inconsistent: it requires selective altruism in the voting booth that is inconsistent with self-interested behaviour in other domains; it rescues voting by abandoning the model that generated the paradox.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Rational ignorance: if voting is irrational, becoming informed to vote well is even more so</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If P×B − C &lt; 0 for the act of voting, then P×B − (C + I) &lt; 0 even more strongly for the act of voting after acquiring information at cost I. Rational ignorance follows from rational abstention.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Empirical evidence supports rational ignorance: most citizens have minimal political knowledge, cannot name their congressional representatives, and hold factually incorrect beliefs about basic policy. This is predicted by rational-choice theory.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The existence of rational ignorance is a genuine democratic pathology that the paradox exposes; dissolving the paradox by assuming altruistic voters makes this pathology invisible and leaves it unexplained.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The rational ignorance corollary is an important prediction of the Downsian model that is empirically confirmed; the paradox illuminates real democratic pathologies and should not be dissolved by assumption.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — The paradox has genuine explanatory value for democratic theory and should not be prematurely dissolved</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The paradox explains why parties appeal to expressive and identity-based preferences rather than policy substance: voters respond to symbols because their voting decision is expressive, not instrumental.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The paradox explains the prevalence of non-instrumental motivations in actual voting — civic duty, tribal loyalty, expressive allegiance — which Riker-Ordeshook's D-term formalises.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These real democratic phenomena become invisible if the paradox is dissolved by attributing social-welfare maximisation to all voters; honest acknowledgement of the paradox is more illuminating than its dissolution.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The paradox of voting has genuine explanatory power for democratic theory; prematurely dissolving it by changing model assumptions impoverishes our understanding of how democracies actually function.</span></div>
+        </div>
+      </div>
+    </div><!-- end downs -->
+
+    <!-- RIKER & ORDESHOOK -->
+    <div class="speaker-panel" id="opp-riker-panel">
+      <div id="opp-riker-speech" class="speech-text">
+        <p class="salut">We accept Downs&rsquo;s core result. In any large electorate, P × B &lt; C for the self-interested rational voter. The instrumental case for voting fails. We introduced the D-term in our 1968 paper precisely because we recognised this and wanted to explain why, in spite of it, millions of people vote. Our resolution &mdash; the D-term &mdash; does not rescue the instrumental case for voting. It replaces it with something different: the expressive case.</p>
+
+        <div class="mathbox">
+          <span class="mbtitle">The Riker-Ordeshook Extended Formula</span>
+          <div class="formula">R = P&times;B &minus; C + D</div>
+          <div class="fdef">P = pivot probability (negligible in large elections)</div>
+          <div class="fdef">B = private benefit of preferred candidate winning</div>
+          <div class="fdef">C = cost of voting</div>
+          <div class="fdef">D = the direct utility of the act of voting itself: civic duty satisfaction, expressive value, sense of participating in democracy, social approval from voting, avoiding guilt of abstention</div>
+          <div class="fdef" style="margin-top:8px;color:var(--prop-green)">With D included, R can be positive even when P×B &lt; C. Voting is rational when D &gt; C &minus; P×B, i.e. when the direct utility of voting exceeds the net cost after expected instrumental benefit.</div>
+        </div>
+
+        <span class="section">i. what the d-term is and is not</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">D-term — expressive and civic duty value; not a fudge factor but a genuine motivational category; distinguishes instrumental from expressive rationality</span>The D-term is not a fudge factor added to make the arithmetic work. It is a genuine category of utility: the direct satisfaction of voting, independent of whether voting changes the outcome. Just as one might derive satisfaction from watching a sporting event whose outcome one cannot influence, a citizen can derive satisfaction from the act of expressing her political preference through the democratic mechanism, regardless of whether that expression is decisive. The D-term includes several components: the satisfaction of performing a civic duty, the expressive value of publicly aligning oneself with a candidate or cause, the social approval (or avoidance of social disapproval) that comes from being seen to vote, and the expressive pleasure of participating in a shared democratic ritual. These are real utilities. They explain voting behaviour far better than any modification of P × B.</span></p>
+
+        <span class="section">ii. what the d-term implies about the nature of voting</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">D-term implication — voting is essentially expressive; voters express preferences, not exercise power; this changes the interpretation of democratic outcomes</span>If the D-term is the dominant motivation for voting &mdash; if most people vote because they find the act intrinsically valuable rather than because they expect to change the outcome &mdash; then democratic elections are better understood as preference-expression events than as collective decision procedures. When you vote, you are not exercising a power to change government; you are expressing your political identity, your values, and your allegiances. The aggregate of these expressions is read as a mandate, but its connection to the expressed preferences is mediated by a complex institutional machinery that was not designed with expressive voting in mind. This has disturbing implications for democratic theory: the &ldquo;will of the people&rdquo; expressed through the ballot may reflect sincere expressive preferences that voters know will be unconstrained by real-world consequences, rather than considered judgments about what would actually benefit the country.</span></p>
+
+        <span class="section">iii. the d-term explains observed voting patterns better than any instrumental model</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Empirical superiority — D-term model explains turnout, voting patterns, emotional engagement better than any modification of P×B; instrumental models consistently underpredict turnout</span>The empirical case for the D-term model is compelling. No modification of P × B that remains within the range of realistic probability and benefit estimates can explain observed turnout levels of 50-70% in national elections. Even Barnett&rsquo;s most optimistic probability estimates &mdash; P = 1/N &mdash; generate expected values that are tiny relative to what would be needed to explain why an individual with a £5 voting cost and a realistic chance of changing a complex national policy outcome actually walks to the polling station on a rainy Tuesday. The D-term &mdash; civic duty, expressive satisfaction, social pressure, identity expression &mdash; does explain it. Voters are moved by their D-terms. This is not a failure of the rational-choice model; it is its extension to include all relevant sources of utility.</span></p>
+
+        <span class="section">iv. the d-term and the ethics of voting: a note of caution</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">D-term ethics — if voting is expressive not instrumental, voters need not constrain their choices by what is good for the country; expressive voting licences irresponsibility</span>There is a disturbing implication of the D-term analysis that Brennan-Lomasky develop more fully. If voting is primarily expressive &mdash; if the D-term dominates and voters are not expecting to change outcomes &mdash; then voters face no market-like discipline to constrain their expressive impulses. In a market, you pay the full cost of your choices. In an election, if your vote is expressive, you enjoy the full expressive benefit of voting for an extreme candidate or a morally satisfying lost cause without bearing any of the actual costs if such a candidate were to win. The low-stakes character of individual voting licences irresponsible expressive preferences. This is not a cynical claim about voters&rsquo; bad faith; it is a structural observation about what happens when individual decisions are decoupled from individual consequences.</span></p>
+        <p><em>People vote. But they vote expressively, not instrumentally. The paradox stands uncorrected. I yield the floor.</em></p>
+      </div>
+      <div id="opp-riker-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The D-term is a genuine utility category, not a fudge factor: voting provides direct expressive and civic satisfaction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The D-term captures genuine utility derived from the act of voting itself, independent of its effect on the outcome: civic duty satisfaction, expressive alignment, social approval, participation in democratic ritual.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Just as watching a sport provides utility independent of influencing the outcome, voting provides utility through the act of expression independent of its electoral effect. These utilities are real and motivationally significant.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The D-term is not introduced ad hoc; it captures a genuine category of human motivation — expressive and norm-following behaviour — that rational-choice theory must accommodate.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The D-term is a legitimate extension of rational-choice theory that captures genuine expressive utility; it explains why people vote without rescuing the instrumental (P×B) case for voting.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — The D-term implies that voting is essentially expressive: voters express preferences rather than exercise power</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If D dominates in the voting decision, then most voting is expressive — voters act because they find the act intrinsically valuable, not because they expect to change the outcome.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Elections understood as preference-expression events aggregate sincere but unconstrained expressive impulses; the "will of the people" may reflect what voters say they want free of consequences, not what they would choose if they bore the full costs of their political choices.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This has disturbing implications for democratic legitimacy: a mandate derived from expressive voting may not represent genuine considered judgment about what would benefit the country.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The D-term model reveals that democratic elections primarily aggregate expressive preferences, not considered judgments; this is a significant critique of the epistemic credentials of democratic outcomes.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — The D-term model explains observed turnout better than any modification of P×B within realistic ranges</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Observed national election turnout is 50–70%. No modification of P×B within realistic ranges of probability and private benefit can explain this: expected instrumental value of voting is far too small to motivate turnout at observed rates.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The D-term — civic duty, expressive satisfaction, social pressure — does explain observed turnout: voters with higher civic duty scores, stronger partisan identities, and more social voting norms turn out at higher rates, consistent with D driving the decision.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Empirical models that include D-type variables outperform purely instrumental models in predicting individual turnout decisions; this confirms D as the primary motivating factor for most voters.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The D-term model is empirically superior to any modification of the P×B model; it explains turnout better and is more consistent with the psychological and social determinants of actual voting behaviour.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Expressive voting licences irresponsible preferences: decoupled from consequences, voters have no discipline to constrain their choices</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In a market, buyers bear the full cost of their choices; the market disciplines against irresponsibility. In an election, if voting is expressive, individual voters bear none of the cost of their candidate winning — the cost is distributed across the whole population.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Decoupled from individual consequences, expressive voting licenses voters to choose candidates who satisfy their expressive preferences (identity alignment, tribal loyalty, symbolic protest) regardless of governance quality.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This structural feature of expressive voting — not any bad faith by individual voters — explains why democratic electorates may systematically produce outcomes that do not reflect their considered governance preferences.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The expressive nature of voting, made possible by the D-term, structurally licenses irresponsible preference expression; this is a fundamental challenge to the epistemic credentials of democratic aggregation.</span></div>
+        </div>
+      </div>
+    </div><!-- end riker -->
+
+    <!-- BRENNAN & LOMASKY -->
+    <div class="speaker-panel" id="opp-brennanl-panel">
+      <div id="opp-brennanl-speech" class="speech-text">
+        <p class="salut">Riker and Ordeshook introduced the D-term as an explanatory device. We want to develop it into a full theory of electoral politics in Democracy and Decision. Our central claim is not just that voting is explained by expressive utility, but that the expressive character of voting has far-reaching and largely unacknowledged consequences for democratic theory.</p>
+        <p>The key insight is this: the negligible pivot probability does not merely reduce the instrumental value of voting. It fundamentally transforms the nature of the decision. When you know that your vote will not determine the outcome &mdash; when you know that the election will go the same way whether or not you participate &mdash; your vote ceases to be an exercise of power and becomes an act of expression. You are not deciding who governs; you are publicly declaring your values, your allegiances, and your political identity.</p>
+
+        <div class="case-box">
+          <strong>The market analogy: why elections and markets reveal different preferences.</strong><br><br>
+          In a market, your choices have consequences. If you buy the cheaper car, you bear the consequences of that choice: reliability problems, repair costs, resale value. The market therefore disciplines you to make choices that reflect your actual, considered preferences — the preferences you are willing to live with when you bear their full consequences.<br><br>
+          In an election, your vote has negligible consequences for you personally. Whether you vote for the reasonable candidate or the demagogue, the outcome is determined by millions of others. You bear no individual cost from your choice. This decoupling of choice from consequence is precisely what makes electoral choice expressive rather than preference-revealing in the economic sense. Voters can afford to vote for what they find expressively satisfying rather than what they would actually choose if they bore the costs.
+        </div>
+
+        <span class="section">i. the decoupling of choice from consequence</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Decoupling — election choice decoupled from personal consequence; expressive voting free from strategic discipline; reveals sincere but unconstrained preferences</span>The negligible pivot probability produces a specific epistemic structure: the voter&rsquo;s choice is decoupled from any causal responsibility for the outcome. If your vote cannot change the outcome, you cannot be held responsible for the outcome by your own choices. And if you cannot be held responsible for the outcome, the discipline that responsibility normally imposes on choice &mdash; the discipline that leads you to temper your preferences by the constraint of consequences &mdash; is absent. You can vote for the candidate who expresses your values most authentically without fear of bearing the cost if she wins. You can vote for a third-party candidate as a protest without worrying that your protest will put the worse major-party candidate in office. The expressive vote is free from the discipline that makes market choices information-revealing about real preferences.</span></p>
+
+        <span class="section">ii. what expressive voting reveals about democratic politics</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Democratic politics — parties appeal to expressive preferences; policy and identity separate in electoral competition; morality predominates over policy in expressive voting</span>Once we recognise that voting is primarily expressive, the behaviour of political parties becomes intelligible. Parties that want to win elections must appeal to voters&rsquo; expressive preferences: their desire to feel good about their vote, their tribal and identity-based loyalties, their expressive attachment to symbolic positions. Policy content &mdash; what the candidate will actually do in office &mdash; matters less than expressive content: what voting for this candidate says about you as a person. This explains several features of democratic politics that puzzle instrumental models: the dominance of moral and cultural issues over purely economic ones in electoral campaigns, the stability of party identification across elections regardless of policy changes, and the persistent gap between stated voter preferences in surveys and the candidates they actually support. These features are all consistent with expressive voting and inexplicable by instrumental models.</span></p>
+
+        <span class="section">iii. against goldman&rsquo;s causal responsibility claim</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against Goldman — causal responsibility requires counterfactual difference-making; partial causation for overdetermined outcomes is philosophically contested; the firing squad is not the right analogy</span>Goldman argues that each voter bears partial causal responsibility for electoral outcomes through a theory of partial causation. We resist this. The firing squad analogy is inapt. In a firing squad, each soldier contributes a bullet that physically strikes the prisoner; each bullet is a partial physical cause of death in a clear sense. In an election, the winning candidate would have won without any individual voter&rsquo;s contribution; the outcome is causally overdetermined. The question is whether overdetermination preserves partial causal responsibility. We argue that it does not in the morally relevant sense: if the outcome is fully determined by other factors, my individual contribution adds nothing to its probability of occurring. My vote does not make the victory more likely; it is simply one of a large number of independently sufficient votes. The responsibility I bear for the outcome is therefore minimal at best.</span></p>
+
+        <span class="section">iv. do citizens have a duty to vote? our tentative answer</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">No duty to vote — duty to vote is not grounded in outcome-changing; expressive voting may impose duty of expression quality rather than participation; abstention may express legitimate disengagement</span>We tentatively suggest in Democracy and Decision that citizens who decline to participate in elections may express a problematically apathetic attitude. But we resist the claim that there is a strong duty to vote. The expressive theory undermines the most natural grounding for a voting duty: the claim that by voting you contribute to collective governance. If voting is primarily expressive, the duty to vote is at most a duty to express oneself politically &mdash; and it is not obvious that this duty is stronger than the permissible choice to express oneself through silence or abstention. A citizen who abstains because she cannot in good conscience express support for any available candidate may be exercising legitimate political judgment rather than failing a civic duty.</span></p>
+        <p><em>Voting expresses; it does not decide. Understanding this matters for democracy. I yield the floor.</em></p>
+      </div>
+      <div id="opp-brennanl-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The negligible pivot probability decouples voting choice from causal responsibility for outcomes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When a voter's choice cannot change the outcome (P ≈ 0), the voter cannot be held causally responsible for the outcome by their individual choice. The causal link between choice and outcome is severed by the negligible pivot probability.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This decoupling removes the discipline that causal responsibility normally imposes on choice: voters can express their sincere preferences without tempered by the constraint of bearing the consequences of their choices materialising.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Expressive voting — uninhibited by consequence-discipline — reveals sincere political preferences rather than preference-constrained-by-responsibility; this is genuine preference revelation, but of a different kind than markets elicit.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The negligible pivot probability transforms voting from an exercise of power into an act of expression; the decoupling from consequences is the structural reason why electoral choices reveal expressive rather than consequentialist preferences.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Expressive voting explains the dominance of moral/cultural issues over economic policy in electoral competition</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If voting is expressive, parties that want to win must appeal to voters' expressive preferences: identity, tribal loyalty, moral and symbolic positions, cultural alignment — not policy substance.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The dominance of cultural and moral issues in electoral campaigns (abortion, flag, immigration as identity markers rather than policy debates), the stability of party identification across policy changes, and the gap between survey preferences and actual votes are all consistent with expressive voting.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These features are inexplicable by instrumental models: if voters choose based on expected policy outcomes, party identification should shift when parties shift policies; it does not.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The expressive theory predicts and explains the structure of real democratic politics better than instrumental models; the dominance of symbolic and identity-based electoral competition is the natural result of expressive rather than instrumental voting.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Goldman's partial causation claim is philosophically contested; overdetermination severs meaningful causal responsibility</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Goldman argues that each voter bears partial causal responsibility for electoral outcomes through partial causation. But if the outcome is causally overdetermined — determined by millions of other votes regardless of your single contribution — your vote adds nothing to the probability of the outcome.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The firing squad analogy differs importantly: each bullet physically strikes the prisoner, contributing a separable causal element. In an election, your vote does not correspond to a separable physical contribution to the outcome; it is one of a million causally redundant inputs.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The moral responsibility that Goldman wants to attach to voting requires a firmer causal link than overdetermination provides; the philosophical literature on overdetermination and causal responsibility is contested, and Goldman's confident conclusion is not warranted.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Goldman's causal responsibility claim is more contested than he acknowledges; overdetermination undermines the causal link required to ground the kind of moral responsibility he attributes to voters.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — There is no strong duty to vote; abstention can be a legitimate form of political expression</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The most natural grounding for a duty to vote — contributing to collective governance — is undermined by the expressive theory: if voting is primarily expressive, it contributes to preference-expression, not governance outcomes.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A duty to participate expressively in politics does not straightforwardly generate a duty to vote; one may legitimately express political disengagement, principled rejection of all available candidates, or protest through abstention.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Brennan and Lomasky tentatively suggest that persistent abstainers express problematic apathy; but this is a defeasible social judgment, not a strong moral duty, and it can be defeated by legitimate reasons for abstention.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The expressive theory undermines the strongest grounds for a duty to vote; abstention can be a legitimate form of political expression, and the duty to participate is at most a weak, defeasible social expectation.</span></div>
+        </div>
+      </div>
+    </div><!-- end brennan/lomasky -->
+
+    <!-- JASON BRENNAN -->
+    <div class="speaker-panel" id="opp-brennanj-panel">
+      <div id="opp-brennanj-speech" class="speech-text">
+        <p class="salut">I want to reframe this debate entirely. The question &ldquo;Is it rational to vote?&rdquo; is interesting but secondary. The question that matters morally is: &ldquo;What ethical obligations do citizens have with respect to how &mdash; or whether &mdash; they vote?&rdquo; My answer, defended in The Ethics of Voting, is that there is no strong duty to vote, but there is a strong duty not to vote badly. And given the epistemic condition of the actual electorate, the conclusion that most citizens should abstain is not hyperbole but a serious moral argument.</p>
+        <p>Let me begin by noting something that my colleagues on both sides of this debate have glossed over. Barnett shows that under plausible conditions, the expected value of voting is positive. He is right. But expected value is a double-edged sword: if votes can do expected good, they can do expected harm. The more seriously you take the expected-value argument, the more seriously you must take the risk of harmful voting.</p>
+
+        <span class="section">i. the firing squad and the duty not to vote badly</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Firing squad analogy for bad voting — harmful ignorant voter analogous to volunteer firing-squad member; partial cause of electoral harm; duty to abstain</span>The firing squad analogy that Goldman uses to defend voting can equally be turned against it. In a firing squad that executes an innocent person, each soldier who voluntarily participates bears partial causal responsibility for an injustice, even if their individual bullet was not counterfactually necessary for the death. The fact that the outcome was overdetermined does not remove the soldier&rsquo;s moral culpability. Now apply this to voting. A voter who votes for a candidate who enacts harmful policies without adequate epistemic justification &mdash; without having thought carefully about the evidence, without correcting for obvious biases, without checking basic factual claims &mdash; bears partial causal responsibility for those harms. Just as the firing-squad soldier who volunteers without checking whether the prisoner is guilty bears moral culpability, the ignorant voter who volunteers a harmful vote bears moral culpability for the harmful governance that results.</span></p>
+
+        <span class="section">ii. the epistemic condition of actual electorates</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Epistemic condition — actual voters systematically uninformed and biased; rational ignorance is not the full story; systematic bias is worse; Caplan&rsquo;s irrational voter</span>The empirical evidence about the epistemic condition of actual electorates is sobering. This is not merely the rational ignorance that Downs predicts &mdash; voters knowing nothing because it is not worth their while to learn. It is systematic bias: voters holding false beliefs that are stable across information acquisition because they are motivated by partisan identity rather than truth. Bryan Caplan has documented what he calls rational irrationality: it is cheap to hold irrational political beliefs because the individual cost of believing false things about politics is negligible when you are not the decisive voter. The result is an electorate that is not merely uninformed but systematically misinformed in predictable and partisan directions. These are not the epistemically responsible citizens that Parfit, Goldman, and Barnett assume. They are, often, exactly the kind of motivated reasoners whose votes impose expected harm on political outcomes.</span></p>
+
+        <table class="tbl">
+          <tr><th>Epistemic failure mode</th><th>Mechanism</th><th>Electoral consequence</th></tr>
+          <tr><td>Rational ignorance (Downs)</td><td>Not worth learning because P tiny</td><td>Uninformed votes without malice</td></tr>
+          <tr><td>Rational irrationality (Caplan)</td><td>Cheap to believe false things; identity payoff for partisan beliefs</td><td class="neg">Systematically biased votes</td></tr>
+          <tr><td>Tribal motivated reasoning</td><td>Process information to confirm group identity; update against contrary evidence</td><td class="neg">Anti-epistemic collective outcomes</td></tr>
+          <tr><td>Availability heuristics</td><td>Recent vivid events dominate policy assessment; statistical base rates ignored</td><td class="neg">Reactionary, myopic policy choices</td></tr>
+          <tr><td colspan="3" class="note">Sources: Caplan (2007), The Myth of the Rational Voter; Achen &amp; Bartels (2016), Democracy for Realists; Somin (2013), Democracy and Political Ignorance. The cumulative picture is of an electorate that is not merely uninformed but often systematically misinformed.</td></tr>
+        </table>
+
+        <span class="section">iii. the duty to abstain: the clean hands principle</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Clean hands — duty not to participate in collectively harmful activities; uninformed voting is like randomly aiming a loaded gun into a crowd; abstention is the clean-hands option</span>I argue for what I call the clean-hands principle in voting ethics. Citizens have a duty not to participate in collective activities that impose undue risk of harm on others, when refraining from participation imposes little personal cost. Uninformed, biased, or tribally motivated voting imposes an expected epistemic harm on democratic outcomes: it adds a partially random, partially systematically biased element to the collective decision procedure. This is analogous to randomly aiming a loaded gun into a crowd: the harm may not materialise &mdash; you might miss everyone &mdash; but the act of participating in the harmful activity imposes expected harm that the clean-hands principle prohibits. The personal cost of abstaining from voting is low: a few minutes at the polling station. The moral gain is real: not bearing partial causal responsibility for collectively harmful outcomes. Abstention by the epistemically irresponsible is therefore not a civic failure but a civic virtue.</span></p>
+
+        <span class="section">iv. who should vote: the informed citizen&rsquo;s affirmative duty</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Who should vote — citizens epistemically justified in their beliefs; vote based on public good not tribal loyalty; affirmative duty for well-informed citizens; epistemic threshold</span>My view does not entail that no one should vote. It entails that citizens who have met an epistemic threshold &mdash; who have acquired warranted beliefs about the relevant candidates and policies, who reason from genuine concern for the public good rather than tribal loyalty, and who are epistemically justified in their electoral choices &mdash; have a genuine affirmative reason to vote. For such citizens, Parfit&rsquo;s expected-value argument, Goldman&rsquo;s causal responsibility argument, and Barnett&rsquo;s mathematical result all apply: they have positive expected effect on outcomes and positive moral reason to exercise it. But the proportion of actual voters who meet this threshold is, frankly, small. The moral recommendation is therefore not &ldquo;everyone should vote&rdquo; but &ldquo;everyone who meets the epistemic threshold should vote, and everyone who does not should abstain.&rdquo; If this recommendation were followed, democratic outcomes would improve, even if turnout fell.</span></p>
+        <p><em>Not voting is sometimes the most responsible democratic act. I yield the floor.</em></p>
+      </div>
+      <div id="opp-brennanj-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The firing squad analogy supports a duty not to vote badly, not a universal duty to vote</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Goldman uses the firing squad to argue for partial causal responsibility. But the same analogy applies to harmful voting: a soldier who voluntarily joins a firing squad executing an innocent person bears partial moral responsibility for the injustice, even if overdetermined.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A voter who votes for a harmful candidate without adequate epistemic justification bears partial causal responsibility for the resulting harms; the epistemic negligence makes the causal responsibility morally culpable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The clean-hands solution: don't volunteer for the firing squad unless you have verified the prisoner is guilty. Don't vote unless you have verified (to a reasonable epistemic standard) that your candidate will promote the common good.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The firing squad analogy generates a duty to vote epistemically responsibly, not a universal duty to vote; it grounds the duty not to vote badly more compellingly than it grounds the duty to vote at all.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Actual electorates are not just ignorant but systematically biased; rational irrationality produces expected electoral harm</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Rational irrationality (Caplan): it is individually rational to hold systematically biased political beliefs because the personal cost of false political beliefs is negligible when one is not the decisive voter. This produces an electorate that is not merely uninformed but predictably biased.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Tribal motivated reasoning, availability heuristics, and status quo bias produce systematic distortions in collective electoral judgment that are stable across information acquisition — not corrected by learning but reinforced by it within ideological communities.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These systematic biases mean that the expected-value argument cuts both ways: if informed voters have positive expected effect, systematically biased voters have negative expected effect; the net is uncertain and may be negative for mandated universal turnout.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Actual electorates are systematically biased in ways that produce expected electoral harm; the expected-value argument for voting is a double-edged sword that cuts as strongly against mandated universal participation as for it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — The clean-hands principle generates a duty not to vote badly; abstention by the epistemically irresponsible is a civic virtue</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Citizens have a duty not to engage in collective activities that impose undue risk of harm on others when refraining imposes little personal cost. Uninformed or biased voting imposes expected epistemic harm on democratic outcomes.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The personal cost of abstaining from voting is low (minutes of time); the expected moral benefit — not bearing partial causal responsibility for collectively harmful governance — is real and significant on the causal responsibility analysis.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The clean-hands principle therefore generates a duty to abstain for citizens who cannot meet the epistemic threshold for epistemically responsible voting; abstention in this context is not civic failure but civic virtue.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The clean-hands principle generates a duty not to vote badly that is more demanding than any general duty to vote; for many actual citizens, the most responsible democratic act is epistemically motivated abstention.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — The epistemically justified citizen has an affirmative duty to vote; the recommendation is selective, not universal</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Citizens who meet the epistemic threshold — warranted beliefs about candidates and policies, reasoning from genuine concern for the public good rather than tribal identity — have positive expected effect on outcomes and a genuine affirmative reason to vote.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The correct moral recommendation is therefore: epistemically justified citizens should vote; epistemically unjustified citizens should abstain or become epistemically justified before voting.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If this recommendation were followed — if the epistemically irresponsible abstained — democratic outcomes would improve even if turnout fell substantially; quality of electoral input matters more than quantity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The duty to vote is not universal but conditional on epistemic justification; selective voting by well-informed citizens is democratically superior to mandated universal participation by epistemically irresponsible voters.</span></div>
+        </div>
+      </div>
+    </div><!-- end jason brennan -->
+
+  </div>
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'parfit',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'downs',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
