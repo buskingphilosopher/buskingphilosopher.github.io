@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Impossibility & Error Theory</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#181614;--bg2:#201e1b;--bg3:#282420;--bg4:#332f29;
+  --bdr:rgba(255,240,200,.07);--bdr2:rgba(255,240,200,.14);
+  --text:#e2ddd5;--text2:#9a9088;--text3:#58524a;
+  --amber:#c89a40;
+  --prop-col:#5a9e8a;--prop-pill:#162820;--prop-pill-bdr:#2a6050;
+  --opp-col:#a06030;--opp-pill:#281a0c;--opp-pill-bdr:#6a3a14;
+  --a1bg:rgba(255,200,60,.11);--a1brd:rgba(255,200,60,.40);--a1tip:#ffd040;
+  --a2bg:rgba(80,190,210,.11);--a2brd:rgba(80,190,210,.38);--a2tip:#55ccee;
+  --a3bg:rgba(110,195,100,.10);--a3brd:rgba(110,195,100,.37);--a3tip:#80dd68;
+  --a4bg:rgba(215,80,80,.11);--a4brd:rgba(215,80,80,.38);--a4tip:#f07878;
+  --a5bg:rgba(170,100,225,.11);--a5brd:rgba(170,100,225,.38);--a5tip:#cc88ff;
+  --a6bg:rgba(255,130,30,.11);--a6brd:rgba(255,130,30,.38);--a6tip:#ff9940;
+  --a7bg:rgba(160,215,200,.09);--a7brd:rgba(160,215,200,.34);--a7tip:#90ddc8;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:\\'\\';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--amber),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--amber);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 10px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp  .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--amber);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,154,64,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.7);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Metaethics &mdash; Impossibility &amp; Error Theory &bull; Cowie (2022) &bull; Arrhenius (2000&ndash;) &bull; Parfit (1984) &bull; Sidgwick (1874) &nbsp;&mdash;&nbsp; Moberger (2024) &bull; Williams (forthcoming) &bull; Cuneo &amp; Shafer-Landau (2014) &bull; Temkin (2012) &bull; Enoch (2011) &bull; Carlson (2022)</div>
+  <div class="motion-title">&ldquo;This House Believes that the impossibility theorems of population axiology expose a genuine, irresolvable inconsistency at the heart of moral thought, and that this inconsistency vindicates moral error theory over all forms of moral realism&rdquo;</div>
+  <div class="motion-sub">Pro-Error-Theory &bull; Cowie (First-Order Argument) &middot; Arrhenius (Impossibility Theorems) &middot; Sidgwick/Parfit (Historical Precedents) &middot; Williams (Moral Nihilism Extension) &nbsp;&mdash;&nbsp; Anti-Error-Theory &bull; Moberger (Realist Defence) &middot; Cuneo &amp; Shafer-Landau (Fixed Points) &middot; Temkin (Revisionism) &middot; Enoch (Robust Realism) &middot; Carlson (Technical Rejoinder)</div>
+</div>
+
+<div class="columns">
+
+<!-- LEFT: Pro-Error-Theory -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','cowie',this)">Cowie</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','arrhenius',this)">Arrhenius</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','parfit',this)">Parfit / Sidgwick</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','williams',this)">Williams</button>
+  </div>
+
+  <!-- COWIE HEADER -->
+  <div class="col-header" id="prop-cowie-header">
+    <div class="col-header-top"><span class="pill prop">First-Order Argument &mdash; Conceptual Inconsistency</span><span class="col-subtitle">Christopher Cowie &mdash; &ldquo;A New Argument for Moral Error Theory,&rdquo; No&ucirc;s 56(2), 2022</span></div>
+    <div class="col-position">Traditional error-theoretic arguments fail because they rest on contested metaphysical premises about the non-existence of categorical reasons or irreducibly normative properties. A better argument proceeds from within first-order morality itself: Arrhenius&rsquo;s axiological impossibility theorems demonstrate that a small set of highly intuitive population-ethical principles are mutually inconsistent; since these principles have the status of conceptual truths about the concept of &lsquo;goodness&rsquo; &mdash; they are constitutive of what it means to reason morally at all &mdash; their inconsistency infects the entire domain, yielding error theory not by metaphysical fiat but by the internal collapse of moral concepts.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','cowie','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','cowie','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- ARRHENIUS HEADER -->
+  <div class="col-header hidden" id="prop-arrhenius-header">
+    <div class="col-header-top"><span class="pill prop">Impossibility Theorems &mdash; No Satisfactory Population Axiology</span><span class="col-subtitle">Gustaf Arrhenius &mdash; Six theorems, 2000&ndash;2022; Population Ethics: The Challenge of Future Generations (forthcoming, OUP)</span></div>
+    <div class="col-position">Six distinct impossibility theorems demonstrate, with mathematical rigour, that no population axiology can simultaneously satisfy all of a set of individually compelling adequacy conditions; these conditions are not exotic theoretical posits but the codified forms of near-universal moral intuitions about welfare, equality, and addition; the theorems show that at least one condition must be abandoned in any coherent axiology, but every condition is individually so secure that abandoning any of them incurs an enormous intuitive cost &mdash; leaving moral theory permanently and irresolvably torn.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','arrhenius','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','arrhenius','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- PARFIT/SIDGWICK HEADER -->
+  <div class="col-header hidden" id="prop-parfit-header">
+    <div class="col-header-top"><span class="pill prop">Historical Precedents &mdash; The Dualism of Practical Reason &amp; the Repugnant Conclusion</span><span class="col-subtitle">Henry Sidgwick (1874) &amp; Derek Parfit &mdash; Reasons and Persons (1984)</span></div>
+    <div class="col-position">Sidgwick identified a &lsquo;dualism of practical reason&rsquo; &mdash; a fundamental tension between self-interest and universal benevolence that he feared would cause the entire system of moral duty to collapse into chaos; Parfit discovered the Repugnant Conclusion, showing that plausible axiological principles entail that a vast population of lives barely worth living is better than a smaller flourishing one; together they established the precedent that internal inconsistency in fundamental moral principles poses a deeper challenge to morality than any external metaphysical objection.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','parfit','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','parfit','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- WILLIAMS HEADER -->
+  <div class="col-header hidden" id="prop-williams-header">
+    <div class="col-header-top"><span class="pill prop">Moral Nihilism Extension &mdash; Beyond Error Theory</span><span class="col-subtitle">Lewis Williams &mdash; &ldquo;Why Moral Paradoxes Actually Support Moral Nihilism,&rdquo; forthcoming, Journal of Philosophy</span></div>
+    <div class="col-position">Cowie&rsquo;s argument does not go far enough: it targets moral error theory specifically, but the same paradoxes equally support moral nihilism &mdash; the first-order view that nothing is good, bad, right, or wrong &mdash; which is entailed by error theory but is also consistent with non-cognitivism; nihilism has a broader logical space than error theory and the argument from paradoxes is the first unified argument for it; moreover the threat moral paradoxes pose to moral philosophy is more serious than Cowie acknowledges, since the impossibility of satisfying all intuitive conditions means that any positive moral claim one makes will have deeply counterintuitive companions.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','williams','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','williams','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- COWIE PANEL -->
+    <div class="speaker-panel active" id="prop-cowie-panel">
+      <div id="prop-cowie-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>The error-theoretic debate has long been dominated by metaphysical arguments: there are no categorical reasons, no irreducibly normative properties, therefore no moral truths. These arguments are formidable but they face a structural disadvantage: they engage on ground that their opponents have already chosen and fortified. The naturalist simply denies that moral properties are irreducible; the relaxed realist simply denies that external metaphysical critique is the right approach; and the debate becomes an impasse of competing metaphysical commitments that will not resolve.</p>
+        <p>I offer a different kind of argument. It does not begin with metaphysics. It begins inside morality itself, with the results of first-order moral inquiry &mdash; specifically, with what I take to be the most troubling result in contemporary moral philosophy: Arrhenius&rsquo;s axiological impossibility theorems.</p>
+        <div class="case-box">
+          <strong>The structure of the first-order argument.</strong><br><br>
+          The argument proceeds in three stages. First, there is a genuine inconsistency among highly intuitive moral propositions, demonstrated with mathematical rigour by Arrhenius. Second, these propositions have the status of conceptual truths &mdash; they are constitutive of what it is to reason morally about populations at all, in the way that &ldquo;torturing innocents for fun is wrong&rdquo; is constitutive of the moral concept of wrongness. Third, if concepts whose constitutive principles are mutually inconsistent are deployed in judgment, those judgments systematically fail to be true. The moral domain is in this predicament. Error theory follows &mdash; not because moral properties are metaphysically queer, but because moral concepts are internally inconsistent.
+        </div>
+        <span class="section">i. the master argument stated</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Master argument — if the fixed-point conditions aren't all true, no moral propositions are; they aren't all true; therefore no moral propositions are true</span>The formal structure of my argument is this. If the conditions in the impossibility theorem are not all true &mdash; and they cannot all be true, since they are demonstrably inconsistent &mdash; then no moral propositions are true. This conditional rests on the claim that the conditions have the status of conceptual truths about the moral domain. Inconsistent conceptual truths poison the concept they are constitutive of: just as the concept of a round square generates no truths because nothing can satisfy all its constitutive conditions, the concept of moral goodness generates no truths if its constitutive conditions are mutually contradictory. This is not scepticism &mdash; it is not the claim that we lack knowledge of moral truths. It is the stronger, error-theoretic claim that there are no moral truths to know.</span></p>
+        <span class="section">ii. the fixed-points strategy &mdash; conceptual truths in ethics</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Fixed points — Cuneo and Shafer-Landau; some moral truths are conceptual; Cowie uses this against realism: if they're conceptual and inconsistent, error theory follows</span>I adopt, for the sake of argument, the moral realists&rsquo; own preferred methodology. Cuneo and Shafer-Landau have argued that some moral propositions have the status of &lsquo;fixed points&rsquo; &mdash; substantive moral truths that are also conceptual truths, such that competent users of the relevant moral concepts are committed to them simply by virtue of understanding the concepts. They take this as a resource for moral realism. I turn it against them. The Egalitarian Dominance Condition, the Weak Non-Sadism Condition, the General Non-Extreme Priority Condition &mdash; these have all the hallmarks of fixed points. They seem obviously true to anyone who grasps them; their denials evoke bewilderment; they are knowable a priori. If fixed points can be inconsistent, then the conceptual apparatus of morality is internally defective, and error theory follows from the realists&rsquo; own commitments.</span></p>
+        <span class="section">iii. advantages over traditional error-theoretic arguments</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Dialectical advantages — engages relaxed realists; avoids metaphysical impasse; doesn't over-generalise to epistemic error theory; speaks to ordinary moral scepticism</span>My argument has decisive dialectical advantages. First, it engages relaxed realists who dismiss traditional error-theoretic arguments as &lsquo;external scepticism&rsquo; &mdash; misconceived external metaphysical critique. The first-order argument is a form of internal scepticism; it operates within the moral domain itself and therefore cannot be dismissed as simply missing the point. Second, it avoids the over-generalisation problem: traditional error-theoretic arguments based on the denial of irreducible normative properties seem to entail error theories about epistemic normativity and prudential normativity as well &mdash; an unwelcome result. The first-order argument need not generalise in this way. Third, it speaks to ordinary philosophical motivations for moral scepticism: the sense that our deepest moral commitments pull irresolvably in different directions.</span></p>
+        <span class="section">iv. the quarantine problem &mdash; deontic paradoxes</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Quarantine fails — axiological paradoxes translate into deontic paradoxes; non-consequentialists cannot escape; the impossibility infects the right and virtue too</span>Non-consequentialists will object that even if the axiological domain is in trouble, they are not primarily concerned with axiology; their morality is about the right and the virtuous, not just the good. Parfit called this the attempt to &lsquo;quarantine&rsquo; the paradoxes. But quarantine fails. Recent work has successfully translated the axiological paradoxes into deontic paradoxes &mdash; paradoxes about what we are obligated to do, not just about what is better. Even the most thoroughgoing deontologist assigns a significant and indispensable role to axiology in her moral theory. And the impossibility results, as Arrhenius has shown, do not depend on the transitivity of &lsquo;better than&rsquo; alone &mdash; they survive reformulation in non-transitivity-friendly frameworks, making them even harder to quarantine.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-cowie-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The master argument: inconsistent conceptual truths yield a domain-wide error theory</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Arrhenius&rsquo;s impossibility theorem demonstrates that five highly intuitive population-ethical conditions are mutually inconsistent; at least one must be false.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These conditions have the status of conceptual truths about moral goodness: they are constitutive of the moral concept in the way that round-square conditions are constitutive of that concept.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If a concept&rsquo;s constitutive conditions are mutually inconsistent, judgments deploying that concept systematically fail to be true &mdash; just as no judgment about round squares can be true.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>No moral (axiological) judgment is true; error theory follows from the internal inconsistency of moral concepts, not from any external metaphysical claim.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The fixed-points reductio: realists&rsquo; own conceptual commitments generate error theory</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Cuneo and Shafer-Landau argue that some moral truths are conceptual: competent concept-users are committed to them a priori. The Egalitarian Dominance Condition and cognates satisfy all four criteria for fixed points (necessity, framework status, bewilderment-on-denial, a priori knowability).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But fixed points cannot all be true if they are mutually inconsistent; and Arrhenius proves they are inconsistent.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the fixed points are inconsistent and yet are conceptually constitutive of goodness, moral realism is self-undermining on its own preferred metaethical methodology.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The fixed-points strategy, when combined with the impossibility theorems, yields error theory as a reductio of moral realism&rsquo;s own conceptual commitments.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Dialectical advantages: the first-order argument engages all parties and avoids over-generalisation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Relaxed realists dismiss external metaphysical arguments as misconceived; the first-order argument is internal and cannot be so dismissed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Traditional arguments over-generalise to epistemic and prudential error theory; the first-order argument is specific to moral inconsistency and need not generalise.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The first-order argument speaks to ordinary philosophical motivations for scepticism, making it dialectically more persuasive than abstract metaphysical arguments.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The first-order argument is dialectically superior to traditional error-theoretic arguments: it engages all parties, avoids over-generalisation, and connects to real philosophical concerns.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Quarantine fails: the impossibility results translate into deontic paradoxes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Non-consequentialists hope to quarantine the axiological paradoxes by denying that axiology determines deontology; but recent work translates axiological impossibility results directly into deontic paradoxes about what we must do.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Arrhenius shows the impossibility results survive reformulation without dependence on transitivity of &lsquo;better than&rsquo;, removing the most common technical escape route.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No moral theory &mdash; consequentialist or otherwise &mdash; assigns axiology a negligible role; the inconsistency propagates throughout moral theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Quarantine fails: the impossibility infects deontic morality as well as axiology; error theory is not merely an axiological conclusion but a properly moral one.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARRHENIUS PANEL -->
+    <div class="speaker-panel" id="prop-arrhenius-panel">
+      <div id="prop-arrhenius-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I am a moral philosopher and a mathematician, and it is in that combination that I have spent two decades working on what I believe is the most serious problem in ethics: the impossibility theorems of population axiology. I want to explain to this House what these theorems actually establish, why their implications are so troubling, and why I believe they constitute a genuine crisis for moral theory &mdash; though I am more cautious than Cowie about where exactly that crisis leads.</p>
+        <p>Arrow&rsquo;s impossibility theorem in social choice theory showed, in 1950, that no system of aggregating individual preferences into a social preference can simultaneously satisfy a small number of highly compelling conditions. The theorem was revolutionary because it revealed a fundamental mathematical constraint on what rational collective choice can achieve. My six impossibility theorems in population axiology are analogous: they show that no population axiology can simultaneously satisfy a comparably compelling set of adequacy conditions.</p>
+        <div class="case-box">
+          <strong>Arrhenius&rsquo;s Sixth Impossibility Theorem (the most powerful).</strong><br><br>
+          The following five conditions are mutually inconsistent &mdash; no population axiology can satisfy all of them:<br><br>
+          <em>Egalitarian Dominance:</em> If population A is equal and same-sized as B, and every person in A has higher welfare than every person in B, A is better.<br>
+          <em>Weak Non-Sadism:</em> Adding positive-welfare lives is at least as good as adding negative-welfare lives.<br>
+          <em>General Non-Extreme Priority:</em> It is not always best to prioritise the worst-off individual, however marginally, at any cost to others.<br>
+          <em>Weak Quality Addition:</em> Adding very high-welfare lives is at least as good as adding lives with negative welfare plus more very low positive-welfare lives.<br>
+          <em>Non-Elitism:</em> A slightly better life in an otherwise worse population does not automatically make that population better.<br><br>
+          Each condition seems obviously true. Together they are provably false.
+        </div>
+        <span class="section">i. the structure and rigour of the theorems</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Rigorous proof — these are mathematical demonstrations not philosophical intuitions; inconsistency is proven, not argued; this is stronger than all previous moral paradoxes</span>The theorems are not thought experiments or intuition pumps. They are formal mathematical proofs. Given background assumptions about welfare and population structure that any population axiology must accept, I demonstrate with logical rigour that no axiology can satisfy all five conditions simultaneously. This is importantly different from previous work in the tradition &mdash; including Parfit&rsquo;s Mere Addition Paradox, which involved background assumptions that could be questioned and conclusions that were not straightforward contradictions. My theorems establish genuine logical impossibility: the conditions are not jointly satisfiable in any model. This is a mathematical fact about the structure of the moral problem space, not a philosophical claim that can be finessed by clever theoretical moves.</span></p>
+        <span class="section">ii. the intuitive weight of the adequacy conditions</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Conditions are nearly undeniable — Egalitarian Dominance is as secure as any moral claim; abandoning any condition is costly; no cheap escape</span>What makes the theorems troubling is not just their logical character but the intuitive force of each condition. Consider the Egalitarian Dominance Condition: if two populations are the same size and perfectly equal, and every person in one has higher welfare than every person in the other, the first is better. Could anything be more obviously true? Or Weak Non-Sadism: adding people with positive welfare to the world is at least as good as adding people with negative welfare. These are not philosophers&rsquo; technical constructs; they are the moral bedrock from which any serious ethical theory must begin. When I ask audiences to identify which condition they would reject, the most common response is genuine paralysis: each condition seems more secure than any theoretical consideration that could be offered against it.</span></div>
+        <span class="section">iii. the three options and why all are costly</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Three options all costly — abandon a condition (but which?), accept scepticism, or explain away; no cost-free exit; realism must bite bullets it cannot stomach</span>The theorems leave moral theory with three options. First: abandon one of the conditions. But every condition is so intuitive that abandoning any of them requires endorsing something deeply counterintuitive. Abandoning Non-Sadism means accepting that adding negative welfare lives is sometimes at least as good as adding positive welfare lives. Abandoning Non-Extreme Priority means accepting that some version of extreme prioritarianism is correct &mdash; that it is always best to marginally benefit the worst-off individual even at enormous cost to everyone else. These are not theoretical costs easily paid; they are positions that virtually all moral philosophers find repugnant. Second: accept moral scepticism or error theory, as Cowie recommends. Third: explain away the results as showing that the domain of population ethics is somehow special, not representative of morality generally. I explore all three without fully endorsing any.</span></p>
+        <span class="section">iv. from impossibility to metaethics</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">From impossibility to metaethics — theorems suggest at least one moral belief is false; consistency requires a justified theory; impossibility means none exists</span>The theorems have a straightforward metaethical implication: at least one of our deeply held, nearly undeniable moral beliefs is false. Since all five conditions seem secure, the theorem gives us no guidance about which to reject. And if our most secure moral beliefs include a false one we cannot identify, then the epistemic foundation of moral theory is in serious trouble. Consistency is, arguably, a necessary condition for moral justification &mdash; no inconsistent moral theory can be well-justified. If no consistent population axiology satisfies all adequacy conditions, then there is, as Arrhenius himself has noted, a real question whether any moral theory can be justified. The impossibility results are not a local problem in population ethics; they are a crisis at the foundations of moral theorising.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-arrhenius-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The theorems are rigorous mathematical proofs, not thought experiments; inconsistency is logically demonstrated</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The six impossibility theorems are formal proofs: given background assumptions that any population axiology must accept, the five adequacy conditions are provably jointly unsatisfiable.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is stronger than previous work (Parfit&rsquo;s Mere Addition Paradox) which involved questionable background assumptions and conclusions that were not outright contradictions.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Mathematical impossibility cannot be evaded by philosophical cleverness; the conditions are not jointly satisfiable in any model.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The impossibility is mathematically established, not argued; this gives the result a kind of force that no philosophical counterargument can simply dissolve.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Each adequacy condition is individually near-undeniable; no cheap escape by condition-rejection</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Egalitarian Dominance: a same-sized equal population is better if every person in it has higher welfare. This is as secure as any moral intuition can be.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Weak Non-Sadism: adding positive-welfare lives is at least as good as adding negative-welfare lives. Denying this would seem to commit one to a form of sadism about population.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Any attempt to reject one condition to escape the impossibility incurs an enormous intuitive cost; there is no cost-free exit from the theorem.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The conditions&rsquo; individual intuitive force means that rejecting any of them is a serious moral cost, not a technical fix; the impossibility is a genuine crisis, not a puzzle to be solved.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; All three exit options from the impossibility are costly; moral theory is genuinely trapped</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Option 1 (abandon a condition) requires endorsing a counterintuitive moral claim; every available condition-rejection is deeply repugnant to virtually all moral philosophers.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Option 2 (scepticism/error theory) denies that any moral theory can be justified, which is a radical and uncomfortable conclusion.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Option 3 (explain away by quarantining population ethics) fails because the results translate into deontic paradoxes and are not isolated in population axiology.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>All exits from the impossibility are costly; moral theory is genuinely trapped; any position taken entails something deeply troubling for moral philosophy.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Consistency is necessary for justification; since no consistent population axiology satisfies all conditions, no moral theory can be justified</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Consistency is a necessary condition for moral justification: an inconsistent theory cannot be the right account of the moral domain.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No consistent population axiology satisfies all five adequacy conditions; the theorem is proven.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A theory that fails to satisfy adequacy conditions as intuitive as these is not a satisfactory moral theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>There is no satisfactory, justified population axiology; since consistency is necessary for justification and no consistent theory satisfies all conditions, a moral justification crisis follows.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARFIT/SIDGWICK PANEL -->
+    <div class="speaker-panel" id="prop-parfit-panel">
+      <div id="prop-parfit-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>The argument before this House has distinguished historical roots. I speak for two predecessors who identified the problem of first-order moral inconsistency long before Arrhenius&rsquo;s formal proofs were available &mdash; and whose anxiety about that inconsistency drove them to conclusions more radical than their successors have been willing to face.</p>
+        <p>Sidgwick, writing in 1874, identified what he called the &lsquo;dualism of practical reason&rsquo;: a deep and apparently irresolvable tension between the principle of universal benevolence &mdash; maximise aggregate welfare &mdash; and the principle of rational egoism &mdash; maximise one&rsquo;s own welfare. Sidgwick regarded both as self-evident; neither could be derived from the other; both seemed to express fundamental demands of reason. The result was a contradiction. And Sidgwick was honest enough to contemplate the consequences: &ldquo;if it cannot be overcome, the whole system must fall to the ground.&rdquo;</p>
+        <div class="pull">&ldquo;I am not prepared to deny that the cosmos of duty is really thus chaotic.&rdquo; &mdash; Henry Sidgwick, The Methods of Ethics, 1874</div>
+        <span class="section">i. sidgwick&rsquo;s dualism and its error-theoretic implication</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Sidgwick's dualism — self-evidence of both egoism and universalism; both cannot be true; system collapses; historical precedent for first-order error theory</span>Sidgwick&rsquo;s dualism is an early instance of exactly the structure Cowie formalises. The methods of rational egoism and universal benevolence are both self-evident to Sidgwick &mdash; they both seem to express genuine, fundamental demands of practical reason. But they are inconsistent: situations arise in which what benevolence requires and what self-interest requires diverge, and there is no higher principle in Sidgwick&rsquo;s system that resolves the divergence. Sidgwick himself contemplated an error-theoretic conclusion: if neither principle can be sacrificed and they cannot both be true, then perhaps the system of duty as a whole falls. He hoped for a theistic resolution &mdash; a God who would ensure the harmony of virtue and self-interest. But he acknowledged that without such resolution, the dualism was genuine chaos.</span></p>
+        <span class="section">ii. parfit&rsquo;s mere addition paradox and the repugnant conclusion</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Mere Addition Paradox — A is not worse than A+; A+ is not worse than Z; but Z is worse than A; the repugnant conclusion is the forced result of plausible premises</span>Parfit&rsquo;s Mere Addition Paradox established the pattern that Arrhenius would later formalise with greater rigour. Consider three populations: A (a small population of very happy people), A+ (A plus an additional group of people with lives worth living but not as good as A&rsquo;s), and Z (a very large population of people whose lives are barely worth living). Three plausible principles jointly entail that Z is better than A. First: it is not worse to add people with lives worth living to a population. Second: if two populations are the same size, the more equal and happier one is better. Third: &lsquo;better than&rsquo; is transitive. These three principles force us to the Repugnant Conclusion: Z is better than A. But Z is a world of billions living lives barely worth living, while A is a world of flourishing. This is the heart of the paradox.</span></p>
+        <span class="section">iii. the failure to quarantine: impossibility propagates</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Propagation — Parfit himself tried to escape; every escape route leads to another repugnant conclusion; the impossibility cannot be localised</span>Parfit spent decades attempting to find an escape from the Repugnant Conclusion. He tried every available axiology: total utilitarianism, average utilitarianism, critical level utilitarianism, person-affecting views, two-level accounts. Every escape route led to another repugnant conclusion. Average utilitarianism implies the Mere Addition Paradox from the other direction; critical level utilitarianism implies the Sadistic Conclusion; person-affecting views generate the Non-Identity Problem. The impossibility propagates: every position taken to avoid one counterintuitive result entails another. Parfit&rsquo;s verdict, at the end of his life, was that population ethics was in genuine crisis &mdash; that we had not yet found the correct theory and that the search had uncovered something like a fundamental feature of the moral problem space that resists any satisfactory solution.</span></p>
+        <span class="section">iv. the lessons for moral realism</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against realism — if moral truths exist, which horn does the realist bite? Every horn is repugnant; realism must own its counterintuitive commitments; error theory is the more honest response</span>The lessons for moral realism are uncomfortable. If moral truths exist &mdash; as the realist insists &mdash; then one of the five conditions in Arrhenius&rsquo;s theorem is false. But which? The moral realist must tell us. Enoch says simply: &ldquo;bite the bullet.&rdquo; But the bullets available are all repugnant. The realist must own that either adding billions of positive-welfare lives is sometimes worse than adding negative-welfare lives, or that extreme prioritarianism is correct, or that some similarly counterintuitive proposition is true. The moral realist cannot simply say &ldquo;the facts are what they are even if counterintuitive&rdquo; without acknowledging that the counterintuitive position she endorses is not a minor technical adjustment but a claim that overturns deeply held moral convictions. The error theorist&rsquo;s position &mdash; that no moral claims are true &mdash; is at least honest about the crisis.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-parfit-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Sidgwick&rsquo;s dualism: self-evident principles of egoism and universalism are inconsistent; the system falls</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Both rational egoism and universal benevolence are self-evident to Sidgwick: both seem to express fundamental demands of practical reason.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>They are inconsistent: situations arise where what each requires diverges, and no higher principle resolves the divergence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Self-evident inconsistent principles cannot all be true; if neither can be sacrificed, the system of duty collapses &mdash; as Sidgwick himself acknowledged.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Sidgwick&rsquo;s dualism is the historical prototype of Cowie&rsquo;s argument; first-order inconsistency in foundational moral principles is not a new discovery but a recurring and deepening crisis.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Mere Addition Paradox forces the Repugnant Conclusion from individually plausible premises</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Three individually plausible principles (non-worsening of mere addition, preference for more equal same-size populations, transitivity of &lsquo;better than&rsquo;) jointly entail the Repugnant Conclusion.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Repugnant Conclusion (that a vast population of lives barely worth living is better than a smaller flourishing one) is repugnant to virtually all moral intuition.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The paradox is not dissolved by rejecting transitivity alone: Arrhenius has shown the results survive without transitivity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The Mere Addition Paradox demonstrates that individually compelling axiological principles generate a repugnant forced conclusion; the impossibility is inherent in the moral problem space, not a removable artefact.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Impossibility propagates: every escape from one repugnant conclusion leads to another</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Every major axiology tried to escape the Repugnant Conclusion leads to another repugnant result: total utilitarianism gives the Repugnant Conclusion; average utilitarianism gives the Mere Addition Paradox; critical-level utilitarianism gives the Sadistic Conclusion.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The propagation is not accidental but reflects the mathematical structure of the domain: Arrhenius&rsquo;s theorems prove no consistent axiology avoids all repugnant results.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The impossibility is not a local puzzle but a fundamental feature of the moral problem space.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The propagation of impossibility across all axiological positions shows that the problem is not soluble by theoretical cleverness; the crisis is structural and genuine.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Moral realism must bite a repugnant bullet; error theory is more honest about the crisis</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If moral truths exist, one of the five conditions in Arrhenius&rsquo;s theorem is false; the moral realist must identify which.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Every available condition-rejection entails a deeply counterintuitive moral claim that overturns deeply held moral convictions, not a minor technical adjustment.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The error-theoretic position that no moral claims are true is at least honest about the scope of the crisis rather than claiming to have found the one bullet worth biting.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Moral realism faces the same crisis as error theory but is less honest about it; at least the error theorist does not claim to know which repugnant truth to endorse.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WILLIAMS PANEL -->
+    <div class="speaker-panel" id="prop-williams-panel">
+      <div id="prop-williams-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>Cowie&rsquo;s argument is ingenious but insufficiently radical. He concludes from the impossibility theorems that moral error theory is true. I want to argue, first, that the paradoxes do not support error theory specifically but a more general position called moral nihilism; and second, that this is actually a stronger and more interesting conclusion than error theory alone.</p>
+        <p>Moral nihilism is the first-order view that nothing is good, bad, right, or wrong &mdash; that all moral predicates, across all their applications, yield nothing that is true. Moral error theory is one metaethical framework compatible with nihilism: it holds that moral sentences express genuine truth-apt beliefs that are all false. But moral nihilism is also compatible with moral non-cognitivism: the view that moral sentences express non-truth-apt attitudes rather than beliefs. Cowie&rsquo;s argument, once properly understood, supports nihilism &mdash; and nihilism is a larger and more threatening conclusion than error theory.</p>
+        <div class="pull">&ldquo;The logical space of moral nihilism is greater than the logical space of moral error theory. The threat that the argument from moral paradoxes poses to moral philosophy is therefore more serious than Cowie acknowledges.&rdquo; &mdash; Lewis Williams, forthcoming</div>
+        <span class="section">i. non-cognitivists can escape cowie&rsquo;s argument</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Non-cognitivist escape — Cowie says error theory uniquely avoids the repugnant horns; but non-cognitivists also avoid them; paradoxes don't uniquely support error theory</span>Cowie argues that moral error theory is uniquely placed to avoid having to endorse any of the repugnant horns of the paradoxes, because error theorists simply deny all moral claims including the paradox conditions. But non-cognitivists can make exactly the same move: they express no moral attitudes toward any of the paradox conditions, treating them as expressions of attitude rather than truth-apt claims. Neither error theorists nor non-cognitivists are committed to endorsing any repugnant horn. Cowie therefore cannot argue that the paradoxes support error theory rather than non-cognitivism; they support the broader position of moral nihilism, which subsumes both.</span></p>
+        <span class="section">ii. nihilism has a broader logical space and is the more precise conclusion</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Broader logical space — nihilism is entailed by error theory but not vice versa; paradoxes target first-order claims; nihilism is the precise target</span>Moral nihilism is a first-order view: it holds that nothing has any moral property. Moral error theory is a metaethical view about the character of moral claims: they are truth-apt but all false. Error theory entails nihilism: if all moral claims are false, then nothing is good, bad, right, or wrong. But nihilism does not entail error theory: a non-cognitivist who expresses no attitudes about morality is a nihilist in the relevant first-order sense without being an error theorist in the metaethical sense. Since the paradoxes operate at the first-order level &mdash; they are paradoxes about what is better, worse, good, and bad &mdash; they target nihilism directly and error theory only indirectly. Nihilism is the more precise conclusion.</span></p>
+        <span class="section">iii. the first unified argument for moral nihilism</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">First unified argument for nihilism — moral paradoxes across multiple domains support a single unified nihilistic conclusion; this is philosophically significant</span>The argument from moral paradoxes, once reconstructed as an argument for nihilism, becomes the first unified argument for that position. Previous arguments for nihilism have been either local &mdash; confined to specific moral domains &mdash; or dependent on contested metaethical premises. The paradox argument is neither: it operates from first-order moral claims that virtually all parties accept, and it covers a wide range of moral domains &mdash; not just population ethics but trolley problems, paradoxes of choice under uncertainty, and other domains where impossibility results can be generated. This breadth gives the nihilism argument a comprehensive force that no previous argument for nihilism has achieved.</span></p>
+        <span class="section">iv. the threat to moral philosophy is more serious than cowie acknowledges</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">More serious threat — if any positive moral claim is made, counterintuitive companions follow; realists must own counterintuitive truths; the moral landscape is irreversibly darkened</span>Cowie frames the argument primarily as a weapon for error theory in the metaethical debate. But the implications are more sweeping. If the paradoxes show that any consistent set of moral claims must include at least one deeply counterintuitive proposition, then anyone who makes any positive moral claim &mdash; not just population ethicists &mdash; is committed to counterintuitive companions. The moral realist who says &ldquo;torturing innocents is wrong&rdquo; is also, indirectly, committed to whatever counterintuitive proposition her consistent moral theory requires. The impossibility results mean there is no clean, internally consistent moral position that accommodates all our intuitions. The landscape of moral philosophy is irreversibly darkened by the paradoxes, in a way that nihilism alone honestly acknowledges.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-williams-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Non-cognitivists can also avoid the repugnant horns; paradoxes do not uniquely support error theory</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Cowie argues error theory is uniquely placed to avoid endorsing any repugnant horn because error theorists deny all moral claims.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Non-cognitivists also avoid endorsing repugnant horns: they express no moral attitudes toward paradox conditions, treating moral sentences as non-truth-apt.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If both error theorists and non-cognitivists avoid the repugnant horns, the paradoxes do not uniquely support error theory over non-cognitivism.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The paradoxes support the more general position of moral nihilism, which is compatible with both error theory and non-cognitivism, rather than error theory specifically.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Nihilism has broader logical space; it is the more precise first-order conclusion from first-order paradoxes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Error theory entails nihilism (if all moral claims are false, nothing is good/bad/right/wrong); but nihilism does not entail error theory (non-cognitivist nihilism is consistent).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The impossibility paradoxes operate at the first-order level, targeting claims about what is better and worse; they therefore directly support nihilism as a first-order view.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Error theory is the correct metaethical conclusion only if nihilism is further combined with cognitivism; the paradoxes alone do not establish this additional metaethical claim.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Moral nihilism is the more precise conclusion from the paradoxes; error theory requires additional metaethical premises that the paradox argument alone does not supply.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The paradox argument is the first unified argument for moral nihilism; its breadth is philosophically significant</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Previous arguments for nihilism were local (confined to specific domains) or dependent on contested metaethical premises.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The paradox argument operates from near-universal first-order moral claims and covers multiple domains (population ethics, trolley problems, uncertainty paradoxes).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This breadth gives the nihilism argument a unified force that no previous argument has achieved.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The argument from moral paradoxes is the first unified argument for moral nihilism; reconstructing Cowie&rsquo;s argument as an argument for nihilism reveals its full philosophical significance.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Any positive moral claim has counterintuitive companions; the moral landscape is irreversibly darkened</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If all intuitions cannot be jointly satisfied, any consistent positive moral position commits the agent to at least one deeply counterintuitive claim.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This holds across moral domains, not just in population ethics; the impossibility results generalise.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Nihilism is the only position that avoids all counterintuitive positive commitments by rejecting all positive moral claims.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The threat the paradoxes pose to moral philosophy is more serious than Cowie acknowledges; nihilism is the only fully consistent response, and the argument for it is broader and more powerful than an argument for error theory alone.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- RIGHT: Anti-Error-Theory -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','moberger',this)">Moberger</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','cuneo',this)">Cuneo &amp; Shafer-Landau</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','temkin',this)">Temkin</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','enoch',this)">Enoch</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','carlson',this)">Carlson</button>
+  </div>
+
+  <!-- MOBERGER HEADER -->
+  <div class="col-header" id="opp-moberger-header">
+    <div class="col-header-top"><span class="pill opp">Anti-Scepticism &mdash; Realist Defence</span><span class="col-subtitle">Victor Moberger &mdash; &ldquo;Impossible Ethics,&rdquo; Pacific Philosophical Quarterly 105(3), 2024</span></div>
+    <div class="col-position">Population ethical impossibility results support neither anti-realism nor moral scepticism: the sceptical challenge fails because the conditions in Arrhenius&rsquo;s theorems are not epistemically privileged enough to undermine our other moral intuitions; the anti-realist (error-theoretic) challenge fails for a more fundamental reason &mdash; if the conditions are mutually inconsistent they cannot all be conceptual truths, and Cowie&rsquo;s own argument presupposes their status as such; the theorems should be understood as posing a difficult first-order axiology problem, not a metaethical crisis.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','moberger','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','moberger','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- CUNEO HEADER -->
+  <div class="col-header hidden" id="opp-cuneo-header">
+    <div class="col-header-top"><span class="pill opp">Moral Fixed Points &mdash; Nonnaturalist Realism</span><span class="col-subtitle">Terence Cuneo &amp; Russ Shafer-Landau &mdash; &ldquo;The Moral Fixed Points,&rdquo; Philosophical Studies, 2014</span></div>
+    <div class="col-position">Some non-trivial moral propositions are conceptual truths: they are necessarily true, they have framework status for the moral domain, their denial evokes bewilderment among competent concept-users, and they are knowable a priori; these &lsquo;moral fixed points&rsquo; are the bedrock of moral nonnaturalism; Cowie misappropriates this framework &mdash; the propositions he cites as potential fixed points are precisely the ones that the impossibility theorems show cannot all be conceptual truths, and this shows only that the propositions need reanalysis, not that morality itself is incoherent.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','cuneo','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','cuneo','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- TEMKIN HEADER -->
+  <div class="col-header hidden" id="opp-temkin-header">
+    <div class="col-header-top"><span class="pill opp">Revisionism &mdash; Rethinking the Good</span><span class="col-subtitle">Larry Temkin &mdash; Rethinking the Good: Moral Ideals and the Nature of Practical Reasoning, 2012</span></div>
+    <div class="col-position">The impossibility results are real and deep, but the correct response is revisionism about the structure of the &lsquo;better than&rsquo; relation: transitivity is not a conceptual truth about goodness but a theoretical assumption that may be false; an &lsquo;essentially comparative view&rsquo; holds that what makes one outcome better than another can change as the comparison base changes, yielding a non-transitive betterness relation that accommodates the impossibility results without abandoning any of the individual conditions; this is not a cheap escape but a radical and perhaps correct revision of our understanding of practical reasoning.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','temkin','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','temkin','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- ENOCH HEADER -->
+  <div class="col-header hidden" id="opp-enoch-header">
+    <div class="col-header-top"><span class="pill opp">Robust Realism &mdash; Bullet-Biting</span><span class="col-subtitle">David Enoch &mdash; Taking Morality Seriously: A Defence of Robust Realism, 2011</span></div>
+    <div class="col-position">Moral realism is not refuted by the existence of hard cases, counterintuitive implications, or internal tensions in moral thought; the history of any domain that deals with reality &mdash; physics, mathematics &mdash; includes apparent contradictions that were resolved by biting bullets and revising intuitions; the impossibility theorems show that some highly intuitive moral conditions must be false, but this shows only that some of our intuitions are wrong, not that no moral truths exist; the robust realist bites the bullet &mdash; one of the conditions is false &mdash; and regards this as the price of taking moral reality seriously rather than retreating into error theory.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','enoch','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','enoch','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- CARLSON HEADER -->
+  <div class="col-header hidden" id="opp-carlson-header">
+    <div class="col-header-top"><span class="pill opp">Technical Rejoinder &mdash; The Conditions Are Not All Secure</span><span class="col-subtitle">Erik Carlson &mdash; &ldquo;On Some Impossibility Theorems in Population Ethics,&rdquo; Oxford Handbook of Population Ethics, 2022</span></div>
+    <div class="col-position">The impossibility theorems, while impressive as mathematical achievements, rest on adequacy conditions whose individual intuitive force varies considerably on close examination; several of the weaker conditions &mdash; particularly the Non-Elitism Condition and the General Non-Extreme Priority Condition &mdash; are far less secure than they initially appear; once their technical formulations are carefully unpacked, it becomes clear that rejecting them is not as costly as the error theorists claim; the theorems establish an impossibility in a particular formal framework, and the correct response is to identify which condition to reject rather than to conclude that the entire moral domain is incoherent.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','carlson','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','carlson','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- MOBERGER PANEL -->
+    <div class="speaker-panel active" id="opp-moberger-panel">
+      <div id="opp-moberger-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I want to examine both the sceptical and the anti-realist challenges that Cowie and Arrhenius derive from the impossibility results, and I want to argue that both fail &mdash; and that they fail for connected reasons. The key error in each case is an assumption about the epistemic status of the adequacy conditions that cannot survive scrutiny.</p>
+        <p>Let me distinguish the two challenges carefully. The sceptical challenge, primarily drawn from Arrhenius&rsquo;s own comments on his theorems, claims that the impossibility results undermine our confidence in all moral intuitions, because if our most secure moral intuitions are inconsistent, our moral belief-forming methods are unreliable. The anti-realist challenge, developed by Cowie, claims that the conditions have the status of conceptual truths, and that their inconsistency therefore shows moral concepts to be defective, yielding error theory. I argue that both challenges fail.</p>
+        <div class="case-box">
+          <strong>The self-undermining structure of Cowie&rsquo;s argument.</strong><br><br>
+          Cowie&rsquo;s argument has a peculiar self-undermining structure. It requires:<br>
+          (1) The conditions in Arrhenius&rsquo;s theorem are conceptual truths about moral goodness.<br>
+          (2) The conditions are mutually inconsistent.<br>
+          (3) Therefore, moral concepts are internally defective and error theory follows.<br><br>
+          But there is a tension between (1) and (2). Conceptual truths are necessarily true; mutually inconsistent propositions cannot all be necessarily true; therefore the conditions cannot all be conceptual truths. Cowie needs the conditions to be &ldquo;almost&rdquo; conceptual truths &mdash; secure enough to infect the domain but not so necessary that their inconsistency is impossible. This is an unstable position. Either they are conceptual truths (and so consistent, defeating premise (2)) or they are not (and so cannot yield the domain-wide error theory that premise (1) was meant to establish).
+        </div>
+        <span class="section">i. the self-undermining objection to cowie&rsquo;s argument</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Self-undermining — if conditions are conceptual truths they must be consistent; if inconsistent they can't all be conceptual; Cowie's argument defeats itself</span>Cowie&rsquo;s argument requires the conditions to be conceptual truths. But conceptual truths are necessarily true. And necessarily true propositions are consistent: mutually inconsistent propositions cannot both be necessarily true, because in any possible world at least one would be false, violating necessity. If the conditions are conceptual truths, they must be consistent &mdash; which contradicts Arrhenius&rsquo;s theorem. If they are inconsistent &mdash; which Arrhenius&rsquo;s theorem demonstrates &mdash; then at least one of them is not a conceptual truth. But if not all conditions are conceptual truths, the domain-wide infection that Cowie needs does not follow. The error-theoretic conclusion requires both (i) that the conditions are conceptual truths and (ii) that they are inconsistent. These two requirements are jointly incompatible.</span></p>
+        <span class="section">ii. the sceptical challenge fails: the conditions lack the required epistemic privilege</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Sceptical challenge fails — the conditions are not epistemically privileged enough to undermine all moral intuitions; we don't know which to reject but that's ordinary moral uncertainty</span>The sceptical challenge holds that the impossibility results undermine our confidence in all moral intuitions. But this inference requires the adequacy conditions to have very high epistemic privilege &mdash; privilege sufficient to make the impossibility of jointly satisfying them a reflection on all other moral intuitions. In fact, the conditions, despite their initial plausibility, are not so epistemically privileged that failing to know which one to reject licenses general moral scepticism. The analogy to mathematics fails: we do not treat the discovery of a mathematical paradox as grounds for abandoning all mathematical belief, because the paradox is typically in a specialised domain. Similarly, the impossibility in population axiology gives us no reason to distrust our moral intuitions about, say, the wrongness of gratuitous cruelty.</span></p>
+        <span class="section">iii. the analogy to philosophy generally: paradoxes do not breed scepticism</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Paradoxes don't breed scepticism elsewhere — philosophy is full of paradoxes; the correct response is further inquiry not abandonment; scepticism from moral paradoxes proves too much</span>If the argument from impossibility to scepticism were sound, a host of analogous arguments would be equally successful throughout philosophy. Our intuitions about personal identity generate paradoxes in philosophy of mind; our intuitions about sets generate paradoxes in logic; our intuitions about vagueness generate the Sorites paradox. If impossible-to-jointly-satisfy intuitions warranted abandoning confidence in the domain, we would be forced into scepticism about personal identity, set theory, and vagueness. But we are not; we treat these paradoxes as spurs to further inquiry, not as grounds for abandoning the domains. The moral impossibility results should be treated the same way: as difficult problems demanding theoretical resolution, not as grounds for error theory or scepticism.</span></p>
+        <span class="section">iv. the correct response: identify which condition to reject</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Correct response — further first-order inquiry to identify which condition to reject; not all conditions are equally secure; impossibility is a problem for axiology not metaethics</span>The correct response to the impossibility results is not error theory or scepticism but further first-order inquiry into which condition to reject. The conditions are not equally secure on careful examination: the Non-Elitism Condition and General Non-Extreme Priority Condition, in particular, become less obvious once their technical formulations are properly understood. The impossibility results should motivate more careful population ethics, not a retreat to metaethical error theory. Moral realism survives: the existence of a hard and perhaps as-yet-unsolved problem in population axiology is compatible with the existence of moral truths and our ability to know some of them.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-moberger-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Cowie&rsquo;s argument is self-undermining: conceptual truths must be consistent; inconsistent conditions cannot all be conceptual truths</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Conceptual truths are necessarily true; necessarily true propositions are consistent (they are true in all possible worlds).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Arrhenius demonstrates that the conditions are mutually inconsistent: at least one is false in every model.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Cowie needs the conditions to be both conceptual truths (for the domain-wide infection) and inconsistent (for the argument to have any bite); these requirements are incompatible.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Cowie&rsquo;s argument is self-undermining: if the conditions are conceptual truths they are consistent, defeating the impossibility; if they are inconsistent they are not all conceptual truths, defeating the domain-wide infection.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The sceptical challenge fails: conditions lack epistemic privilege to undermine all moral intuitions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>For the sceptical challenge to succeed, the impossibility conditions must be epistemically privileged enough that not knowing which to reject undermines confidence in all moral beliefs.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The conditions, despite initial plausibility, are not so privileged: they are principles in population axiology, a specialised domain, and their uncertainty does not propagate to intuitions about gratuitous cruelty, promise-breaking, or other core moral phenomena.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Even if we don&rsquo;t know which condition to reject, it does not follow that our moral intuitions about particular populations are unreliable, let alone our moral intuitions generally.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The sceptical challenge fails; population axiology uncertainty does not propagate to general moral scepticism; the inference from local impossibility to global unreliability is invalid.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Paradoxes do not breed scepticism in other philosophical domains; the same should hold for moral philosophy</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Philosophy contains many paradoxes that generate apparently unsatisfiable joint conditions: the Sorites paradox, Russell&rsquo;s paradox, paradoxes of personal identity.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>We do not respond to these by abandoning the relevant domains; we treat them as difficult problems requiring further inquiry.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>There is no principled reason to treat moral paradoxes differently; if impossibility results warranted domain-wide scepticism in ethics, analogous results would warrant domain-wide scepticism in logic, mathematics, and philosophy of mind.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Moral impossibility results should motivate further inquiry, not scepticism; the inference from paradox to domain-abandonment proves too much and must be rejected.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The correct response is further first-order inquiry; impossibility is a problem for axiology, not for metaethics</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The conditions in the impossibility theorem are not equally secure: careful examination reveals that some are less obvious than they appear, particularly Non-Elitism and Non-Extreme Priority.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The existence of a hard unsolved problem in population axiology is compatible with the existence of moral truths and our knowledge of many of them.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The appropriate response is to do more careful population ethics, identifying which condition to reject, not to abandon moral realism or endorse error theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The impossibility results are a hard problem for population ethics, not a crisis for moral realism; error theory and scepticism are not warranted; further first-order inquiry is the correct response.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUNEO/SHAFER-LANDAU PANEL -->
+    <div class="speaker-panel" id="opp-cuneo-panel">
+      <div id="opp-cuneo-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>Cowie takes our framework &mdash; the moral fixed points &mdash; and wields it against us, arguing that the impossibility results show our own conceptual commitments to be self-defeating. I want to show that this is a misappropriation of our view that fails on its own terms, and that the moral fixed points framework, properly understood, is in fact robust against the impossibility challenge.</p>
+        <p>Our thesis is that some moral propositions are conceptual truths: propositions that competent users of the relevant concepts are committed to by virtue of their conceptual competence alone. Examples include: it is pro tanto wrong to engage in the recreational slaughter of a fellow person; it is pro tanto wrong to torture innocents just for one&rsquo;s own amusement; it is morally admirable to express genuine gratitude to a benefactor. These are substantive moral truths, but their denial would betray a failure to understand the relevant moral concepts.</p>
+        <div class="pull">&ldquo;There is a battery of substantive moral truths&hellip; that are also conceptual truths. We call them moral fixed points.&rdquo; &mdash; Cuneo &amp; Shafer-Landau, Philosophical Studies, 2014</div>
+        <span class="section">i. the fixed-points view does not commit to the axiological conditions being fixed points</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Fixed points are not the axiological conditions — fixed points are paradigm moral truths about cruelty, gratitude, honesty; population axiological conditions are theoretical; different epistemic status</span>Cowie assumes that if any moral propositions are conceptual truths, then the axiological conditions in Arrhenius&rsquo;s theorem must be among them, since they seem so obviously true. But this does not follow. Our fixed points are moral truths that are obviously and immediately recognisable as such: the wrongness of recreational murder, the wrongness of torturing innocents for fun. These are paradigm moral claims about concrete cases. The axiological conditions in Arrhenius&rsquo;s theorem are theoretical principles about population welfare ordering &mdash; principles that require philosophical analysis to understand and that are recognisable as plausible only after that analysis. Their epistemic status is different from that of genuine fixed points. They may be highly plausible theoretical posits, but they are not conceptual truths in the relevant sense.</span></p>
+        <span class="section">ii. the inconsistency shows reanalysis is needed, not that morality is incoherent</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Reanalysis — if theoretical conditions are inconsistent, the right response is to reanalyse them, not to conclude morality is defective; science does this all the time</span>If Cowie is right that the axiological conditions have something like the status of conceptual truths, and if Arrhenius is right that they are inconsistent, the appropriate response is not error theory but reanalysis. We should ask: which of our conceptual commitments are we most sure of, and which need revision? This is what happens in any domain when apparently secure principles turn out to be jointly unsatisfiable. In physics, apparent contradictions between quantum mechanics and general relativity have not led to physics error theory; they have led to the search for a better theoretical framework. In mathematics, Russell&rsquo;s paradox did not lead to abandoning mathematics but to the development of set theory. The correct model is reanalysis, not abandonment.</span></p>
+        <span class="section">iii. genuine fixed points are not threatened by the impossibility results</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Fixed points survive — genuine fixed points (recreational murder, torture for fun) are not threatened by population ethics impossibility; error theory cannot touch them</span>Whatever the impossibility results show about population axiology, they do not threaten the genuine moral fixed points &mdash; the wrongness of recreational murder, the wrongness of torturing innocents for pleasure, the admirability of genuine gratitude. These paradigm moral truths are not part of any set of conditions that the impossibility results make inconsistent. The error-theoretic inference from impossibility in population axiology to the denial of all moral truths requires the impossibility to infect the entire domain; but the infection stops at the boundaries of population axiology. Genuine fixed points in core moral ethics remain untouched by the impossibility results, and these fixed points are evidence that moral realism is correct.</span></p>
+        <span class="section">iv. the nonnaturalist resources for explaining fixed points</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Nonnaturalist resources — concepts constitute their fixed points; this explains their a priori necessity without reducing to natural facts; Cowie's argument misuses nonnaturalism</span>Our nonnaturalism holds that moral concepts partially constitute moral truths: the concept of wrongness is such that its correct application is determined partly by conceptual facts about what wrongness is. This allows fixed points to be necessarily true without being trivially analytic, and without invoking non-natural metaphysical facts that naturalists find mysterious. The very feature of our view that Cowie tries to weaponise &mdash; the conceptual constitution of moral truths &mdash; actually supports our response: if some moral truths are constituted by conceptual facts, and if the axiological conditions are not constitutive of the core concept of wrongness but are theoretical principles in a specialised domain, then their inconsistency poses no threat to the conceptually constituted fixed points at the core of morality.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-cuneo-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The axiological conditions are not moral fixed points; they have different epistemic status from paradigm moral truths</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Genuine fixed points are immediately and obviously recognisable as moral truths: the wrongness of recreational murder, torture for amusement. They are knowable without philosophical analysis.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The axiological conditions (Egalitarian Dominance, Non-Elitism, etc.) are theoretical principles recognisable as plausible only after philosophical analysis of population welfare; they are not immediately obvious to competent concept-users.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Therefore the axiological conditions do not have the epistemic status of fixed points; Cowie cannot deploy the fixed-points framework against us using these conditions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The fixed-points framework is not threatened by the impossibility results because the conditions in those results do not have the status of fixed points; Cowie misappropriates our framework.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Inconsistency in theoretical principles calls for reanalysis, not domain-abandonment; science and mathematics provide the model</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When apparently secure theoretical principles turn out to be jointly inconsistent, the correct response is to ask which principles need revision &mdash; not to abandon the domain.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Physics responded to the inconsistency of quantum mechanics and general relativity by seeking a better framework; mathematics responded to Russell&rsquo;s paradox with set theory; neither endorsed domain-error-theory.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The moral response to axiology impossibility should follow the same model: reanalysis of which condition to reject, not error theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The correct model for responding to impossibility results is reanalysis, not domain-abandonment; error theory is a disproportionate and unjustified response to a theoretical difficulty in a specialised moral domain.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Genuine fixed points are not threatened by population ethics impossibility; the infection does not spread</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The wrongness of recreational murder, torture for amusement, and cognate paradigm moral truths are not part of any set of conditions in Arrhenius&rsquo;s impossibility theorems.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The impossibility in population axiology does not propagate to these core moral truths; the infection, if any, is local to the population axiology domain.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These paradigm moral truths survive the impossibility results; they continue to provide evidence for moral realism.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Moral realism is evidenced by the genuine fixed points at the core of morality; the impossibility results in population axiology do not threaten these fixed points and cannot yield a domain-wide error theory.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Nonnaturalism&rsquo;s conceptual constitution of moral truths explains fixed points without vulnerability to the impossibility results</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Moral concepts partially constitute moral truths: the correct application of &lsquo;wrongness&rsquo; is determined partly by conceptual facts about what wrongness is.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The axiological conditions, being theoretical principles in a specialised domain rather than constitutive of the core concept of wrongness, are not part of what the concept of wrongness determines.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The conceptual constitution of fixed points therefore survives the impossibility results, which are findings about axiology&rsquo;s theoretical structure, not about the conceptual constitution of wrongness.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Nonnaturalist moral realism and the fixed-points view are robust against Cowie&rsquo;s argument; the impossibility results expose a theoretical problem in population axiology without threatening the conceptually constituted truths at the core of morality.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEMKIN PANEL -->
+    <div class="speaker-panel" id="opp-temkin-panel">
+      <div id="opp-temkin-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I take the impossibility results more seriously than Moberger and more seriously than Cuneo and Shafer-Landau. I agree with Cowie and Arrhenius that the results reveal a genuine and deep tension in moral thought. But I disagree entirely about what the correct response is. The response is not error theory; it is radical revision of a theoretical assumption that virtually everyone in moral philosophy has made without question: that the relation &lsquo;better than&rsquo; is transitive.</p>
+        <p>What I call the &lsquo;essentially comparative view&rsquo; is this: what makes outcome A better than outcome B is constitutively comparative &mdash; it depends on which comparison is being made. The relevant features that bear on the comparison can change as we shift from comparing A with B to comparing B with C. If this is right, transitivity of &lsquo;better than&rsquo; is not a conceptual truth but a false theoretical assumption, and abandoning it allows us to accept all the individual adequacy conditions in Arrhenius&rsquo;s theorem without contradiction.</p>
+        <div class="case-box">
+          <strong>The essentially comparative view and intransitivity.</strong><br><br>
+          Compare three populations: A (ten very happy people), B (twenty people somewhat less happy), C (a thousand people with lives barely worth living).<br><br>
+          The essentially comparative view says:<br>
+          A is better than B: in this comparison, equality and quality favour A.<br>
+          B is better than C: in this comparison, the sheer number of people with positive welfare in C exceeds B&rsquo;s advantage in quality.<br>
+          But: A might still be better than C, because in the direct comparison of A and C, different features become relevant &mdash; particularly the great qualitative gulf between A and C. Transitivity would require that if A &gt; B and B &gt; C, then A &gt; C. But the essentially comparative view denies this: what makes A better than B might not be preserved in the comparison of A with C.
+        </div>
+        <span class="section">i. transitivity is not a conceptual truth about goodness</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Transitivity is contestable — transitivity of betterness is a theoretical assumption not a conceptual truth; the essentially comparative view shows it can be coherently denied</span>Virtually everyone who works on population ethics assumes that the betterness relation is transitive: if A is better than B and B is better than C, then A is better than C. This seems so obvious as to be almost definitionally true. But the assumption is contestable, and I have argued that it is actually false. The essentially comparative view offers a coherent account of what makes one outcome better than another that entails non-transitivity: the relevant features bearing on comparison are context-sensitive, shifting as the comparison base shifts. This is not arbitrary or ad hoc; it reflects a genuine insight about the nature of comparative evaluation. And crucially: if transitivity is false, the impossibility results, which depend on transitivity in their proofs, are blocked. We can accept all five conditions without contradiction.</span></p>
+        <span class="section">ii. the analogy to the sorites and vagueness</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Sorites analogy — vagueness requires denying transitivity of &ldquo;looks the same as&rdquo;; this is familiar from philosophy; betterness intransitivity is the same kind of move</span>Denying transitivity might seem like a desperate theoretical move, but it has a distinguished precedent in philosophy. The Sorites paradox about vagueness generates an analogous impossibility: we cannot jointly hold that (i) a single grain of sand cannot make the difference between a heap and a non-heap, (ii) one grain of sand is not a heap, and (iii) heaps exist. The standard response is to deny that the &lsquo;looks the same as&rsquo; relation is transitive: a and b might look the same, and b and c might look the same, without a and c looking the same. This denial of transitivity in the context of vagueness is widely accepted. My proposal that betterness is similarly non-transitive follows the same logical structure.</span></p>
+        <span class="section">iii. against cowie: revisionism is not error theory</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Revisionism vs error theory — revising a background assumption is not conceding error theory; we revise false theoretical posits all the time without abandoning the domain</span>Cowie might object that my revisionism is just a way of avoiding the error-theoretic conclusion by sacrificing one assumption &mdash; transitivity &mdash; rather than one of the listed conditions. But there is a fundamental difference between revisionism and error theory. Revisionism says: one of our background theoretical assumptions was false; we should revise it and proceed. Error theory says: the entire moral domain generates no truths; we should abandon it. These are radically different conclusions. Transitivity is a theoretical assumption about the formal structure of a relation; it is not itself a first-order moral claim. Abandoning it does not abandon any positive moral truth; it revises our meta-level understanding of how moral comparisons work. This is the kind of theoretical revision that all sciences undergo.</span></p>
+        <span class="section">iv. the deeper lesson: practical reasoning must accommodate non-transitivity</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Practical reasoning — if betterness is intransitive, practical reasoning changes profoundly; but this is a discovery about rationality, not evidence for error theory; moral realism survives</span>If the essentially comparative view is correct, the implications for practical reasoning are profound. We cannot simply rank options on a single scale and choose the top-ranked. But this is a discovery about the structure of rational practical reasoning, not evidence that practical reasoning generates no truths. Moral realism survives: there are truths about which outcomes are better when compared pairwise, even if the betterness relation is not transitive over triples. The impossibility results have taught us something important about the nature of value and practical reasoning. They have not taught us that there is no such thing as value or that practical reasoning is systematically in error.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-temkin-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Transitivity of betterness is a contestable theoretical assumption, not a conceptual truth; denying it blocks the impossibility</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The impossibility theorems depend on transitivity of the betterness relation; if transitivity is false, the theorems do not establish inconsistency in the conditions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The essentially comparative view offers a coherent account of non-transitive betterness: the relevant features of comparison shift with the comparison base, making pairwise rankings non-transitive.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Transitivity is a theoretical assumption that virtually everyone has made without argument, not a conceptual truth immune from revision.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Denying transitivity blocks the impossibility results while allowing all five conditions to be jointly accepted; revisionism about transitivity is a principled alternative to error theory or scepticism.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Non-transitivity of comparative relations is familiar from philosophy; the essentially comparative view is not ad hoc</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The standard response to the Sorites paradox involves denying transitivity of &lsquo;looks the same as&rsquo;; this is widely accepted in philosophy of language and philosophy of mind.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Denying transitivity of betterness follows the same logical structure; it is not a desperate or ad hoc move but a principled theoretical revision of the same kind as the Sorites response.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The essentially comparative view provides a principled account of why non-transitivity arises: comparison-sensitivity of relevant features.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Non-transitivity of betterness is a principled and familiar theoretical move; the essentially comparative view is not ad hoc and should be taken seriously as a response to the impossibility results.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Revisionism about background assumptions is not error theory; revising transitivity preserves positive moral truths</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Revisionism about a theoretical background assumption (transitivity) is not the same as error theory about first-order moral claims.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Transitivity is not itself a first-order moral claim; abandoning it does not abandon any positive moral truth but revises our meta-level account of comparative evaluation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>All sciences revise background assumptions when they generate impossible results; this is not a sign that the domain generates no truths but that the theoretical framework needs adjustment.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Revisionism is a principled alternative to error theory; abandoning transitivity is a theoretical revision, not an admission that morality generates no truths; moral realism survives.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Non-transitive betterness is a discovery about practical reasoning, not evidence for error theory; moral realism survives</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If betterness is non-transitive, the structure of rational practical reasoning changes: we cannot simply rank options on a single scale and choose the top-ranked.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is a discovery about the structure of value and practical reasoning, not evidence that there is no value or that moral claims are all false.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Moral realism survives: there are pairwise truths about which outcomes are better, even if betterness is non-transitive over triples.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Non-transitive betterness reveals the depth of the moral problem space; it does not support error theory but demands a more sophisticated moral realism that accommodates the essentially comparative character of value.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENOCH PANEL -->
+    <div class="speaker-panel" id="opp-enoch-panel">
+      <div id="opp-enoch-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I take the most direct response to Cowie&rsquo;s argument. I am a robust moral realist. I believe that moral truths are as real and mind-independent as any truth in physics or mathematics. And I am not in the least embarrassed by the fact that some moral truths may be counterintuitive, difficult to identify, or in tension with other things we believe. That is the normal condition of inquiry into any domain of genuine reality.</p>
+        <p>The impossibility theorems establish that the five adequacy conditions cannot all be true. Fine. Then one of them is false. The robust realist&rsquo;s response is simple: discover which one is false, recognise that our intuitions are unreliable in this domain, and revise accordingly. This is not a crisis; it is how moral learning works.</p>
+        <div class="case-box">
+          <strong>The bullet-biting strategy explained.</strong><br><br>
+          A realist who encounters the impossibility results says: the conditions cannot all be true; therefore at least one is false; our intuitive support for each condition is evidence for it, but not conclusive evidence, since our intuitions are fallible. We must weigh the intuitive costs of rejecting each condition against the theoretical costs, and choose the rejection that incurs the least overall cost.<br><br>
+          This is just applied epistemology under uncertainty. We do the same in science: when observations conflict with theory, we adjust. The adjustment may be counterintuitive, but counterintuitiveness is not falsity. The impossibility results show us that something we believed is false, and give us reason to look harder for which belief it is.
+        </div>
+        <span class="section">i. counterintuitive truths are not moral fictions</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Counterintuitive truths — physics has many counterintuitive truths; moral truths may too; being counterintuitive is evidence against, not conclusive refutation; realism survives hard cases</span>The error theorist assumes that if a moral truth is sufficiently counterintuitive, it cannot be a moral truth at all. But this conflates intuitive resistance with falsity. Physics is full of counterintuitive truths: that time dilates at high velocities, that particles can be entangled across any distance, that the universe began in a singularity. None of these truths was predictable from ordinary human intuition. But they are true. Similarly, if the correct population axiology implies that one of the five conditions is false &mdash; even a very plausible-seeming one &mdash; this does not show there is no such thing as correct population axiology. It shows that our intuitions are wrong about something. Intuitions are evidence, not proof.</span></p>
+        <span class="section">ii. the track record of intuition revision in ethics</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Historical revision — moral intuitions have been revised before (slavery, women's rights); counterintuitiveness was not taken as error theory then; same applies now</span>The history of moral progress is largely a history of intuition revision. Large numbers of people once had firm intuitions that slavery was acceptable, that women should not have equal political rights, that capital punishment was clearly just. These intuitions were wrong, and we came to recognise them as wrong through moral reasoning, argument, and a widening of moral perspective. This is moral progress, not moral error. The discovery that one of Arrhenius&rsquo;s adequacy conditions is false is another episode in the same process: a discovery that one of our firmly held moral beliefs is wrong, which is entirely compatible with the existence of moral truths and our ability to come to know them.</span></p>
+        <span class="section">iii. the argument from companions in guilt</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Companions in guilt — mathematics has impossible conditions too (Arrow's theorem); we don't conclude mathematical error theory; the parallel with ethics should hold</span>Arrow&rsquo;s impossibility theorem in social choice theory established, in 1950, that no social welfare function can simultaneously satisfy a small number of highly compelling conditions (Pareto efficiency, independence of irrelevant alternatives, non-dictatorship, unrestricted domain). This is mathematically analogous to Arrhenius&rsquo;s theorems in ethics. Nobody concluded from Arrow&rsquo;s theorem that social choice theory is in error, that there are no truths about how to aggregate preferences, or that the domain of rational collective choice generates no genuine claims. We concluded instead that at least one of the conditions is mistaken, and we explored which. Precisely the same response is appropriate in ethics.</span></p>
+        <span class="section">iv. against cowie: the conceptual route requires more than near-undeniability</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Near-undeniability isn't enough — Cowie needs conditions to be conceptual truths; near-undeniability is weaker; we can be wrong about seeming conceptual truths (phlogiston seemed conceptual in chemistry)</span>Cowie&rsquo;s conceptual route requires the conditions to be conceptual truths &mdash; not merely very plausible, but constitutive of the concept of moral goodness such that their denial would show conceptual incompetence. But near-undeniability is weaker than conceptual truth. History provides examples of propositions that seemed conceptually necessary but turned out to be false: that space is Euclidean, that mass is invariant, that simultaneity is absolute. These seemed so obviously true as to be nearly conceptual commitments; they were false. Similarly, the axiological conditions may seem nearly undeniable while still being false in ways that require a deeper moral theory to discover. Near-undeniability is strong evidence but not proof of conceptual truth; the impossibility shows only that one is false, not that the domain is incoherent.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-enoch-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Counterintuitive truths exist in all domains; moral truths may be counterintuitive without thereby being fictions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Physics, biology, and mathematics contain many truths that were and are deeply counterintuitive; their counterintuitiveness does not make them false.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If the correct population axiology requires rejecting a plausible-seeming condition, this shows our intuitions are wrong about something, not that there is no correct axiology.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Intuitions are evidence for truth, not proof of truth; strong intuitive support for each condition does not prove all are true when they are demonstrably inconsistent.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The impossibility results show that one of our moral beliefs is false; this is compatible with moral realism; counterintuitiveness of the required revision does not support error theory.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The track record of moral intuition revision supports realism, not error theory</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Moral progress has repeatedly involved revising firm moral intuitions (on slavery, women&rsquo;s rights, capital punishment) in the light of moral reasoning; this is moral learning, not error.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Nobody concluded from earlier intuition revisions that morality was in systematic error; the conclusion was that some intuitions were wrong and moral knowledge was advancing.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The same should hold for population ethics: discovering that one axiological condition is false is a step in moral learning, not evidence for error theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The track record of moral progress supports realism: moral intuitions are revisable, and revising them is compatible with moral knowledge advancing toward moral truth.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Arrow&rsquo;s theorem is an exact analogue; nobody concluded social choice error theory; the same should hold for moral theory</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Arrow&rsquo;s impossibility theorem shows no social welfare function jointly satisfies all compelling conditions; this is mathematically analogous to Arrhenius&rsquo;s moral impossibility results.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Nobody concluded from Arrow that social choice theory generates no genuine claims, or that there are no truths about rational preference aggregation; we concluded that one of Arrow&rsquo;s conditions must be relaxed.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The parallel argument in moral theory should yield the same conclusion: that one of Arrhenius&rsquo;s conditions must be rejected, not that moral theory generates no truths.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Arrow&rsquo;s theorem is a companion in guilt: impossibility results in a domain do not entail domain error theory; the same response appropriate for Arrow is appropriate for Arrhenius.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Near-undeniability is weaker than conceptual truth; the conceptual route fails</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Cowie needs the conditions to be conceptual truths; near-undeniability alone does not establish this &mdash; history shows apparently necessary propositions can be false.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The axiological conditions may seem nearly undeniable while still being false in ways requiring deeper moral theory; near-undeniability is strong evidence but not proof of conceptual truth.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The impossibility shows only that one condition is false, not that the concept of goodness is incoherent; the conceptual route requires more than near-undeniability can supply.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The conceptual route fails; near-undeniability is insufficient to establish conceptual truth; the impossibility results show that one of our moral beliefs is false, not that moral concepts are defective.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARLSON PANEL -->
+    <div class="speaker-panel" id="opp-carlson-panel">
+      <div id="opp-carlson-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I want to examine the impossibility theorems more carefully from the inside &mdash; to look at the specific conditions that Arrhenius deploys and ask whether they are really as individually secure as the error theorists maintain. My thesis is that once we examine the technical formulations of the conditions with care, the picture changes considerably: some conditions are much less intuitively compelling than they initially appear, and rejecting them is less costly than Cowie and Arrhenius suggest.</p>
+        <p>The error-theoretic argument depends crucially on the claim that all five conditions are so intuitive that rejecting any of them would be a catastrophic cost. If I can show that some conditions are questionable on careful examination, the argument for error theory loses the dialectical grip it needs. The realist does not need to find all conditions equally questionable &mdash; she just needs to identify one that can be rejected at manageable cost.</p>
+        <div class="pull">&ldquo;The response is to examine the adequacy conditions more carefully, not to abandon morality. Some conditions are less secure than they appear.&rdquo; &mdash; Erik Carlson, Oxford Handbook of Population Ethics, 2022</div>
+        <span class="section">i. the non-elitism condition is not as secure as it appears</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Non-Elitism is questionable — the condition's technical formulation involves complex comparisons that may conceal a violation of egalitarian intuitions; it's less obvious than it first appears</span>The Non-Elitism Condition is the most technically complex of the five conditions and the most difficult to parse without careful study. Recall its content: it holds, roughly, that if everyone in one population is much better off than everyone in a second population, then adding one person to the second population who is just marginally better off than anyone in the first population does not thereby make the second population better than the first. This seems plausible on first reading. But on careful examination, the condition embeds comparisons across populations of different sizes in ways that may not be as unambiguously compelling as simpler egalitarian conditions. Philosophers who have studied it carefully have found it far less obviously true than conditions like Egalitarian Dominance, and it has been questioned on grounds that it may itself violate egalitarian intuitions in certain cases.</span></p>
+        <span class="section">ii. the general non-extreme priority condition embeds a contestable anti-prioritarian commitment</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Non-Extreme Priority is contestable — it rules out extreme prioritarianism; but many moral philosophers find prioritarianism compelling; this is a contested first-order debate, not an obvious truth</span>The General Non-Extreme Priority Condition effectively rules out extreme prioritarianism: the view that it is always best to benefit the worst-off individual, however marginally, at any cost to others. The condition holds that for any welfare level A and any population X, there is a large enough group of high-welfare people such that adding one person with welfare just above A is at least as good as adding them with welfare only slightly above A &mdash; regardless of how many high-welfare people are affected. This is far from obviously true. Many philosophers find some form of prioritarianism highly compelling. The condition essentially builds a contested anti-prioritarian conclusion into an apparently neutral adequacy constraint. Rejecting it is not as costly as Cowie suggests; it reflects a live debate in first-order moral philosophy.</span></p>
+        <span class="section">iii. the impossibility result does not hold universally across all formulations</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Technical escape routes — some formulations of the conditions allow escape; the impossibility is framework-relative; a different framework may satisfy all conditions in weaker form</span>The impossibility results are proven within a particular formal framework with specific background assumptions about welfare levels, welfare ranges, and the structure of populations. Different background assumptions may yield different results. Theologians and philosophers have noted that certain modifications of the conditions &mdash; weakening them in ways that preserve their intuitive core while removing their technical extremes &mdash; may be jointly satisfiable. Non-Archimedean axiologies, lexical views, and vague welfare comparisons have all been proposed as ways of satisfying weaker versions of the conditions that retain their moral motivation without generating the impossibility. These are ongoing research programmes in population ethics, not merely desperate escapes.</span></p>
+        <span class="section">iv. error theory is the least motivated response to a hard first-order problem</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Error theory unmotivated — the correct response to a hard axiology problem is more axiology not less; error theory abandons too quickly; mathematicians don't abandon maths when problems are hard</span>The impossibility results pose a difficult challenge to population ethics. But the response that is least motivated &mdash; and most radical &mdash; is to abandon the moral domain entirely by endorsing error theory. Mathematicians did not abandon mathematics when Hilbert&rsquo;s programme failed to resolve the consistency of arithmetic; they revised their conception of what mathematics is and what it can achieve. Economists did not abandon social choice theory when Arrow&rsquo;s theorem showed the impossibility of an ideal social welfare function; they explored which condition to relax and built more sophisticated theories. The correct model for moral philosophy is exactly the same. The impossibility results demand more and better population ethics, not less morality. Error theory is the counsel of despair masquerading as philosophical rigour.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-carlson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Non-Elitism Condition is less secure on careful examination; it embeds complexities that undermine its apparent obviousness</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Non-Elitism Condition involves technically complex cross-population comparisons that are not immediately transparent and may conceal violations of egalitarian intuitions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Philosophers who have studied the condition carefully find it considerably less obviously true than simpler conditions like Egalitarian Dominance.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If Non-Elitism is rejectable at manageable cost, the error-theoretic argument loses the grip it requires: not all conditions are equally secure.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The Non-Elitism Condition is a plausible candidate for rejection; careful examination reveals it is less obviously true than the error-theoretic argument requires.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Non-Extreme Priority embeds a contested anti-prioritarian commitment; it is not a neutral adequacy condition</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The General Non-Extreme Priority Condition rules out extreme prioritarianism by building an anti-prioritarian conclusion into an apparently neutral constraint.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Many moral philosophers find some form of prioritarianism highly compelling; the condition is not as obvious as it seems once its anti-prioritarian content is recognised.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Rejecting this condition reflects a live debate in first-order moral philosophy, not an extraordinary cost; it is a rejection of a contested theoretical commitment, not a moral catastrophe.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Non-Extreme Priority is a contested condition that embeds a first-order anti-prioritarian commitment; rejecting it is not as costly as Cowie claims.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The impossibility is framework-relative; modified conditions may be jointly satisfiable</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The impossibility is proven within a specific formal framework; different background assumptions or weakened formulations of the conditions may be jointly satisfiable.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Non-Archimedean axiologies, lexical views, and vague welfare comparisons are active research programmes that explore whether weaker versions of the conditions can be jointly satisfied.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These are not desperate escapes but genuine theoretical alternatives that preserve the moral motivation of the conditions without generating the impossibility.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The impossibility result is framework-relative; ongoing research explores escape routes through modified conditions; the impossibility does not close off all theoretical options.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Error theory is the least motivated response; the correct model is more and better axiology, not less morality</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Mathematicians responded to Hilbert&rsquo;s programme&rsquo;s failure by revising their conception of mathematics, not abandoning it; economists responded to Arrow&rsquo;s theorem by exploring which condition to relax, not abandoning social choice theory.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These domains provide the correct model: hard impossibility results demand theoretical refinement, not domain-abandonment.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Error theory is the most radical and least motivated response to the impossibility results; it abandons the moral domain when the correct response is to do more and better moral theorising.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Error theory is the counsel of despair; the impossibility results demand more and better population ethics; moral realism survives and the research programme continues.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+var state={
+  prop:{speaker:'cowie',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'moberger',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
