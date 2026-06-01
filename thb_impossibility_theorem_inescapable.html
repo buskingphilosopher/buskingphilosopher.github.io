@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Population Axiology & Impossibility</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 10px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Population Axiology &mdash; Parfit (1984) &bull; Arrhenius (2000–2011) &bull; Temkin (1993) &bull; Rachels (1998) &bull; Voorhoeve &amp; Fleurbaey (2012) &nbsp;&mdash;&nbsp; Broome (2004) &bull; Crisp (1992) &bull; Rabinowicz (2009) &bull; Greaves (2017) &bull; Voorhoeve (2014)</div>
+  <div class="motion-title">&ldquo;This House Believes that no population axiology &mdash; whether totalist, prioritarian, or pluralist-egalitarian &mdash; can completely escape impossibility theorems&rdquo;</div>
+  <div class="motion-sub">Proposition &bull; Parfit &middot; Arrhenius &middot; Temkin &middot; Rachels &middot; Voorhoeve &amp; Fleurbaey &nbsp;&mdash;&nbsp; Opposition &bull; Broome &middot; Crisp &middot; Rabinowicz &middot; Greaves &middot; Voorhoeve</div>
+</div>
+
+<div class="columns">
+
+<!-- LEFT — Proposition -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','parfit',this)">Parfit</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','arrhenius',this)">Arrhenius</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','temkin',this)">Temkin</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','rachels',this)">Rachels</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','voorhoeve_f',this)">Voorhoeve &amp; Fleurbaey</button>
+  </div>
+
+  <!-- PARFIT HEADER -->
+  <div class="col-header" id="prop-parfit-header">
+    <div class="col-header-top"><span class="pill prop">The Repugnant Conclusion &amp; Totalism&rsquo;s Collapse</span><span class="col-subtitle">Derek Parfit &mdash; Reasons and Persons, Part IV, 1984</span></div>
+    <div class="col-position">Total utilitarianism entails the Repugnant Conclusion: for any population of happy people, there is a larger population whose existence would be better, even if each member has a life barely worth living. Any theory that avoids the Repugnant Conclusion faces compensating paradoxes of its own. Parfit conjectured that no consistent population axiology satisfies all our intuitive desiderata simultaneously &mdash; a conjecture later formalised as a theorem.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','parfit','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','parfit','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- ARRHENIUS HEADER -->
+  <div class="col-header hidden" id="prop-arrhenius-header">
+    <div class="col-header-top"><span class="pill prop">General Impossibility Theorems</span><span class="col-subtitle">Gustaf Arrhenius &mdash; Population Ethics (manuscript 2000; papers 2000–2011)</span></div>
+    <div class="col-position">A series of formal impossibility theorems establishes that no population axiology can simultaneously satisfy a small set of independently compelling adequacy conditions; the theorems cover totalist, averagist, critical-level, person-affecting, and prioritarian frameworks; each proof identifies a specific combination of conditions that generates a contradiction, showing that the impossibility is structural and not confined to any single ethical tradition.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','arrhenius','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','arrhenius','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- TEMKIN HEADER -->
+  <div class="col-header hidden" id="prop-temkin-header">
+    <div class="col-header-top"><span class="pill prop">Intransitivity, Cyclical Betterness &amp; the Spectrum Arguments</span><span class="col-subtitle">Larry Temkin &mdash; Inequality (1993) &amp; Rethinking the Good (2012)</span></div>
+    <div class="col-position">The &ldquo;better than&rdquo; relation in population ethics is not transitive: there are plausible conditions under which A is better than B, B is better than C, yet C is better than A or A and C are incommensurable. Spectrum arguments demonstrate that any additive aggregation produces cyclical orderings once the range of lives considered is wide enough. This is not a defect of a particular theory but a feature of the comparative evaluation of welfare states across populations of different sizes.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','temkin','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','temkin','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- RACHELS HEADER -->
+  <div class="col-header hidden" id="prop-rachels-header">
+    <div class="col-header-top"><span class="pill prop">The Welfare Diffusion Objection &amp; Prioritarian Collapse</span><span class="col-subtitle">Stuart Rachels &mdash; &ldquo;Counterexamples to the Transitivity of Better Than,&rdquo; 1998; &ldquo;Is it Good to Make Happy People?&rdquo; 2001</span></div>
+    <div class="col-position">Prioritarian frameworks &mdash; which give extra weight to welfare gains for worse-off individuals &mdash; face the Welfare Diffusion Objection: when population size increases sufficiently, the priority weighting must either collapse back into totalism (by treating the marginally-better-off as effectively equivalent) or generate the Monstrous Conclusion that a vast population of people at near-zero welfare is better than a small population of flourishing people. No priority-weighting scheme escapes both horns.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','rachels','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','rachels','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- VOORHOEVE & FLEURBAEY HEADER -->
+  <div class="col-header hidden" id="prop-voorhoeve_f-header">
+    <div class="col-header-top"><span class="pill prop">Pluralist Egalitarianism&rsquo;s Own Impossibilities</span><span class="col-subtitle">Alex Voorhoeve &amp; Marc Fleurbaey &mdash; &ldquo;Egalitarianism and the Separateness of Persons,&rdquo; 2012</span></div>
+    <div class="col-position">Pluralist egalitarian frameworks that combine ex-ante fairness (equal prospects) with ex-post prioritarianism (priority to the worse-off in outcomes) generate their own impossibility results: the Ex-Ante Pareto vs. Dominance Dilemma forces egalitarians to violate either the requirement that prospects matter for their own sake or the requirement that outcomes that dominate in every state of the world be ranked better; the Prospective Equality Paradox and Population Expansion Anomaly further destabilise the framework under variable population.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','voorhoeve_f','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','voorhoeve_f','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- PARFIT -->
+    <div class="speaker-panel active" id="prop-parfit-panel">
+      <div id="prop-parfit-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I want to open this debate by placing on the table the observation that began it &mdash; the observation that led me to devote the final part of <em>Reasons and Persons</em> to what I then called Theory X, the as-yet-undiscovered population axiology that would avoid all the paradoxes. I have since come to doubt that Theory X exists. The work of Arrhenius and others has given that doubt a rigorous mathematical form.</p>
+        <p>The starting point is total utilitarianism: the theory that makes the goodness of a population a function of the sum of the welfare of all its members. It is the most natural theory of population ethics, and it is the theory that most policy-relevant reasoning implicitly adopts. And it entails something I call the Repugnant Conclusion.</p>
+        <div class="case-box">
+          <strong>The Repugnant Conclusion, stated precisely.</strong><br><br>
+          For any possible population of at least ten billion people, all with a very high quality of life, there must be some much larger imaginable population whose existence, if other things are equal, would be better, even though its members have lives that are barely worth living.<br><br>
+          The conclusion is entailed by total utilitarianism because: a sufficiently large number of lives each containing even a tiny positive welfare surplus will have a greater total than any fixed number of lives at high welfare. The sum can always be increased by adding enough marginally positive lives. The conclusion is &ldquo;repugnant&rdquo; because the vast world of lives barely worth living seems clearly worse than the small flourishing world, even if its total welfare is higher.
+        </div>
+        <span class="section">i. the repugnant conclusion as a genuine constraint</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Repugnant Conclusion — total utilitarianism forces it; avoidance requires abandoning either additivity or unrestricted domain; trade-off is structural</span>The Repugnant Conclusion is not a quirk of an implausible theory; it is forced by two features that almost every plausible population axiology shares: additivity (the value of a population is in some sense a function of the values of individual lives) and the principle that adding a happy life to a population makes things better, other things equal. These two features, combined with the possibility of populations of any size, generate the Repugnant Conclusion. Any theory that avoids it must either deny that adding a happy life always makes things better &mdash; which generates the Asymmetry Paradox &mdash; or deny the additive structure &mdash; which generates other paradoxes of its own. The avoidance of the Repugnant Conclusion is not free; it has a price, and that price is always another impossibility result.</span></p>
+        <span class="section">ii. average utilitarianism as no escape</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Average utilitarianism — avoids Repugnant Conclusion but entails Mere Addition Paradox and anti-natalist implications; merely displaces the impossibility</span>The most obvious escape from the Repugnant Conclusion is to switch from total to average utilitarianism: evaluate populations by average welfare rather than total welfare. But average utilitarianism generates its own repugnant consequences. It implies that adding a person with welfare above the current average but below the welfare of existing people is bad &mdash; even though that person has a good life and contributes positively to total welfare. More strikingly, it implies that we could improve the world by eliminating everyone with below-average welfare, since this would raise the average. These conclusions are at least as counterintuitive as the Repugnant Conclusion. The switch to average utilitarianism merely displaces the impossibility; it does not escape it.</span></p>
+        <span class="section">iii. the mere addition paradox and the non-identity problem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Mere Addition Paradox — adding happy people seems good; but leads to Repugnant Conclusion by transitivity; any blocking generates its own paradox</span>The Mere Addition Paradox demonstrates the tightness of the impossibility. Consider three populations. Population A: a billion people with very high welfare. Population A+: A plus an additional billion people with moderately high welfare and no effect on the first billion. Population B: two billion people at welfare intermediate between A and A+&rsquo;s additional people. Most people judge: A+ is at least as good as A (Mere Addition seems permissible); B is better than A+ (it is more equal and has higher average welfare); therefore B is better than A. But B is one step towards the Repugnant Conclusion world, and by iterating this argument we reach it. Any theory that blocks the Repugnant Conclusion must deny one of these three judgements, but each denial generates its own counterintuitive implication. The impossibility is in the structure of the judgements themselves, not in the theories.</span></p>
+        <span class="section">iv. conjecture: no theory escapes all paradoxes</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Theory X conjecture — Parfit's original conjecture formalised by Arrhenius; structural impossibility, not mere theoretical incompleteness</span>I ended Part IV of <em>Reasons and Persons</em> with a conjecture that I have not been able to refute: that there is no Theory X &mdash; no population axiology that avoids the Repugnant Conclusion, the Mere Addition Paradox, the Average Principle&rsquo;s counterexamples, and all the other paradoxes simultaneously. Arrhenius has since given this conjecture a rigorous proof, and the subsequent literature has extended the impossibility results to cover prioritarian, egalitarian, and person-affecting frameworks as well. The impossibility is not a symptom of theoretical incompleteness; it is a structural feature of the domain. Our intuitions about population ethics are mutually inconsistent, and no consistent axiology can satisfy all of them.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-parfit-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Repugnant Conclusion is forced by additivity plus the value of adding happy lives; avoidance always has a price</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Total utilitarianism is additive and treats the addition of any positive-welfare life as an improvement; these two features jointly entail the Repugnant Conclusion for any target welfare level.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Any theory that avoids the Repugnant Conclusion must deny either additivity (generating non-additive paradoxes) or the unconditional value of adding happy lives (generating the Asymmetry or Anti-Natalist Paradox).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The avoidance of the Repugnant Conclusion is therefore structurally purchased at the cost of another impossibility result; no theory avoids all paradoxes.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Repugnant Conclusion reveals a structural impossibility in population axiology: the price of avoiding it is always another paradox; the impossibility is in the domain, not in the theories that navigate it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Average utilitarianism merely displaces the impossibility; it generates its own repugnant conclusions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Average utilitarianism avoids the Repugnant Conclusion but implies that adding a person with above-average but below-existing welfare is bad &mdash; even though the added person has a good life.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>It also implies that eliminating all below-average members of a population could improve it, which is at least as counterintuitive as the Repugnant Conclusion.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The switch from total to average utilitarianism displaces rather than resolves the impossibility; the average theory faces different paradoxes of equal severity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Average utilitarianism is not an escape from impossibility; it exchanges the Repugnant Conclusion for equally repugnant implications about population reduction and the anti-natalist treatment of sub-average lives.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The Mere Addition Paradox shows that blocking the Repugnant Conclusion requires denying at least one compelling intuition</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A+≥A (Mere Addition is permissible), B&gt;A+ (B is more equal and higher average), so B&gt;A by transitivity. But by iteration this sequence leads to the Repugnant Conclusion world.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Any theory blocking the Repugnant Conclusion must deny one of: (i) Mere Addition is permissible, (ii) B&gt;A+, or (iii) transitivity. Each denial generates its own counterintuitive consequence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The impossibility is therefore in the mutual inconsistency of the three judgements themselves, not in the inadequacy of any particular theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Mere Addition Paradox demonstrates that our intuitions about population value are mutually inconsistent; the impossibility is structural and survives any plausible theory choice.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Theory X does not exist; Arrhenius&rsquo;s formal proofs confirm Parfit&rsquo;s conjecture</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Parfit conjectured that no population axiology satisfies all our intuitive adequacy conditions simultaneously; Arrhenius proved this rigorously for a wide range of conditions covering totalist, averagist, prioritarian, and egalitarian frameworks.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The subsequent literature has extended the impossibility to person-affecting and pluralist-egalitarian frameworks; no theoretical approach has been shown to escape the proven impossibility conditions.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The impossibility is structural and domain-wide; it is not a symptom of incomplete theorising but a mathematical result about the structure of the domain.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Theory X does not exist; Arrhenius&rsquo;s impossibility theorems confirm Parfit&rsquo;s conjecture; the impossibility is structural, domain-wide, and survives all known attempts at evasion.</span></div>
+        </div>
+      </div>
+    </div><!-- end parfit -->
+
+    <!-- ARRHENIUS -->
+    <div class="speaker-panel" id="prop-arrhenius-panel">
+      <div id="prop-arrhenius-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>My contribution to this debate is primarily formal. I have proved a series of impossibility theorems showing that no population axiology can simultaneously satisfy a small number of adequacy conditions, each of which is independently compelling. I want to present the structure of these results and explain why they collectively establish the motion beyond reasonable doubt.</p>
+        <p>The key insight is that the impossibility is not about any particular paradox &mdash; the Repugnant Conclusion, the Asymmetry, the Non-Identity Problem &mdash; but about the formal structure of the domain. Any theory that satisfies conditions drawn from different intuitive traditions will generate a contradiction. The choice is not between a good theory and a bad one; it is between different distributions of the theoretical cost.</p>
+        <div class="case-box">
+          <strong>The formal structure of the impossibility theorems.</strong><br><br>
+          Each theorem identifies a set of adequacy conditions C<sub>1</sub>, &hellip;, C<sub>n</sub> and proves that no population ordering satisfies all of them simultaneously. The conditions are drawn from different intuitive sources: welfare addition (totalist intuitions), anti-repugnance (egalitarian intuitions), person-affecting restrictions (anti-impersonalist intuitions), and transitivity/completeness (formal rationality conditions).<br><br>
+          The most general theorem (Arrhenius 2011) shows that no population axiology satisfies all of: the Egalitarian Dominance Condition, the General Non-Extreme Priority Condition, the Non-Sadism Condition, the Weak Non-Repugnance Condition, the Weak Quality Addition Condition, and the Weaker Non-Elitism Condition. This is a theorem about the structure of the domain, not about the inadequacy of specific theories.
+        </div>
+        <span class="section">i. the negative repugnant conclusion</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Negative Repugnant Conclusion — any theory avoiding the positive RC faces the negative analogue; the impossibility is symmetric</span>Less familiar than the positive Repugnant Conclusion is its negative mirror image: the Negative Repugnant Conclusion. For any population of miserable people, a sufficiently large population of people whose lives are barely not worth living is worse. Every theory that satisfies the most natural negative-domain conditions faces this conclusion by a parallel argument to the positive case. Theories that avoid the Repugnant Conclusion by deploying asymmetric treatments of positive and negative welfare &mdash; treating additions of barely-positive lives differently from the positive of barely-negative lives &mdash; face independent objections about the principled basis for this asymmetry. The impossibility is symmetric across the positive and negative domains.</span></p>
+        <span class="section">ii. the monstrous conclusion</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Monstrous Conclusion — any theory avoiding RC faces it or its negative twin; forced by Non-Sadism and welfare addition conditions</span>The Monstrous Conclusion, identified in my 2000 paper, is the claim that a population of very many people with very good lives is worse than a population of very many people with lives barely worth living, given that the latter population is sufficiently large. This conclusion is entailed by any theory that: (i) avoids the Repugnant Conclusion by introducing a sufficiently steep diminishing value for additional lives as welfare approaches the minimum positive level; and (ii) satisfies the Non-Sadism Condition (adding lives with positive welfare is never worse than adding lives with negative welfare). The Monstrous Conclusion is not an isolated peculiarity; it is a consequence of the logical structure of any theory that tries to escape the Repugnant Conclusion while maintaining that positive-welfare additions are never sadistically bad.</span></p>
+        <span class="section">iii. person-affecting views do not escape the theorem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Person-affecting views — Non-Identity Problem and the asymmetry together generate contradictions; person-affecting is not a clean escape</span>Person-affecting views hold that an outcome can only be worse than another if it is worse for some specific person. They appear to avoid the Repugnant Conclusion by refusing to count the welfare of possible people who do not exist in the baseline. But person-affecting views face the Non-Identity Problem: future generations may owe their existence to the very policies whose effects we are evaluating, so there is no specific person for whom the policy is worse. More formally, person-affecting views that incorporate the asymmetry &mdash; that it is bad to bring miserable people into existence but not obligatory to bring happy people into existence &mdash; generate contradictions when combined with the transitivity of &ldquo;worse for&rdquo; and the requirement that all welfare comparisons be person-relative. The asymmetry cannot be consistently embedded in a person-affecting framework without generating a violation of transitivity.</span></p>
+        <span class="section">iv. the theorems cover all major frameworks</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Framework coverage — totalism, averagism, critical-level, prioritarianism, egalitarianism all fall; no existing framework escapes the formal results</span>The range of the impossibility theorems has expanded to cover every major population-ethical framework. Total and average utilitarianism fall to the classical paradoxes. Critical-level utilitarianism (Broome, Blackorby and Donaldson) falls to the Sadistic Conclusion: setting the critical level above zero implies that it can be better to add miserable lives than happy ones, in populations of the right structure. Prioritarian views fall to the Welfare Diffusion Objection and the Monstrous Conclusion. Person-affecting views fall to the Non-Identity Problem. Pluralist-egalitarian views fall to the Ex-Ante Pareto vs. Dominance Dilemma and the Prospective Equality Paradox. No existing framework has been shown to escape all the proven conditions simultaneously. The impossibility is comprehensive.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-arrhenius-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Negative Repugnant Conclusion is the symmetric mirror of the positive RC; no asymmetric treatment is principled</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>By a parallel argument to the positive Repugnant Conclusion, any theory satisfying natural negative-domain conditions faces the Negative Repugnant Conclusion: a vast population of barely-not-miserable lives is worse than any fixed population of very miserable lives.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Theories that escape the positive RC by asymmetric treatment of positive and negative welfare must provide a principled basis for the asymmetry; no such basis is forthcoming.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The impossibility is symmetric: escaping the positive RC by asymmetric treatment generates the negative analogue or an unprincipled asymmetry objection.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Negative Repugnant Conclusion shows that the impossibility is symmetric across welfare domains; asymmetric treatment of positive and negative welfare displaces rather than resolves the impossibility.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Monstrous Conclusion is entailed by any RC-avoiding theory that maintains Non-Sadism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Monstrous Conclusion: a vast population with lives barely worth living is better than a large flourishing population, on any theory that avoids the RC by steep diminishing value near the welfare minimum.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Such theories must maintain Non-Sadism (adding positive-welfare lives is never worse than adding negative-welfare ones) to avoid a different repugnant conclusion.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The combination of RC-avoidance via steep diminishing value and Non-Sadism jointly entail the Monstrous Conclusion; no theory satisfies both conditions without it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Monstrous Conclusion is a forced consequence of the logical structure of RC-avoiding theories that maintain Non-Sadism; it is not avoidable without generating a further impossibility.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Person-affecting views face the Non-Identity Problem and internal contradictions from the asymmetry</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Person-affecting views refuse to count possible people who don&rsquo;t exist in the baseline, appearing to avoid the RC. But the Non-Identity Problem shows that future people&rsquo;s existence depends on the very policies being evaluated, leaving no specific person worse off.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Person-affecting views incorporating the asymmetry (bad to create miserable lives, not obligatory to create happy ones) generate violations of transitivity when combined with person-relative welfare comparisons.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Person-affecting views cannot escape the impossibility: they face the Non-Identity Problem externally and internal contradictions from the asymmetry.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Person-affecting views are not a clean escape from impossibility; they face the Non-Identity Problem and generate internal contradictions from the asymmetry; the impossibility extends to person-affecting frameworks.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The impossibility theorems cover all major frameworks; no existing approach escapes the formal results</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Total utilitarianism: Repugnant Conclusion. Average utilitarianism: Anti-Natalist and Elimination Conclusions. Critical-level utilitarianism: Sadistic Conclusion. Prioritarianism: Monstrous Conclusion and Welfare Diffusion Objection. Person-affecting: Non-Identity and Asymmetry contradictions. Pluralist egalitarianism: Ex-Ante Pareto vs. Dominance Dilemma.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No existing framework has been shown to escape all the conditions of the proven impossibility theorems simultaneously.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The coverage is comprehensive: the impossibility is structural and domain-wide, not confined to any theoretical tradition.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The impossibility theorems cover all major population-ethical frameworks; the impossibility is comprehensive, structural, and not escapable by switching theoretical traditions.</span></div>
+        </div>
+      </div>
+    </div><!-- end arrhenius -->
+
+    <!-- TEMKIN -->
+    <div class="speaker-panel" id="prop-temkin-panel">
+      <div id="prop-temkin-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>My contribution to this debate is to show that the impossibility goes deeper than any particular theory. It is not that totalism, or prioritarianism, or egalitarianism fails on its own terms. It is that the very relation of being &ldquo;better than&rdquo; &mdash; the fundamental comparative relation in ethics &mdash; is not transitive when applied across populations of variable size and composition.</p>
+        <p>Transitivity of the betterness relation is one of the most basic requirements of rational choice theory. If A is better than B, and B is better than C, then A must be better than C. I shall argue, through a series of spectrum arguments, that this requirement fails when welfare is evaluated across populations. This is not merely a paradox for specific theories; it is a paradox for population axiology as such.</p>
+        <div class="pull">&ldquo;The Repugnant Conclusion is not an embarrassment for total utilitarianism alone. It is, in different guises, an embarrassment for the very project of population axiology. The problem lies not in the theories but in our attempt to compare welfare states across populations by any consistent metric.&rdquo; &mdash; Temkin, paraphrased from Rethinking the Good, 2012</div>
+        <span class="section">i. the spectrum argument and intransitivity</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Spectrum argument — plausible pairwise comparisons generate intransitivity; &ldquo;better than&rdquo; is not transitive across welfare spectra</span>Consider a spectrum of populations: A<sub>1</sub>, A<sub>2</sub>, &hellip;, A<sub>n</sub>, where each successive population has slightly lower average welfare but is very much larger. Under almost any plausible principle of welfare aggregation, A<sub>i+1</sub> is better than A<sub>i</sub>: the welfare loss per person is small, and the addition of many new lives at the marginally lower welfare level more than compensates. But at the end of the spectrum, A<sub>n</sub> is the vast population of barely-worth-living lives that is the Repugnant Conclusion. And A<sub>1</sub> &mdash; the small flourishing population &mdash; is clearly better than A<sub>n</sub>. We have: A<sub>2</sub>&gt;A<sub>1</sub>, A<sub>3</sub>&gt;A<sub>2</sub>, &hellip;, A<sub>n</sub>&gt;A<sub>n&minus;1</sub>, but A<sub>1</sub>&gt;A<sub>n</sub>. The transitivity of &ldquo;better than&rdquo; is violated.</span></p>
+        <span class="section">ii. cyclical betterness across population comparisons</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Cyclical betterness — violating transitivity generates cycles; rational choice is undermined; no stable ordering of populations exists</span>The intransitivity of &ldquo;better than&rdquo; is not merely a theoretical curiosity; it has devastating practical implications. If the betterness relation is cyclic across populations, there is no stable best option. Any population that is chosen can be shown to be worse than some other population, which is worse than yet another, which is worse than the first. Rational population policy is impossible without a transitive betterness ordering. But the spectrum arguments show that any consistent, additive valuation of welfare across populations will generate cyclical betterness. The problem is not that our theories are wrong; it is that the domain of population ethics is resistant to consistent ordering.</span></p>
+        <span class="section">iii. the violation of transitivity in Voorhoeve&rsquo;s pluralism</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Voorhoeve pluralism — cyclic judgments arise from combining ex-ante and ex-post concerns; transitivity violated in probabilistic cases</span>The intransitivity is not confined to additive frameworks. Voorhoeve&rsquo;s pluralist egalitarianism, which combines ex-ante fairness with ex-post prioritarianism, generates cyclical judgements when applied to probabilistic outcomes across variable populations. In a three-way choice between distributions of welfare prospects, the pluralist framework may rank X better than Y (because X provides better ex-ante prospects), Y better than Z (because Y provides better ex-post prioritarian outcomes), and Z better than X (because Z satisfies some additional egalitarian condition). The cycle is not an artefact of inconsistency in the framework; it is a consequence of the genuine tensions among the values the pluralist framework is designed to honour. Pluralism does not escape intransitivity; it institutionalises it.</span></p>
+        <span class="section">iv. incommensurability as a partial but insufficient response</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Incommensurability — replacing intransitivity with incommensurability helps but doesn&rsquo;t solve the core problem; practical guidance still lost</span>One response to the spectrum argument is to deny that the pairwise betterness judgements generate a violation of transitivity: instead, some of the adjacent populations in the spectrum are incommensurable rather than ranked. This response is available but insufficient. First, incommensurability does not restore practical guidance: if A and C are incommensurable, we cannot decide between policies that generate A and C respectively, and this is practically as devastating as a cycle. Second, the incommensurability response generates its own paradox: if A<sub>1</sub> and A<sub>n</sub> are incommensurable, and each adjacent pair is also incommensurable, the egalitarian dominance conditions imply that A<sub>1</sub> is better than A<sub>n</sub> (since it has higher average welfare and is more equal). The attempt to replace intransitivity with incommensurability restores transitivity only by sacrificing egalitarian dominance, generating yet another impossibility.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-temkin-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The spectrum argument shows that &ldquo;better than&rdquo; is not transitive across welfare spectra</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In a welfare spectrum A<sub>1</sub>&hellip;A<sub>n</sub>, each step is plausibly ranked better (small welfare decrease, large population increase); but A<sub>1</sub> (flourishing small population) is clearly better than A<sub>n</sub> (vast barely-living population).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The chain of pairwise &ldquo;better than&rdquo; judgements and the final reversal jointly violate transitivity: A<sub>2</sub>&gt;A<sub>1</sub>, &hellip;, A<sub>n</sub>&gt;A<sub>n-1</sub>, but A<sub>1</sub>&gt;A<sub>n</sub>.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This violation is generated by plausible, independently motivated judgements at each step; it is not a consequence of an implausible theory but of the structure of welfare comparisons across variable populations.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The spectrum argument establishes that &ldquo;better than&rdquo; is not transitive in population ethics; the intransitivity is generated by plausible pairwise judgements and is not avoidable without sacrificing some compelling welfare-comparative intuition.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Cyclical betterness makes rational population policy impossible; no stable ordering exists</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If the betterness relation is cyclic, any chosen population policy can be shown to be worse than some alternative, which is worse than another, which is worse than the first; there is no stable best option.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Rational population policy requires a transitive betterness ordering; without it, choice is impossible in principle.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The spectrum arguments show that any consistent additive valuation generates cyclical betterness; the domain of population ethics is resistant to consistent, transitive ordering.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Cyclical betterness generated by the spectrum argument makes rational population policy impossible; the impossibility is practical as well as theoretical; no population axiology can restore transitivity without sacrificing other compelling conditions.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Pluralist egalitarianism institutionalises intransitivity by combining incommensurable values</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Voorhoeve&rsquo;s pluralist egalitarianism combines ex-ante fairness, ex-post prioritarianism, and egalitarian conditions; in probabilistic three-way choices, these generate cycles: X&gt;Y (ex-ante), Y&gt;Z (ex-post), Z&gt;X (egalitarian).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The cycle is not an artefact of inconsistency but a consequence of the genuine tensions among the values the pluralist framework honours; pluralism does not resolve these tensions, it codifies them.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Pluralism does not escape intransitivity; it institutionalises it as a feature of the framework, making stable ordering impossible in exactly the cases where it matters most.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Pluralist egalitarianism institutionalises intransitivity; the tensions among its constitutive values generate cyclical rankings in precisely the cases that population ethics most needs to adjudicate.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Replacing intransitivity with incommensurability restores transitivity only by sacrificing egalitarian dominance</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The incommensurability response denies that adjacent spectrum populations are ranked, treating them as on a par; this blocks the transitive chain.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But egalitarian dominance conditions imply that A<sub>1</sub>&gt;A<sub>n</sub> even if adjacent pairs are incommensurable (since A<sub>1</sub> has higher average welfare and is more equal); this restores transitivity at the cost of incommensurability&rsquo;s motivating logic.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The incommensurability response generates a new impossibility: it sacrifices either egalitarian dominance or the claim that incommensurable options are genuinely unrankable.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Incommensurability replaces one impossibility with another; it cannot restore consistent rational guidance in population ethics without sacrificing egalitarian dominance or the coherence of the incommensurability response itself.</span></div>
+        </div>
+      </div>
+    </div><!-- end temkin -->
+
+    <!-- RACHELS -->
+    <div class="speaker-panel" id="prop-rachels-panel">
+      <div id="prop-rachels-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I want to focus on the fate of prioritarianism &mdash; the framework that gives extra weight to welfare gains for the worse-off &mdash; under conditions of variable population. Prioritarianism is the most influential contemporary alternative to both totalism and egalitarianism in population ethics. It is designed precisely to avoid the Repugnant Conclusion while honouring both welfare addition and the intuition that those at the bottom of the welfare distribution matter more. I shall show that it fails on both counts under population expansion, through what I call the Welfare Diffusion Objection.</p>
+        <div class="case-box">
+          <strong>The Welfare Diffusion Objection, stated precisely.</strong><br><br>
+          Prioritarianism assigns to each person&rsquo;s welfare a priority weight that is a decreasing function of their welfare level: gains for the worse-off count for more than equal-sized gains for the better-off. The total prioritarian value of a population is the sum of these weighted welfare values.<br><br>
+          The Welfare Diffusion Objection: as population size increases, the prioritarian weights for each member shrink towards zero (since each additional person at any welfare level makes everyone at that level relatively less badly off compared to the distribution as a whole). For a sufficiently large population, the priority weights become negligibly different across welfare levels. Prioritarianism therefore collapses back into effective totalism for large populations &mdash; and entails the Repugnant Conclusion it was designed to avoid.
+        </div>
+        <span class="section">i. prioritarianism&rsquo;s structure under population expansion</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Priority weights collapse — as population grows, priority weights converge to uniformity; prioritarianism reduces to totalism for large N</span>The prioritarian priority weight assigned to a person depends on their welfare relative to the rest of the population or relative to some absolute threshold. In either case, as population size increases, the marginal contribution of any individual to the population&rsquo;s overall welfare distribution becomes negligible. The priority weight of a person with welfare <em>w</em> is a function of how badly off they are relative to the population as a whole or relative to a threshold; as <em>N</em> grows without bound, the contribution of any single person&rsquo;s welfare level to the ranking becomes arbitrarily small. The weights flatten out: for large enough populations, near-zero welfare and moderate welfare receive effectively the same priority weighting. Prioritarianism reduces to totalism. And totalism entails the Repugnant Conclusion.</span></p>
+        <span class="section">ii. the monstrous conclusion as the alternative horn</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Monstrous Conclusion — avoiding welfare diffusion collapse requires priority weights that produce the Monstrous Conclusion; both horns are unacceptable</span>The prioritarian might try to avoid the welfare diffusion collapse by making the priority weight function steeper &mdash; by increasing the rate at which priority weight increases as welfare approaches zero. But making the priority weight function steep enough to maintain genuine priority for the worst-off in large populations generates the Monstrous Conclusion: a vast population with lives barely worth living, each receiving a very high priority weight, accumulates a prioritarian value that exceeds the value of any fixed-size flourishing population. The prioritarian is on the horns of a genuine dilemma: shallow priority weights collapse into totalism and the Repugnant Conclusion; steep priority weights generate the Monstrous Conclusion. There is no weight function that avoids both.</span></p>
+        <span class="section">iii. the ex-ante pareto vs. dominance dilemma for prioritarianism under uncertainty</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Ex-ante Pareto vs. dominance — prioritarianism under uncertainty violates either ex-ante Pareto or outcome dominance; further dilemma under risk</span>The impossibility for prioritarianism deepens under uncertainty. Consider a case in which two policies have the same expected welfare for each person, but Policy X stochastically dominates Policy Y: in every possible state of the world, X produces a weakly better outcome for every person, and in some states a strictly better one. Prioritarianism under risk demands that we give extra weight to the welfare of the worse-off in each outcome; but which outcome is the worse-off world depends on which state obtains. This generates a conflict between: (i) the ex-ante Pareto principle (if X is at least as good as Y in expected welfare for everyone, and better for some, X is better overall); and (ii) the dominance principle (X, which dominates Y in every state, should be ranked better). Under certain constructions, prioritarianism must violate one of these principles. Neither violation is acceptable.</span></p>
+        <span class="section">iv. the transitivity violation in prioritarian population ranking</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Transitivity violation — prioritarian ranking of triples generates cycles under variable population; structural not incidental</span>Following Temkin&rsquo;s spectrum argument, prioritarian rankings of populations generate transitivity violations for the same structural reasons. Consider three populations: P (large, high priority weights, modest welfare), Q (medium, intermediate), R (small, flourishing, low priority weights). The prioritarian may rank P better than Q (high aggregate priority-weighted value from many badly-off people), Q better than R (intermediate), but R better than P (the small flourishing population has far higher welfare per person and satisfies some egalitarian dominance condition). The cycle is generated not by an error in the prioritarian calculus but by the genuine tensions between the priority weighting of the badly-off and the aggregate welfare advantage of the flourishing population. Prioritarianism generates exactly the kind of intransitivity that Temkin identified as structural to population ethics.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-rachels-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Priority weights collapse to uniformity under population expansion; prioritarianism reduces to totalism for large N</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Prioritarian priority weights are a decreasing function of welfare level relative to the population distribution or a threshold; as N grows, the marginal contribution of any individual to the population&rsquo;s welfare distribution becomes negligible.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>As N grows without bound, weights for near-zero welfare and moderate welfare converge to effective uniformity; prioritarianism reduces to totalism for large populations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Totalism entails the Repugnant Conclusion; therefore, prioritarianism entails the Repugnant Conclusion for sufficiently large populations by the Welfare Diffusion argument.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Welfare Diffusion Objection shows that prioritarianism collapses into totalism for large populations and therefore entails the Repugnant Conclusion it was designed to avoid.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Avoiding welfare diffusion requires steep weights that generate the Monstrous Conclusion; both horns are unacceptable</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Shallow priority weight functions collapse into totalism (Repugnant Conclusion); steep functions give very high priority to barely-living lives, generating a Monstrous Conclusion (vast barely-living populations better than flourishing ones).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No weight function avoids both horns: any function must be either shallow enough (collapsing into totalism) or steep enough (generating the Monstrous Conclusion).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Prioritarianism is therefore caught in a genuine dilemma with no available middle ground; the impossibility is structural, not a matter of calibrating the weight function more carefully.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Prioritarianism faces an inescapable dilemma: shallow weights generate the Repugnant Conclusion; steep weights generate the Monstrous Conclusion; no weight function escapes both horns.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Under uncertainty, prioritarianism violates either ex-ante Pareto or stochastic dominance</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Prioritarianism under risk must give extra weight to the welfare of the worse-off in each outcome; but who is worse-off depends on which state obtains, generating conflict between ex-ante and ex-post evaluation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Under certain constructions, prioritarianism must violate either ex-ante Pareto (if X is better in expectation for everyone, X is better) or stochastic dominance (X dominates Y in every state, so X is better).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Neither violation is acceptable; the dilemma under uncertainty is an independent impossibility result for prioritarianism beyond the Welfare Diffusion Objection.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Prioritarianism under uncertainty faces an Ex-Ante Pareto vs. Dominance Dilemma that is independent of and additional to the Welfare Diffusion Objection; the impossibility for prioritarianism is multi-dimensional.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Prioritarian rankings of variable populations generate cyclical betterness; the transitivity violation is structural</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In a triple (P: large badly-off, Q: medium, R: small flourishing), prioritarianism may rank P&gt;Q (high aggregate priority-weighted value), Q&gt;R (intermediate), but R&gt;P (egalitarian dominance of flourishing over vastly numerous badly-off).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The cycle is generated by the genuine tension between priority weighting of the badly-off and the aggregate welfare advantage of the flourishing population; it is not a calibration error.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Prioritarianism generates Temkin-style intransitivity for exactly the structural reasons Temkin identified; the impossibility extends from totalism to prioritarianism without loss of force.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Prioritarian population rankings generate cyclical betterness for the same structural reasons as totalism; the transitivity violation is structural and extends Temkin&rsquo;s impossibility results to the prioritarian framework.</span></div>
+        </div>
+      </div>
+    </div><!-- end rachels -->
+
+    <!-- VOORHOEVE & FLEURBAEY -->
+    <div class="speaker-panel" id="prop-voorhoeve_f-panel">
+      <div id="prop-voorhoeve_f-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>In our 2012 paper with Marc Fleurbaey, I argued that the familiar tension between ex-ante fairness and ex-post prioritarianism generates its own impossibility result &mdash; one that operates within pluralist egalitarian frameworks rather than against them from outside. I now present the results not as a defence of pluralism but as a demonstration that pluralism, like every other approach, cannot escape the structural impossibility that afflicts population axiology.</p>
+        <p>The pluralist egalitarian holds that both prospects and outcomes matter for the evaluation of distributions: ex-ante considerations of equal prospects are independently morally significant, and ex-post considerations of priority for the worse-off are also independently morally significant. When these two considerations pull in different directions &mdash; as they do in many risky choice situations &mdash; the framework must adjudicate between them. And when adjudication is attempted under variable population, the adjudication procedure generates its own impossibility results.</p>
+        <div class="case-box">
+          <strong>The Ex-Ante Pareto vs. Dominance Dilemma, stated precisely.</strong><br><br>
+          Consider two policies, X and Y, applied to a fixed population under uncertainty. Policy X stochastically dominates Policy Y: in every possible state of the world, X produces a weakly better outcome for every person, and in some states a strictly better outcome for some. Ex-ante Pareto requires that X be ranked better than Y if X is at least as good in expectation for everyone and strictly better in expectation for some.<br><br>
+          Pluralist egalitarianism introduces a complication: the ex-post priority weighting of outcomes depends on who is worse off in each outcome. This can generate cases in which the ex-ante Pareto condition is satisfied (X is better in expectation for everyone) but the dominance condition seems to demand that we evaluate X&rsquo;s stochastic advantage as outweighed by its ex-post egalitarian properties. The two conditions conflict, and neither can be abandoned without sacrificing a core commitment of the pluralist framework.
+        </div>
+        <span class="section">i. the ex-ante pareto vs. dominance dilemma</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Ex-Ante Pareto vs. Dominance — both conditions are compelling; pluralism cannot satisfy both in cases of ex-post egalitarian conflict</span>The dilemma is generated by cases in which: (i) Policy X gives everyone better expected welfare than Policy Y (satisfying ex-ante Pareto); (ii) Policy X stochastically dominates Policy Y in every state (satisfying Dominance); but (iii) in the states where X is better, the gains accrue to people who are already relatively well-off in those states, while in Y, the worse outcomes are more equally distributed. Ex-post prioritarianism then favours Y over X in those states on egalitarian grounds. The pluralist framework must either: accept X (violating ex-post egalitarianism in the relevant states) or accept Y (violating ex-ante Pareto and Dominance). Neither horn is acceptable: violating ex-ante Pareto means that everyone can be made worse off in expectation for the sake of ex-post equality, and violating ex-post egalitarianism abandons the core pluralist commitment to priority for the worse-off in outcomes.</span></p>
+        <span class="section">ii. the prospective equality paradox</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Prospective Equality Paradox — equalising prospects worsens outcomes for everyone; ex-ante fairness conflicts with ex-post welfare</span>The Prospective Equality Paradox arises when equalising the ex-ante prospects of two people &mdash; giving each an equal probability of the better and worse outcomes &mdash; is worse in expectation for everyone than an unequal distribution of prospects. This occurs when the correlation between the better outcome and the person for whom it would contribute more welfare (due to diminishing marginal utility or priority weighting) is non-random. Equalising prospects then destroys the welfare-maximising correlation. The pluralist egalitarian must either: accept that equal prospects sometimes make everyone worse off in expectation (violating ex-ante Pareto); or accept that we should sometimes maintain unequal prospects for ex-ante Pareto reasons (violating the egalitarian commitment to equal prospects). Both are violations of core pluralist commitments.</span></p>
+        <span class="section">iii. the population expansion anomaly</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Population Expansion Anomaly — adding people at middle welfare changes the ranking of existing people&rsquo;s prospects; violates separateness of persons</span>The Population Expansion Anomaly arises when the addition of new people to a population changes the ranking of distributions over existing people&rsquo;s welfare. In a two-person baseline, Policy X may be ranked better than Y for ex-ante egalitarian reasons. But when a third person is added at an intermediate welfare level, the ex-post priority weighting of the existing two people changes, because the third person changes who is &ldquo;worse off&rdquo; relative to the distribution. The addition of a person with no direct stake in the X vs. Y comparison for the existing two people reverses the ranking of those policies for those two people. This violates the separateness of persons: the welfare comparison of existing people should not be reversed by the addition of others whose welfare is not directly implicated in the comparison.</span></p>
+        <span class="section">iv. cyclical judgements in the pluralist framework</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Cyclical judgements in pluralism — ex-ante fairness + ex-post priority + population variation generates cycles; transitivity fails in pluralism too</span>The three paradoxes together generate cyclical judgements in the pluralist egalitarian framework. The Ex-Ante Pareto vs. Dominance Dilemma shows that X and Y can be ranked in opposite directions depending on whether ex-ante or ex-post considerations are given priority. The Population Expansion Anomaly shows that the ranking of X and Y can be reversed by adding a third option. Together, these generate violations of transitivity that are structurally analogous to the violations Temkin identified in the totalist and prioritarian frameworks. Pluralist egalitarianism does not escape the impossibility; it generates it internally, from the tensions among its own constitutive values.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-voorhoeve_f-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Ex-Ante Pareto vs. Dominance Dilemma forces pluralism to violate either ex-post egalitarianism or ex-ante Pareto</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Policy X gives everyone better expected welfare (ex-ante Pareto) and dominates Y in every state; but in the states where X is better, gains accrue to the relatively better-off, while Y distributes worse outcomes more equally.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Ex-post prioritarianism favours Y in those states; ex-ante Pareto and Dominance favour X overall. The pluralist must choose: violate ex-post egalitarianism (accept X) or violate ex-ante Pareto and Dominance (accept Y).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Both violations sacrifice a core commitment of the pluralist framework; the dilemma is genuine and structurally inescapable.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Ex-Ante Pareto vs. Dominance Dilemma is an impossibility internal to pluralist egalitarianism; neither horn is acceptable without abandoning a core pluralist commitment.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Prospective Equality Paradox shows that equalising prospects can worsen outcomes for everyone</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When the better outcome is welfare-correlated with the person who benefits more from it (due to diminishing returns or priority weighting), equalising prospects destroys this welfare-maximising correlation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Equalising prospects then makes everyone worse off in expectation, violating ex-ante Pareto; maintaining the unequal-but-welfare-maximising correlation violates the egalitarian commitment to equal prospects.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Both violations are core commitments of the pluralist framework; the Prospective Equality Paradox generates an impossibility internal to the framework.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Prospective Equality Paradox forces pluralism to choose between ex-ante Pareto and equal prospects; both cannot be maintained simultaneously when welfare gains are positively correlated with the beneficiary&rsquo;s welfare level.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The Population Expansion Anomaly violates the separateness of persons within pluralism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Adding a third person at an intermediate welfare level changes the ex-post priority weighting of the original two people, reversing the ranking of policies X and Y for those two people.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The reversal is caused by the addition of a person with no direct stake in the X vs. Y comparison for the existing two; this violates the separateness of persons: the welfare comparison of two people should not depend on the welfare of a third who is not directly implicated.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Population Expansion Anomaly is a structural feature of the pluralist framework under variable population, not a calibration error.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Population Expansion Anomaly violates the separateness of persons as a structural feature of pluralist egalitarianism under variable population; it is an impossibility internal to the framework.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The three paradoxes generate cyclical judgements; pluralism institutionalises transitivity violations</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Ex-Ante Pareto vs. Dominance Dilemma generates conflicting rankings of X and Y depending on which pluralist consideration is foregrounded; the Population Expansion Anomaly shows that rankings can reverse under population change.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Together, these generate violations of transitivity: X may be ranked better than Y, Y better than Z, and Z better than X, as a consequence of the genuine tensions among the framework&rsquo;s constitutive values.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Pluralist egalitarianism generates intransitivity internally, from its own values; it does not escape the structural impossibility identified by Temkin but reproduces it in its own terms.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Pluralist egalitarianism generates cyclical judgements from its own constitutive values; it does not escape the structural impossibility of population axiology but reproduces it internally; the motion is supported even within the most sophisticated egalitarian framework.</span></div>
+        </div>
+      </div>
+    </div><!-- end voorhoeve_f -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- RIGHT — Opposition -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','broome',this)">Broome</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','crisp',this)">Crisp</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','rabinowicz',this)">Rabinowicz</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','greaves',this)">Greaves</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','voorhoeve',this)">Voorhoeve</button>
+  </div>
+
+  <!-- BROOME HEADER -->
+  <div class="col-header" id="opp-broome-header">
+    <div class="col-header-top"><span class="pill opp">Totalism Defended &amp; The Repugnance Reconsidered</span><span class="col-subtitle">John Broome &mdash; Weighing Lives (2004) &amp; Weighing Goods (1991)</span></div>
+    <div class="col-position">The Repugnant Conclusion should be accepted rather than evaded: the intuitions driving it are unreliable at the scale required to trigger the conclusion, and the formal structure of totalist axiology is internally consistent; the impossibility results depend on adequacy conditions that are not all genuinely compelling when carefully examined; the conditions that generate contradictions include at least one that should be rejected on independent grounds, and rejecting it dissolves the impossibility without generating a compensating paradox.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','broome','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','broome','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- CRISP HEADER -->
+  <div class="col-header hidden" id="opp-crisp-header">
+    <div class="col-header-top"><span class="pill opp">Critical Level Utilitarianism &amp; The Sadism Objection Dissolved</span><span class="col-subtitle">Roger Crisp &mdash; &ldquo;Utilitarianism and the Life of Virtue,&rdquo; 1992; &ldquo;Treatment of Actual and Potential People,&rdquo; 1997</span></div>
+    <div class="col-position">Critical level utilitarianism &mdash; which counts only welfare above a critical threshold as contributing to population value &mdash; avoids the Repugnant Conclusion by a principled mechanism: lives that are good but not good enough do not generate a positive obligation to be created; the Sadistic Conclusion objection misidentifies what the theory entails and rests on a misreading of the critical level structure; properly understood, critical level utilitarianism satisfies more of Arrhenius&rsquo;s adequacy conditions than any rival.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','crisp','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','crisp','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- RABINOWICZ HEADER -->
+  <div class="col-header hidden" id="opp-rabinowicz-header">
+    <div class="col-header-top"><span class="pill opp">Spectrum Arguments Resisted &amp; Imprecise Comparisons</span><span class="col-subtitle">Wlodek Rabinowicz &mdash; &ldquo;Value Relations,&rdquo; 2008; &ldquo;Getting Personal,&rdquo; 2009</span></div>
+    <div class="col-position">Temkin&rsquo;s spectrum arguments establish intransitivity only if the pairwise betterness judgements are determinate; in fact, many adjacent-population comparisons involve imprecise or vague betterness relations in which neither option is better nor are they equally good &mdash; they are on a par; the &ldquo;on a par&rdquo; relation is not transitive, and the spectrum argument fails because it misidentifies &ldquo;on a par&rdquo; as a transitive betterness relation; the impossibility dissolves once the full range of evaluative relations is recognised.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','rabinowicz','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','rabinowicz','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- GREAVES HEADER -->
+  <div class="col-header hidden" id="opp-greaves-header">
+    <div class="col-header-top"><span class="pill opp">Totalism Vindicated &amp; The Repugnant Conclusion Tolerated</span><span class="col-subtitle">Hilary Greaves &mdash; &ldquo;Antiprioritarianism,&rdquo; 2015; &ldquo;Population Axiology,&rdquo; 2017</span></div>
+    <div class="col-position">The Repugnant Conclusion is less repugnant than it appears: our intuitions about vast populations at barely positive welfare levels are systematically unreliable because such populations are cognitively inaccessible; the correct response to the impossibility theorems is to identify which adequacy conditions are genuinely compelling and which rest on unreliable intuitions, and to accept the conclusions of the best theory even when they are counterintuitive; totalism is the best theory and its conclusions, including the Repugnant Conclusion, should be accepted.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','greaves','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','greaves','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- VOORHOEVE (solo) HEADER -->
+  <div class="col-header hidden" id="opp-voorhoeve-header">
+    <div class="col-header-top"><span class="pill opp">Pluralist Egalitarianism Defended</span><span class="col-subtitle">Alex Voorhoeve &mdash; &ldquo;How Should We Aggregate Competing Claims?&rdquo; 2014</span></div>
+    <div class="col-position">The Ex-Ante Pareto vs. Dominance Dilemma, the Prospective Equality Paradox, and the Population Expansion Anomaly do not constitute impossibility results that destroy the pluralist egalitarian framework; they are genuine tensions that the framework must manage, not contradictions that it generates; properly understood, the conflicts are resolvable by a priority structure that is sensitive to the distinction between persons&rsquo; claims within and across outcome-states; the framework is incomplete in some edge cases, not inconsistent.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','voorhoeve','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','voorhoeve','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- BROOME -->
+    <div class="speaker-panel active" id="opp-broome-panel">
+      <div id="opp-broome-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>The proposition has presented the impossibility results as if they established that every population axiology is unacceptably paradoxical. I want to challenge this framing. The impossibility results show that no axiology satisfies every adequacy condition simultaneously. They do not show that every axiology is equally paradoxical, or that the paradoxes are equally serious, or that no adequate axiology exists. The question is which adequacy conditions are genuinely compelling and which rest on intuitions that should be revised.</p>
+        <p>My answer is that the Repugnant Conclusion is not as repugnant as it seems, and that the intuitions driving resistance to it are unreliable at the scale at which the conclusion operates. Totalism &mdash; the view that the value of a population is the sum of the welfare of all its members &mdash; is formally consistent, has a clear and principled structure, and generates counterintuitive verdicts only when applied to populations that are so large that our intuitions have no reliable guide. This is not an impossibility; it is an invitation to revise an unreliable intuition.</p>
+        <div class="case-box">
+          <strong>Why the Repugnant Conclusion is tolerable.</strong><br><br>
+          The Repugnant Conclusion concerns populations of ten billion people or more, each with welfare &ldquo;barely above zero.&rdquo; The difficulty in assessing this conclusion is that we have no reliable intuitive grip on what a world of ten billion barely-positive lives would actually be like. Our intuitions about such populations are extrapolations from our experience with much smaller populations; they are not calibrated to the scale at which the conclusion operates.<br><br>
+          When the proposition says the conclusion is &ldquo;repugnant,&rdquo; they are relying on an intuition formed at a scale (small, familiar populations) that may not transfer to the scale at which the conclusion operates. The intuition that the vast barely-living world is worse than the small flourishing world may be a cognitive artefact of our inability to represent the full welfare of ten billion lives, not a reliable moral perception.
+        </div>
+        <span class="section">i. the repugnant conclusion should be accepted</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Accept RC — intuitions unreliable at vast scale; totalism is consistent; the cost of avoiding RC exceeds the cost of accepting it</span>Every theory that avoids the Repugnant Conclusion does so at a cost: it must deny either that adding a happy life is always an improvement (generating the Asymmetry), or that welfare is additive (generating non-additive paradoxes), or that the betterness relation is transitive (generating cyclical orderings). Each of these costs is borne by alternative theories that claim to improve on totalism. But these costs are borne in the familiar small-population cases where our intuitions are most reliable. The Repugnant Conclusion is borne only at vast scale where our intuitions are most unreliable. Rational theory choice favours accepting the cost where our intuitions are least reliable: accept the Repugnant Conclusion and preserve the advantages of totalism in the familiar cases.</span></p>
+        <span class="section">ii. the adequacy conditions are not all equally compelling</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Conditions not equally compelling — some conditions rest on unreliable intuitions; dropping one dissolves the impossibility; the choice is tractable</span>Arrhenius&rsquo;s impossibility theorems derive contradictions from sets of adequacy conditions. But the conditions are not all equally compelling. The Non-Sadism Condition (it is never better to add miserable lives than happy ones) is very compelling. The Weak Non-Repugnance Condition (there is some world that is better than the Repugnant Conclusion world) is less compelling: it presupposes that the Repugnant Conclusion world is not best, which is precisely what is at issue. The Weak Quality Addition Condition (some high-welfare addition is better than adding very many barely-positive lives) is compelling in small cases but may be unreliable at the scale Arrhenius requires. The impossibility theorems tell us that some condition must be dropped; they do not tell us that the conditions are equally compelling or that dropping any one of them is equally costly.</span></p>
+        <span class="section">iii. totalism is formally consistent and has a principled structure</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Totalism consistent — no internal contradiction; Repugnant Conclusion is a consequence not a defect; consistency is the primary virtue</span>Totalism does not violate any formal condition of rationality: it is a complete, transitive ordering of all possible populations; it is additive and therefore computationally tractable; it satisfies the Non-Sadism Condition, the Weak Addition Principle, and the Dominance Condition for fixed populations. The Repugnant Conclusion is not a formal defect of totalism; it is a consequence of the theory&rsquo;s most basic principle (welfare addition) applied to variable-population cases. A theory that is formally consistent, principled, and generates counterintuitive verdicts only at scales where our intuitions are unreliable is not an impossibility result; it is the best available theory for the domain.</span></p>
+        <span class="section">iv. the alternatives are worse</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Alternatives worse — average utilitarianism, critical level, prioritarianism all generate paradoxes in familiar cases; totalism&rsquo;s paradox is at least in unfamiliar territory</span>Every alternative to totalism generates paradoxes in more familiar, less cognitively inaccessible cases. Average utilitarianism implies that a world with one very happy person is better than a world with a billion happy people if the billion include some slightly below the lone person&rsquo;s welfare level. Critical level utilitarianism implies, for any positive critical level, that there exist cases where adding a miserable life improves the population (the Sadistic Conclusion). Prioritarianism faces the Welfare Diffusion Objection and the Monstrous Conclusion in cases of modest population expansion. Totalism&rsquo;s paradox &mdash; the Repugnant Conclusion &mdash; arises only at vast, cognitively inaccessible scales. The alternatives are worse because their paradoxes arise at scales where our intuitions are reliable. Totalism is the best available theory by this comparative standard.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-broome-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Repugnant Conclusion should be accepted; the intuition against it is unreliable at the scale it requires</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Every RC-avoiding theory incurs costs in familiar cases: denying the value of happy additions (Asymmetry), non-additivity (non-additive paradoxes), or intransitivity (cyclical orderings). These costs arise where intuitions are reliable.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The RC arises only at vast scale (billions of barely-positive lives) where our intuitions are cognitively inaccessible and unreliable; we cannot intuitively represent the full welfare of such populations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Rational theory choice favours incurring costs where intuitions are least reliable; accepting the RC and preserving totalism in familiar cases is the better trade-off.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Repugnant Conclusion should be accepted; the intuition against it is unreliable at the scale required; accepting it preserves totalism&rsquo;s advantages in the familiar cases where our intuitions are calibrated.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Arrhenius&rsquo;s adequacy conditions are not equally compelling; dropping the least compelling dissolves the impossibility</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The adequacy conditions in Arrhenius&rsquo;s theorems include Non-Sadism (very compelling), Weak Non-Repugnance (presupposes the RC is not best — question-begging), and Weak Quality Addition (compelling in small cases, unreliable at vast scale).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Dropping the least compelling condition (Weak Non-Repugnance or Weak Quality Addition at vast scale) dissolves the impossibility without sacrificing any compelling commitment in familiar cases.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The impossibility theorems do not establish that all conditions are equally compelling; they establish that some must be dropped; theory choice is tractable once the conditions are correctly assessed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The impossibility theorems are tractable: dropping the least compelling adequacy condition dissolves the impossibility; the conditions are not all equally compelling, and the choice of which to drop is not arbitrary.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Totalism is formally consistent; the Repugnant Conclusion is a consequence, not a formal defect</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Totalism produces a complete, transitive, additive ordering of populations; it satisfies Non-Sadism, Weak Addition, and Dominance for fixed populations; it has no formal defect.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Repugnant Conclusion is a consequence of applying the theory&rsquo;s most basic principle to variable-population cases; it is not a logical inconsistency or an internal contradiction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A formally consistent, principled theory that generates counterintuitive verdicts only at cognitively inaccessible scales is not refuted by those verdicts; it is the best available theory given the constraints of the domain.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Totalism is formally consistent; the Repugnant Conclusion is a consequence of the theory, not a formal defect; a formally consistent theory with cognitively inaccessible costs is not an impossibility result.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; All alternatives generate paradoxes in familiar cases; totalism&rsquo;s paradox is at least cognitively inaccessible</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Average utilitarianism, critical-level utilitarianism, and prioritarianism all generate paradoxes (anti-natalist conclusions, sadistic conclusions, monstrous conclusions) in cases of modest or familiar population size where our intuitions are reliable.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Totalism&rsquo;s Repugnant Conclusion arises only at vast, cognitively inaccessible scales where our intuitions are unreliable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Totalism is the best available theory by the comparative standard: its paradox is located where our intuitions are least reliable, and its advantages are most visible where our intuitions are most reliable.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Totalism is comparatively superior to all alternatives: its paradox is cognitively inaccessible while its rivals&rsquo; paradoxes arise in familiar cases; the impossibility theorems do not establish that totalism is worse than its rivals, only that no theory is paradox-free.</span></div>
+        </div>
+      </div>
+    </div><!-- end broome -->
+
+    <!-- CRISP -->
+    <div class="speaker-panel" id="opp-crisp-panel">
+      <div id="opp-crisp-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>Critical level utilitarianism is the most promising escape route from the Repugnant Conclusion within the utilitarian tradition, and I want to defend it against the charge that it faces the Sadistic Conclusion &mdash; the charge that has been most widely used to dismiss it.</p>
+        <p>Critical level utilitarianism holds that only welfare above a critical level <em>c</em> contributes positively to the value of a population; welfare below <em>c</em> contributes negatively, even if the welfare is positive. A life with welfare above zero but below <em>c</em> has a negative impact on the value of the population, because it falls short of the threshold at which life is considered &ldquo;good enough&rdquo; to merit bringing into existence. By setting <em>c</em> above zero, we can avoid the Repugnant Conclusion: populations of marginally positive lives do not accumulate positive value.</p>
+        <div class="pull">&ldquo;The Sadistic Conclusion objection to critical level utilitarianism misidentifies what the theory entails. It conflates the claim that a very good life above the critical level contributes more value than a life just above it with the claim that adding a bad life can be better than adding a good one in absolute terms. These are not the same claim.&rdquo; &mdash; Crisp, paraphrased</div>
+        <span class="section">i. how critical level utilitarianism avoids the repugnant conclusion</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">RC avoided — critical level blocks marginally positive lives from accumulating positive value; structurally principled mechanism</span>The Repugnant Conclusion is generated by the unconditional positive value of marginally happy additions. Set the critical level at any value above the &ldquo;barely worth living&rdquo; welfare level, and lives barely worth living no longer contribute positively to population value. A vast population of barely-living lives has a large negative contribution (many lives below <em>c</em>) that is not outweighed by any positive aggregation advantage. The small flourishing population &mdash; whose members all have welfare well above <em>c</em> &mdash; has a higher population value. The Repugnant Conclusion is blocked by a principled mechanism: the critical level represents a threshold of moral sufficiency below which life is insufficient to ground an obligation to create.</span></p>
+        <span class="section">ii. the sadistic conclusion objection misidentified</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Sadistic Conclusion — arises only for specific population configurations; not a general implication; misidentified by Arrhenius and Parfit</span>The Sadistic Conclusion objection holds that, for populations of certain structures, critical level utilitarianism implies it is better to add a miserable life than a life barely worth living. But this apparent implication is not what it seems. The claim is comparative: adding the miserable life is better than adding the barely-positive life in the specific context of a population already containing many people well above the critical level. This is because the barely-positive life falls below <em>c</em> and contributes negatively to population value, while the miserable life &mdash; which is below zero &mdash; also contributes negatively but may, in certain population structures, have a smaller negative impact than the marginally positive life below <em>c</em>. This is a feature of the specific population structure, not a general implication of the theory. It is not the Sadistic Conclusion in the intuitively objectionable sense of saying that miserable lives are generally better than happy ones.</span></p>
+        <span class="section">iii. the critical level has independent principled motivation</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Critical level principled — threshold of moral sufficiency; procreative ethics supports it; not ad hoc</span>The critical level is not an ad hoc device introduced solely to avoid the Repugnant Conclusion; it has independent motivation from procreative ethics. There is a plausible and widely shared intuition that we do not have a general obligation to create new people just because their lives would be worth living; the threshold of moral sufficiency specifies what quality of life is required before bringing a new person into existence can be counted as a positive contribution to the world. This intuition is the core of what I take to be a defensible moderate anti-natalism about procreative obligation: it is good to create people with very good lives, and not bad to create people with lives above the critical level, but not obligatory to create people with marginal lives. The critical level operationalises this intuition precisely.</span></p>
+        <span class="section">iv. critical level utilitarianism outperforms rivals on Arrhenius&rsquo;s conditions</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Comparative performance — CLU satisfies more Arrhenius conditions than total or average utilitarianism; Sadistic Conclusion condition is poorly specified</span>Critical level utilitarianism satisfies more of Arrhenius&rsquo;s adequacy conditions than total or average utilitarianism. It satisfies Non-Sadism in the general sense (it is never better in general to add miserable lives than happy ones), the Weak Addition Principle (adding lives well above the critical level is good), and Egalitarian Dominance (populations with higher average welfare above the critical level are better). The only condition it fails is a specific version of Non-Sadism applied to pathological population structures &mdash; structures that involve specific configurations designed to trigger the sadistic-seeming verdict. These conditions are either poorly specified or rest on intuitions about edge cases rather than general principles. Critical level utilitarianism is the best-performing available theory by the conditions that matter most.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-crisp-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Critical level utilitarianism blocks the Repugnant Conclusion by a principled mechanism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Setting the critical level above the &ldquo;barely worth living&rdquo; threshold means that marginally positive lives do not accumulate positive population value; a vast population of barely-living lives has a large negative contribution.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The small flourishing population, whose members are all well above the critical level, has higher population value than the vast barely-living population; the Repugnant Conclusion is blocked.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The blocking mechanism is principled: the critical level represents a threshold of moral sufficiency below which life is insufficient to ground an obligation to create.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Critical level utilitarianism avoids the Repugnant Conclusion by a principled mechanism, not an ad hoc stipulation; the mechanism is motivated by a defensible account of procreative obligation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Sadistic Conclusion objection is misidentified; it applies only to specific population configurations, not generally</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The apparent sadistic implication arises only in specific population structures where adding a barely-positive life (below <em>c</em>) has a larger negative impact than adding a miserable life in that specific context.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is not the intuitively objectionable Sadistic Conclusion (that miserable lives are generally better than happy ones); it is a context-specific comparative verdict that is less intuitively objectionable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The objection conflates a context-specific structural verdict with a general normative principle; properly identified, the sadistic-seeming implication is neither sadistic in the objectionable sense nor a general feature of the theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Sadistic Conclusion objection to critical level utilitarianism rests on a misidentification; the apparent sadistic implication is context-specific and structure-dependent, not a general normative commitment of the theory.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The critical level has independent principled motivation from procreative ethics</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>There is a plausible intuition that we do not have a general obligation to create new people just because their lives would be worth living; procreative obligation requires a higher threshold of life quality.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The critical level operationalises this intuition: it specifies the welfare threshold below which bringing a person into existence is not a positive contribution requiring justification.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The critical level is not an ad hoc device; it is independently motivated by a defensible account of procreative obligation that is widely shared.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The critical level has independent motivation from procreative ethics; it is not an ad hoc device introduced to avoid the RC but an operationalisation of a widely shared and independently defensible moral intuition.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Critical level utilitarianism outperforms rivals on Arrhenius&rsquo;s most compelling adequacy conditions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>CLU satisfies Non-Sadism (general), Weak Addition (for lives above <em>c</em>), and Egalitarian Dominance; it avoids the Repugnant Conclusion; it has a principled and motivated structure.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The only conditions it fails are edge-case versions of Non-Sadism that apply to specific pathological population structures; these conditions are either poorly specified or rest on unreliable intuitions about edge cases.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>By the conditions that matter most in the majority of cases, CLU outperforms total and average utilitarianism and rivals prioritarianism and egalitarianism.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Critical level utilitarianism is the best-performing available theory by the most compelling adequacy conditions; its failures are edge-case and structure-dependent, not general; the motion&rsquo;s claim of complete impossibility is not established against CLU.</span></div>
+        </div>
+      </div>
+    </div><!-- end crisp -->
+
+    <!-- RABINOWICZ -->
+    <div class="speaker-panel" id="opp-rabinowicz-panel">
+      <div id="opp-rabinowicz-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>My response to Temkin&rsquo;s spectrum arguments and the intransitivity challenge is to challenge the assumption that betterness comparisons are always determinate. Temkin&rsquo;s arguments establish intransitivity only if each adjacent comparison in the welfare spectrum yields a determinate &ldquo;better than&rdquo; verdict. I deny this. Many adjacent-population comparisons in the spectrum involve cases where neither population is better, nor are they equally good, nor are they incommensurable in the strong sense of being incomparable. They are <em>on a par</em> &mdash; a fourth evaluative relation that is different from all three.</p>
+        <p>The &ldquo;on a par&rdquo; relation was first characterised by Ruth Chang, and I have developed its implications for population ethics. The key point is that &ldquo;on a par&rdquo; is not transitive. If A is on a par with B, and B is on a par with C, it does not follow that A is on a par with C. This breaks the chain of comparisons that generates Temkin&rsquo;s intransitivity, and it does so without sacrificing any genuinely compelling normative condition.</p>
+        <div class="case-box">
+          <strong>The &ldquo;on a par&rdquo; relation and population ethics.</strong><br><br>
+          In a welfare spectrum A<sub>1</sub>&hellip;A<sub>n</sub>, many adjacent pairs are genuinely on a par: neither is better, nor are they equally good (since small improvements to either would tip the verdict), but they are not incomparable (since they are clearly in the same evaluative neighbourhood). The &ldquo;on a par&rdquo; relation holds between values that are in the same league but not precisely ranked.<br><br>
+          The spectrum argument fails if any adjacent comparison is &ldquo;on a par&rdquo; rather than ranked. Since &ldquo;on a par&rdquo; is not transitive, the chain of comparisons cannot generate a cyclical ordering through transitivity. And since A<sub>1</sub> and A<sub>n</sub> are not on a par (A<sub>1</sub>&rsquo;s superiority over A<sub>n</sub> is clear), the argument does not establish that the betterness relation is cyclic.
+        </div>
+        <span class="section">i. the &ldquo;on a par&rdquo; relation dissolves the spectrum argument</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">&ldquo;On a par&rdquo; — fourth evaluative relation; not transitive; breaks the spectrum chain; intransitivity not established</span>Temkin&rsquo;s spectrum argument requires each adjacent comparison to be a ranked &ldquo;better than&rdquo; verdict. But when we compare two populations that differ by a small welfare decrease and a moderate population increase, the comparison may be genuinely indeterminate: not &ldquo;better,&rdquo; not &ldquo;worse,&rdquo; not &ldquo;equally good,&rdquo; but &ldquo;on a par.&rdquo; The &ldquo;on a par&rdquo; relation is characterised by the property that small improvements to either option tip the verdict in its favour &mdash; a property that distinguishes it from genuine equality (where neither small improvement tips the verdict) and genuine incomparability (where no comparisons are possible). If adjacent comparisons are &ldquo;on a par,&rdquo; the spectrum argument fails: the chain required to generate intransitivity is broken, and the conclusion of cyclical betterness is not established.</span></p>
+        <span class="section">ii. imprecise comparisons and the failure of the transitivity argument</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Imprecise comparisons — betterness has imprecise borderlines; adjacent comparisons fail to determine a verdict; transitivity not violated</span>Many value comparisons in population ethics involve imprecise or vague betterness relations: the domain of value does not provide precise verdicts for every pair of options. When the comparison is imprecise, the &ldquo;is better than&rdquo; predicate does not apply determinately to adjacent spectrum pairs. The transitivity of &ldquo;better than&rdquo; requires determinate verdicts at each step; if some steps yield only imprecise verdicts, transitivity cannot be deployed to generate a cycle. Temkin&rsquo;s argument requires that each adjacent comparison be not merely plausibly better but determinately better. The imprecision of betterness in the population domain provides exactly the reason to deny this.</span></p>
+        <span class="section">iii. the &ldquo;on a par&rdquo; relation and the Voorhoeve-Fleurbaey dilemma</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against V-F dilemma — some cases are genuinely on a par; the dilemma presupposes determinate ranking where none exists; pluralism tolerates indeterminacy</span>The Ex-Ante Pareto vs. Dominance Dilemma presented by Voorhoeve and Fleurbaey generates an impossibility only if the relevant distributions can be determinately ranked by both ex-ante and ex-post criteria. But many of the cases in which the two criteria conflict are cases where neither distribution is determinately better by the relevant criteria: they are on a par. The dilemma is not a dilemma between two clear verdicts; it is a case of imprecise comparison where the pluralist framework generates an &ldquo;on a par&rdquo; verdict. This is not an impossibility; it is the correct verdict for a genuinely hard case. The pluralist framework that generates &ldquo;on a par&rdquo; verdicts in hard cases is not inconsistent; it is appropriately sensitive to the genuine complexity of the evaluative domain.</span></p>
+        <span class="section">iv. imprecision is not impossibility</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Imprecision ≠ impossibility — admitting &ldquo;on a par&rdquo; and imprecise comparisons is a feature not a bug; the domain is genuinely complex; practical guidance is recoverable in clear cases</span>The proposition will object that admitting &ldquo;on a par&rdquo; verdicts and imprecise comparisons reduces the practical guidance of population axiology. But this objection confuses the difficulty of the domain with the failure of the theory. Population axiology is genuinely hard: there are many cases in which no determinate verdict is available. A theory that recognises this, rather than forcing determinate verdicts by stipulation, is not less adequate; it is more honest. And practical guidance is recoverable in the clear cases: when one option is clearly better by all relevant criteria, the verdict is available. It is only in the genuinely hard cases &mdash; cases where the criteria conflict &mdash; that &ldquo;on a par&rdquo; verdicts arise. These are precisely the cases where intellectual honesty requires admitting the difficulty rather than generating a forced verdict.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-rabinowicz-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The &ldquo;on a par&rdquo; relation is not transitive; it breaks the spectrum chain and dissolves the intransitivity argument</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Many adjacent-population comparisons in welfare spectra are not determinately &ldquo;better than&rdquo; but &ldquo;on a par&rdquo;: a fourth evaluative relation characterised by the property that small improvements tip the verdict.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The &ldquo;on a par&rdquo; relation is not transitive; if A is on a par with B and B on a par with C, A and C need not be on a par. The chain required to generate cyclical betterness is broken.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Temkin&rsquo;s spectrum argument fails because it requires determinate &ldquo;better than&rdquo; verdicts at each step; adjacent comparisons that are only &ldquo;on a par&rdquo; do not establish the required chain.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The &ldquo;on a par&rdquo; relation dissolves Temkin&rsquo;s spectrum argument; if adjacent comparisons are &ldquo;on a par&rdquo; rather than determinately ranked, the transitivity-violating chain is broken and intransitivity is not established.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Imprecise betterness comparisons prevent the transitivity argument from deploying the required determinate chain</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The transitivity of &ldquo;better than&rdquo; requires that each step in the chain yield a determinate verdict; imprecise betterness comparisons yield verdicts that are not determinate in the required sense.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Many adjacent population comparisons in the spectrum involve genuinely imprecise value comparisons; the &ldquo;is better than&rdquo; predicate does not determinately apply.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Without determinate verdicts at every step, transitivity cannot generate a cyclical ordering; the intransitivity argument requires more than plausible &mdash; it requires determinate &mdash; betterness at each step.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Imprecise betterness prevents the transitivity argument from being deployed; the spectrum argument fails to establish intransitivity because it cannot establish determinate betterness at every step.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The Voorhoeve-Fleurbaey dilemma presupposes determinate rankings; &ldquo;on a par&rdquo; verdicts dissolve it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Ex-Ante Pareto vs. Dominance Dilemma requires that the relevant distributions be determinately ranked by both ex-ante and ex-post criteria; the dilemma arises from the conflict between determinate verdicts.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In many cases where ex-ante and ex-post criteria conflict, neither distribution is determinately better by the relevant standard; they are &ldquo;on a par&rdquo;; the dilemma is not between two clear verdicts but between two imprecise comparisons.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An &ldquo;on a par&rdquo; verdict in hard cases is not an impossibility but the correct verdict for genuinely complex evaluative situations; the pluralist framework generating &ldquo;on a par&rdquo; verdicts is not inconsistent.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Voorhoeve-Fleurbaey dilemma is dissolved by &ldquo;on a par&rdquo; verdicts; in cases where ex-ante and ex-post criteria conflict, the correct verdict is &ldquo;on a par,&rdquo; not a forced choice between two impossible horns.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Admitting imprecision and &ldquo;on a par&rdquo; verdicts is intellectual honesty, not theoretical failure</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The practical guidance objection (admitting &ldquo;on a par&rdquo; reduces guidance) confuses the difficulty of the domain with the failure of the theory; the domain is genuinely hard.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Practical guidance is recoverable in clear cases; &ldquo;on a par&rdquo; verdicts arise precisely in the genuinely hard cases where no determinate verdict is available; forcing a verdict in hard cases is not guidance but stipulation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A theory that honestly represents the evaluative structure of the domain &mdash; including its genuinely indeterminate cases &mdash; is more adequate, not less adequate, than one that forces determinate verdicts by stipulation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Admitting &ldquo;on a par&rdquo; verdicts and imprecise comparisons is intellectually honest and practically adequate; it is not a theoretical failure but a correct representation of the evaluative structure of the population domain.</span></div>
+        </div>
+      </div>
+    </div><!-- end rabinowicz -->
+
+    <!-- GREAVES -->
+    <div class="speaker-panel" id="opp-greaves-panel">
+      <div id="opp-greaves-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I want to reinforce Broome&rsquo;s defence of totalism with an argument about how we should respond to impossibility results in ethics more generally. The proposition treats impossibility theorems as refutations of every population axiology. But impossibility theorems in ethics are not refutations; they are constraints on theory choice. They tell us that we must give up something, but they do not tell us what to give up. The question of which adequacy condition to reject is a substantive normative question, and the answer to that question is not forced by the impossibility result itself.</p>
+        <p>My argument is that, when we examine the adequacy conditions carefully, the Repugnant Conclusion is the condition that should be given up &mdash; and giving it up means accepting the Repugnant Conclusion. This is not a theoretical concession; it is the correct response to a systematic analysis of the relative credibility of the conditions that generate the impossibility.</p>
+        <div class="pull">&ldquo;We should distinguish between two types of response to impossibility results: the &lsquo;bite the bullet&rsquo; response, which accepts the surprising conclusion of the best theory, and the &lsquo;search for escape&rsquo; response, which treats the conclusion as a refutation. I argue for the bullet-biting response: the surprising conclusion of totalism is less counterintuitive than it appears, and less counterintuitive than the conclusions generated by alternative theories in familiar cases.&rdquo; &mdash; Greaves, Population Axiology, 2017, paraphrased</div>
+        <span class="section">i. impossibility results constrain but do not force a unique conclusion</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Impossibility constrains — theorems show something must be given up; they don&rsquo;t show what; the normative question remains open; theory choice is not foreclosed</span>An impossibility theorem in population ethics shows that no theory simultaneously satisfies conditions C<sub>1</sub>&hellip;C<sub>n</sub>. It does not show that all conditions are equally compelling, nor does it show that the correct response is to abandon the entire project of population axiology. It shows only that some condition must be rejected. The normative question &mdash; which condition to reject &mdash; is a further substantive question that the theorem leaves open. The proposition treats the theorem as if it forced the conclusion that no adequate population axiology exists. But the theorem is compatible with the conclusion that one specific condition should be rejected and that the resulting theory is adequate. The question is which condition to reject, and that is a question the impossibility result does not answer.</span></p>
+        <span class="section">ii. the repugnant conclusion is the condition that should be given up</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">RC condition to drop — based on unreliable intuitions at vast scale; other conditions more robustly motivated; accepting RC is the rational response</span>Among the conditions that generate the impossibility, the Weak Non-Repugnance Condition &mdash; the condition that some world is better than the Repugnant Conclusion world &mdash; is the one that should be given up. This is because it is based on an intuition that is most vulnerable to the scale-unreliability objection: we have no reliable intuitive access to the welfare of vast populations of marginally positive lives, and the intuition that such a world is worse than a small flourishing world is generated by cognitive limitations rather than genuine moral perception. The other conditions &mdash; Non-Sadism, Egalitarian Dominance, the Addition Principle &mdash; are more robustly motivated by reliable intuitions about familiar cases. Accepting the Repugnant Conclusion and rejecting the Weak Non-Repugnance Condition is therefore the rational response to the impossibility result.</span></p>
+        <span class="section">iii. our intuitions about vast populations are systematically unreliable</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Intuition unreliability — scope insensitivity, inability to represent vast populations, cognitive limitations all make RC intuitions unreliable</span>There is systematic empirical evidence that human intuitions about very large populations are unreliable. The scope insensitivity effect &mdash; the finding that people respond similarly to saving 2,000, 200,000, or 2,000,000 birds &mdash; shows that our intuitions do not scale appropriately with population size. The inability to genuinely represent the phenomenology of ten billion lives simultaneously means that our judgement that a world of ten billion barely-positive lives is worse than a world of ten billion highly flourishing lives is based on a comparison we cannot actually make. The intuition is generated by representing the two worlds at a token level (one barely-positive life versus one flourishing life), not at the population level. This systematic unreliability provides decisive reason to discount the Repugnant Conclusion intuition relative to the other adequacy conditions.</span></p>
+        <span class="section">iv. totalism with bullet-biting is more defensible than any alternative</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Totalism + bullet-biting — best comparative theory; rivals generate paradoxes in reliable intuition territory; totalism wins the comparative assessment</span>The comparative assessment of theories should be made against the background of the impossibility results: no theory is paradox-free. The question is which theory generates the least unacceptable paradoxes given what we know about the relative reliability of the intuitions involved. Totalism with the bullet-biting response to the Repugnant Conclusion generates its paradox only in the territory of unreliable intuitions (vast, cognitively inaccessible populations). Every alternative generates paradoxes in the territory of reliable intuitions (familiar population sizes and welfare levels). The comparative verdict is therefore clear: totalism with bullet-biting is the most defensible available theory, not because it is paradox-free but because its paradox is located where the cost is lowest.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-greaves-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Impossibility results constrain theory choice but do not foreclose it; the normative question remains open</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>An impossibility theorem shows that some condition must be rejected; it does not show which condition should be rejected, nor does it establish that no adequate theory is possible.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The question of which condition to reject is a further substantive normative question that the theorem leaves open; the proposition treats the theorem as if it forced the conclusion that no adequate theory exists, which does not follow.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The correct response to an impossibility result is to identify which condition to reject, not to abandon the project of population axiology.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Impossibility results constrain theory choice but do not establish that no adequate population axiology exists; the normative question of which condition to reject remains open and is tractable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Weak Non-Repugnance Condition rests on unreliable intuitions; it is the condition that should be given up</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Among the conditions generating the impossibility, the Weak Non-Repugnance Condition (some world is better than the RC world) is the one most vulnerable to scale-unreliability: it rests on intuitions about cognitively inaccessible vast populations.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The other conditions &mdash; Non-Sadism, Egalitarian Dominance, the Addition Principle &mdash; are more robustly motivated by reliable intuitions about familiar cases.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Rational theory choice favours rejecting the least reliably motivated condition; the Weak Non-Repugnance Condition should be rejected, and the Repugnant Conclusion accepted.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Weak Non-Repugnance Condition should be rejected; the Repugnant Conclusion should be accepted; this is the rational response to the impossibility result given the relative reliability of the motivating intuitions.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Our intuitions about vast populations are systematically unreliable due to scope insensitivity and cognitive limitations</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Scope insensitivity and the inability to represent vast populations phenomenologically mean that our intuitions about populations of ten billion do not scale appropriately with the actual welfare aggregates involved.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Repugnant Conclusion intuition is generated by a token-level comparison (one barely-positive vs. one flourishing life) rather than a genuine population-level comparison; this is a systematic cognitive error.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The systematic unreliability of the Repugnant Conclusion intuition provides decisive reason to discount it relative to the other adequacy conditions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Repugnant Conclusion intuition is systematically unreliable due to cognitive limitations at vast scale; discounting it is the epistemically correct response; the impossibility is therefore tractable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Totalism with bullet-biting generates the least unacceptable paradox given the reliability distribution of the motivating intuitions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>No theory is paradox-free; the comparative question is which theory&rsquo;s paradox is least unacceptable given the reliability of the relevant intuitions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Totalism&rsquo;s paradox (RC) arises only where intuitions are unreliable; all rival theories generate paradoxes where intuitions are reliable (familiar scales, clear welfare comparisons).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The comparative verdict favours totalism with bullet-biting: its paradox is located where the epistemic cost is lowest; the motion&rsquo;s claim of complete impossibility is weakened, not strengthened, by this comparative analysis.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Totalism with bullet-biting is the most defensible population axiology: it locates its paradox where intuitions are least reliable and its advantages where they are most reliable; the motion is not established against this comparative defence.</span></div>
+        </div>
+      </div>
+    </div><!-- end greaves -->
+
+    <!-- VOORHOEVE (solo) -->
+    <div class="speaker-panel" id="opp-voorhoeve-panel">
+      <div id="opp-voorhoeve-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I appear in this debate in an unusual position: I presented the paradoxes for the Proposition, and now I must defend the pluralist egalitarian framework against the charge that those paradoxes constitute an impossibility result that destroys it. I can do this consistently because I believe the paradoxes are genuine tensions &mdash; genuine difficulties that the framework must manage &mdash; but not contradictions that establish the framework&rsquo;s impossibility. The framework is incomplete in edge cases, not inconsistent in general.</p>
+        <p>The distinction matters. An impossibility result shows that a framework cannot consistently satisfy a set of conditions. A tension shows that a framework faces difficult cases in which its constitutive values pull in different directions. Every plausible ethical framework faces tensions; that is what makes ethics hard. The question is whether the tensions can be managed within the framework, and I shall argue that the tensions I identified with Fleurbaey can be managed by a careful priority structure for the constitutive values of the pluralist framework.</p>
+        <div class="case-box">
+          <strong>The pluralist egalitarian framework and its priority structure.</strong><br><br>
+          The pluralist egalitarian framework has three constitutive commitments: (i) ex-ante fairness &mdash; equal prospects matter independently for their own sake; (ii) ex-post prioritarianism &mdash; priority to the worse-off in outcomes; (iii) the separateness of persons &mdash; the welfare of each person is evaluated independently and not subsumed in aggregate comparisons.<br><br>
+          These three commitments sometimes pull in different directions. The priority structure I defend gives lexical priority to the separateness of persons, then to ex-post prioritarianism in clear cases, then to ex-ante fairness as a tie-breaker in cases where ex-post comparisons are genuinely indeterminate. This structure does not eliminate the tensions but manages them in a way that generates consistent verdicts in the cases that matter most for practical decision-making.
+        </div>
+        <span class="section">i. the ex-ante pareto vs. dominance dilemma is manageable</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Dilemma manageable — priority structure favours dominance in clear cases; ex-ante fairness as tie-breaker; consistent verdict available</span>The Ex-Ante Pareto vs. Dominance Dilemma, as Fleurbaey and I presented it, requires that both ex-ante and ex-post criteria generate determinate, conflicting verdicts. But in the cases where the dilemma is most acute &mdash; where Policy X dominates Y in every state but distributes gains to the already better-off &mdash; the priority structure gives clear guidance: ex-post prioritarianism takes precedence over ex-ante considerations when the ex-post verdict is clear, and dominance takes precedence over ex-post egalitarianism when the dominance is strict and universal. The cases that generate genuine dilemmas are precisely those where neither ex-ante nor ex-post criteria yield clear verdicts &mdash; and in those cases, the correct verdict is Rabinowicz&rsquo;s &ldquo;on a par&rdquo; rather than a forced choice. The dilemma does not generate an impossibility; it generates a priority ordering that is clear in the cases that matter.</span></p>
+        <span class="section">ii. the prospective equality paradox is a genuine tension, not a contradiction</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Prospective Equality Paradox — genuine tension between values; framework accommodates it by prioritising separateness; not a contradiction</span>The Prospective Equality Paradox shows that equalising prospects can make everyone worse off in expectation when welfare gains are positively correlated with the beneficiary&rsquo;s welfare level. This is a genuine tension: ex-ante fairness (equal prospects) conflicts with ex-ante Pareto (everyone better off in expectation). The pluralist framework resolves this tension by appeal to the separateness of persons: when equalising prospects makes everyone worse off in expectation, there is no person whose claim to equal prospects outweighs the cost in their own expected welfare. The separateness of persons &mdash; the principle that welfare comparisons should be made person by person &mdash; yields the verdict that the non-equalising distribution is better, since it is better for each person in expectation. This is a consistent verdict, not a contradiction.</span></p>
+        <span class="section">iii. the population expansion anomaly is an artefact of aggregation, not a contradiction</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Population Expansion Anomaly — artefact of relative prioritarianism; absolute prioritarianism avoids it; anomaly is a calibration issue not an impossibility</span>The Population Expansion Anomaly arises from relative prioritarianism: the priority weight assigned to a person depends on their welfare relative to the rest of the population. When a new person is added, the reference class for relative comparisons changes, potentially reversing prior rankings. But this is an artefact of the relative formulation of prioritarianism, not a feature of all prioritarian frameworks. Absolute prioritarianism &mdash; which assigns priority weights as a function of absolute welfare levels, not relative standing &mdash; does not generate the anomaly: adding a new person changes neither the welfare of existing people nor their absolute priority weights. The population expansion anomaly is a calibration issue for relative prioritarianism, not an impossibility for the pluralist egalitarian framework as such.</span></p>
+        <span class="section">iv. incompleteness in edge cases is not impossibility</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Incompleteness not impossibility — framework yields consistent verdicts in most cases; genuine indeterminacy in edge cases is appropriate; the motion requires impossibility not incompleteness</span>The motion claims that no population axiology can <em>completely</em> escape impossibility theorems. I accept that pluralist egalitarianism is incomplete: it does not generate determinate verdicts in every conceivable case, and there are edge cases where its constitutive values are in genuine tension without a clear resolution. But incompleteness is not impossibility. An impossible theory is one that generates contradictions &mdash; that assigns both &ldquo;better&rdquo; and &ldquo;not better&rdquo; to the same comparison. An incomplete theory is one that withholds a verdict in some cases, offering &ldquo;on a par&rdquo; or &ldquo;indeterminate&rdquo; rather than a ranked verdict. The pluralist egalitarian framework is incomplete in some edge cases. It is not impossible. The motion requires the stronger claim, and the evidence does not establish it against a carefully formulated pluralist framework.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-voorhoeve-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Ex-Ante Pareto vs. Dominance Dilemma is manageable by a priority structure; consistent verdicts are available in the cases that matter</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The priority structure gives ex-post prioritarianism precedence in clear cases, and dominance precedence over ex-post egalitarianism when dominance is strict and universal; cases generating genuine dilemmas yield &ldquo;on a par&rdquo; verdicts.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The dilemma generates genuine impossibility only if both ex-ante and ex-post criteria yield determinate, conflicting verdicts; in practice, the genuinely hard cases are those where neither yields a clear verdict.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The priority structure generates consistent verdicts in the cases that matter for practical decision-making; the dilemma does not establish an impossibility for the framework.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Ex-Ante Pareto vs. Dominance Dilemma is manageable by a priority structure; it generates genuine tensions in hard cases, not contradictions in general; the framework is not rendered impossible by the dilemma.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Prospective Equality Paradox is resolved by appeal to the separateness of persons</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When equalising prospects makes everyone worse off in expectation, there is no person whose claim to equal prospects outweighs the cost in their own expected welfare; the separateness of persons yields a consistent verdict.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The pluralist framework resolves the tension by prioritising the separateness of persons over ex-ante fairness when equalising prospects is Pareto-inferior; the verdict (non-equalising distribution) is consistent and well-motivated.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Prospective Equality Paradox is a genuine tension resolved by the framework&rsquo;s priority structure, not a contradiction that destroys it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Prospective Equality Paradox is resolved by appeal to the separateness of persons; the pluralist framework generates a consistent verdict by prioritising person-by-person welfare comparisons over ex-ante egalitarian considerations when they conflict.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The Population Expansion Anomaly is an artefact of relative prioritarianism; absolute prioritarianism avoids it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The anomaly arises because relative prioritarianism&rsquo;s reference class changes when new people are added; absolute prioritarianism assigns weights as a function of absolute welfare, not relative standing, and is not vulnerable to this.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Pluralist egalitarianism does not require relative prioritarianism; the framework can be formulated with absolute priority weights that are not altered by population expansion.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Population Expansion Anomaly is a problem for one formulation of prioritarianism within the pluralist framework, not for the framework as such; the anomaly is avoidable by moving to absolute priority weights.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Population Expansion Anomaly is an artefact of relative prioritarianism and is avoided by absolute prioritarianism; it is a calibration issue for one formulation, not an impossibility for the pluralist egalitarian framework as such.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Incompleteness in edge cases is not impossibility; the motion requires the stronger claim, which is not established</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>An impossible theory generates contradictions; an incomplete theory withholds verdicts in some cases. Pluralist egalitarianism is incomplete in edge cases, not contradictory.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The motion claims that no axiology can completely escape impossibility theorems; this requires showing that every axiology generates contradictions, not merely that some axiologies are incomplete in edge cases.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The evidence does not establish contradictions within a carefully formulated pluralist egalitarian framework with a priority structure and absolute priority weights; the framework is incomplete, not impossible.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Incompleteness in edge cases is not impossibility; the motion requires the stronger claim that the framework generates contradictions, which is not established against a carefully formulated pluralist egalitarianism with appropriate priority structure and absolute priority weights.</span></div>
+        </div>
+      </div>
+    </div><!-- end voorhoeve solo -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'parfit',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'broome',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
