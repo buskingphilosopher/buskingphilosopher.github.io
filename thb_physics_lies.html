@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How the Laws of Physics Lie</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 10px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Philosophy of Science &mdash; Cartwright (1983) &bull; Psillos (1999) &bull; van Fraassen (1980) &bull; Earman &amp; Roberts (1999) &bull; Giere (1999) &bull; Hacking (1983) &bull; Woodward (2002) &bull; Morrison (1999)</div>
+  <div class="motion-title">&ldquo;This House Believes that the fundamental laws of physics do not describe reality &mdash; Cartwright is right&rdquo;</div>
+  <div class="motion-sub">Proposition &bull; Cartwright &middot; van Fraassen &middot; Giere &middot; Hacking &nbsp;&mdash;&nbsp; Opposition &bull; Psillos &middot; Earman &amp; Roberts &middot; Woodward &middot; Morrison</div>
+</div>
+
+<div class="columns">
+
+<!-- ════════════════════ PROPOSITION ════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','cartwright',this)">Cartwright</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','vanfraassen',this)">van Fraassen</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','giere',this)">Giere</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','hacking',this)">Hacking</button>
+  </div>
+
+  <!-- CARTWRIGHT HEADER -->
+  <div class="col-header" id="prop-cartwright-header">
+    <div class="col-header-top"><span class="pill prop">Anti-Fundamentalism &amp; Simulacrum Account</span><span class="col-subtitle">Nancy Cartwright, 1983</span></div>
+    <div class="col-position">The fundamental laws of physics &mdash; Newton&rsquo;s law of gravitation, Coulomb&rsquo;s law, the Schr&ouml;dinger equation &mdash; are not true descriptions of how things behave in the real world. They are true only of idealised objects in models. Phenomenological laws, by contrast, are both true and empirically grounded. The correct account of explanation is the simulacrum account: we explain by constructing models, not by deriving from universal laws.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','cartwright','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','cartwright','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- VAN FRAASSEN HEADER -->
+  <div class="col-header hidden" id="prop-vanfraassen-header">
+    <div class="col-header-top"><span class="pill prop">Constructive Empiricism</span><span class="col-subtitle">Bas van Fraassen, 1980</span></div>
+    <div class="col-position">Science aims at empirical adequacy, not truth. Accepting a theory is not believing it is true but believing it saves the phenomena. Laws are not discovered regularities in nature but structural features of our best models. The realist demand that explanatory power implies truth conflates pragmatic virtues with epistemic ones.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','vanfraassen','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','vanfraassen','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- GIERE HEADER -->
+  <div class="col-header hidden" id="prop-giere-header">
+    <div class="col-header-top"><span class="pill prop">Science Without Laws</span><span class="col-subtitle">Ronald Giere, 1999</span></div>
+    <div class="col-position">There are no laws of nature in the traditional sense. Scientists construct models &mdash; abstract structures that represent aspects of the world from a perspective. Laws-talk is shorthand for claims about models; it is not metaphysically loaded language about universal regularities. The world is a collection of complex systems, not a law-governed unity.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','giere','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','giere','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- HACKING HEADER -->
+  <div class="col-header hidden" id="prop-hacking-header">
+    <div class="col-header-top"><span class="pill prop">Entity Realism &amp; Experimental Practice</span><span class="col-subtitle">Ian Hacking, 1983</span></div>
+    <div class="col-position">We should be realist about entities &mdash; electrons, neutrinos, quarks &mdash; because we use them as tools to intervene in the world. But realism about entities is entirely compatible with anti-realism about the theoretical laws that describe them. What justifies belief in an entity is our capacity to manipulate it, not the truth of the laws in which it appears.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','hacking','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','hacking','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ─── CARTWRIGHT ─── -->
+    <div class="speaker-panel active" id="prop-cartwright-panel">
+      <div id="prop-cartwright-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to be precise about what I am claiming, because my view is radical but not nihilistic. I am not saying that physics is worthless, or that we should abandon fundamental theory. I am saying something more careful and more disturbing: that the fundamental laws of physics &mdash; those elegant, unifying equations that physicists revere as the deepest truths about nature &mdash; are not literally true descriptions of how things actually behave in the real world.</p>
+        <p>This is not a lament. It is a diagnosis. And the diagnosis is grounded not in sceptical philosophy but in a close examination of how physics is actually practised.</p>
+        <div class="case-box">
+          <strong>The central distinction: phenomenological versus fundamental laws.</strong><br><br>
+          Phenomenological laws are about observable regularities. They describe what actually happens in specific, controlled experimental conditions. They are derived from data, tested against measurements, and revised when they fail. They are, in the main, true.<br><br>
+          Fundamental laws &mdash; Newton&rsquo;s law of gravitation, Coulomb&rsquo;s law, the Schr&ouml;dinger equation, Maxwell&rsquo;s equations &mdash; are different in kind. They are not inductive summaries of observed regularities. They are powerful, unifying theoretical structures. And it is precisely their power and unifying elegance that is the source of their falsity: to achieve generality, they abstract away the very features of the world that make the phenomenological laws true.
+        </div>
+        <span class="section">i. the truth-explanation trade-off</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Truth–explanation trade-off — fundamental laws explain by losing truth; phenomenological laws are true but local</span>Here is the core paradox I am pressing. We have two kinds of laws, and they trade off against each other. Phenomenological laws &mdash; Galileo&rsquo;s law of free fall, Ohm&rsquo;s law, the ideal gas law &mdash; are true of real physical systems in real experimental situations. But they are also local and limited: they apply only to the restricted class of systems they were designed to describe. Fundamental laws, by contrast, are magnificently general. Newton&rsquo;s gravitational law tells us something about every massive body in the universe. The Schr&ouml;dinger equation purports to govern every quantum system. But this generality is purchased at the cost of truth. F = Gm&sub;1;m&sub;2;/r&sup2; does not accurately describe the motion of any real planet, because no real planet is subject only to gravitational attraction: there are electromagnetic effects, thermal radiation, the gravitational pull of other bodies. The law applies literally only to a two-body system in a perfect vacuum with no other forces &mdash; and no such system exists. The law gains its sweeping generality by describing a fiction.</span></p>
+        <span class="section">ii. idealization and the simulacrum account</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Simulacrum account — explanation is model-building, not derivation from laws; models have form without substance of real systems</span>The standard view of scientific explanation is the covering-law model, derived from Hempel: to explain a phenomenon is to derive it from a true law plus initial conditions. I reject this account. I propose instead what I call the simulacrum account. The word &ldquo;simulacrum&rdquo; is carefully chosen: it means something having the form or appearance of a thing without its substance. On the simulacrum account, to explain a phenomenon is to construct a model &mdash; an idealised representation &mdash; that fits the phenomenon into a theoretical framework. The fundamental laws are true of the objects in the model. But the objects of the model are not real objects: they are idealised abstractions that have only the &ldquo;form or appearance&rdquo; of real things. We explain the motion of a pendulum by modelling it as a simple harmonic oscillator with a massless, inextensible string and a point mass bob. No real pendulum is like this. But the model captures enough of the real system to be explanatorily useful. The fundamental laws are not lies about the real pendulum; they are truths about the idealised model of the pendulum. The lie is in thinking the model is a faithful representation of reality.</span></p>
+        <span class="section">iii. ceteris paribus and the problem of the missing physics</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Ceteris paribus — fundamental laws true only with hedging conditions that are never satisfied; they describe no real systems</span>Defenders of the standard view will say: of course F = Gm&sub;1;m&sub;2;/r&sup2; is idealized; the full law includes a ceteris paribus clause &mdash; all other things being equal. Very well. But then I ask: equal to what? The ceteris paribus clause is a promissory note for the rest of the physics. The law is true when all other forces are absent, when the bodies are perfectly spherical, when spacetime curvature is negligible. But in the real world, all other things are never equal. The conditions under which the fundamental law is strictly and literally true are conditions that are never instantiated in nature. The law applies to an infinite set of possible but non-actual systems. This is not a minor technical qualification. It means that the law, taken literally with its ceteris paribus clause, describes the behaviour of idealised ghost objects, not real ones. When the conditions are right for the law to be true, we are no longer in the real world.</span></p>
+        <span class="section">iv. composition of causes and the problem of vector addition</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Composition of causes — component forces are theoretical fictions; only resultant force is real; Cartwright&rsquo;s classic objection to superposition</span>Consider the simplest case of multiple forces: a charged body subject to both gravitational and electromagnetic attraction. We have two fundamental laws, one for each force. We compose them by vector addition to get the resultant force. But what is the ontological status of the component forces? Neither force acts separately on the body: what acts is the resultant. The component forces are theoretical constructs introduced to make the mathematics tractable. They do not individually describe any real force acting on any real object. The covering-law account says we explain the body&rsquo;s motion by deriving it from the two laws. But both laws, taken individually, describe a situation that does not exist &mdash; a body subject to only one of the forces. The explanation proceeds through a fiction. We use laws that are false of the actual situation to derive the true phenomenological result. This is not explanation by true laws; it is explanation by theoretical scaffolding that is dismantled once the phenomenological result is in hand.</span></p>
+        <span class="section">v. entity realism against law realism</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Entity realism — electrons are real; Coulomb&rsquo;s law is not true of real electrons; realism about entities is consistent with anti-realism about laws</span>My position is sometimes misread as global anti-realism. It is not. I am a realist about theoretical entities. Electrons are real. Electromagnetic fields are real. We have excellent grounds for believing in them: we use them as tools to manipulate other parts of the world. Ian Hacking&rsquo;s argument for entity realism &mdash; if you can spray them, they are real &mdash; is one I endorse. What I am anti-realist about is the theoretical laws that are supposed to govern these entities. Coulomb&rsquo;s law describes the force between two point charges in a perfect vacuum. No electron is a point charge; no space is a perfect vacuum. The law is true of a theoretical fiction, not of real electrons. We can believe in electrons without believing that Coulomb&rsquo;s law accurately describes their behaviour in the real world. Entity realism and law anti-realism are not only compatible; they are jointly supported by attention to scientific practice.</span></p>
+        <span class="section">vi. the dappled world: against fundamentalism</span>
+        <p><span class="hl" data-arg="6"><span class="tooltip">Dappled world — nature is disunified; no single set of laws covers all phenomena; patchwork of local truths rather than universal theory</span>Behind the specific arguments about idealization and composition lies a deeper claim about the nature of reality itself. The fundamentalist believes in what I call the image of the &ldquo;vending machine&rdquo; universe: you put in the initial conditions, out comes the trajectory, governed throughout by a small set of universal laws. I deny this image. The world is dappled &mdash; a patchwork of different kinds of systems governed by different local regularities, with no single overarching set of true laws that covers them all. Different domains &mdash; solid-state physics, fluid dynamics, population genetics, macroeconomics &mdash; require different models, different mathematical frameworks, different causal concepts. The fundamentalist dream of a single theory of everything that generates true descriptions of all phenomena is not a scientific achievement waiting to happen; it is a philosophical prejudice about what the world must be like.</span></p>
+        <span class="section">vii. the radiometer and the failure of first-principles derivation</span>
+        <p><span class="hl" data-arg="7"><span class="tooltip">Radiometer case — Maxwell&rsquo;s kinetic theory cannot derive the actual radiometer behaviour from first principles; phenomenological models fill the gap</span>Consider the radiometer &mdash; the device with vanes that spin in partial vacuum when light falls on them. Maxwell himself struggled to account for its behaviour from first principles using kinetic theory. The problem is that the actual behaviour of the radiometer depends on a complex interplay of gas pressure, mean free path, thermal gradients, and surface properties. No derivation from the fundamental laws of kinetic theory gives the right result without a battery of additional assumptions, approximations, and model-specific parameters. Scientists who understand radiometers do not work from first principles down. They work from the phenomenological behaviour up, constructing models that fit the observed regularities. The fundamental theory provides a loose framework; the real explanatory work is done by the phenomenological model. This is not an isolated failure; it is the normal condition of physics.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-cartwright-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The truth&ndash;explanation trade-off: fundamental laws achieve generality by sacrificing descriptive truth</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Phenomenological laws (Galileo&rsquo;s law, Ohm&rsquo;s law, ideal gas law) are true of real systems but local and limited in scope.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Fundamental laws (Newton&rsquo;s law of gravitation, Schr&ouml;dinger equation) achieve sweeping generality by abstracting away the very features of real systems that make phenomenological laws true.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>F = Gm&sub;1;m&sub;2;/r&sup2; does not accurately describe any real planet, which is subject to electromagnetic effects, other gravitational bodies, and thermal radiation. The law applies literally only to a two-body system in a vacuum &mdash; a system that does not exist.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The generality of fundamental laws is purchased at the cost of descriptive truth. The more general the law, the more idealized the objects it describes, and the further those objects are from anything real.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The simulacrum account: explanation proceeds through idealized models, not from true fundamental laws</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The covering-law model (Hempel): to explain is to derive from true laws plus initial conditions. But the laws used in physics explanations are not true of real systems.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Simulacrum account: to explain is to construct a model &mdash; an idealised object &mdash; such that the fundamental laws are true of the model, and the model captures enough of the real system&rsquo;s structure to license a phenomenological description. The model has the &ldquo;form or appearance&rdquo; of the real system without its substance.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Explanation is a relation between a model and a real system, mediated by the theory. The theory is not directly applied to reality; it is applied to the idealised model. The covering-law account is therefore wrong about the structure of scientific explanation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Scientific explanation is simulacrum explanation: we explain by building models that fit real phenomena into a theoretical framework. The fundamental laws are true of the model, not of the world. The covering-law account misrepresents the actual structure of scientific practice.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The ceteris paribus problem: the conditions under which fundamental laws are strictly true are never instantiated</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Any defence of the literal truth of fundamental laws must add ceteris paribus clauses: &ldquo;all other things being equal,&rdquo; &ldquo;in the absence of disturbing factors,&rdquo; etc.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The conditions specified by these clauses &mdash; perfect isolation, point masses, no other forces &mdash; are never satisfied in nature. The law is strictly true only of systems that do not exist.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A law that is true only under conditions that are never instantiated does not describe any real state of the world. It describes a theoretical fiction.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ceteris paribus defence of fundamental laws fails: it saves the truth of the laws only by restricting their domain to systems that do not exist in nature. The laws are vacuously or fictionally true, not genuinely true of the real world.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Composition of causes: component forces are theoretical fictions; only the resultant force is real</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When a body is subject to both gravitational and electromagnetic forces, we explain its motion by composing them via vector addition. But neither component force acts separately on the body; what acts is the resultant.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Each component force law (Newton&rsquo;s, Coulomb&rsquo;s) describes a situation that does not exist &mdash; a body subject to only one force. The laws are individually false of the actual situation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>We use these individually false laws to derive a true phenomenological result via mathematical composition. The explanation proceeds through theoretical scaffolding (the component forces) that is dismantled once the phenomenological result is obtained.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The composition of causes argument shows that covering-law explanation in multi-force cases proceeds through laws that are individually false of the actual system. The explanatory success is real but does not vindicate the literal truth of the fundamental laws.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V &mdash; Entity realism without law realism: realism about electrons is consistent with anti-realism about Coulomb&rsquo;s law</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Grounds for believing in entities: we use them as tools to manipulate other parts of the world. If you can spray electrons, they are real. This justification is causal and experimental, not theoretical.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Grounds for disbelieving in the literal truth of fundamental laws: Coulomb&rsquo;s law is true only of point charges in a perfect vacuum &mdash; idealized objects that do not exist. The justification for law-belief is theoretical, and the idealisation undermines the claim to truth.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Entity realism and law anti-realism are independently motivated by different features of scientific practice and are jointly consistent.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Entity realism and law anti-realism are jointly defensible. Belief in electrons is well-grounded in experimental manipulability; disbelief in the literal truth of Coulomb&rsquo;s law is well-grounded in the idealized character of its domain of application.</span></div>
+        </div>
+        <div class="arg-block" data-arg="6">
+          <div class="arg-title">Argument VI &mdash; The dappled world: the fundamentalist dream of a single covering theory is a philosophical prejudice, not a scientific result</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Different scientific domains (solid-state physics, fluid dynamics, ecology, economics) require different models, mathematical frameworks, and causal concepts. There is no evidence that these domains reduce to a single set of fundamental laws.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The fundamentalist image &mdash; initial conditions in, trajectory out, governed by universal laws &mdash; is a philosophical prejudice about what the world must be like, not a demonstrated scientific fact.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The world is more plausibly &ldquo;dappled&rdquo;: a patchwork of locally governed regularities with no single overarching true theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Fundamentalism &mdash; the view that a single set of universal laws covers all phenomena &mdash; is a metaphysical prejudice unsupported by scientific evidence. The dappled world is the more accurate image: different domains governed by different local laws, with no guarantee of unification.</span></div>
+        </div>
+        <div class="arg-block" data-arg="7">
+          <div class="arg-title">Argument VII &mdash; The radiometer case: actual explanatory work is done by phenomenological models, not first-principles derivation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Maxwell could not derive the radiometer&rsquo;s behaviour from first principles using kinetic theory. The actual behaviour depends on a complex interplay of gas pressure, mean free path, and surface effects that resist derivation from fundamental laws alone.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Scientists who understand radiometers work from phenomenological behaviour up, constructing models that fit observed regularities. The fundamental theory provides loose scaffolding; the real explanatory work is done phenomenologically.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is not an isolated failure but the normal condition of fundamental physics applied to real systems. First-principles derivation is an idealised description of scientific practice, not an accurate one.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The radiometer case illustrates the general point: explanatory work in physics is done by phenomenological models, not by deduction from true fundamental laws. The covering-law model misrepresents the actual structure of physical explanation.</span></div>
+        </div>
+      </div>
+    </div><!-- end cartwright -->
+
+    <!-- ─── VAN FRAASSEN ─── -->
+    <div class="speaker-panel" id="prop-vanfraassen-panel">
+      <div id="prop-vanfraassen-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>Cartwright&rsquo;s argument about the truth of fundamental laws intersects with a broader question I have pressed in <em>The Scientific Image</em> and <em>Laws and Symmetry</em>: what should the aim of science be, and what is the epistemic status of theoretical laws? My answer is constructive empiricism, and it converges with Cartwright&rsquo;s diagnosis, though from a different angle.</p>
+        <div class="pull">&ldquo;Science aims to give us theories which are empirically adequate; and acceptance of a theory involves as belief only that it is empirically adequate.&rdquo; &mdash; van Fraassen, 1980</div>
+        <span class="section">i. empirical adequacy vs. truth</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Empirical adequacy — science aims at saving phenomena, not at true theories; belief in truth of laws goes beyond what evidence warrants</span>The scientific realist claims that the aim of science is truth: that our best theories are approximately true descriptions of the world, including its unobservable features. I deny this. The aim of science is empirical adequacy: having theories that correctly describe all observable phenomena. Accepting a theory is not believing it is true; it is believing that it saves the phenomena &mdash; that its empirical consequences are correct. The realist goes beyond the evidence. We have excellent grounds for accepting theories as empirically adequate; we have no grounds for believing they are true of unobservable structures, including the laws that purportedly govern them. The history of science is a graveyard of theories that were once empirically successful but are now known to be false. The cautious conclusion is that empirical success is a poor guide to truth.</span></p>
+        <span class="section">ii. the bad lot argument and inference to the best explanation</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Bad lot argument — IBE does not license truth-belief; best of bad hypotheses may still be false; no reason to think true theory is in our hypothesis space</span>The realist&rsquo;s main argument for the truth of fundamental laws is inference to the best explanation: our fundamental laws are the best explanation of the empirical success of physics, therefore they are approximately true. I call this the &ldquo;bad lot&rdquo; problem. Even if our current fundamental laws are the best explanation among the hypotheses we have considered, we have no reason to think the true theory is among them. We may be choosing the best of a bad lot. The history of science confirms this: Newtonian mechanics was the best explanation of an enormous range of phenomena, yet it turned out to be false. The inference from &ldquo;best available explanation&rdquo; to &ldquo;approximately true&rdquo; is not licensed unless we have independent reason to think the true theory is among the candidates, which we never do.</span></p>
+        <span class="section">iii. laws as structural features of models</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Laws as model-features — laws characterize mathematical structures; no commitment to their truth of unobservable world required; semantic view supports this</span>On the semantic view of theories, which I develop and defend, a scientific theory is not a set of sentences but a collection of models &mdash; mathematical structures. The &ldquo;laws&rdquo; of a theory characterize the class of models that belong to it. To accept the theory is to believe that one of its models is isomorphic to some real system at the observable level. There is no commitment to the claim that the structural features of the models &mdash; the &ldquo;laws&rdquo; &mdash; describe the deep structure of unobservable reality. The laws are features of our representational tools; they need not be truths about the world. This is entirely consistent with using the laws as practically effective tools for prediction and intervention, which is what scientific practice actually requires.</span></p>
+        <span class="section">iv. the observable/unobservable distinction and law anti-realism</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Observable/unobservable — fundamental laws describe unobservable structures; warranted only at observable level; anti-realism about laws is principled, not sceptical</span>My anti-realism about fundamental laws is not a blanket scepticism. It is principled and discriminating. I am a thoroughgoing realist about observables: the experimental data of physics are real, the observed regularities are real, the phenomenological laws that describe them are approximately true. What I am sceptical about are the unobservable structures &mdash; the theoretical posits, the fundamental field equations, the symmetry groups &mdash; that the realist claims to know. This scepticism is not arbitrary: it reflects a principled epistemological distinction between what we can directly confirm and what we can only infer by theoretical reasoning that goes beyond the evidence. Fundamental laws describe these unobservable structures. The evidence for their truth runs out at the observable boundary.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-vanfraassen-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Empirical adequacy is the proper aim of science; belief in the truth of fundamental laws goes beyond what evidence warrants</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The evidence available for any theory consists in its observable consequences. Any theory that correctly saves all observable phenomena is empirically adequate.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Two theories that are empirically equivalent but differ in their claims about unobservable structures (including fundamental laws) are equally well supported by all evidence. No evidence can discriminate between them.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Accepting a theory as true (rather than empirically adequate) involves believing its claims about unobservable structures, which are underdetermined by the evidence. This is epistemically unjustified.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Belief in the truth of fundamental laws is epistemically unjustified: it goes beyond what the evidence supports. Empirical adequacy is the appropriate epistemic aim; accepting a theory as empirically adequate is all that scientific rationality requires.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The bad lot argument: IBE does not license truth-belief in fundamental laws</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Realist argument: our fundamental laws are the best explanation of the empirical success of physics; therefore they are approximately true (inference to the best explanation, IBE).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Bad lot objection: even if our laws are the best among considered hypotheses, we have no reason to think the true theory is among them. We may be choosing the best of a bad lot. The inference from &ldquo;best available&rdquo; to &ldquo;approximately true&rdquo; is not warranted.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Historical confirmation: Newtonian mechanics was the best explanation of an enormous range of phenomena and turned out to be false. IBE is unreliable as a guide to truth about unobservable structures.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>IBE does not license truth-belief in fundamental laws; the bad lot problem shows that even the best available explanation may be false; the realist inference from explanatory success to approximate truth is not warranted.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; On the semantic view, laws are structural features of models; acceptance requires no commitment to their truth of unobservable reality</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A scientific theory is a collection of models &mdash; mathematical structures. The &ldquo;laws&rdquo; of a theory characterize the models belonging to it, not sentences about the world.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Accepting a theory is believing one of its models is isomorphic to some real system at the observable level. No commitment to the deep structural truth of the laws is required.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Laws are features of representational tools; they can be practically effective and epistemically valuable as such without being truths about unobservable reality.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>On the semantic view of theories, laws are structural features of models, not truth-apt sentences about unobservable reality. Accepting a theory involves no commitment to the truth of its laws beyond the observable domain.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The observable/unobservable distinction grounds principled anti-realism about fundamental laws</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Observables can be directly confirmed. Fundamental laws describe unobservable structures: field equations, symmetry groups, quantum amplitudes. These are confirmed only by indirect theoretical inference.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Indirect theoretical inference goes beyond the evidence in a principled, discriminable way. The evidence runs out at the observable boundary.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Realism about observables and anti-realism about unobservable laws is therefore a principled, discriminating position, not a blanket scepticism.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The observable/unobservable distinction grounds principled anti-realism about fundamental laws: we are warranted in believing claims about observables but not in believing the unobservable structural claims of fundamental theory.</span></div>
+        </div>
+      </div>
+    </div><!-- end vanfraassen -->
+
+    <!-- ─── GIERE ─── -->
+    <div class="speaker-panel" id="prop-giere-panel">
+      <div id="prop-giere-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>In <em>Science Without Laws</em> I develop a position that is complementary to Cartwright&rsquo;s from a different philosophical angle. My claim is that the very concept of a &ldquo;law of nature&rdquo; &mdash; in the traditional sense of a universal, exceptionless, metaphysically necessary regularity &mdash; is philosophically empty and scientifically unnecessary. Scientists do not discover laws; they construct models.</p>
+        <span class="section">i. the model-based view of science</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Model-based science — scientists construct models of limited aspects of the world; laws-talk is shorthand for model claims, not metaphysical commitments</span>The dominant image of science in philosophy is law-based: science discovers universal regularities and formulates them as laws. I argue that this image is mistaken. What scientists actually do is construct models &mdash; abstract theoretical structures that represent specific aspects of specific systems. A textbook statement like &ldquo;F = ma&rdquo; is not a universal law applying to all matter everywhere; it is a claim about a family of models. To say Newton&rsquo;s second law is true is to say that certain mechanical models accurately represent certain physical systems in certain respects and to certain degrees of accuracy. The law-language is a convenient shorthand for a complex system of claims about how well-constructed models represent real systems. Strip away the rhetorical inflation, and there are no laws &mdash; only models of varying fidelity and scope.</span></p>
+        <span class="section">ii. perspective and the limitations of representation</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Perspectivism — models represent from a perspective; no model captures all features of a system; the perspective is never view-from-nowhere</span>All scientific models represent from a perspective. A model of planetary motion represents the solar system as a gravitational system, ignoring electromagnetic effects and relativistic corrections that are irrelevant at the intended scale of accuracy. A model of electrical circuits represents a network of conductors and resistances, ignoring the quantum mechanical processes that underlie conductance. Models are like maps: they represent selected features of reality, at a chosen scale, for a particular purpose. No map is the territory; no model is the world. The perspective is always chosen &mdash; by the purposes of the investigation, the mathematical tools available, the phenomena deemed relevant. There is no &ldquo;view from nowhere&rdquo; that would give us the one true law-governed description of reality.</span></p>
+        <span class="section">iii. against the metaphysics of laws</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against laws metaphysics — Humean regularity view and necessitarian views both fail; philosophers cannot agree on what laws are; scientists need no such concept</span>Philosophers have proposed two main accounts of laws: Humean regularity accounts (laws are just true universal regularities, nothing more) and necessitarian accounts (laws are grounded in objective necessity, natural kinds, or dispositions). Both are problematic. The Humean account makes laws extensionally equivalent to any accidental true generalization; it cannot distinguish laws from coincidences. The necessitarian account invokes metaphysical necessities that go well beyond anything science can establish. Neither account is scientifically well-grounded. Scientists themselves manage perfectly well without the concept of a law of nature: they talk about models, equations, symmetries, and mechanisms. The philosophical concept of a law is excess metaphysical baggage that can be safely discarded.</span></p>
+        <span class="section">iv. local models and the disunity of science</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Disunity — different domains require incommensurable models; reduction to unified fundamental theory is a myth; disunity is the actual structure of science</span>Science is not a unified pyramid with fundamental physics at the base. It is a collection of overlapping, partially inconsistent, domain-specific models. The models of quantum field theory, general relativity, statistical mechanics, fluid dynamics, and evolutionary biology cannot all be derived from a single unified set of fundamental laws. Attempts at unification consistently produce new models with restricted domains of applicability, not the universal laws the fundamentalist dreams of. The disunity of science is not a temporary deficiency to be overcome; it reflects the actual structure of nature, which is itself a patchwork of different kinds of systems, mechanisms, and regularities. Cartwright is right: the world is dappled, and our models accurately reflect that dappling.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-giere-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The model-based view: laws-talk is shorthand for claims about models, not metaphysical commitments to universal regularities</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>&ldquo;F = ma&rdquo; is not a universal law applying to all matter everywhere; it is a claim about a family of mechanical models that represent certain systems in certain respects.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>To say a law is &ldquo;true&rdquo; is to say that certain models accurately represent certain systems at a certain level of approximation. The truth-claim is about model-world fit, not about universal necessity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Laws-language is a convenient rhetorical inflation of claims about models. Once the inflation is stripped away, there are no laws &mdash; only models of varying fidelity and scope.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Laws-talk in science is best understood as shorthand for complex claims about how well models represent real systems; it carries no metaphysical commitment to universal, exceptionless regularities; the concept of a &ldquo;law of nature&rdquo; is scientifically unnecessary.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Models represent from a perspective; no model captures all features; there is no view-from-nowhere</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>All scientific models represent selected features of a system, at a chosen scale, for a particular purpose. The selection is always perspectival: made by the purposes and tools of the investigation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>There is no model that captures all features of any system; no map is the territory. The perspective is never the &ldquo;view from nowhere&rdquo; that would give us the one true law-governed description.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The realist demand for the one true fundamental theory is a demand for the view from nowhere &mdash; a philosophically incoherent ideal that science cannot and does not attempt to realise.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Scientific representation is irreducibly perspectival; the demand for a non-perspectival &ldquo;true theory&rdquo; from which all phenomena follow is incoherent; the model-based view is the accurate description of scientific practice.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The metaphysics of laws is philosophically unresolvable; scientists need no such concept</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Humean regularity accounts cannot distinguish laws from accidental generalizations. Necessitarian accounts invoke metaphysical necessities that science cannot establish.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The philosophical debate about what laws &ldquo;really are&rdquo; is unresolved after decades of sustained effort. This suggests the concept is defective.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Scientists manage perfectly well using the language of models, equations, symmetries, and mechanisms. The philosophical concept of a law of nature is excess metaphysical baggage that scientific practice does not require.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The concept of a law of nature is philosophically unresolvable and scientifically dispensable; the model-based view of science needs no such concept; talk of &ldquo;laws&rdquo; should be understood as a loose and metaphysically unloaded shorthand.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The disunity of science: incommensurable domain-specific models reflect the actual patchwork structure of nature</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Quantum field theory, general relativity, statistical mechanics, and evolutionary biology cannot all be derived from a single set of fundamental laws. Attempts at unification produce new domain-specific models, not universal laws.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The disunity of science is not a temporary deficiency but reflects the actual structure of nature: different domains are governed by different local regularities, mechanisms, and capacities.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The fundamentalist dream of a single unified theory is a philosophical prejudice not supported by the actual history and practice of science.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The disunity of science is real and reflects the patchwork character of nature; the fundamentalist ideal of unification is not a scientific achievement in progress but a philosophical projection unsupported by the actual development of science.</span></div>
+        </div>
+      </div>
+    </div><!-- end giere -->
+
+    <!-- ─── HACKING ─── -->
+    <div class="speaker-panel" id="prop-hacking-panel">
+      <div id="prop-hacking-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My argument in <em>Representing and Intervening</em> distinguishes two different questions that are run together in the scientific realism debate: the question of theoretical entities, and the question of theoretical laws. Cartwright and I developed our positions together, and they are jointly more powerful than either alone.</p>
+        <div class="pull">&ldquo;If you can spray them, they are real. If you can use them to investigate something else, they are real enough.&rdquo; &mdash; Hacking, 1983</div>
+        <span class="section">i. the experimental argument for entity realism</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Experimental entity realism — manipulation is the criterion; entities used as experimental tools are real regardless of the truth of the laws describing them</span>My case for entity realism is experimental, not theoretical. The realist argument I find compelling is not inference to the best explanation &mdash; &ldquo;electrons are the best explanation of the photoelectric effect, therefore they are real.&rdquo; It is the manipulation argument: we use electrons as tools to create other effects, to investigate other entities, to build new technologies. Particle physicists use positron beams to study the weak force. Engineers use electron tunnelling in transistors. We manipulate electrons in ways that produce predictable effects in novel contexts. This is precisely the kind of causal evidence that justifies belief in a real, causally efficacious entity. The entity&rsquo;s reality is demonstrated by our ability to intervene on the world using it as a tool &mdash; not by the truth of the equations in which it appears.</span></p>
+        <span class="section">ii. why entity realism does not require law realism</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">No law realism needed — we can manipulate electrons without believing Coulomb&rsquo;s law is literally true; practical knowledge &ne; theoretical truth</span>The crucial point is that our grounds for believing in electrons are entirely independent of our grounds for (or against) believing in the literal truth of Coulomb&rsquo;s law. We know how to use electrons because we have accumulated practical, experimental knowledge of their causal behaviour in specific contexts. This knowledge is phenomenological &mdash; it is knowledge of what electrons do in particular situations, encoded in engineering formulae and experimental protocols. It does not require, and is not grounded in, the literal truth of the fundamental equations that purport to govern electron behaviour in all possible circumstances. Coulomb&rsquo;s law describes point charges in a perfect vacuum &mdash; a theoretical fiction. Real electrons are not point charges; real spaces are not perfect vacuums. The practical knowledge is real and grounded; the theoretical law is a useful fiction that systematises it.</span></p>
+        <span class="section">iii. the theory-experiment gap</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Theory-experiment gap — experimental practice is autonomous from theory; experimenters develop local knowledge that outruns theoretical laws</span>One of the most important features of mature experimental science is that experimental practice becomes autonomous from theory. Experimenters develop local, hands-on knowledge of how to make things work &mdash; knowledge of systematic experimental errors, instrumental artefacts, materials behaviour, and technique &mdash; that is not derivable from any fundamental theory and that outruns what the theory predicts. The best particle physics detectors are designed and operated by people who know how real detectors behave, which is not always what the fundamental equations say they should behave. This gap between theoretical predictions and experimental reality is not a temporary deficiency; it is a permanent feature of the relationship between theory and experiment. Cartwright is right that the phenomenological is doing the real work; I add that even within the experimental domain, practical knowledge is prior to theoretical law.</span></p>
+        <span class="section">iv. representing vs. intervening</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Representing vs. intervening — theoretical representation may be false while interventional capacity is genuine; the two are independent</span>The book&rsquo;s title captures the fundamental distinction: representing and intervening are different activities, grounded in different kinds of knowledge, and they can come apart. We can represent a system using a false theory and still intervene on it effectively &mdash; because the intervention is guided by local, practical, phenomenological knowledge, not by the literal truth of the fundamental theory. Conversely, a theory can represent a system with great accuracy in certain regimes while being false in others. The realist conflates successful representation (which may be approximate and domain-restricted) with literal truth. But successful intervention does not require literal truth. It requires only that our phenomenological models be accurate enough, locally, for the purposes of the intervention. This is Cartwright&rsquo;s point restated in experimental terms.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-hacking-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The manipulation argument: entities used as experimental tools are real, independently of the laws describing them</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>We use electrons as tools to create effects and investigate other entities: positron beams, electron tunnelling in transistors, photoelectric devices. This is causal evidence of a real, causally efficacious entity.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The justification for believing in electrons is experimental and causal &mdash; grounded in our ability to manipulate them to produce predictable effects &mdash; not theoretical. It does not depend on the literal truth of Coulomb&rsquo;s law or the Schr&ouml;dinger equation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If you can spray them, they are real: the criterion for entity-belief is manipulability, not explanatory role in a true theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Entity realism is grounded in experimental manipulability, not in the truth of theoretical laws. We have excellent grounds for believing in electrons that are entirely independent of any view about whether Coulomb&rsquo;s law is literally true.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Practical knowledge of entities does not require and is not grounded in the literal truth of fundamental laws</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Our practical, experimental knowledge of how to use electrons is phenomenological: knowledge of their causal behaviour in specific contexts, encoded in engineering formulae and experimental protocols.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This knowledge does not require and is not grounded in the literal truth of Coulomb&rsquo;s law (which describes point charges in a perfect vacuum) or the Schr&ouml;dinger equation (which describes idealised quantum systems).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The practical knowledge is real and well-grounded; the fundamental law is a useful theoretical fiction that systematises it. The two are independent.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Entity realism does not entail law realism: our grounds for believing in electrons are grounded in practical, phenomenological knowledge of their causal behaviour, which is independent of the literal truth of the fundamental equations.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Experimental practice is autonomous from theory; practical knowledge of real systems outruns theoretical prediction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Mature experimental science develops autonomous practical knowledge: knowledge of systematic errors, instrumental behaviour, and materials properties that is not derivable from any fundamental theory.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Real detectors do not behave exactly as the fundamental equations predict. Experimenters know how real detectors behave from experience; this knowledge outruns theoretical prediction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The gap between theory and experiment is permanent, not temporary. It confirms that phenomenological, practical knowledge is prior to theoretical law in experimental contexts.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Experimental practice is autonomous from fundamental theory; practical knowledge of real physical systems outruns what the fundamental equations predict; this confirms Cartwright&rsquo;s claim that phenomenological models do the real work.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Representing and intervening are independent; successful intervention does not require literal truth of theoretical laws</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Representing and intervening are different activities grounded in different kinds of knowledge. They can come apart: we can intervene effectively using a false theory, guided by accurate phenomenological knowledge.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Successful intervention requires that our phenomenological models be accurate enough, locally, for the purposes of the intervention. It does not require the literal truth of the fundamental theory.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The realist conflates successful representation (which may be approximate and domain-restricted) with literal truth. This conflation is not warranted by the practice of science.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Successful experimental intervention does not require the literal truth of fundamental laws; it requires only accurate phenomenological models. Representing and intervening are independent, and the latter can succeed while the former involves theoretical fictions.</span></div>
+        </div>
+      </div>
+    </div><!-- end hacking -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ════════════════════ OPPOSITION ════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','psillos',this)">Psillos</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','earman',this)">Earman &amp; Roberts</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','woodward',this)">Woodward</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','morrison',this)">Morrison</button>
+  </div>
+
+  <!-- PSILLOS HEADER -->
+  <div class="col-header" id="opp-psillos-header">
+    <div class="col-header-top"><span class="pill opp">Scientific Realism &amp; Approximate Truth</span><span class="col-subtitle">Stathis Psillos, 1999</span></div>
+    <div class="col-position">Cartwright confuses idealization with falsity. Fundamental laws are approximately true descriptions of real structures; their idealized character reflects the complexity of applying them to real systems, not a failure of the laws themselves. The success of physics &mdash; its predictive accuracy across many orders of magnitude &mdash; is best explained by the approximate truth of its fundamental laws, not by their status as useful fictions.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','psillos','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','psillos','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- EARMAN HEADER -->
+  <div class="col-header hidden" id="opp-earman-header">
+    <div class="col-header-top"><span class="pill opp">Strict Laws &amp; Against CP Inflation</span><span class="col-subtitle">John Earman &amp; John Roberts, 1999&ndash;2002</span></div>
+    <div class="col-position">Cartwright&rsquo;s ceteris paribus account of fundamental laws makes them trivially true or vacuously unfalsifiable. The laws of fundamental physics are not hedged by ceteris paribus clauses: they are strict and exceptionless regularities that hold across all conditions, including those involving multiple forces. The idealization occurs in the application of laws to specific systems, not in the laws themselves.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','earman','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','earman','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- WOODWARD HEADER -->
+  <div class="col-header hidden" id="opp-woodward-header">
+    <div class="col-header-top"><span class="pill opp">Invariance &amp; Causal Explanation</span><span class="col-subtitle">James Woodward, 2002&ndash;2003</span></div>
+    <div class="col-position">There is no such thing as a ceteris paribus law in Cartwright&rsquo;s sense. What matters for causal and nomological status is invariance: a generalization counts as a law to the extent that it remains stable across a wide range of interventions and background conditions. Fundamental laws are maximally invariant; this is precisely what makes them laws and what explains their explanatory power without invoking falsity.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','woodward','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','woodward','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- MORRISON HEADER -->
+  <div class="col-header hidden" id="opp-morrison-header">
+    <div class="col-header-top"><span class="pill opp">Models, Unification &amp; Genuine Truth</span><span class="col-subtitle">Margaret Morrison, 1999</span></div>
+    <div class="col-position">The role of models in science does not support Cartwright&rsquo;s anti-realist conclusion. Models are partially autonomous but they are also genuine representations of physical structures. The explanatory and predictive success of fundamental physics &mdash; and especially its capacity for unification across wildly different domains &mdash; is best explained by the genuine truth of the fundamental laws, not their status as idealized fictions.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','morrison','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','morrison','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ─── PSILLOS ─── -->
+    <div class="speaker-panel active" id="opp-psillos-panel">
+      <div id="opp-psillos-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>Cartwright&rsquo;s argument is more philosophically interesting than most anti-realist challenges because it takes scientific practice seriously. But I want to show that her diagnosis of that practice is wrong: she confuses idealization with falsity, and she underestimates the depth and precision of the relationship between fundamental laws and the physical world.</p>
+        <div class="pull">&ldquo;Scientific realism is the optimistic view that modern science is on the right track: that the world really is the way our best scientific theories describe it.&rdquo; &mdash; Psillos, 1999</div>
+        <span class="section">i. idealization is not falsity: the approximate truth of fundamental laws</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Approximate truth — idealised laws are approximately true of real systems; approximation is a feature of application, not of the law itself; Cartwright conflates the two</span>Cartwright&rsquo;s central inference is: the fundamental laws are idealized; idealized descriptions are false of real systems; therefore the laws are false of real systems. The second premise is wrong. Idealized descriptions are not false; they are approximately true. Newton&rsquo;s gravitational law does not accurately describe the motion of any real planet to ten decimal places &mdash; but it accurately describes it to very high approximation under conditions that are very closely approximated by the actual solar system. The ceteris paribus conditions (no other forces, point masses, etc.) are not conditions that are never satisfied; they are conditions that are approximately satisfied in the solar system to a very high degree. The approximation is part of the application of the law to the real system; it is not a property of the law itself. Cartwright mistakes the gap between exact description and approximate description for a gap between truth and falsehood.</span></p>
+        <span class="section">ii. the no-miracles argument: success demands truth</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">No-miracles — predictive success of fundamental physics is a miracle on anti-realist view; best explained by approximate truth of fundamental laws</span>The strongest argument for scientific realism is the no-miracles argument: the predictive success of fundamental physics would be a miracle if the fundamental laws were not approximately true descriptions of the world. Quantum electrodynamics correctly predicts the anomalous magnetic moment of the electron to eleven decimal places. General relativity correctly predicts the precession of Mercury&rsquo;s perihelion, gravitational lensing, and gravitational wave generation at precisions that would be inexplicable if the theory were merely an empirically adequate fiction. Cartwright&rsquo;s response &mdash; that this success is produced by phenomenological models rather than fundamental laws &mdash; misrepresents the actual structure of the achievement. The phenomenological models work because they are derived from, or at least constrained by, the fundamental laws. The success of the phenomenological models is parasitic on the approximate truth of the fundamental framework.</span></p>
+        <span class="section">iii. deployment realism: what the history of science shows</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Deployment realism — the parts of theories responsible for predictive success are preserved across theory change; this is best explained by their approximate truth</span>Cartwright and van Fraassen both appeal to the history of science to support anti-realism: successful theories have turned out to be false, so success is a poor guide to truth. I reply with deployment realism. The relevant question is not whether a whole theory is preserved across theory change, but whether the specific parts of the theory responsible for its predictive success are preserved. When we look at the history carefully, we find that the structurally central, predictively responsible parts of successful theories &mdash; the equations, the core structural claims &mdash; are indeed preserved in successor theories, often as limiting cases. Newtonian mechanics is a limiting case of special relativity. Classical electromagnetism is a limiting case of quantum electrodynamics. The preserved elements are the ones that were doing the real predictive work; and they were doing the work because they were approximately true of the real structures they described.</span></p>
+        <span class="section">iv. the entity realism problem: Hacking is not consistent</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Entity/law incoherence — entity realism without law realism is unstable; what grounds belief in an entity&rsquo;s causal powers if not a true theory of them?</span>Hacking and Cartwright want entity realism without law realism. But this combination is unstable. If Coulomb&rsquo;s law is not approximately true of real electrons, what grounds our belief in the specific causal powers of electrons &mdash; their charge, their mass, their electromagnetic behaviour? The answer must be: our experimental knowledge of their causal behaviour in specific contexts. But this knowledge is encoded in the very equations that Cartwright calls false. Our ability to manipulate electrons in novel contexts depends on our ability to predict their behaviour using those equations. The predictive success of the electron equations is the very same success that the no-miracles argument cites in defence of the laws&rsquo; approximate truth. Hacking cannot have his entity without the law.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-psillos-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Idealization is not falsity: fundamental laws are approximately true of real systems</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Cartwright&rsquo;s inference: laws are idealized; idealized descriptions are false of real systems; therefore laws are false. But the second premise is wrong.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Newton&rsquo;s gravitational law accurately describes the motion of real planets to very high approximation. The ceteris paribus conditions are approximately satisfied in the actual solar system to a high degree.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Approximation is a feature of the application of the law to a real system, not a property of the law itself. Cartwright confuses the gap between exact and approximate description with the gap between truth and falsehood.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Cartwright&rsquo;s argument from idealization to falsity is invalid: idealized descriptions are approximately true of real systems; the approximate truth of fundamental laws is entirely consistent with their idealized character and is not undermined by it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The no-miracles argument: the predictive success of fundamental physics requires approximate truth</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Quantum electrodynamics predicts the anomalous magnetic moment of the electron to eleven decimal places. General relativity predicts gravitational wave generation at precisions confirmed to within one part in 10&sup1;&sup4;.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This success would be miraculous if the fundamental laws were not approximately true descriptions of the world. The best explanation of the success is approximate truth.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Cartwright&rsquo;s claim that this success is produced by phenomenological models misrepresents the structure of the achievement: the phenomenological models are derived from or constrained by the fundamental laws, and their success is parasitic on the framework&rsquo;s approximate truth.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The extraordinary predictive precision of fundamental physics is best explained by the approximate truth of the fundamental laws; Cartwright&rsquo;s anti-realist account cannot explain this precision without appeal to the very laws she claims are false.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Deployment realism: the predictively responsible parts of theories are preserved across theory change</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The anti-realist pessimistic meta-induction: successful theories have turned out false; therefore success is a poor guide to truth.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Deployment realism reply: what is preserved across theory change is the structurally central, predictively responsible part of the theory &mdash; the equations and core structural claims. Newtonian mechanics is a limiting case of special relativity; classical electromagnetism is a limiting case of quantum electrodynamics.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The preserved elements were doing the real predictive work because they were approximately true of the real structures they described. Convergence of this kind is not accidental.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Deployment realism shows that the history of science supports realism: the predictively responsible parts of successful theories are preserved across theory change as limiting cases, and this convergence is best explained by their approximate truth.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Entity realism without law realism is unstable: knowing an entity&rsquo;s causal powers requires knowing approximately true laws</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Hacking&rsquo;s entity realism grounds belief in electrons in our ability to manipulate them to produce predictable effects in novel contexts.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But predicting electron behaviour in novel contexts requires using the equations Cartwright calls false. Our ability to manipulate electrons in those contexts depends on the predictive accuracy of those equations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The predictive accuracy of the electron equations is the same success cited by the no-miracles argument in defence of their approximate truth. Entity realism without law realism is incoherent: you cannot have the entity without the law.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Entity realism without law realism is unstable: belief in an entity&rsquo;s specific causal powers requires approximately true laws describing those powers; Hacking&rsquo;s combination of entity realism and law anti-realism is internally inconsistent.</span></div>
+        </div>
+      </div>
+    </div><!-- end psillos -->
+
+    <!-- ─── EARMAN & ROBERTS ─── -->
+    <div class="speaker-panel" id="opp-earman-panel">
+      <div id="opp-earman-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>Our paper &ldquo;Ceteris Paribus Lost&rdquo; and its companion piece &ldquo;Ceteris Paribus, There Is No Problem of Provisos&rdquo; make a targeted technical argument against the core of Cartwright&rsquo;s position. We want to show that her account of fundamental laws as ceteris paribus laws is either trivially true (and thus no threat to law realism) or incoherent.</p>
+        <span class="section">i. the triviality problem for ceteris paribus laws</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Triviality problem — CP laws are either trivially true or vacuously unfalsifiable; neither vindicates Cartwright&rsquo;s claim that fundamental laws lie</span>Cartwright claims that fundamental laws are true only with ceteris paribus modifiers. But what does &ldquo;all other things being equal&rdquo; actually mean? There are two interpretations. On the first, the ceteris paribus clause is an implicit quantification over all interfering factors: the law holds &ldquo;when there are no other forces&rdquo; or &ldquo;when other forces are negligible.&rdquo; This makes the law trivially true: of course the gravitational two-body equation correctly describes a two-body gravitational system with no other forces. That is what the equation describes. This does not show the law &ldquo;lies&rdquo;; it merely specifies its domain. On the second interpretation, the ceteris paribus clause is an open-ended hedge that cannot be specified in advance, making the law unfalsifiable: any apparent counterexample can be dismissed by saying &ldquo;other things weren&rsquo;t equal.&rdquo; Neither interpretation supports Cartwright&rsquo;s conclusion that the laws are false.</span></p>
+        <span class="section">ii. the laws of fundamental physics are not ceteris paribus</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Strict laws — Maxwell&rsquo;s equations and Schr&ouml;dinger equation are strict and exceptionless; no CP clause is needed; they correctly describe every system to which they apply</span>Our main positive claim is that the fundamental laws of physics &mdash; Maxwell&rsquo;s equations, the Schr&ouml;dinger equation, the equations of general relativity &mdash; are not hedged by ceteris paribus clauses. They are strict and exceptionless regularities. Consider Maxwell&rsquo;s equations. They describe the behaviour of electromagnetic fields everywhere, at all times, under all conditions. When we add a gravitational field, the Maxwell equations do not acquire a ceteris paribus qualifier; they remain exactly what they are, operating alongside the gravitational equations. The total description of a system with both electromagnetic and gravitational fields is given by the conjunction of the two sets of equations. No law is false; no law requires hedging. What is complicated is the application of the laws to derive the behaviour of specific systems, but that complication reflects the complexity of the systems, not the falsity of the laws.</span></p>
+        <span class="section">iii. the application/law distinction</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Application vs. law — idealization in application is not the same as falsity of the law; the engineer&rsquo;s approximations do not make Newton&rsquo;s law false</span>Cartwright&rsquo;s argument trades on a confusion between the application of a law to a specific system and the content of the law itself. When an engineer approximates a pendulum as a simple harmonic oscillator, they are making an approximation in the application of the law to the system. They are not claiming that Newton&rsquo;s equations of motion are false; they are choosing to ignore forces that are too small to matter for their purposes. The law remains true of the real pendulum &mdash; it accurately predicts the pendulum&rsquo;s motion to the degree of accuracy appropriate for the engineer&rsquo;s purposes. The idealization is in the model, not in the law. Cartwright confuses the engineer&rsquo;s approximation with a failure of the fundamental law.</span></p>
+        <span class="section">iv. the disunity argument does not follow from the ceteris paribus argument</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Disunity non-sequitur — even if different domains require different models, this does not entail that fundamental laws are false; model-pluralism is compatible with law-realism</span>Cartwright and Giere move from the observation that different scientific domains require different models to the conclusion that there are no true fundamental laws. But this is a non-sequitur. The fact that different domains require different models and different approximations is entirely compatible with the existence of true fundamental laws. The difference in models reflects the difference in the relevant features of the systems being modelled, not the falsity of the laws that govern all those systems. Quantum field theory and general relativity are not yet unified, but this is a limitation of our current theoretical understanding, not evidence that no unified true laws exist. The disunity of our models does not entail the disunity of nature.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-earman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The triviality problem: ceteris paribus laws are either trivially true or vacuously unfalsifiable</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Interpretation A: the CP clause specifies the domain of the law (&ldquo;when no other forces are present&rdquo;). This makes the law trivially true of systems in that domain. It does not show the law is false; it specifies when it applies.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Interpretation B: the CP clause is an open-ended hedge. This makes the law unfalsifiable: any apparent counterexample can be dismissed. An unfalsifiable law is not scientifically useful or epistemically meaningful.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Neither interpretation supports Cartwright&rsquo;s conclusion that fundamental laws are false. On interpretation A, they are true (of their specified domain); on interpretation B, they are not properly law-like at all.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The ceteris paribus account of fundamental laws is either trivially true (on the domain-specification reading) or vacuously unfalsifiable (on the open-ended hedge reading). Neither horn supports Cartwright&rsquo;s conclusion that the laws lie.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Fundamental laws of physics are strict and exceptionless; no ceteris paribus clause is needed</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Maxwell&rsquo;s equations describe the behaviour of electromagnetic fields everywhere, under all conditions, without exception. They are not hedged by ceteris paribus clauses; they are strict regularities.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When electromagnetic and gravitational fields coexist, the Maxwell equations and the gravitational equations operate simultaneously. Neither law requires hedging; the total description is the conjunction of both sets of equations.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The complexity of deriving the behaviour of specific systems from the conjunction of laws reflects the complexity of the systems, not the falsity or conditional character of the laws.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The fundamental laws of physics are strict and exceptionless, not hedged by ceteris paribus clauses. The complexity of application reflects the complexity of real systems, not the falsity of the laws. Cartwright&rsquo;s ceteris paribus account misrepresents the structure of fundamental physics.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Idealization in application is not falsity of the law</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When an engineer approximates a pendulum as a simple harmonic oscillator, they are making a controlled approximation in the application of Newton&rsquo;s laws to the system. The approximation is in the model, not in the law.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The law remains true of the real pendulum: it accurately predicts the pendulum&rsquo;s motion to the degree of approximation appropriate for the engineer&rsquo;s purpose. The engineer knows the approximation is an approximation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Cartwright confuses the controlled use of approximations in engineering applications with a failure of the underlying law. This is a straightforward conflation of application and content.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Idealization in the application of laws to real systems is not evidence that the laws are false. The approximation is in the model; the law is true of the real system to the appropriate degree of precision. Cartwright&rsquo;s inference from idealization to falsity is invalid.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The disunity of models does not entail the falsity of fundamental laws</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Different scientific domains require different models and approximations. This is agreed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But model-pluralism is entirely consistent with the existence of true fundamental laws. The difference in models reflects the difference in the relevant features of the systems modelled, not the falsity of the laws governing all those systems.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The current unification gap between quantum field theory and general relativity reflects a limitation of our theoretical understanding, not evidence that no unified true laws exist.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The disunity of scientific models does not entail the falsity or non-existence of fundamental laws; model-pluralism is consistent with law-realism; the inference from disunity of models to disunity of nature (and hence the falsity of universal laws) is a non-sequitur.</span></div>
+        </div>
+      </div>
+    </div><!-- end earman -->
+
+    <!-- ─── WOODWARD ─── -->
+    <div class="speaker-panel" id="opp-woodward-panel">
+      <div id="opp-woodward-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My approach in &ldquo;There Is No Such Thing as a Ceteris Paribus Law&rdquo; and in <em>Making Things Happen</em> attacks Cartwright&rsquo;s position from a different angle. I offer a positive account of what makes something a law that vindicates the realism of fundamental laws without relying on the traditional regularity or necessity accounts that both Cartwright and Giere rightly criticize.</p>
+        <span class="section">i. invariance as the criterion for laws</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Invariance — a generalisation is law-like to the degree it remains stable across interventions and background conditions; fundamental laws are maximally invariant</span>I propose invariance as the key criterion for law-hood. A generalisation counts as a law to the extent that it remains stable &mdash; continues to hold &mdash; across a wide range of changes in background conditions and interventions. Fundamental laws have this invariance property to a maximal degree: Newton&rsquo;s law of gravitation holds in the solar system, in binary star systems, in galactic clusters, across a range of environmental conditions that is vastly wider than anything described by a phenomenological law. This is precisely what makes it a fundamental law and not a mere phenomenological regularity. The invariance account vindicates the special status of fundamental laws without appealing to metaphysical necessity and without being hostage to the idealization objection: a law can be highly invariant without being exactly true in every application.</span></p>
+        <span class="section">ii. there is no such thing as a ceteris paribus law</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">No CP laws — the very concept of a ceteris paribus law is incoherent; what we actually have is strict laws plus approximation in application; Cartwright is wrong about the form of the laws</span>My paper argues directly that there is no such thing as a ceteris paribus law. The appearance that fundamental laws require ceteris paribus hedges arises from a failure to distinguish the content of the law from the conditions of its application to a specific system. Newton&rsquo;s law of gravitation does not have a ceteris paribus clause in its content: it says, unconditionally, that every pair of masses attracts with force F = Gm&sub;1;m&sub;2;/r&sup2;. When we apply this law to the solar system, we add further specifications of the system &mdash; the masses, the distances, the other forces &mdash; and derive the actual trajectory. The approximation is in the specification of the system, not in the law. There are no ceteris paribus laws in fundamental physics; there are only strict laws applied to approximately specified systems.</span></p>
+        <span class="section">iii. causal explanation and interventionism</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Interventionism — causal laws identified by their invariance under interventions; this grounds a robust notion of causal explanation without requiring either CP laws or fictional models</span>My interventionist account of causation also bears on Cartwright&rsquo;s simulacrum account. Cartwright holds that real explanation is causal, but that causal explanations are grounded in capacities and phenomenological laws, not fundamental laws. I agree that causal explanation is central, but I ground it differently. Causal relationships are identified by their invariance under interventions: X causes Y if, and to the extent that, changing X by an intervention changes Y. Fundamental laws are the most invariant causal relationships we know: the gravitational relationship between masses is invariant across an enormous range of interventions and conditions. The invariance of the fundamental law is precisely what makes it causally explanatory. Cartwright&rsquo;s simulacrum account conflates the difficulty of applying fundamental laws to complex systems with a failure of those laws to be genuinely causally efficacious.</span></p>
+        <span class="section">iv. phenomenological laws as approximations of fundamental ones</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Phenomenological as approximations — phenomenological laws are derived approximations of fundamental laws in restricted domains; their truth depends on the truth of the fundamental laws</span>Cartwright inverts the correct epistemic order when she says phenomenological laws are true while fundamental laws are false. The relationship is the reverse: phenomenological laws are approximately true in restricted domains precisely because they are derived from or approximated from the more fundamental laws that are strictly true across broader domains. Ohm&rsquo;s law is true of real resistors in the relevant regime precisely because it follows, approximately, from the more fundamental equations of quantum mechanics and electromagnetism. The ideal gas law is true of real gases under appropriate conditions precisely because it follows approximately from the more fundamental statistical mechanics. The truth of the phenomenological laws is not independent of the truth of the fundamental laws; it is grounded in it.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-woodward-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Invariance is the criterion for laws: fundamental laws are maximally invariant and this vindicates their status without metaphysical necessity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A generalisation is law-like to the degree that it remains stable across a wide range of changes in background conditions and interventions. Invariance, not necessity, is the criterion.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Newton&rsquo;s gravitational law holds in the solar system, binary star systems, galactic clusters, and across a range of environmental conditions vastly wider than any phenomenological law. It has maximal invariance.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Maximal invariance is precisely what makes a generalisation a fundamental law. The invariance account vindicates the special status of fundamental laws without appealing to metaphysical necessity and without being hostage to the idealization objection.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Fundamental laws are maximally invariant generalisations; their law-hood is vindicated by the invariance criterion without appeal to metaphysical necessity; the idealization objection does not undermine this because a law can be highly invariant without being exactly true in every application.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; There is no such thing as a ceteris paribus law; strict laws plus approximate application is the correct description</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Newton&rsquo;s law of gravitation unconditionally states that every pair of masses attracts with force F = Gm&sub;1;m&sub;2;/r&sup2;. No ceteris paribus clause appears in the content of the law.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When applying the law to the solar system, we add specifications of the system (masses, distances, other forces). The approximation is in the specification of the system, not in the law.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>There are no ceteris paribus laws in fundamental physics: there are strict laws applied to approximately specified systems. The appearance of ceteris paribus laws arises from conflating law-content with application-conditions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>There is no such thing as a ceteris paribus law in fundamental physics; the appearance of such laws arises from conflating the content of the law with the conditions of its application; Cartwright&rsquo;s account misrepresents the structure of fundamental laws.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The interventionist account: fundamental laws are identified by their invariance under interventions and are genuinely causally explanatory</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Causal relationships are identified by their invariance under interventions: X causes Y if changing X by an intervention changes Y, stably, across a range of background conditions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Fundamental laws are the most invariant causal relationships we know: the gravitational relationship between masses is invariant across an enormous range of conditions and interventions.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This invariance is precisely what makes fundamental laws causally explanatory, against Cartwright&rsquo;s simulacrum account. The difficulty of applying fundamental laws to complex systems does not show they lack genuine causal efficacy.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Fundamental laws are maximally invariant causal relationships; their invariance is what makes them causally explanatory; Cartwright&rsquo;s simulacrum account conflates application difficulty with causal failure.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Phenomenological laws are approximations of fundamental ones; their truth depends on the truth of the fundamental framework</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Ohm&rsquo;s law and the ideal gas law are true of real systems in restricted regimes because they follow, approximately, from more fundamental equations (quantum mechanics, statistical mechanics).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The truth of phenomenological laws is not independent of the truth of fundamental laws; it is grounded in it. The phenomenological truth is a downstream consequence of the fundamental truth.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Cartwright inverts the correct epistemic order: phenomenological laws are true because the fundamental laws are true, not the reverse. The fundamentals have explanatory and epistemic priority.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Cartwright inverts the correct epistemic order: phenomenological laws are approximately true precisely because they follow from fundamental laws that are true across broader domains; their truth is parasitic on the truth of the fundamental framework.</span></div>
+        </div>
+      </div>
+    </div><!-- end woodward -->
+
+    <!-- ─── MORRISON ─── -->
+    <div class="speaker-panel" id="opp-morrison-panel">
+      <div id="opp-morrison-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>In <em>Models as Mediators</em> and my subsequent work I take the role of models in science very seriously &mdash; more seriously, in some ways, than Cartwright does. But I reach a very different conclusion. The fact that models are partially autonomous, not directly derived from theory, does not show that fundamental laws are false; it shows that the relationship between theory and world is more complex than simple derivation.</p>
+        <div class="pull">&ldquo;The fact that models are not derived directly from fundamental theory, and contain elements that are not part of that theory, does not show that the fundamental theory is false. It shows that model-building is a complex, creative activity.&rdquo; &mdash; Morrison, 1999</div>
+        <span class="section">i. models are partially autonomous but not theory-independent</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Model autonomy — models contain extra-theoretical elements but are still constrained by fundamental theory; autonomy &ne; theoretical falsity</span>Cartwright and Giere are right that models in physics are not straightforwardly derived from fundamental theories. Real models contain elements that come from empirical data, from engineering practice, from mathematical convenience, and from domain-specific knowledge that is not part of any fundamental theory. This is what I mean by &ldquo;partial autonomy.&rdquo; But partial autonomy does not mean theory-independence. The models are also constrained by the fundamental theory: they must be consistent with its equations, they must reproduce its predictions in appropriate limits, they must not violate its symmetries. The partial autonomy of models shows that model-building is a creative activity that goes beyond simple derivation; it does not show that the fundamental theory is false or merely a useful fiction.</span></p>
+        <span class="section">ii. unification as evidence for fundamental truth</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Unification — the capacity of fundamental theory to unify wildly different phenomena is best explained by its genuine truth; this is the deepest argument against Cartwright</span>The most powerful argument for the truth of fundamental laws is the phenomenon of theoretical unification. Maxwell&rsquo;s equations unify electricity, magnetism, and optics: phenomena that were previously described by separate, apparently unrelated phenomenological laws. The Schr&ouml;dinger equation unifies the behaviour of all quantum systems: atoms, molecules, superconductors, particle physics. This unification is not the mere compilation of disparate phenomenological regularities. It is the discovery that phenomena previously thought to be independent are manifestations of the same underlying structure. If the fundamental laws were false &mdash; mere fictions convenient for deriving phenomenological results &mdash; the unification would be inexplicable. Why should a useful fiction about one domain correctly predict phenomena in a completely different domain? The unification is only explicable if the law is genuinely true of the common structure underlying both domains.</span></p>
+        <span class="section">iii. the BCS model and the limits of Cartwright&rsquo;s anti-realism</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">BCS model — the superconductivity model contains ad hoc elements but is grounded in quantum mechanics; its success confirms the fundamental framework, not Cartwright&rsquo;s position</span>Cartwright uses the BCS model of superconductivity as an illustration of how real physics involves models with elements that go beyond fundamental quantum mechanics. She is right that the BCS model contains elements that are, from the perspective of fundamental quantum mechanics, phenomenological and to some degree ad hoc. But the relevant question is not whether the BCS model is purely derived from first principles; it is whether the success of the model confirms the fundamental quantum mechanical framework. And the answer is clearly yes. The BCS model works because it is built within the framework of quantum mechanics, using the quantum mechanical concepts of electron pairing, energy gaps, and phonon exchange. Its success is evidence for the truth of the quantum mechanical framework, not against it. Cartwright&rsquo;s use of BCS actually cuts against her own conclusion.</span></p>
+        <span class="section">iv. the dappled world is compatible with fundamental laws</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Dappled world — even if nature is disunified at the phenomenological level, fundamental laws may still be true of the underlying structures; disunity at one level &ne; absence of laws at another</span>Cartwright&rsquo;s dappled world claim &mdash; that nature is a patchwork of local regularities rather than a law-governed unity &mdash; may be correct at the phenomenological level. Different domains do require different models. But this does not entail that no fundamental laws are true of the underlying structures. Even in a dappled world, there may be genuine fundamental laws governing the basic constituents and interactions, with the dappling arising from the complexity of how those laws play out in different macro-level domains. The disunity is at the level of phenomena and models; it does not entail disunity at the level of fundamental physical structure. Cartwright conflates phenomenological disunity with fundamental lawlessness.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-morrison-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Models are partially autonomous but still constrained by fundamental theory; autonomy is not theoretical falsity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Real scientific models contain elements from empirical data, engineering practice, and domain-specific knowledge not directly derived from fundamental theory. This is genuine partial autonomy.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But models are also constrained by the fundamental theory: they must be consistent with its equations, reproduce its predictions in appropriate limits, and not violate its symmetries.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Partial autonomy shows that model-building is creative and goes beyond simple derivation; it does not show that the fundamental theory is false or a fiction. The models&rsquo; constraint by the theory is evidence of the theory&rsquo;s real content.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The partial autonomy of models from fundamental theory is compatible with the truth of the theory; models are creative extensions of the theoretical framework, not evidence of the framework&rsquo;s falsity.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Theoretical unification is best explained by the genuine truth of fundamental laws, not by useful fictions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Maxwell&rsquo;s equations unify electricity, magnetism, and optics. The Schr&ouml;dinger equation unifies the behaviour of all quantum systems. This unification is not the compilation of separate phenomenological regularities.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If the fundamental laws were false fictions, the unification would be inexplicable: a useful fiction about electricity should not, without further justification, correctly predict optical phenomena.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Unification is explicable only if the fundamental law is genuinely true of the common underlying structure of the unified phenomena. The law discovers a real physical unity, not merely a computational convenience.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Theoretical unification across wildly different domains is best explained by the genuine truth of the fundamental laws; Cartwright&rsquo;s anti-realism cannot explain why a fiction about one domain correctly predicts phenomena in a completely different domain.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The BCS model confirms the quantum mechanical framework; Cartwright&rsquo;s example cuts against her own conclusion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The BCS model contains ad hoc elements from a first-principles perspective. But it is built within the framework of quantum mechanics using quantum mechanical concepts of electron pairing, energy gaps, and phonon exchange.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The success of the BCS model is success within the quantum mechanical framework; it confirms the framework&rsquo;s applicability to the domain of superconductivity, not the inadequacy of fundamental theory.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Cartwright&rsquo;s use of BCS therefore cuts against her own conclusion: the partially autonomous model succeeds because of the truth of the underlying framework, not despite it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The BCS model is evidence for the truth of the quantum mechanical framework, not against it; Cartwright&rsquo;s use of this example to support anti-realism is self-defeating.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Phenomenological disunity is compatible with fundamental law-governed unity at the structural level</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The dappled world claim: different domains require different models, with no single phenomenological theory covering them all. This may be correct at the phenomenological level.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But this does not entail that no fundamental laws are true of the underlying structures. Disunity at the phenomenological level is consistent with unity at the level of fundamental physical structure.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Cartwright conflates phenomenological disunity (real and important) with fundamental lawlessness (a much stronger claim unsupported by the evidence). The dappling is at the level of appearances; fundamental laws may still govern the underlying reality.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Phenomenological disunity is compatible with fundamental law-governed unity; the dappled world at the level of phenomena does not entail a lawless world at the level of fundamental physical structure; Cartwright&rsquo;s inference from the former to the latter is invalid.</span></div>
+        </div>
+      </div>
+    </div><!-- end morrison -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'cartwright',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'psillos',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
