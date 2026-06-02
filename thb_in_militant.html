@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Militant and the Labour Party</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a1a1e;--bg2:#222228;--bg3:#2a2a32;--bg4:#343440;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#ddd8cf;--text2:#9a9790;--text3:#58564f;
+  --gold:#c47a3a;
+  --prop-green:#4a8fa8;--prop-pill:#1a2e38;--prop-pill-bdr:#3a6478;
+  --opp-red:#a85050;--opp-pill:#38181a;--opp-pill-bdr:#6a3838;
+  --a1bg:rgba(255,180,0,.12);--a1brd:rgba(255,180,0,.42);--a1tip:#ffd060;
+  --a2bg:rgba(80,195,195,.11);--a2brd:rgba(80,195,195,.4);--a2tip:#50d8d8;
+  --a3bg:rgba(90,195,100,.10);--a3brd:rgba(90,195,100,.38);--a3tip:#72e080;
+  --a4bg:rgba(215,80,80,.11);--a4brd:rgba(215,80,80,.4);--a4tip:#e87878;
+  --a5bg:rgba(165,100,225,.11);--a5brd:rgba(165,100,225,.4);--a5tip:#cc88ff;
+  --a6bg:rgba(255,130,0,.11);--a6brd:rgba(255,130,0,.4);--a6tip:#ffaa44;
+  --a7bg:rgba(160,210,255,.09);--a7brd:rgba(160,210,255,.36);--a7tip:#a0d4ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 10px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(196,122,58,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">British Labour Politics &mdash; Benn (1980) &bull; Heffer (1984) &bull; Skinner (1982) &nbsp;&mdash;&nbsp; Kinnock (1985) &bull; Hattersley (1986) &bull; Williams (1981) &bull; Shore (1983)</div>
+  <div class="motion-title">&ldquo;This House Believes that Militant Tendency should be expelled from the Labour Party &mdash; Kinnock is right&rdquo;</div>
+  <div class="motion-sub">Proposition (For Expulsion) &bull; Kinnock &middot; Hattersley &middot; Williams &middot; Shore &nbsp;&mdash;&nbsp; Opposition (Against Expulsion) &bull; Benn &middot; Heffer &middot; Skinner</div>
+</div>
+
+<div class="columns">
+
+<!-- ═══════════════════ PROPOSITION (Pro-Expulsion) ═══════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','kinnock',this)">Kinnock</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','hattersley',this)">Hattersley</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','williams',this)">Williams</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','shore',this)">Shore</button>
+  </div>
+
+  <!-- KINNOCK HEADER -->
+  <div class="col-header" id="prop-kinnock-header">
+    <div class="col-header-top"><span class="pill prop">Democratic Socialist Renewal</span><span class="col-subtitle">Neil Kinnock, Leader of the Labour Party, 1983&ndash;92</span></div>
+    <div class="col-position">Militant is not a tendency within the broad church of democratic socialism. It is a separate, entrist organisation with its own membership, its own finances, its own newspaper, its own full-time staff, and its own Trotskyist programme that is utterly alien to Labour&rsquo;s democratic traditions. Tolerating it destroys Labour&rsquo;s electoral credibility and its basic integrity as a democratic party. It must be removed.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','kinnock','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','kinnock','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- HATTERSLEY HEADER -->
+  <div class="col-header hidden" id="prop-hattersley-header">
+    <div class="col-header-top"><span class="pill prop">Revisionist Social Democracy</span><span class="col-subtitle">Roy Hattersley, Deputy Leader, 1983&ndash;92</span></div>
+    <div class="col-position">Militant&rsquo;s programme &mdash; the nationalisation of the top 200 monopolies, abolition of the House of Lords, repudiation of the mixed economy &mdash; is not a more radical version of Labour&rsquo;s aims. It is a fundamentally different ideology, Trotskyist in origin and undemocratic in method, that Labour&rsquo;s constitution explicitly prohibits. The party is not obliged to provide a platform for organisations that seek its destruction from within.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','hattersley','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','hattersley','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- WILLIAMS HEADER -->
+  <div class="col-header hidden" id="prop-williams-header">
+    <div class="col-header-top"><span class="pill prop">Social Democratic Critique</span><span class="col-subtitle">Shirley Williams, SDP co-founder, former Labour Cabinet minister</span></div>
+    <div class="col-position">I left a Labour Party I had served for thirty years in part because of what Militant and the hard left were doing to it. The entryist infiltration of local Labour parties &mdash; the intimidation of moderate members, the packing of selection meetings, the capture of council chambers for a political programme voters never endorsed &mdash; is not vigorous internal debate. It is the subversion of democracy by people who do not believe in democracy.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','williams','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','williams','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- SHORE HEADER -->
+  <div class="col-header hidden" id="prop-shore-header">
+    <div class="col-header-top"><span class="pill prop">Traditionalist Labourism</span><span class="col-subtitle">Peter Shore, Shadow Leader of the House, 1983&ndash;84</span></div>
+    <div class="col-position">The question is not whether Labour should be broad or narrow, tolerant or intolerant of dissent. The question is whether a separate organisation, operating under its own discipline and pursuing goals incompatible with Labour&rsquo;s own, can be permitted to use Labour&rsquo;s name and Labour&rsquo;s machinery for its own ends. The answer must be no &mdash; not on doctrinal grounds, but on the simple grounds of organisational self-respect.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','shore','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','shore','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- KINNOCK -->
+    <div class="speaker-panel active" id="prop-kinnock-panel">
+      <div id="prop-kinnock-speech" class="speech-text">
+        <p class="salut">Conference,</p>
+        <p>I will start with some plain speaking, because this party has had too little of it for too long. What we are debating today is not, as our opponents on the left would have you believe, a question of tolerance, or of the breadth of the broad church, or of whether working-class militants have the right to be heard in their party. Of course they do. That question is not in dispute. The question is something entirely different: whether a separate, self-disciplined, externally funded Trotskyist organisation should be permitted to use the Labour Party as its vehicle while owing its primary allegiance to its own leadership and its own programme.</p>
+        <div class="pull">&ldquo;I&rsquo;ll tell you what happens with impossible promises. You start with far-fetched resolutions. They are then pickled into a rigid dogma, a code, and you go through the years sticking to that, out-dated, mis-placed, irrelevant to the real needs, and you end in the grotesque chaos of a Labour council &mdash; a Labour council &mdash; hiring taxis to scuttle round a city handing out redundancy notices to its own workers.&rdquo;</div>
+        <span class="section">i. the organisational reality of militant</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Organised entryism — Militant is a separate party inside the party: own press, funds, full-timers, and binding discipline that overrides Labour loyalty</span>Let me set out the organisational facts, because some people prefer to speak about this abstractly. Militant Tendency has its own newspaper, the <em>Militant</em>, published since 1964, with its own editorial board and circulation network. It has its own full-time staff &mdash; at its peak over two hundred people &mdash; paid from its own funds, raised independently of the Labour Party. It has its own internal discipline: members are expected to give a proportion of their income to the tendency, to attend its own educational meetings, to accept its own leadership&rsquo;s guidance on how to vote and what to argue inside Labour structures. This is not a current of opinion within a party. This is a party within a party, and it uses Labour&rsquo;s name and Labour&rsquo;s democratic structures as a cover for its own quite different purposes.</span></p>
+        <span class="section">ii. the liverpool catastrophe</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Liverpool — Militant-controlled council set illegal budget, sent redundancy notices to 30,000 workers; exposed as gesture politics at workers' expense</span>The proof is in the record of what Militant actually does when it holds power. In Liverpool, a Labour council under Militant&rsquo;s effective direction set a budget it knew to be illegal, refused to set a legal rate, and then &mdash; when the crisis they had manufactured came to a head &mdash; issued redundancy notices to thirty thousand council workers in order to dramatise their confrontation with the government. Thirty thousand workers. Labour workers. People who had joined trade unions and voted Labour all their lives, and who received their P45s delivered by taxi as a piece of political theatre staged by people claiming to act in their interests. That is not socialism. That is the politics of gesture dressed up as the politics of principle, and the thirty thousand people who received those notices know the difference.</span></p>
+        <span class="section">iii. entryism and the corruption of democratic structures</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Democratic subversion — entryism systematically corrupts selection meetings, GMCs, and local parties; ordinary members driven out by organised faction</span>The method by which Militant operates is not open debate and persuasion &mdash; the methods of democratic politics. It is entryism: the systematic infiltration of General Management Committees, constituency parties, and trade union branches by organised blocks of members who vote as a unit and whose first loyalty is to the tendency&rsquo;s own leadership. Members who disagree with Militant &mdash; ordinary trade unionists, community activists, long-serving ward members &mdash; find themselves isolated, outmanoeuvred at meetings stacked with faces they do not recognise, and eventually driven out of parties they have served for decades. This is not the broad church. It is the occupation of the church by a sect that does not share its faith and does not respect its congregation.</span></p>
+        <span class="section">iv. the electoral cost of tolerance</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Electoral cost — Labour lost 1983 catastrophically; Militant provided Tories with their most damaging ammunition; expulsion is precondition for recovery</span>I am accused of being motivated by electoral opportunism. Very well, let us talk about electoral reality, because the people who most need a Labour government are the people who are being destroyed by this Conservative government: the unemployed, the council tenants, the workers in the collapsing industries. And they will not get a Labour government while Labour is successfully characterised &mdash; not unfairly characterised &mdash; as a party in the grip of extremists who want to nationalise everything, abolish the second chamber by decree, and repudiate international alliances. In 1983 we received our worst share of the vote since 1918. Militant did not cause that alone. But Militant, and what Militant represented in the public mind, was central to it. The people who need Labour most are the people paying the price of our tolerance.</span></p>
+        <span class="section">v. constitutional legitimacy of expulsion</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Constitutional case — Labour's constitution prohibits membership of organisations with their own programme; Militant openly meets this criterion; expulsion is legally proper</span>There is a constitutional argument, and it is straightforward. Clause II of the Labour Party constitution provides that the party shall not affiliate with or give support to organisations that have their own programme, principles, and policy distinct from those of the Labour Party, and that seek to operate as a separate party or tendency within the Labour Party. Militant has openly and publicly operated under its own programme &mdash; the British Perspectives of the Militant tendency, a document of explicit Trotskyist analysis &mdash; since the 1960s. Its supporters have repeatedly insisted that they are a distinct political tendency with a coherent theoretical identity. They cannot in the same breath claim that this makes them immune from a provision in Labour&rsquo;s own rules designed precisely for their situation. The constitution provides the mechanism. We are using it.</span></p>
+        <p><em>I will say one thing more. I do not take pleasure in this. These are Labour people, however mistaken. But the duty of this party&rsquo;s leadership is to the party as a whole, and to the millions of people in this country who need a Labour government. That duty requires us to act.</em></p>
+      </div>
+      <div id="prop-kinnock-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Organisational identity: Militant is a party within a party, not a tendency within a broad church</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Militant has its own newspaper, full-time paid staff (200+), independent fundraising, internal educational structures, and binding internal discipline obliging members to tithe income and accept its leadership&rsquo;s political direction.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A political organisation with these features &mdash; its own programme, its own finances, its own discipline &mdash; is definitionally a separate political party, not a tendency or current of opinion.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Labour Party&rsquo;s constitution prohibits membership of organisations that operate as separate parties or tendencies within Labour. Militant demonstrably meets this criterion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Militant is not a legitimate internal tendency deserving protection as part of Labour&rsquo;s broad church; it is a separate organisation using Labour&rsquo;s structures for its own purposes, and its members are in breach of Labour&rsquo;s constitution.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Liverpool evidence: Militant in power damages the working-class communities it claims to champion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">2.</span><span>In Liverpool 1985, Militant-influenced Labour councillors set an illegal budget and, when challenged, served redundancy notices on 30,000 council employees to manufacture a political confrontation with central government.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Those 30,000 workers &mdash; the constituency Militant claims to represent &mdash; suffered real material harm (loss of employment security, pensions disruption) as a consequence of Militant&rsquo;s political theatre.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An organisation that harms the workers it claims to champion, in order to pursue a confrontational political strategy, has forfeited the moral claim that its radicalism is in working people&rsquo;s interests.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The Liverpool record demonstrates that Militant&rsquo;s politics, when implemented, damages the very communities it professes to serve; its radicalism is a form of gesture politics conducted at workers&rsquo; expense.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Entryism is the systematic subversion of democratic party structures</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Militant&rsquo;s method is not open persuasion but organised infiltration: packing GMC meetings, manipulating selection conferences, and operating as a disciplined bloc to install its own candidates in council seats and parliamentary selections.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This method systematically excludes ordinary members from effective participation in their own party, replacing open democratic contest with the capture of formal structures by an organised outside force.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A party that permits the systematic subversion of its own democratic mechanisms by an entryist organisation has effectively ceased to be a democratic party in any meaningful sense.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Militant&rsquo;s entryist method is incompatible with internal party democracy; tolerating it does not reflect the broad church tradition but its negation; expulsion is a defence of democracy, not an attack on it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Electoral reality: association with Militant makes a Labour government impossible, depriving the poor of representation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Labour&rsquo;s 1983 general election result &mdash; 27.6% of the vote, its lowest since 1918 &mdash; reflected in part a public perception that the party had been captured by extremists. Militant&rsquo;s programme and profile contributed materially to this perception.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The people most harmed by Conservative government &mdash; the unemployed, low-wage workers, council tenants &mdash; are the people who most need a Labour government and who are denied it by Labour&rsquo;s unelectability.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An unelectable party of principle provides no more material benefit to the working class than no party at all; electability is not opportunism but a precondition of being useful.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Expelling Militant is not electoral opportunism but a moral obligation to the communities that need Labour in government; tolerating Militant condemns those communities to permanent Tory rule in the name of an internal purity they do not share.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V &mdash; Constitutional legitimacy: Labour&rsquo;s rules provide clear and proper authority for expulsion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Labour&rsquo;s constitution prohibits membership of organisations with their own programme, principles, and policies distinct from Labour&rsquo;s, or that seek to operate as a separate party or tendency within it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Militant openly acknowledges its own programme (the British Perspectives document), its own organisational identity, and its own theoretical distinctiveness. Its supporters have claimed these as sources of pride.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Having publicly satisfied the constitutional criterion for exclusion, Militant cannot simultaneously claim immunity from the constitutional mechanism its members&rsquo; conduct has triggered.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Expulsion is constitutionally proper, democratically legitimate, and entirely consistent with Labour&rsquo;s own rules; it is not purge or witch-hunt but the lawful application of the party&rsquo;s own constitutional provisions.</span></div>
+        </div>
+      </div>
+    </div><!-- end kinnock -->
+
+    <!-- HATTERSLEY -->
+    <div class="speaker-panel" id="prop-hattersley-panel">
+      <div id="prop-hattersley-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to come at this question from a different angle from Neil Kinnock, though I reach the same conclusion. I am not primarily interested in the organisational question &mdash; in the question of whether Militant has its own membership cards or its own bank account. Those are real and important facts, but they are not the deepest reason why Militant cannot be part of the Labour Party. The deepest reason is ideological: Militant&rsquo;s programme is not a more thorough version of Labour&rsquo;s own aims. It is a fundamentally different political project, rooted in a different theory of history, a different theory of the state, and a different theory of how political change is achieved.</p>
+        <span class="section">i. the marxist state theory and its implications</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">State theory — Militant's Marxist theory of the capitalist state makes parliamentary democracy a transitional instrument, not a permanent commitment; incompatible with Labour's democratic constitution</span>Militant operates on the Trotskyist theory that the capitalist state &mdash; including its parliamentary institutions &mdash; cannot be genuinely reformed but must ultimately be replaced by working-class state power. Parliament, on this analysis, is useful as a platform, as a tribune from which to address the masses, but it is not the vehicle through which fundamental socialist transformation is achieved. The transformation will come through extra-parliamentary action: through the general strike, through the building of workers&rsquo; soviets, through the revolutionary overthrow of the existing state apparatus. This is not a secret; it is the explicit content of the British Perspectives document and of Ted Grant&rsquo;s writings, available in any Militant bookshop. A party that holds parliamentary democracy to be a transitional instrument cannot be a parliamentary party in any meaningful sense, regardless of whether it temporarily uses parliamentary methods.</span></p>
+        <span class="section">ii. the programme is undeliverable and the pretence is dishonest</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Programme — nationalisation of top 200 monopolies, abolition of Lords by decree, repudiation of NATO: not radical Labourism but a Trotskyist transitional programme designed to expose rather than reform the system</span>Consider what Militant actually proposes: the nationalisation of the 250 monopolies that they say dominate the British economy, with compensation paid only on the basis of proven need; the abolition of the House of Lords by resolution of a Labour Cabinet, not by legislation; the repudiation of existing international treaty obligations; and the construction of a socialist planned economy in Britain within the lifetime of a single Parliament. This is not a set of policies. It is a transitional programme in the technical Trotskyist sense &mdash; a set of demands designed not to be delivered but to expose the contradictions of the capitalist system. The purpose of the programme is to demonstrate that reform is impossible, thereby pushing the working class towards revolutionary consciousness. It is dishonest to present this as a form of more vigorous Labourism. It is a different political project wearing Labourist clothes.</span></p>
+        <span class="section">iii. the broad church has limits</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Broad church limits — Labour has always had internal boundaries; democratic socialism is the common ground; Trotskyism falls outside it; breadth is not the same as boundlessness</span>I want to address directly the argument that Labour is and always has been a broad church, and that Militant is simply at the left end of that broad church. It is true that Labour has always been a coalition &mdash; of trade unionists and Fabians, of pacifists and imperialists, of guild socialists and co-operators. That breadth has been one of Labour&rsquo;s great strengths. But the broad church has always had a foundation &mdash; a set of values and methods without which the coalition ceases to be Labour at all. That foundation is a commitment to achieving socialist goals through democratic means, with respect for the democratic will of the electorate even when that will is inconvenient. Militant does not share that foundation. Its commitment to parliamentary democracy is provisional and instrumental. A church that has no doctrinal core is not a broad church; it is simply an empty building available for hire to whoever turns up.</span></p>
+        <span class="section">iv. the social democratic tradition demands organisational integrity</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Social democratic tradition — Revisionist Labour from Crosland to Gaitskell understood that without organisational self-discipline, the party cannot function as a governing party</span>Hugh Gaitskell, a leader of this party I greatly admired, fought at Scarborough in 1960 to preserve what he called the &ldquo;fight, fight, and fight again&rdquo; character of the party he loved. He understood that Labour as a governing party required something more than enthusiasm and commitment. It required the capacity to make decisions, to implement them, and to present a coherent and unified face to the electorate. That capacity is destroyed when separate organisations operate within the party under their own discipline, with their own agenda, subordinating party decisions to their own purposes. The revisionist tradition in Labour &mdash; from Crosland&rsquo;s <em>The Future of Socialism</em> to the revisionism of the 1980s &mdash; has always understood that means matter: that how you pursue socialism determines what kind of socialism you achieve. Militant&rsquo;s means are incompatible with Labour&rsquo;s ends.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-hattersley-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Trotskyist state theory makes Militant&rsquo;s commitment to parliamentary democracy provisional and instrumental</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Militant&rsquo;s theoretical framework (derived from Ted Grant and the Fourth International) holds that the capitalist state cannot be fundamentally reformed through parliamentary means; parliament is useful as a tribune but not as the vehicle of socialist transformation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This analysis implies that parliamentary democracy is a transitional instrument to be used until extra-parliamentary action becomes possible or necessary, not a permanent political commitment.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Labour&rsquo;s constitution and tradition commit it irrevocably to achieving its aims through democratic parliamentary means. A party that regards this commitment as provisional cannot be a genuine member of the Labour family.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Militant&rsquo;s Trotskyist state theory makes its use of Labour&rsquo;s parliamentary structures purely tactical; its underlying commitment to extra-parliamentary transformation is fundamentally incompatible with Labour&rsquo;s democratic constitution.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Militant&rsquo;s programme is a Trotskyist transitional programme, not a version of Labour radicalism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A transitional programme (in the Trotskyist sense) is a set of demands designed not to be implemented under capitalism but to expose its contradictions and accelerate the development of revolutionary consciousness in the working class.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Militant&rsquo;s programme &mdash; nationalisation of the 250 monopolies, abolition of the Lords by Cabinet resolution, transformation of the economy in a single Parliament &mdash; is undeliverable under any foreseeable conditions and functions as a set of transitional demands in precisely this sense.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Presenting a transitional programme as if it were achievable radical Labourism is a form of political dishonesty that Labour should not endorse by including its advocates within its membership.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Militant&rsquo;s programme is not a more radical version of Labour policy; it is a different kind of political project &mdash; a Trotskyist transitional programme &mdash; that uses the language of Labourism while pursuing fundamentally incompatible aims.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The broad church has a democratic socialist foundation; Trotskyism falls outside its boundaries</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Labour has always been a coalition of diverse traditions, but the coalition has always shared a foundational commitment to achieving socialist aims through democratic means, respecting the will of the electorate.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Militant&rsquo;s commitment to parliamentary democracy is provisional and instrumental; it does not share the foundational democratic commitment that defines the boundaries of the Labour coalition.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A church without a doctrinal core is not a broad church but a building available for any purpose; the broad church tradition requires that there be something at its foundation, and that foundation is democratic socialism.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The broad church argument does not protect Militant, because Militant does not share the democratic socialist foundation that defines the boundaries of Labour&rsquo;s broad church; its inclusion would dissolve the church rather than broaden it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The revisionist tradition: means and ends are inseparable; Militant&rsquo;s methods corrupt Labour&rsquo;s goals</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The revisionist social democratic tradition (Crosland, Gaitskell) holds that the methods by which socialism is pursued are not separable from the kind of socialism achieved; democratic means are constitutive of democratic socialist ends.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Militant&rsquo;s methods &mdash; entryism, internal discipline overriding party loyalty, the use of party structures as a cover for a separate organisation &mdash; are undemocratic in character and corrupt the democratic socialist values Labour is trying to embody.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A party that permits its structures to be used by organisations employing undemocratic methods is already, to that extent, compromising the democratic socialist values it claims to hold.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>From the revisionist tradition&rsquo;s standpoint, the question of Militant&rsquo;s means is inseparable from the question of Labour&rsquo;s ends; Militant&rsquo;s undemocratic methods are incompatible with the democratic socialist goals Labour exists to pursue.</span></div>
+        </div>
+      </div>
+    </div><!-- end hattersley -->
+
+    <!-- WILLIAMS -->
+    <div class="speaker-panel" id="prop-williams-panel">
+      <div id="prop-williams-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I speak from a particular vantage point in this debate: I am someone who chose to leave the Labour Party rather than remain in it while organisations like Militant corroded its internal democracy. Some people regard that decision as a betrayal. I regard it as an act of political honesty. But that debate is not for today. What I want to offer today is an account of what the internal life of Labour constituency parties actually looked like in the late 1970s and early 1980s, before the Bennite and Militant mobilisation had run its course.</p>
+        <span class="section">i. the experience of ordinary members</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Intimidation — ordinary Labour members in infiltrated CLPs experienced organised intimidation, deselection threats, and the systematic exclusion of moderate voices from party life</span>I am not speaking of the grand ideological debates, though they matter. I am speaking of what happened in ordinary constituency Labour parties up and down the country when Militant and the hard left organised effectively in them. I am speaking of members who had served their parties for twenty and thirty years &mdash; councillors, trade unionists, community workers &mdash; who found themselves facing orchestrated votes of no confidence, deselection threats, and the kind of personal hostility that is designed not to win an argument but to drive a person out. I am speaking of women members who found the culture of infiltrated parties aggressive and intimidating in ways that party meetings had never been before. I am speaking of Jewish members of the Labour Party who found some of the rhetoric that came with the hard-left package deeply uncomfortable. These are not abstract constitutional questions. They are the lived experience of Labour&rsquo;s own members.</span></p>
+        <span class="section">ii. the lesson of the SDP split</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">SDP split — the Gang of Four left because internal reform was impossible; Militant's presence accelerated the fracture that cost Labour a generation of power</span>Those who blame the SDP split for Labour&rsquo;s electoral difficulties are not entirely wrong. I accept my share of responsibility for the damage the split caused. But I would ask people to consider what drove us to make that decision. It was not ambition. It was not disagreement over policy at the margins. It was the calculation &mdash; which I still believe was correct &mdash; that the Labour Party had, in the period of the Bennite ascendancy and Militant infiltration, ceased to be a vehicle through which democratic socialist politics could effectively be pursued. We were wrong about some things. We were wrong, I now think, to believe that the SDP could replace Labour as the vehicle for centre-left politics in Britain. But we were not wrong about what was happening to Labour. The fact that Kinnock is now having to take these measures confirms what we said then.</span></p>
+        <span class="section">iii. democratic accountability and the local state</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Local accountability — Militant-controlled councils pursued ideological programmes not endorsed by local electorates; this violates democratic accountability at its most basic level</span>There is a democratic argument that goes beyond the internal life of the Labour Party. Militant&rsquo;s grip on several local councils meant that councils were pursuing ideological programmes &mdash; illegal budgets, confrontational industrial relations, symbolic politics &mdash; that local electorates had never been asked to endorse and would not have endorsed if they had been asked. The voters of Liverpool elected a Labour council to run their city&rsquo;s services. They did not elect a Trotskyist council to use their city as a laboratory for revolutionary politics. The accountability of elected representatives to their electors is not a bourgeois formality that Marxists can set aside when it is inconvenient. It is the basic contract of democratic politics.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-williams-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Entryism caused real harm to ordinary Labour members through intimidation and exclusion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In infiltrated CLPs, long-serving moderate members faced organised votes of no confidence, deselection threats, and personal intimidation designed to drive them from the party, not to win ideological arguments.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This behaviour caused real harm to real individuals &mdash; the destruction of political careers built on decades of service &mdash; and fundamentally changed the culture of local party life in ways that made many members leave.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An organisation whose methods cause this kind of harm to the party it has infiltrated cannot claim the protection of the party&rsquo;s broad church tradition, which exists to protect genuine diversity, not organised aggression.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The harm Militant caused to ordinary Labour members through intimidation and exclusion is a concrete indictment of its methods and a ground for expulsion independent of any ideological argument.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The SDP split was a symptom of Militant&rsquo;s damage; its costs confirm the severity of the problem</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The decision of the Gang of Four to leave Labour and found the SDP was driven in significant part by the assessment that the Bennite ascendancy and Militant infiltration had made Labour unworkable as a vehicle for democratic socialist politics.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The SDP split cost Labour experienced politicians, organisational capacity, and a significant share of its electoral coalition, contributing to the 1983 catastrophe.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the presence of Militant and the hard left was a proximate cause of the SDP split, and the split materially damaged Labour&rsquo;s prospects, then the costs of tolerating Militant are far greater than its defenders acknowledge.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The SDP split was a measurable consequence of the conditions Militant helped create within Labour; its costs in terms of electoral damage confirm that the toleration of entryism has consequences extending far beyond internal party culture.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Militant-controlled councils violated democratic accountability of elected representatives to local electorates</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Elected councillors are democratically accountable to their local electorates for the exercise of their powers. This accountability is the basic contract of democratic local government.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Militant-influenced councils in Liverpool and elsewhere pursued ideological programmes &mdash; illegal budgets, confrontational strategies &mdash; that local voters had never endorsed and were not given the opportunity to endorse or reject.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Using elected office as a vehicle for an ideological programme not endorsed by the electorate is a violation of democratic accountability that cannot be justified by appeals to a higher political purpose.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Militant&rsquo;s use of Labour-controlled councils to pursue programmes not endorsed by local electorates violated the basic democratic accountability that justifies the holding of elected office; this is a democratic, not merely a party-political, objection.</span></div>
+        </div>
+      </div>
+    </div><!-- end williams -->
+
+    <!-- SHORE -->
+    <div class="speaker-panel" id="prop-shore-panel">
+      <div id="prop-shore-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to make a case that is different from my colleagues&rsquo; in tone if not in conclusion. I am not, primarily, an ideological moderate. I am a democratic socialist of a fairly traditional kind. I believe in public ownership, in economic planning, in the redistribution of wealth, in a genuinely egalitarian society. I say this because I want it understood that when I argue for action against Militant, I am not doing so from the right of this party, and I am not doing so because I find their politics inconvenient. I am doing so because I believe their method of operation is incompatible with the kind of party the Labour movement needs.</p>
+        <span class="section">i. the question of organisational self-respect</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Organisational self-respect — a party that cannot enforce its own rules and boundaries has ceased to function as an organisation; expulsion is an act of institutional self-preservation</span>There is a prior question, before we reach the ideological arguments: can any organisation function effectively if it cannot define and enforce its own boundaries? This is not a question unique to political parties. A trade union that cannot distinguish between its own members and members of a rival organisation has a practical problem. A co-operative society that cannot require its members to abide by its rules will cease to function. The Labour Party has rules. Those rules have been violated, openly and continuously, by an organisation that has made no secret of its determination to use Labour&rsquo;s structures for its own ends. The question of whether to enforce those rules is partly ideological and partly simply a question of whether the Labour Party intends to continue functioning as an organisation.</span></p>
+        <span class="section">ii. socialist pluralism requires honest pluralism</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Honest pluralism — genuine pluralism requires participants to be open about their programme; Militant's concealment is incompatible with genuine democratic debate</span>I believe in a Labour Party that is genuinely pluralist: that accommodates vigorous disagreement about strategy, tactics, and policy within the framework of shared democratic socialist values. That kind of pluralism requires honesty: participants in the debate must be open about what they believe and what they are trying to achieve. Militant has not been honest with the Labour Party. It has presented itself as a group of committed socialists, offering its newspaper as a service to the movement, when in fact it is a party with its own programme, its own leadership, and its own agenda that it is pursuing through Labour&rsquo;s structures. Democratic debate requires democratic honesty. You cannot build a genuinely pluralist party if some of the participants are concealing their real objectives. True pluralism requires that participants acknowledge what they are.</span></p>
+        <span class="section">iii. the long-term interest of the labour movement</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Labour movement interest — Militant damages not just the Labour Party but the broader movement: unions, co-ops, local government; the whole movement pays the price of the party's internal disorder</span>The damage caused by this situation is not confined to the Labour Party. It extends to the whole of the labour movement. Trade unions whose officials are Militant members face accusations of political entryism that damage their standing with their own membership. Local councils run by Militant sympathisers face the disruption of services that their working-class constituents depend on. The co-operative movement, the housing associations, the community organisations that look to Labour for political support all suffer when Labour is perceived as a party in the grip of extremists. The question is not just whether Militant should be allowed to pursue its agenda within Labour. It is whether the whole labour movement should be made to pay for the indulgence of one tendency within one party.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-shore-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Organisational self-respect: any functioning organisation must be able to define and enforce its own membership boundaries</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>All functioning organisations &mdash; parties, unions, co-operatives &mdash; require the capacity to define their own membership, enforce their own rules, and maintain their own organisational integrity.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Militant has openly and continuously violated Labour&rsquo;s constitutional rules by operating as a separate organisation within it. The rules provide a clear mechanism for addressing this.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A party that cannot or will not enforce its own rules in the face of open violation has effectively surrendered its capacity to function as a purposive organisation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Expulsion is a matter of organisational self-preservation as much as ideological principle; a party that cannot enforce its own boundaries cannot function, and the failure to act against Militant undermines the Labour Party&rsquo;s basic institutional integrity.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Genuine pluralism requires honest pluralism; Militant&rsquo;s concealment is incompatible with democratic internal debate</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Democratic pluralism within a party requires that participants be open about their programme, their organisational allegiances, and their ultimate objectives. Hidden agendas corrupt democratic debate.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Militant has concealed from ordinary Labour members the full nature of its programme, its organisational structure, and its theoretical commitments, presenting itself as a group of committed socialists rather than a separate party.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This concealment is a form of political dishonesty that makes genuine pluralist debate impossible; you cannot debate honestly with people who are concealing what they actually believe and who they actually answer to.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Militant&rsquo;s concealment of its full programme and organisational identity is incompatible with genuine democratic pluralism; the broad church argument assumes honest pluralism, which Militant&rsquo;s entryist method precludes.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The whole labour movement bears the costs of tolerating Militant within the Labour Party</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The damage of Militant&rsquo;s presence extends beyond the Labour Party to the whole labour movement: trade unions, Militant-influenced councils disrupting services, and community organisations whose credibility is damaged by association.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The labour movement&rsquo;s standing with the public &mdash; its capacity to represent working people credibly &mdash; is damaged by the perception that its political wing is in the grip of extremists.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The question of tolerating Militant is therefore not a question about the Labour Party&rsquo;s internal affairs alone; it is a question about the broader labour movement&rsquo;s capacity to serve the interests of working people.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The costs of tolerating Militant are borne by the whole labour movement; the decision to expel is therefore an act of responsibility to the movement as a whole, not merely a piece of internal party management.</span></div>
+        </div>
+      </div>
+    </div><!-- end shore -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════ OPPOSITION (Against Expulsion) ═══════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','benn',this)">Benn</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','heffer',this)">Heffer</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','skinner',this)">Skinner</button>
+  </div>
+
+  <!-- BENN HEADER -->
+  <div class="col-header" id="opp-benn-header">
+    <div class="col-header-top"><span class="pill opp">Socialist Democracy &amp; the Broad Church</span><span class="col-subtitle">Tony Benn, MP for Chesterfield, former Cabinet minister</span></div>
+    <div class="col-position">The expulsion of Militant members is not the defence of democracy but its negation. The Labour Party has always been and must remain a broad coalition of socialist, radical, and working-class opinion. The correct response to political disagreement within the party is democratic debate, not exclusion. Expulsion is the weapon of those who cannot win the argument and who prefer to change the membership rather than the policy.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','benn','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','benn','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- HEFFER HEADER -->
+  <div class="col-header hidden" id="opp-heffer-header">
+    <div class="col-header-top"><span class="pill opp">Labourist Anti-Purgism</span><span class="col-subtitle">Eric Heffer, MP for Liverpool Walton, NEC member</span></div>
+    <div class="col-position">I know the Militant people in Liverpool. I disagree with much of their politics. But they are Labour people &mdash; working-class socialists who have devoted their lives to this movement. The process by which they are being expelled is not fair, not democratic, and not consistent with the party&rsquo;s own traditions. A witch-hunt dressed up in constitutional language is still a witch-hunt. Kinnock is doing the Tories&rsquo; work for them.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','heffer','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','heffer','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- SKINNER HEADER -->
+  <div class="col-header hidden" id="opp-skinner-header">
+    <div class="col-header-top"><span class="pill opp">Class Politics &amp; Anti-Accommodation</span><span class="col-subtitle">Dennis Skinner, MP for Bolsover</span></div>
+    <div class="col-position">The drive to expel Militant is not about democracy or electability. It is about making the Labour Party safe for the kind of politics that the establishment &mdash; the press, the City, the right-wing union bureaucracy &mdash; will tolerate. The people targeting Militant today will be targeting the trade union link tomorrow and public ownership the day after. Kinnock is the instrument of Labour&rsquo;s accommodation to Thatcherism.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','skinner','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','skinner','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- BENN -->
+    <div class="speaker-panel active" id="opp-benn-panel">
+      <div id="opp-benn-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to begin by saying something that I think has been largely absent from this debate on the other side: a statement of principle. I am going to argue against expulsion not because I agree with all of Militant&rsquo;s politics &mdash; I do not &mdash; but because I believe the principle at stake is more important than any particular dispute about a particular tendency. The principle is this: that the Labour Party is, and must remain, a democratic socialist party that resolves its internal disagreements by debate and persuasion, not by exclusion and proscription.</p>
+        <div class="pull">&ldquo;The right to discuss, to criticise, to persuade &mdash; this is not a concession by the leadership to the membership. It is the foundation of everything the Labour movement stands for.&rdquo;</div>
+        <span class="section">i. the historical record of proscription</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Proscription history — Labour's previous use of proscription lists drove out legitimate socialists; the instrument has always been used against the left; it is a tool of factional power</span>Let me ask what the historical record of proscription in the Labour Party actually shows. The proscribed list &mdash; the list of organisations whose members were ineligible for Labour membership &mdash; was used throughout the 1950s and 1960s to exclude organisations and individuals from the party. Who was proscribed? The Socialist Fellowship. The Socialist Outlook. The Bevan movement at various points. The Keep Left group was harassed. The history of proscription in this party is a history of the right wing using constitutional mechanisms to suppress the left. It was wrong then. It is wrong now. And the fact that this time it is being done by someone who calls himself a democratic socialist, rather than by Hugh Gaitskell or Herbert Morrison, does not change the character of the act.</span></p>
+        <span class="section">ii. the militant members as labour people</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Militant members — the rank and file of Militant are working-class Labour people, not alien infiltrators; they have canvassed, traded unioned, and campaigned for Labour all their lives</span>I want to say something about the people who are to be expelled, because the debate has dealt in abstractions and in the worst examples of Militant behaviour, and it has not dealt with the reality of who Militant members are. I have met them. I have spoken at their meetings. The majority of Militant&rsquo;s rank-and-file members are young workers, trade unionists, and students who joined the Labour movement because they were radicalised by unemployment, by the Falklands war, by the destruction of communities under Thatcherism. They have knocked on doors for Labour candidates, they have paid their subscriptions, they have worked in their trade unions. The question of whether they hold a particular theoretical position about the capitalist state is not a question that Labour has previously applied as a test of membership. If it were, we would have expelled half the party&rsquo;s history.</span></p>
+        <span class="section">iii. the argument from electability is a permanent alibi for accommodation</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Electability alibi — the argument from electability has been used against every left advance in Labour history; it is an elastic justification for abandoning socialist policies under establishment pressure</span>The argument from electability deserves serious scrutiny because it is the argument that, in various forms, has been used against every significant advance by the left within the Labour Party. In the 1950s, the argument from electability was used against unilateral nuclear disarmament. In the 1960s, it was used against industrial democracy. In the 1970s, it was used against the Alternative Economic Strategy. In each case, the claim was that the left&rsquo;s policies were unpopular and that Labour must move to the centre to win. In each case, moving to the centre did not produce the promised electoral breakthrough. The argument from electability is infinitely elastic: it can always be used to justify the next step of accommodation to establishment opinion. If we follow it to its logical conclusion, we end up with a party that stands for nothing that the establishment finds threatening &mdash; which is to say, a party that stands for nothing at all.</span></p>
+        <span class="section">iv. the proper answer is democratic debate</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Democratic debate — if Militant's arguments are wrong, defeat them in argument; expulsion substitutes administrative power for political persuasion and sets a dangerous precedent</span>I want to make the constitutional case that is being made on the other side. The Labour Party is a democratic organisation. Democratic organisations resolve disputes through debate and the exercise of democratic majorities. If the majority of Labour members and affiliated trade unionists believe that Militant&rsquo;s programme is wrong, let them say so and vote accordingly. Let Militant&rsquo;s arguments be put to conference and defeated. That is how a democratic party is supposed to work. The resort to expulsion is an admission that the leadership does not trust the party&rsquo;s democratic processes to produce the right result. It is saying: we cannot win this argument in open debate, so we will remove the people making the arguments. That is not democracy. That is the suppression of democracy by administrative power.</span></p>
+        <span class="section">v. the precedent and where it leads</span>
+        <p><span class="hl" data-arg="5"><span class="tooltip">Slippery slope — once expulsion is established as the instrument for managing internal dissent, there is no principled stopping point; today Militant, tomorrow the unions, the next day public ownership itself</span>I want to close with the question of precedent, because I think it is the most important question of all. Once it is established that a Labour leadership can expel a group of members whose politics it finds inconvenient, there is no principled stopping point. The mechanism exists; the template is set. The next leadership will use it against a different group. The right wing of this party has already shown that it regards the trade union link as an obstacle to electability, that it regards public ownership as an embarrassment, that it regards the commitments of successive Labour manifestos as extremist. If expulsion is a legitimate tool today, it is a legitimate tool tomorrow. The left will not always be the leadership, but the precedent will always be available to whoever is.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-benn-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Historical record: proscription has always been used against the left and has never served Labour&rsquo;s interests</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Labour&rsquo;s proscribed list throughout the 1950s&ndash;60s was used to exclude socialist organisations (Socialist Fellowship, Socialist Outlook, Bevanite groupings) on political grounds. It was an instrument of right-wing factional control.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The proscription episodes did not improve Labour&rsquo;s electoral performance or its governance capacity; they divided the party and drove out committed socialists.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The current expulsion process repeats the pattern: constitutional mechanisms deployed by the leadership against the left, regardless of the particular target or the particular constitutional justification offered.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The historical record of proscription in the Labour Party shows it to be an instrument of factional control that serves the leadership&rsquo;s interests, not the party&rsquo;s; the current case follows this pattern and should be resisted on the same grounds.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Militant&rsquo;s rank-and-file are working-class Labour people, not alien infiltrators</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The majority of Militant&rsquo;s rank-and-file members are young workers, trade unionists, and students radicalised by unemployment and Thatcherism, who have canvassed, campaigned, and paid their subscriptions as Labour members.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Labour has never previously applied a theoretical test of membership: holding a particular view about the nature of the capitalist state or the role of parliament has not previously been grounds for exclusion.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The characterisation of Militant members as external infiltrators misrepresents the reality: most are working-class Labour people whose political formation has led them to Marxist conclusions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Expelling Militant&rsquo;s members is the expulsion of working-class Labour people on ideological grounds that have not previously been applied; this is a departure from Labour&rsquo;s tradition of working-class inclusivity, not its defence.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The electability argument is an elastic alibi for indefinite accommodation to establishment opinion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The argument from electability &mdash; that Labour must abandon positions the establishment finds threatening in order to win elections &mdash; has been deployed against every significant left-wing position in Labour history: unilateral disarmament, industrial democracy, the AES.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In each case, accommodation to the electability argument did not produce the promised electoral breakthrough; Labour lost in 1955, 1959, 1970, and 1979 despite successive moves toward the centre.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The electability argument is infinitely expandable: it can always justify the next step of accommodation. Followed consistently, it produces a party with no commitments that threaten establishment interests.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The electability argument does not justify expelling Militant; it is an elastic mechanism for demanding indefinite accommodation to establishment opinion that, if followed consistently, destroys Labour&rsquo;s purpose as a socialist party.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Democratic parties resolve disagreements through debate, not administrative expulsion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A democratic party resolves internal disputes through open debate, democratic vote, and the exercise of democratic majorities. These are the methods consistent with democratic socialist values.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Resorting to expulsion instead of debate is an admission that the leadership does not trust the party&rsquo;s democratic processes to produce the result it wants; it substitutes administrative power for political persuasion.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A party that resolves internal disputes by removing people who hold inconvenient views has ceased to be democratic in any meaningful internal sense, regardless of its external democratic commitments.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Expulsion is incompatible with internal party democracy; if Militant&rsquo;s arguments are wrong, they should be defeated in open debate; the resort to expulsion reveals a leadership that does not trust its own members to reach the right conclusions.</span></div>
+        </div>
+        <div class="arg-block" data-arg="5">
+          <div class="arg-title">Argument V &mdash; The precedent of expulsion has no principled stopping point and will be used against future minorities</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Once expulsion is established as a legitimate mechanism for managing internal dissent, the mechanism exists for any future leadership to use against any group it finds inconvenient.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The right wing of the Labour Party has repeatedly indicated that it regards the trade union link, public ownership commitments, and successive manifesto policies as obstacles to electability; these could become future targets.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>There is no principled stopping point once expulsion is normalised; the left will not always control the leadership, but the precedent will always be available to whoever does.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The precedent set by expelling Militant is dangerous for all minorities within Labour; once the mechanism of expulsion is normalised, there is no principled limit on its future use against any group a future leadership finds inconvenient.</span></div>
+        </div>
+      </div>
+    </div><!-- end benn -->
+
+    <!-- HEFFER -->
+    <div class="speaker-panel" id="opp-heffer-panel">
+      <div id="opp-heffer-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to be direct. I am not a supporter of Militant. I disagree with their politics in important respects. I think their Trotskyist theoretical framework is wrong. I think their approach to the Liverpool council situation was, in several respects, mistaken. I am saying this because I want it absolutely clear that what I am opposing today is not Militant&rsquo;s programme. What I am opposing is a process &mdash; and a precedent &mdash; that I believe to be fundamentally unjust.</p>
+        <div class="pull">&ldquo;You can disagree with someone&rsquo;s politics and still defend their right to be in the party they&rsquo;ve served all their lives. Those two things are not in contradiction. They are the same thing.&rdquo;</div>
+        <span class="section">i. the process is unjust</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Process injustice — the expulsion hearings lack basic procedural fairness; members are denied sight of evidence and judged by bodies that have prejudged the outcome</span>The process by which Militant members are being expelled from this party fails every test of natural justice. Members are being asked to appear before panels that have already been publicly briefed by the party leadership on the desired outcome. They are being denied access to the evidence on which the case against them is based. They are being given inadequate time and support to prepare their defence. I know some of these people. They are not strangers to the party; they are people who have served as councillors, as trade union officials, as party workers for decades. The minimum requirement of justice is that a person accused of a serious charge &mdash; and expulsion from a political party is a serious matter for anyone whose life is devoted to politics &mdash; should know what the charges are, should have access to the evidence, and should have a proper opportunity to respond. That minimum is not being met.</span></p>
+        <span class="section">ii. the liverpool crisis: context and responsibility</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Liverpool context — Militant was responding to unprecedented central government financial attack; the crisis was not manufactured; other Labour councils faced the same impossible position</span>The Liverpool situation is being used as the central exhibit in the prosecution case, so let us look at it properly. Liverpool under Militant-influenced leadership was facing a genuine financial catastrophe deliberately engineered by the Thatcher government. The rate support grant had been reduced so severely that the council faced the choice between setting a rate that would devastate local services and setting a rate that was technically illegal. This was not a situation manufactured by Militant for theatrical purposes. It was a genuine crisis created by a government that was using financial strangulation as a political weapon against Labour local government. Other Labour councils &mdash; Sheffield, Manchester, the GLC &mdash; faced variations of the same dilemma. The specific methods used in Liverpool may have been wrong. The crisis itself was not manufactured.</span></p>
+        <span class="section">iii. kinnock is doing the tories&rsquo; work</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Political function — expulsion serves Conservative interests by dividing the Labour movement; it is the leadership prioritising media approval over the movement's needs</span>I want to say bluntly what I believe the political function of these expulsions is. It is to demonstrate to the press, to the City, and to the middle-class southern electorate that Neil Kinnock is &ldquo;responsible.&rdquo; Responsible, in the political vocabulary of the 1980s, means acceptable to the Confederation of British Industry, to <em>The Times</em>, to the middle England that Thatcher has mobilised. The price of that respectability is paid by the activists who are expelled, by the movement whose internal debate is chilled, and by the working-class communities whose political representation is narrowed. Every column inch of Fleet Street congratulating Kinnock for his courage is a column inch celebrating the Labour movement&rsquo;s self-imposed diminishment.</span></p>
+        <span class="section">iv. what about the right?</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Double standard — rules are applied selectively against the left; no equivalent action is taken against right-wing MPs who have supported Conservative policies or drifted toward the SDP</span>I want to raise a question of consistency that has been entirely absent from this debate. The rules invoked against Militant are general rules. They apply to all members who support organisations outside the party, who pursue policies contrary to party decisions, who act in ways damaging to the party&rsquo;s interests. Where was this constitutional rigour when right-wing Labour MPs voted with the Conservatives in the House of Commons? Where was it when Labour members campaigned against the party&rsquo;s official policy on nuclear disarmament &mdash; not as individuals expressing a conscience position, but as organised, funded lobby groups? Where is it now, when members who have publicly supported the SDP &mdash; an avowedly rival party &mdash; are allowed to drift quietly back? The rules are being applied selectively. That selectivity reveals the political character of what is happening.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-heffer-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The expulsion process fails basic standards of natural justice and procedural fairness</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Natural justice requires that a person facing a serious charge should know the charges, have access to the evidence against them, have adequate time and support to prepare a defence, and be heard by a panel that has not prejudged the outcome.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The hearings as conducted deny Militant members access to the evidence against them, provide inadequate time for preparation, and use panels publicly briefed in advance by a leadership committed to a particular outcome.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A constitutionally proper expulsion process that violates natural justice is not constitutionally proper in any meaningful sense; formal legality does not substitute for substantive fairness.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The expulsion process, regardless of its constitutional basis, is procedurally unjust; it fails the standards of natural justice that any organisation claiming to be democratic must apply to its own internal proceedings.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Liverpool crisis was a genuine response to deliberate central government financial attack, not manufactured theatre</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Thatcher government deliberately reduced Liverpool&rsquo;s rate support grant to the point where maintaining services required technically illegal action; this was a political weapon against Labour local government, not an incidental policy effect.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Other Labour councils (Sheffield, Manchester, the GLC) faced similar dilemmas between legal compliance and service protection; Liverpool&rsquo;s response was more confrontational but the crisis was not unique or manufactured.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Criticising the specific methods adopted in Liverpool is legitimate; characterising the entire crisis as political theatre staged by Militant ignores the real financial and political context in which those decisions were made.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The Liverpool case, properly understood, was a response to a genuine crisis created by central government; the methods may be criticised, but the crisis itself vindicates neither expulsion nor the characterisation of Militant as purely theatrical provocateurs.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Expulsion serves the political interests of Labour&rsquo;s enemies by demonstrating &ldquo;responsibility&rdquo; to the establishment</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The political function of expelling Militant is to signal to press, City, and middle-class electorate that Labour is &ldquo;responsible&rdquo; &mdash; a signal that requires demonstrating distance from the left.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This signal is welcomed and amplified by those whose interests are served by a diminished, accommodating Labour Party; its political beneficiaries are not working-class communities but the establishment interests that Labour exists to challenge.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A political action whose primary beneficiaries are Labour&rsquo;s opponents is not in Labour&rsquo;s interest, regardless of its internal constitutional justification.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The expulsion of Militant primarily benefits Conservative and establishment interests by demonstrating Labour&rsquo;s willingness to discipline its own left; it is an act of self-diminishment whose political costs fall on the labour movement.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Selective application of rules against the left reveals a politically motivated process, not principled constitutional enforcement</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Labour&rsquo;s constitutional rules against organisational activity outside the party apply generally; they do not distinguish between left and right.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Right-wing Labour MPs who voted with the Conservatives, organised groups who campaigned against official party policy, and members who drifted to the SDP have not faced equivalent constitutional action.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Selective application of general rules &mdash; rigorously against the left, permissively against the right &mdash; reveals that the motivation is political, not constitutional; the rules are being used as tools of factional warfare.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The selective enforcement of Labour&rsquo;s constitutional rules against Militant while ignoring equivalent infractions on the right reveals a politically motivated process; constitutional language is being used to give factional warfare a respectable appearance.</span></div>
+        </div>
+      </div>
+    </div><!-- end heffer -->
+
+    <!-- SKINNER -->
+    <div class="speaker-panel" id="opp-skinner-panel">
+      <div id="opp-skinner-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I&rsquo;ll be brief because I think this is simpler than people are making it. The Labour Party was built to represent working people in the political system of a capitalist society. Thatcher is doing more damage to working people than any Prime Minister since the war. In that context, the priority of the Labour Party should be to oppose Thatcher &mdash; on the miners&rsquo; strike, on unemployment, on the destruction of the NHS, on nuclear weapons, on every front. Instead, what are we spending our energy on? Expelling some young socialists from Merseyside. I just want to make sure everyone knows what that means and what it&rsquo;s going to lead to.</p>
+        <div class="pull">&ldquo;The establishment doesn&rsquo;t care whether it&rsquo;s Kinnock or Thatcher doing the damage. What they care about is that the Labour Party is no longer a threat. That&rsquo;s what this is about.&rdquo;</div>
+        <span class="section">i. the real agenda: making labour safe for the establishment</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Establishment agenda — expulsion is driven by media and City pressure to make Labour acceptable; the target is not Militant but socialist politics itself</span>Let&rsquo;s be honest about what is driving this. It isn&rsquo;t principle. It isn&rsquo;t democracy. It&rsquo;s the newspapers. Every morning, the editorial writers of the right-wing press &mdash; and in the early 1980s, that means almost all the press &mdash; have been running stories about Labour extremism. The tabloids have been full of pictures of red flags and stories about loony councils. The message from Fleet Street, from the CBI, from the right-wing think tanks, from the Americans &mdash; is clear: get rid of the left, or you will never be allowed to govern. Kinnock has heard that message and he has decided to comply. The people of Militant are a convenient first target, because their Trotskyist politics make them easy to isolate. But the logic of the argument that is being made today leads directly to the next target. Once you accept that Labour must be acceptable to the establishment in order to govern, there is no end to the concessions required.</span></p>
+        <span class="section">ii. the miners&rsquo; strike and the real priorities</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Miners' strike — while Labour spends energy on internal expulsions, mining communities are being destroyed; the party's priorities are grotesquely wrong</span>I represent a mining constituency. In 1984 and 1985, the communities I represent went through the most sustained and brutal assault on an industrial community since the 1920s. Men and women who had never been in trouble with the law in their lives were prosecuted, fined, imprisoned, driven from their homes. The state apparatus was mobilised on a scale not seen in peacetime to destroy a trade union and punish its members. And in the middle of that, what was the Labour Party&rsquo;s leadership doing? Worrying about being associated with the miners. Worrying about what the press would say. Trying to find forms of words that would be sympathetic to the miners without alienating southern commuters. The Labour Party was built to stand with communities like mine when the state turns on them. The leadership was calculating the electoral cost of solidarity. That calculation is what the Militant debate is really about.</span></p>
+        <span class="section">iii. the slippery slope in practice</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Slippery slope — the removal of Militant is the beginning of a process of making Labour safe for capital; the logic leads straight to Clause IV and the abandonment of socialist economics</span>Tony Benn talks about the precedent and where it leads. I want to be more specific about where I think it leads. The removal of Militant is the beginning of a process of making Labour safe for capital. The next step will be the trade union link &mdash; already the modernisers are complaining that union block votes make Labour look undemocratic. The step after that will be Clause IV &mdash; the commitment to common ownership that is at the heart of the party&rsquo;s constitution. And the step after that will be the abandonment of any commitment to redistribute wealth and power in this country. I know I sound like I&rsquo;m describing a conspiracy. I am describing a logic. And the logic is simple: if your overriding goal is to be elected in a society dominated by capitalist media and capitalist economic power, the pressures will always be in one direction.</span></p>
+        <span class="section">iv. solidarity as the first principle</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Solidarity principle — the labour movement was built on not crossing picket lines and not letting the bosses choose who represents your side; expelling Militant violates both</span>The labour movement was built on three practical principles that are older and deeper than any constitutional document. You don&rsquo;t cross a picket line. You don&rsquo;t inform on your comrades to the employer. And you don&rsquo;t let management decide who the workers&rsquo; representatives are. The expulsion of Militant violates all three in political form. The press and the employers have decided that Militant is unacceptable. Kinnock is crossing the movement&rsquo;s political picket line by complying. He is informing on comrades &mdash; the Militant members are being identified, listed, and expelled with the active assistance of information provided to or by establishment sources. And he is letting the establishment decide who is and who is not an acceptable Labour politician. That is not solidarity. That is its negation. And a labour movement that abandons solidarity as a first principle has abandoned what makes it a labour movement at all.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-skinner-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Expulsion is driven by establishment pressure; Militant is a convenient first target in a wider attack on socialist politics</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The pressure to expel Militant is generated primarily by right-wing press coverage, City and CBI anxieties about Labour&rsquo;s economic programme, and the general establishment demand that Labour be made &ldquo;responsible.&rdquo;</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Militant&rsquo;s Trotskyist identity makes it easily isolated within the left and provides a convenient first target; but the logic of the argument &mdash; Labour must be acceptable to the establishment &mdash; applies equally to trade unionism, public ownership, and redistribution.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An action whose justification is determined by establishment pressure rather than internal democratic decision is not a principled constitutional act but the political compliance it appears to be.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The expulsion of Militant is driven by establishment pressure on Labour to make itself acceptable; Militant is a first target in a logic that, if followed, leads to the abandonment of Labour&rsquo;s socialist commitments altogether.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Labour&rsquo;s real priority should be solidarity with communities under attack, not internal housekeeping for media approval</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Thatcher government&rsquo;s prosecution of the miners&rsquo; strike and the destruction of manufacturing communities represent an unprecedented attack on the working class that the Labour Party exists to resist.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The leadership&rsquo;s decision to prioritise expulsion of Militant over unequivocal solidarity with communities under attack represents a fundamental misallocation of the party&rsquo;s political energy and a betrayal of its basic purpose.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A party that disciplines its activists while equivocating on solidarity with striking workers has its priorities exactly wrong; the latter is what Labour exists to do, the former is what Labour exists to resist.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The decision to prioritise the expulsion of Militant over solidarity with communities under Thatcherite attack reveals a fundamental misalignment of the leadership&rsquo;s priorities with Labour&rsquo;s founding purpose.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The logic of accommodation leads from expelling Militant to abandoning Clause IV and the socialist programme</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The argument justifying Militant&rsquo;s expulsion &mdash; Labour must be acceptable to establishment opinion in order to be electable &mdash; applies with equal force to the trade union link, public ownership, and redistributive taxation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Each of these commitments has been identified by establishment opinion as an obstacle to Labour&rsquo;s electability; the logic of accommodation has no internal stopping point short of abandoning all commitments the establishment finds threatening.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A party that has accommodated its way out of all its commitments to redistribution and collective ownership has accommodated its way out of any reason to vote for it over the Conservatives.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The logic that justifies expelling Militant leads, applied consistently, to the abandonment of Labour&rsquo;s socialist programme; the Militant expulsion is the first step of a process of accommodation whose destination is a Labour Party indistinguishable from moderate Conservatism.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Expulsion violates the foundational solidarity principles of the labour movement</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The labour movement is founded on solidarity principles: you do not cross picket lines, you do not inform on comrades to the employer, and you do not allow management to determine who represents the workers.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The expulsion of Militant &mdash; in response to press and establishment pressure, and designed to demonstrate Labour&rsquo;s acceptability to those who own the economy &mdash; violates all three principles in their political form.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A labour movement that abandons solidarity as a first principle in the political sphere has abandoned what distinguishes it from the liberal establishment it was created to challenge.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The expulsion of Militant is a violation of labour movement solidarity principles; in complying with establishment demands about the acceptable boundaries of Labour politics, Kinnock allows management to determine who represents the workers &mdash; the one thing the movement exists to prevent.</span></div>
+        </div>
+      </div>
+    </div><!-- end skinner -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'kinnock',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'benn',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
