@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Econometric Models</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 10px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.math{font-family:'Courier New',monospace;font-size:12px;background:rgba(200,169,90,.08);border:1px solid rgba(200,169,90,.2);border-radius:3px;padding:6px 10px;margin:.5rem 0 .75rem;color:#d4c08a;line-height:1.7;display:block;overflow-x:auto;white-space:pre}
+.math-inline{font-family:'Courier New',monospace;font-size:11.5px;background:rgba(200,169,90,.08);border:1px solid rgba(200,169,90,.18);border-radius:2px;padding:1px 5px;color:#d4c08a;white-space:nowrap}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Advanced Econometrics &mdash; IV/2SLS (Sargan 1958 &bull; Angrist &amp; Imbens 1994) &bull; GMM (Hansen 1982) &bull; DiD (Card &amp; Krueger 1994) &bull; RDD (Thistlethwaite &amp; Campbell 1960) &bull; Quantile Reg. (Koenker &amp; Bassett 1978) &bull; LASSO (Tibshirani 1996) &bull; Synthetic Control (Abadie et al. 2010) &bull; Heckman Selection (1979)</div>
+  <div class="motion-title">&ldquo;This House Believes that OLS is no longer the appropriate default estimator &mdash; advanced methods provide decisive advantages that justify their complexity costs&rdquo;</div>
+  <div class="motion-sub">Proposition: IV/2SLS &middot; GMM &middot; DiD &middot; RDD &middot; Quantile Regression &nbsp;&mdash;&nbsp; Opposition (within-model critics): Weak Instruments &middot; Moment Proliferation &middot; Parallel Trends &middot; Manipulation &middot; Distribution Shift &middot; LASSO Bias &middot; Donor Pool &middot; Normality in Heckman</div>
+</div>
+
+<div class="columns">
+
+<!-- ═══════════════════════ PROPOSITION ═══════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','iv',this)">IV / 2SLS</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','gmm',this)">GMM</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','did',this)">DiD</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','rdd',this)">RDD</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','qr',this)">Quantile Reg.</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','lasso',this)">LASSO</button>
+  </div>
+
+  <!-- IV HEADER -->
+  <div class="col-header" id="prop-iv-header">
+    <div class="col-header-top"><span class="pill prop">Instrumental Variables / 2SLS</span><span class="col-subtitle">Sargan (1958) &bull; Angrist &amp; Imbens (1994)</span></div>
+    <div class="col-position">OLS produces biased and inconsistent estimates whenever a regressor is correlated with the error term &mdash; endogeneity caused by omitted variables, measurement error, or simultaneity. IV uses exogenous variation in a valid instrument to isolate causal variation in the endogenous regressor. In the presence of heterogeneous treatment effects, IV identifies the Local Average Treatment Effect (LATE) for compliers. The 2SLS estimator is the most widely applied special case.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','iv','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','iv','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- GMM HEADER -->
+  <div class="col-header hidden" id="prop-gmm-header">
+    <div class="col-header-top"><span class="pill prop">Generalised Method of Moments</span><span class="col-subtitle">Hansen (1982) &bull; Arellano &amp; Bond (1991)</span></div>
+    <div class="col-position">GMM nests OLS, IV, and 2SLS as special cases while making weaker distributional assumptions. It exploits population moment conditions E[g(y,x,&beta;)] = 0 and minimises a quadratic form in the sample analogues. In overidentified models it is asymptotically more efficient than 2SLS. The Arellano&ndash;Bond estimator uses lagged levels as instruments for differenced panels with dynamic endogeneity. The Sargan&ndash;Hansen J-statistic tests overidentifying restrictions.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','gmm','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','gmm','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- DiD HEADER -->
+  <div class="col-header hidden" id="prop-did-header">
+    <div class="col-header-top"><span class="pill prop">Difference-in-Differences</span><span class="col-subtitle">Card &amp; Krueger (1994) &bull; Callaway &amp; Sant&rsquo;Anna (2021)</span></div>
+    <div class="col-position">DiD identifies causal effects by comparing pre-post changes in a treated group against those in a control group, removing time-invariant confounders and common time trends. The classical 2&times;2 estimator is &tau; = (&Ybar;&#x2081;&#x2081; &minus; &Ybar;&#x2081;&#x2080;) &minus; (&Ybar;&#x2080;&#x2081; &minus; &Ybar;&#x2080;&#x2080;). Under staggered adoption, Callaway&ndash;Sant&rsquo;Anna (2021) aggregates cohort-specific ATTs to avoid the negative-weighting pathology in TWFE.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','did','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','did','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- RDD HEADER -->
+  <div class="col-header hidden" id="prop-rdd-header">
+    <div class="col-header-top"><span class="pill prop">Regression Discontinuity Design</span><span class="col-subtitle">Thistlethwaite &amp; Campbell (1960) &bull; Imbens &amp; Lemieux (2008)</span></div>
+    <div class="col-position">RDD exploits a discontinuous jump in the probability of treatment at a known threshold of a continuously distributed running variable. Near the cutoff, assignment is locally as-good-as-random. The sharp RDD identifies &tau;&#x{RDD} = lim&#x2093;&#x2193;c E[Y|X=x] &minus; lim&#x2093;&#x2191;c E[Y|X=x]. Internal validity is among the highest of any quasi-experimental design; the McCrary density test guards against running-variable manipulation.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','rdd','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','rdd','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- QR HEADER -->
+  <div class="col-header hidden" id="prop-qr-header">
+    <div class="col-header-top"><span class="pill prop">Quantile Regression</span><span class="col-subtitle">Koenker &amp; Bassett (1978) &bull; Chernozhukov &amp; Hansen (2005)</span></div>
+    <div class="col-position">Quantile regression estimates the conditional &tau;-quantile of Y|X by minimising the asymmetrically weighted absolute-deviation loss function. Unlike OLS, it requires no homoskedasticity or normality. It reveals heterogeneous treatment effects across the distribution: policy effects at the median, tails, or any quantile of interest. IVQR (Chernozhukov &amp; Hansen 2005) extends this to endogenous regressors.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','qr','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','qr','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- LASSO HEADER -->
+  <div class="col-header hidden" id="prop-lasso-header">
+    <div class="col-header-top"><span class="pill prop">LASSO &amp; Post-Double-Selection</span><span class="col-subtitle">Tibshirani (1996) &bull; Belloni, Chernozhukov &amp; Hansen (2014)</span></div>
+    <div class="col-position">LASSO solves min&#x2093; (1/2n)&Vert;y &minus; X&beta;&Vert;&sup2; + &lambda;&Vert;&beta;&Vert;&#x2081; and performs simultaneous estimation and variable selection in high-dimensional settings where p &gt;&gt; n. Post-double-selection (PDS-LASSO) uses LASSO in both the outcome and treatment equations to select confounders, then estimates the treatment effect by OLS on the union of selected variables &mdash; achieving near-oracle rates while permitting valid inference.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','lasso','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','lasso','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ─── IV / 2SLS ─── -->
+    <div class="speaker-panel active" id="prop-iv-panel">
+      <div id="prop-iv-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The central problem of empirical economics is not noise &mdash; it is bias. OLS produces biased and inconsistent estimates the moment any regressor is correlated with the error term. The IV estimator is the most direct surgical response to this problem, and its logic has been fundamental to credible causal inference in economics for seven decades.</p>
+        <div class="case-box">
+          <strong>The endogeneity problem and the OLS breakdown.</strong><br><br>
+          Suppose the structural equation is y = x&beta; + u. OLS requires E[x'u] = 0 &mdash; exogeneity. When x is endogenous, plim(&beta;&#x302;&#x{OLS}) = &beta; + (E[x'x]/n)&#x207B;&sup1; (E[x'u]/n) &ne; &beta;. The bias term does not vanish with sample size. IV resolves this by replacing x with its projection onto instruments z that satisfy: (i) relevance: Cov(z,x) &ne; 0; and (ii) exclusion: Cov(z,u) = 0.
+        </div>
+        <span class="section">i. the IV estimator and 2SLS</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">2SLS — projects endogenous regressors onto instruments; consistent under exclusion &amp; relevance; OLS bias eliminated</span>The just-identified IV estimator for y = x&beta; + u with instrument z is:</p>
+        <code class="math">β̂ᴵᵛ = (z'x)⁻¹z'y = β + (z'x)⁻¹z'u</code>
+        <p>Under the exclusion restriction Cov(z,u) = 0 and relevance Cov(z,x) &ne; 0, we have plim(&beta;&#x302;&#x{IV}) = &beta;. In the overidentified case with instruments matrix Z (n&times;L, L&gt;K), 2SLS projects X onto the column space of Z, forming &Xhat; = P_Z X = Z(Z'Z)&#x207B;&sup1;Z'X, and estimates:</p>
+        <code class="math">β̂²ˢˡˢ = (X̂'X)⁻¹X̂'y = (X'PᵤX)⁻¹X'Pᵤy</code>
+        <p>This is consistent and asymptotically normal. The Hausman test &mdash; comparing &beta;&#x302;&#x{OLS} and &beta;&#x302;&#x{IV} &mdash; formally tests for endogeneity: under H&#x2080;: Cov(x,u)=0, both are consistent, but OLS is efficient; under H&#x2081;, only IV is consistent.</span></p>
+        <span class="section">ii. LATE and the Angrist&ndash;Imbens framework</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">LATE — IV identifies causal effect for compliers only; requires monotonicity; structurally meaningful estimand</span>Imbens and Angrist (1994) show that with a binary instrument Z&isin;{0,1}, binary treatment D, and heterogeneous effects, IV does not identify the ATE. Instead it identifies the Local Average Treatment Effect:</p>
+        <code class="math">β̂ᴵᵛ →ₚ LATE = E[Y₁ - Y₀ | D₁ > D₀]  (compliers only)</code>
+        <p>where D&#x2081; and D&#x2080; are potential treatment status under Z=1 and Z=0 respectively. Compliers are those for whom the instrument shifts treatment. The numerator is the reduced-form effect E[Y|Z=1]&minus;E[Y|Z=0]; the denominator is the first-stage E[D|Z=1]&minus;E[D|Z=0]. LATE requires the monotonicity assumption: for all i, D&#x{i1} &ge; D&#x{i0} (no defiers). This is not a weakness but a clarification: IV answers a well-defined causal question about a well-defined subpopulation.</span></p>
+        <span class="section">iii. the first-stage F-test and weak instrument diagnostics</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Weak instruments — first-stage F &lt; 10 is the rule of thumb; Stock–Yogo tables; LIML as robust alternative</span>The quality of instruments is assessed by the first-stage F-statistic. Stock and Yogo (2005) provide critical values: for one endogenous regressor and one instrument, F &ge; 10 limits IV bias to less than 10% of OLS bias. The Cragg&ndash;Donald statistic generalises this to multiple endogenous regressors. When instruments are weak, 2SLS exhibits severe finite-sample bias toward OLS &mdash; in the limit, 2SLS converges to OLS. Limited-Information Maximum Likelihood (LIML) has better median-unbiasedness properties under weak instruments, and Anderson&ndash;Rubin confidence sets remain valid regardless of instrument strength. The weak-instrument problem is a real constraint, but it is a constraint that is diagnosable and addressable, not a fatal flaw of the IV framework.</span></p>
+        <span class="section">iv. the Sargan&ndash;Hansen overidentification test</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Sargan–Hansen J-test — tests exclusion of surplus instruments; J ~ χ²(L-K) under H₀; rejection signals invalidity but non-rejection does not confirm validity</span>In overidentified models (L &gt; K instruments), the Sargan&ndash;Hansen J-statistic tests whether the moment conditions are jointly satisfied:</p>
+        <code class="math">J = n · ê'Z(Z'Z)⁻¹Z'ê / σ̂² →_d χ²(L-K) under H₀</code>
+        <p>where &ecirc; are the 2SLS residuals. A significant J statistic suggests at least one instrument violates the exclusion restriction &mdash; it is falsified by the data. Non-rejection does not guarantee validity (the test has zero power under exact identification), but rejection is highly informative. The J-test is a rigorous instrument diagnostic unavailable in the OLS framework.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-iv-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; OLS inconsistency under endogeneity; IV achieves consistency via exclusion and relevance conditions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>plim(&beta;&#x302;&#x{OLS}) = &beta; + (E[x'x])&#x207B;&sup1;E[x'u] &ne; &beta; when Cov(x,u) &ne; 0. The bias does not vanish with n.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>IV instrument z satisfies relevance Cov(z,x)&ne;0 and exclusion Cov(z,u)=0. The IV estimator &beta;&#x302;&#x{IV} = (z'x)&#x207B;&sup1;z'y is consistent: plim(&beta;&#x302;&#x{IV}) = &beta;.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>2SLS extends this to the overidentified case by projecting X onto Z, yielding &beta;&#x302;&#x{2SLS} = (X'P_Z X)&#x207B;&sup1;X'P_Z y, which is consistent and asymptotically efficient among IV estimators given homoskedastic errors.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>IV/2SLS eliminates the endogeneity bias of OLS under verifiable conditions; the estimator achieves consistency with a sample-size-invariant correction that OLS cannot achieve.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; LATE provides a well-defined causal estimand under heterogeneous treatment effects</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>With heterogeneous effects and binary Z, D: IV identifies LATE = E[Y&#x2081;&minus;Y&#x2080;|D&#x2081;&gt;D&#x2080;] &mdash; the average effect for compliers, under monotonicity D&#x{i1} &ge; D&#x{i0} for all i.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>LATE is computed as the ratio of the reduced-form and first-stage effects: (E[Y|Z=1]&minus;E[Y|Z=0])/(E[D|Z=1]&minus;E[D|Z=0]).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>LATE is a structurally meaningful estimand: it is the causal effect for the subpopulation whose treatment status is shifted by the instrument &mdash; precisely the population for which the policy variation is informative.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>IV with heterogeneous effects identifies LATE, a well-defined causal parameter for compliers. The LATE interpretation does not diminish IV but clarifies what it estimates.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Weak instrument diagnostics and LIML permit detection and correction of the finite-sample bias problem</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Weak instruments cause 2SLS to converge toward OLS in finite samples. The Stock&ndash;Yogo first-stage F-test detects weakness: F &ge; 10 limits bias to &lt;10% of OLS bias for a single endogenous variable.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>LIML has better median-unbiasedness under weak instruments. Anderson&ndash;Rubin confidence sets are valid regardless of instrument strength and provide inference even when the first stage is weak.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The weak-instrument problem is thus diagnosable (F-test), and addressable (LIML, AR inference). OLS has no such diagnostic: its endogeneity bias is silent and undetectable from within the OLS framework.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The weak-instrument problem is a contained and addressable limitation of IV; OLS endogeneity bias is both larger in magnitude and undiagnosable; IV is preferable wherever endogeneity is plausible.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The Sargan&ndash;Hansen J-test provides a falsifiable test of instrument validity unavailable in OLS</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>With L&gt;K instruments, the overidentifying restrictions imply E[z'u] = 0. The J-statistic J = n&ecirc;'Z(Z'Z)&#x207B;&sup1;Z'&ecirc;/&sigma;&#x302;&#x00B2; is asymptotically &chi;&#x00B2;(L&minus;K) under H&#x2080;.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A significant J rejects at least one exclusion restriction, signalling a violated instrument. This provides empirical discipline: the researcher&rsquo;s identifying assumptions are exposed to falsification.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>OLS has no equivalent diagnostic for its exogeneity assumption. The J-test is an asymmetric advantage of the IV framework.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Sargan&ndash;Hansen J-test makes IV identification assumptions partially falsifiable; OLS exogeneity is untestable from within OLS. IV is epistemically more honest about its assumptions.</span></div>
+        </div>
+      </div>
+    </div><!-- end iv -->
+
+    <!-- ─── GMM ─── -->
+    <div class="speaker-panel" id="prop-gmm-panel">
+      <div id="prop-gmm-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>GMM is the most general workhorse estimator in modern econometrics. It nests OLS, GLS, 2SLS, and MLE as special cases while imposing only moment conditions on the data-generating process &mdash; no distributional assumptions on the error term required. Hansen&rsquo;s 1982 paper is one of the most cited in economics precisely because GMM provides a unified framework applicable wherever economic theory delivers moment restrictions.</p>
+        <div class="case-box">
+          <strong>The GMM objective and estimator.</strong><br><br>
+          Let g(y&#x{t}, x&#x{t}, &beta;) be an L&times;1 vector of moment functions satisfying the population condition E[g(y&#x{t}, x&#x{t}, &beta;&#x2080;)] = 0. The GMM estimator minimises the quadratic form:<br><br>
+          &beta;&#x302;&#x{GMM} = argmin&#x{&beta;} g&#x{T}(&beta;)' W&#x{T} g&#x{T}(&beta;)<br><br>
+          where g&#x{T}(&beta;) = (1/T) &sum; g(y&#x{t}, x&#x{t}, &beta;) is the sample moment vector and W&#x{T} is a positive-definite weighting matrix. When W&#x{T} is the inverse of the long-run variance S = &sum; E[g&#x{t}g&#x{t-j}'], the estimator is efficient GMM. 2SLS is GMM with W = (Z'Z)&#x207B;&sup1;.
+        </div>
+        <span class="section">i. the efficiency advantage of optimal GMM</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Efficient GMM — optimal weighting matrix Ŝ⁻¹ achieves Cramér-Rao lower bound among moment-based estimators; dominates 2SLS under heteroskedasticity</span>The asymptotic variance of GMM is:</p>
+        <code class="math">Avar(β̂ᵍᵐᵐ) = (G'S⁻¹G)⁻¹
+where G = E[∂g/∂β'] and S = Σⱼ E[gₜgₜ₋ⱼ']</code>
+        <p>Under the optimal weighting matrix W* = S&#x207B;&sup1;, this achieves the Cram&eacute;r&ndash;Rao lower bound for all estimators based on these moment conditions. Under heteroskedastic errors, 2SLS (which uses W = (Z'Z)&#x207B;&sup1;) is inefficient; efficient GMM dominates. The difference is not academic: in practice, robust-GMM standard errors are substantially more reliable than 2SLS with misspecified homoskedastic variance estimates.</span></p>
+        <span class="section">ii. moment condition richness: the Arellano&ndash;Bond panel estimator</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Arellano–Bond — lagged levels as instruments for first-differenced equation; exploits internal instruments; solves Nickell bias in fixed-effects dynamic panels</span>The Arellano&ndash;Bond (1991) estimator illustrates GMM&rsquo;s power in dynamic panels. Consider:</p>
+        <code class="math">yᵢₜ = αyᵢ,ₜ₋₁ + xᵢₜ'β + μᵢ + εᵢₜ
+
+First difference: Δyᵢₜ = αΔyᵢ,ₜ₋₁ + Δxᵢₜ'β + Δεᵢₜ</code>
+        <p>First-differencing removes &mu;&#x{i}. But &Delta;y&#x{i,t-1} = y&#x{i,t-1} &minus; y&#x{i,t-2} is correlated with &Delta;&epsilon;&#x{it} = &epsilon;&#x{it} &minus; &epsilon;&#x{i,t-1}. The moment conditions E[y&#x{is} &middot; &Delta;&epsilon;&#x{it}] = 0 for s &le; t&minus;2 generate a growing set of valid instruments as T increases. The Blundell&ndash;Bond (1998) system-GMM adds levels equations to recover efficiency in persistent series. Critically, this uses instruments internal to the panel &mdash; no external instruments required.</span></p>
+        <span class="section">iii. the J-test as a model diagnostic</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">J-statistic — L-K overidentifying restrictions tested; χ²(L-K) under H₀; falsification tool built into GMM</span>The Sargan&ndash;Hansen J-statistic is:</p>
+        <code class="math">J = T · g_T(β̂)' Ŝ⁻¹ g_T(β̂) ~_d χ²(L-K) under H₀</code>
+        <p>This simultaneously tests all L&minus;K overidentifying restrictions. If the model is rejected &mdash; J exceeds the critical value &mdash; at least one moment condition is misspecified. The Difference-in-Sargan (C-test) tests subsets of instruments and isolates which conditions are violated. This built-in falsification machinery gives GMM a robustness-checking capability that OLS lacks entirely.</span></p>
+        <span class="section">iv. moment proliferation and the many-instrument problem</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Many instruments — Arellano–Bond generates T(T-1)/2 moment conditions; instrument count explodes with T; finite-sample J-test distortion; Windmeijer correction</span>I address the main critique directly. In Arellano&ndash;Bond, the number of moment conditions grows as T(T&minus;1)/2, which can vastly exceed the number of observations for moderate T. When the instrument count is large relative to n, two problems arise: (i) the two-step GMM estimator is biased in finite samples, and (ii) the J-statistic loses power &mdash; it becomes too lenient, failing to reject even misspecified models. The Windmeijer (2005) finite-sample correction substantially reduces the bias in two-step standard errors. Researchers should collapse the instrument matrix or limit lags. The many-instrument problem is real but it is a problem of disciplined implementation, not a structural failure of GMM. The solution is well-known: use fewer, better instruments.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-gmm-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Efficient GMM dominates 2SLS under heteroskedasticity via the optimal weighting matrix</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Avar(&beta;&#x302;&#x{GMM}) = (G'S&#x207B;&sup1;G)&#x207B;&sup1;. Under W* = S&#x207B;&sup1;, this achieves the efficiency lower bound for all estimators exploiting the same moment conditions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>2SLS uses W = (Z'Z)&#x207B;&sup1;, which is optimal only under homoskedastic errors. Under heteroskedasticity, efficient GMM has strictly smaller asymptotic variance.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Since heteroskedasticity is the empirical norm in cross-sectional and panel data, efficient GMM dominates 2SLS as a default estimator in overidentified models.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Under heteroskedasticity, efficient GMM achieves the efficiency lower bound while 2SLS does not; GMM is the correct default for overidentified models in realistic empirical settings.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Arellano&ndash;Bond generates rich internal moment conditions for dynamic panels, solving Nickell bias without external instruments</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Fixed-effects OLS in dynamic panels is inconsistent: the &ldquo;Nickell bias&rdquo; plim(&alpha;&#x302;&#x{FE}) = &alpha; &minus; (1+&alpha;)/(T&minus;1) + O(1/T&sup2;). For moderate T this bias is severe.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Arellano&ndash;Bond exploits E[y&#x{is}&Delta;&epsilon;&#x{it}]=0, s&le;t&minus;2: lagged levels are valid instruments for the differenced equation. This generates internal instruments from the panel structure itself.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No external instruments are required; validity conditions are testable via the J-statistic and AR(2) test on differenced residuals. The estimator is consistent for fixed T as N&rarr;&infin;.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Arellano&ndash;Bond GMM solves the Nickell bias of fixed-effects OLS using internally generated instruments; it extends causal inference to dynamic panel settings where OLS and 2SLS cannot operate.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The J-statistic and C-test provide built-in falsification of moment conditions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>J = T&middot;g&#x{T}(&beta;&#x302;)'&#x{Ŝ}&#x207B;&sup1;g&#x{T}(&beta;&#x302;) ~&#x{d} &chi;&#x00B2;(L&minus;K) under H&#x2080;: all L moment conditions correctly specified. Rejection signals misspecification.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Difference-in-Sargan (C-test) tests whether a specific subset of instruments is valid, conditional on the rest. This localises the source of misspecification.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These diagnostics expose the model&rsquo;s identifying assumptions to empirical falsification &mdash; a methodological discipline entirely absent in OLS.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The J-statistic and C-test make GMM&rsquo;s identifying assumptions testable and falsifiable; OLS has no equivalent discipline for its exogeneity assumption; GMM is epistemically superior.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The many-instrument problem is addressable via instrument collapse and the Windmeijer correction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Many instruments inflate J-test size and bias two-step GMM standard errors. When instrument count L is close to n, the J-statistic has near-zero power.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Solutions: (i) collapse the instrument matrix to limit instruments to one lag per variable; (ii) apply the Windmeijer (2005) finite-sample variance correction to two-step GMM; (iii) use CU-GMM which is less sensitive to many instruments.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The many-instrument problem is a diagnostic implementation issue, not a structural failure. The solutions are standard practice in applied econometrics.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Many-instrument bias is addressable via instrument collapse and the Windmeijer correction; these are standard diagnostics, not fundamental objections; GMM remains the preferred estimator for dynamic panel data.</span></div>
+        </div>
+      </div>
+    </div><!-- end gmm -->
+
+    <!-- ─── DiD ─── -->
+    <div class="speaker-panel" id="prop-did-panel">
+      <div id="prop-did-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The canonical Difference-in-Differences estimator, popularised by Card and Krueger&rsquo;s 1994 minimum wage study, is the most widely used quasi-experimental method in applied economics. It removes time-invariant unobserved heterogeneity and common time shocks simultaneously &mdash; two sources of bias that OLS cannot handle. The modern staggered-adoption literature has identified and corrected a serious TWFE flaw that strengthens rather than weakens the DiD research programme.</p>
+        <div class="case-box">
+          <strong>The classical 2&times;2 DiD estimator.</strong><br><br>
+          Let Y&#x{it} be the outcome for unit i in period t, D&#x{it}&isin;{0,1} treatment, Post&#x{t}&isin;{0,1} time indicator. The two-way fixed effects (TWFE) estimator is:<br><br>
+          Y&#x{it} = &alpha;&#x{i} + &lambda;&#x{t} + &tau;D&#x{it} + &epsilon;&#x{it}<br><br>
+          &tau;&#x302;&#x{DiD} = (&Ybar;&#x{treated,post} &minus; &Ybar;&#x{treated,pre}) &minus; (&Ybar;&#x{control,post} &minus; &Ybar;&#x{control,pre})<br><br>
+          Under parallel trends E[Y&#x{it}(0)|D&#x{i}=1] &minus; E[Y&#x{it}(0)|D&#x{i}=0] = constant in t, this identifies ATT.
+        </div>
+        <span class="section">i. what DiD achieves that OLS cannot</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">DiD removes unit fixed effects AND common time shocks simultaneously — OLS controls for neither without strong additional assumptions</span>OLS on D&#x{it} regressed against Y&#x{it} estimates &beta; = Cov(D,Y)/Var(D) &mdash; which conflates the treatment effect with (a) cross-unit differences in baseline outcomes and (b) time trends shared by all units. Adding unit fixed effects removes (a). Adding time fixed effects removes (b). The TWFE estimator does both jointly, requiring only the parallel trends assumption, which is substantially weaker than the OLS exogeneity assumption E[D&#x{it}&epsilon;&#x{it}]=0. Pre-trend tests &mdash; examining whether treated and control units moved in parallel before treatment &mdash; provide empirical evidence for parallel trends, giving DiD a testable falsifiability that OLS cannot offer.</span></p>
+        <span class="section">ii. the Card&ndash;Krueger identification strategy</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Card–Krueger — New Jersey/Pennsylvania natural experiment; state-specific minimum wage hike as exogenous variation; classic DiD application</span>Card and Krueger (1994) compared employment in New Jersey fast-food restaurants (treated: minimum wage rose from $4.25 to $5.05 in April 1992) to Pennsylvania restaurants (control: no change). The DiD estimate: &Delta;employment&#x{NJ} &minus; &Delta;employment&#x{PA} found no negative employment effect, contradicting the standard competitive model. The power of the design lay in using Pennsylvania as a credible counterfactual for what New Jersey employment trends would have been absent the policy. No external instrument was needed; the policy variation itself was the identifying mechanism, and the parallel pre-trends between the two states supported the identifying assumption.</span></p>
+        <span class="section">iii. staggered adoption and the Callaway&ndash;Sant&rsquo;Anna correction</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">TWFE negative weights — in staggered DiD, TWFE β̂ is a weighted average of 2×2 DiDs with potentially negative weights; CS(2021) fixes this</span>Goodman-Bacon (2021) shows that under staggered adoption, the TWFE estimator is a weighted average of all possible 2&times;2 DiD comparisons, some of which use already-treated units as controls. If treatment effects are heterogeneous over time, these comparisons receive negative weights, and &tau;&#x302;&#x{TWFE} can be sign-reversed relative to all ATTs. The Callaway&ndash;Sant&rsquo;Anna (2021) estimator computes cohort-specific ATTs:</p>
+        <code class="math">ATT(g,t) = E[Yₜ(g) - Yₜ(∞) | Gᵢ = g]</code>
+        <p>where g is cohort-entry-date and Yₜ(∞) is the never-treated potential outcome, then aggregates these into a single summary statistic with non-negative weights. This preserves the DiD identification logic while eliminating the negative-weight pathology. The critique of TWFE strengthened the DiD programme by motivating a rigorous replacement that is now standard practice.</span></p>
+        <span class="section">iv. addressing the parallel trends critique</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Parallel trends testing — pre-event plots and Roth (2022) sensitivity analysis bound the bias from violations; assumption is testable in the pre-period</span>The parallel trends assumption is untestable in the strict sense because it concerns the counterfactual post-period outcome under no treatment. However: (i) pre-trend tests in event-study specifications check whether treated and control units were on parallel paths before treatment, providing falsifiable evidence; (ii) Roth (2022) and Rambachan&ndash;Roth (2023) provide sensitivity analysis that bounds the ATT estimate under specified deviations from parallel trends; (iii) covariate-conditional parallel trends (Abadie 2005) weakens the assumption to hold only within cells of observable covariates. These tools make the DiD assumption operationally transparent in a way that OLS exogeneity is not.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-did-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; TWFE simultaneously removes unit fixed effects and common time trends; OLS cannot do either without strong additional assumptions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>OLS on Y&#x{it} = &tau;D&#x{it} + &epsilon;&#x{it} conflates treatment with baseline level differences (&alpha;&#x{i}) and time-common shocks (&lambda;&#x{t}).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>TWFE Y&#x{it} = &alpha;&#x{i} + &lambda;&#x{t} + &tau;D&#x{it} + &epsilon;&#x{it} removes both jointly; under parallel trends &tau;&#x302;&#x{TWFE} identifies ATT without requiring treatment exogeneity in the cross-section.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Parallel trends is weaker than OLS exogeneity: it permits selection into treatment on time-invariant observables and unobservables, requiring only that time-varying confounders be common to treated and control units.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>TWFE achieves causal identification under an assumption &mdash; parallel trends &mdash; substantially weaker than OLS exogeneity; it is preferred wherever treatment is correlated with baseline unit characteristics.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Pre-event study plots provide empirical evidence for parallel trends; OLS exogeneity has no equivalent pre-test</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Event-study coefficients for pre-treatment periods estimate whether treated and control units were on parallel paths before the intervention; a flat pre-trend is empirical evidence for the identifying assumption.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Roth (2022) formalises this: pre-trend tests have power against specific violations of parallel trends. Rambachan&ndash;Roth (2023) provides honest confidence sets under bounded deviations from parallel trends.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>OLS has no pre-trend equivalent: the exogeneity assumption E[D&#x{it}&epsilon;&#x{it}]=0 is untestable from within the OLS framework. DiD&rsquo;s assumption is operationally transparent by comparison.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Pre-event study plots and Rambachan&ndash;Roth sensitivity analysis make the DiD identifying assumption partially falsifiable; OLS exogeneity has no equivalent empirical discipline; DiD is methodologically more honest.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Callaway&ndash;Sant&rsquo;Anna (2021) corrects the TWFE negative-weight pathology in staggered adoption</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Goodman-Bacon (2021): under staggered adoption with heterogeneous effects, &tau;&#x302;&#x{TWFE} receives negative weights on some 2&times;2 comparisons, potentially reversing its sign relative to all true ATTs.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>CS(2021) computes ATT(g,t) = E[Y&#x{t}(g)&minus;Y&#x{t}(&infin;)|G&#x{i}=g] for each cohort-period cell and aggregates with non-negative weights. This restores valid causal identification under heterogeneous effects.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The critique of TWFE was resolved within the DiD programme by producing a better estimator; OLS has no analogous self-correction mechanism for its endogeneity problem.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The TWFE negative-weight problem was identified and corrected within the DiD literature; CS(2021) is now the standard estimator for staggered adoption; the DiD programme demonstrates scientific self-correction.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Covariate-conditional parallel trends further relaxes the identifying assumption while remaining testable</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Standard parallel trends requires: E[&Delta;Y(0)|D=1] = E[&Delta;Y(0)|D=0]. This is restrictive if treated and control units differ on observables that predict trends.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Conditional parallel trends (Abadie 2005): E[&Delta;Y(0)|D=1, X] = E[&Delta;Y(0)|D=0, X]. Conditioning on observed covariates X relaxes the assumption to within-covariate-cell comparisons, drastically expanding the set of credible DiD applications.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Sant&rsquo;Anna&ndash;Zhao (2020) provides doubly-robust DiD estimators that combine outcome regression and IPW, inheriting the robustness properties of both.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Conditional parallel trends and doubly-robust DiD estimators extend the method&rsquo;s applicability while remaining testable; DiD&rsquo;s identifying assumptions are progressively weaker than OLS exogeneity and progressively more falsifiable.</span></div>
+        </div>
+      </div>
+    </div><!-- end did -->
+
+    <!-- ─── RDD ─── -->
+    <div class="speaker-panel" id="prop-rdd-panel">
+      <div id="prop-rdd-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>Regression discontinuity design has the highest internal validity of any non-experimental causal identification strategy. Where a continuously distributed running variable determines treatment assignment via a known threshold, the discontinuity generates local randomisation: units just above and just below the cutoff are, in all relevant pre-treatment characteristics, exchangeable. The design is transparent, visually interpretable, and subject to rigorous falsification tests.</p>
+        <div class="case-box">
+          <strong>Sharp RDD identification.</strong><br><br>
+          Let X&#x{i} be the running variable, c the cutoff, D&#x{i} = 1(X&#x{i} &ge; c) treatment. The sharp RDD estimand is:<br><br>
+          &tau;&#x302;&#x{RDD} = lim&#x{x&darr;c} E[Y&#x{i}|X&#x{i}=x] &minus; lim&#x{x&uarr;c} E[Y&#x{i}|X&#x{i}=x]<br><br>
+          Under the continuity assumption &mdash; that the conditional expectation E[Y(0)|X] and E[Y(1)|X] are continuous at c &mdash; this identifies LATE at the cutoff: E[Y(1)&minus;Y(0)|X=c]. No further assumptions about unobserved heterogeneity are needed.
+        </div>
+        <span class="section">i. continuity and local randomisation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Local randomisation — near the cutoff, assignment is as-good-as-random; all pre-treatment covariates should be balanced; directly testable via covariate smoothness</span>The key intuition is that near the cutoff, the running variable X acts as a randomisation device. Units with X marginally above c are treated; units marginally below are not. If agents cannot precisely manipulate X, then within a narrow window around c, treatment assignment is effectively random. This means all pre-treatment covariates Z should be smooth at c: E[Z|X=x] should have no discontinuity at c. This is directly testable, and provides the strongest observable falsification test available in any quasi-experimental design &mdash; one that the McCrary (2008) density test and covariate smoothness tests formally implement.</span></p>
+        <span class="section">ii. optimal bandwidth selection and local polynomial estimation</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">MSE-optimal bandwidth — Imbens–Kalyanaraman and Calonico–Cattaneo–Titiunik (2014) provide data-driven bandwidth selection balancing bias and variance</span>The practical implementation of RDD requires choice of bandwidth h around the cutoff and polynomial order p. The MSE-optimal bandwidth balances squared bias against variance:</p>
+        <code class="math">h_MSE = C_n · n^{-1/5}  (local linear, p=1)
+
+τ̂_RDD = β̂₊ - β̂₋  from local polynomial regressions
+on [c, c+h] and [c-h, c) respectively</code>
+        <p>Calonico, Cattaneo and Titiunik (2014) provide bias-corrected and robust (BCR) confidence intervals that account for the bias induced by bandwidth selection, achieving asymptotically valid inference without requiring undersmoothing. The Imbens&ndash;Kalyanaraman (2012) bandwidth selector is the standard default; robustness to alternative bandwidths is a standard diagnostic that directly exposes any cherry-picking of the estimate.</span></p>
+        <span class="section">iii. the McCrary density test and placebo checks</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">McCrary test — density of X should be smooth at c; discontinuity signals manipulation; running-variable heaping near c falsifies the design</span>The McCrary (2008) density test tests whether the density of the running variable f(x) is continuous at c. A discontinuity in the density &mdash; too many units just above or just below &mdash; signals that agents can manipulate their running variable value, invalidating local randomisation. In the scholarship example: if students can retake exams until they pass, the density of scores will heap above the passing threshold, and the design is invalidated. The test formally checks whether log(f(c+)) &minus; log(f(c&minus;)) = 0 using a local polynomial density estimator. The Cattaneo&ndash;Jansson&ndash;Ma (2018) test provides improved size control. The density test is a uniquely powerful falsification tool; OLS has no comparable design diagnostic.</span></p>
+        <span class="section">iv. fuzzy RDD as IV at the cutoff</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Fuzzy RDD — discontinuous jump in P(D=1|X) but not 1→0; IV using D̂ = 1(X≥c) as instrument; identifies LATE at the cutoff for compliers</span>When treatment assignment is not perfectly determined by the running variable &mdash; there is a discontinuous jump in P(D&#x{i}=1|X=x) at c but it is not 1 to 0 &mdash; this is fuzzy RDD. The instrument is Z&#x{i} = 1(X&#x{i}&ge;c). The estimator is:</p>
+        <code class="math">τ̂_Fuzzy = [lim_{x↓c} E[Y|X=x] - lim_{x↑c} E[Y|X=x]] /
+           [lim_{x↓c} E[D|X=x] - lim_{x↑c} E[D|X=x]]</code>
+        <p>This is precisely an IV estimator using the threshold crossing as instrument, identifying LATE at the cutoff for compliers &mdash; units whose treatment status changes at the threshold. Fuzzy RDD integrates cleanly with the IV/LATE framework, extending the design&rsquo;s reach to settings with imperfect compliance.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-rdd-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Continuity and local randomisation yield the highest internal validity of any quasi-experimental design</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Under continuity, E[Y(0)|X=x] and E[Y(1)|X=x] are continuous at c. Any discontinuity in E[Y|X=x] at c is attributable solely to treatment, with no need to control for unobservables.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Near c, assignment is as-good-as-random if agents cannot precisely manipulate X. Pre-treatment covariates Z should be smooth: testable via E[Z|X=x] continuity at c.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The covariate smoothness tests and McCrary density test jointly establish the plausibility of local randomisation with directly observable evidence. No other quasi-experimental design offers this combination of design transparency and falsifiability.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>RDD achieves near-experimental internal validity through local randomisation near the cutoff; its identifying assumptions are the most testable of any quasi-experimental method.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Bias-corrected local polynomial estimation provides valid inference robust to bandwidth choice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The MSE-optimal bandwidth h&#x{MSE} &sim; n&#x207B;&sup1;&sup5; for local linear estimation balances squared bias against variance. CCT (2014) bias-corrected confidence intervals account for the bandwidth-choice bias explicitly.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Robustness checks across multiple bandwidths &mdash; half and double the optimal &mdash; directly expose sensitivity to bandwidth choice. A credible RDD result is stable across a range of bandwidths.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>OLS estimates are not subject to any equivalent sensitivity analysis for specification choice; RDD&rsquo;s transparency about bandwidth selection is an advantage, not a weakness.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>RDD estimation with CCT bias-corrected inference and bandwidth robustness checks provides valid, transparent causal estimates that are directly testable for sensitivity; this standard of methodological discipline exceeds OLS.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The McCrary density test is a uniquely powerful falsification tool for the identifying assumption</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Manipulation of the running variable would produce a discontinuity in its density at c. The McCrary test checks log-density continuity using local polynomial estimation of f(x) from each side of c.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A significant density discontinuity directly falsifies the local randomisation assumption. The Cattaneo&ndash;Jansson&ndash;Ma (2018) refinement improves size control for this test.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No quasi-experimental design other than randomised controlled trials offers a comparably direct test of its central identifying assumption. RDD&rsquo;s falsifiability is unique in the observational econometrics toolkit.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The McCrary density test provides direct falsification of RDD&rsquo;s central assumption; this places RDD on a uniquely high standard of methodological transparency that OLS cannot match.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Fuzzy RDD integrates with the IV/LATE framework to handle imperfect compliance</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Fuzzy RDD uses 1(X&#x{i}&ge;c) as an instrument for treatment D&#x{i}; the Wald estimator equals the ratio of the reduced-form and first-stage discontinuities, identifying LATE at the cutoff for compliers.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This nests fuzzy RDD within the IV/LATE framework; the complier subpopulation is those whose treatment status changes at the threshold &mdash; a policy-relevant group.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The integration of RDD with IV enriches both methods: RDD provides the instrument; IV provides the interpretive framework. Neither is available in OLS.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Fuzzy RDD is a special case of IV using threshold crossing as the instrument; it extends RDD to imperfect compliance settings while maintaining local randomisation&rsquo;s high internal validity.</span></div>
+        </div>
+      </div>
+    </div><!-- end rdd -->
+
+    <!-- ─── QUANTILE REGRESSION ─── -->
+    <div class="speaker-panel" id="prop-qr-panel">
+      <div id="prop-qr-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>OLS estimates the conditional mean. For many of the most important questions in economics &mdash; the wage premium at the top of the skill distribution, the effect of education on poverty at the bottom, the heterogeneous impact of credit constraints across wealth quartiles &mdash; the conditional mean is the wrong estimand. Quantile regression, introduced by Koenker and Bassett in 1978, provides estimates at any point in the conditional distribution, revealing treatment effect heterogeneity that OLS conceals.</p>
+        <div class="case-box">
+          <strong>The quantile regression estimator.</strong><br><br>
+          The &tau;-th conditional quantile Q&#x{&tau;}(Y|X) is estimated by minimising:<br><br>
+          &beta;&#x302;(&tau;) = argmin&#x{&beta;} &sum;&#x{i} &rho;&#x{&tau;}(y&#x{i} &minus; x&#x{i}'&beta;)<br><br>
+          where &rho;&#x{&tau;}(u) = u(&tau; &minus; 1(u&lt;0)) is the asymmetric &ldquo;check function&rdquo; loss. For &tau;=0.5, this is median regression (LAD). The estimator requires no distributional assumptions on &epsilon;&#x{i}; OLS assumes E[&epsilon;&#x{i}]=0 and optimally weights large residuals quadratically, which is inefficient and misleading under fat tails.
+        </div>
+        <span class="section">i. the check function and robustness properties</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Check function — asymmetric L1 loss; insensitive to outliers; efficient under non-Gaussian errors; median regression is 64% efficient vs OLS under normality but vastly better under heavy tails</span>The OLS loss function is (y&minus;x'&beta;)&#x00B2;, which penalises outliers quadratically. Under Gaussian errors this is optimal, but economic data routinely exhibit fat tails, skewness, and heteroskedasticity. The check function &rho;&#x{&tau;}(u) penalises positive residuals at rate &tau; and negative residuals at rate 1&minus;&tau;. This asymmetric weighting is far less sensitive to outliers. Under t&#x{5} distributed errors, LAD (median regression) is asymptotically 73% more efficient than OLS. The entire quantile process &beta;(&tau;) for &tau;&isin;(0,1) provides a complete picture of how X shifts the distribution of Y, not just its mean.</span></p>
+        <span class="section">ii. heterogeneous treatment effects and distributional impact</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Distributional heterogeneity — OLS ATT masks variation across quantiles; QR reveals if policy lifts bottom without moving top or vice versa</span>Consider estimating the return to education on wages. OLS gives the mean effect E[&Delta;log(w)|&Delta;edu=1]. But the policy question may be specifically about inequality: does education reduce poverty (bottom quantile) or primarily benefit the already-advantaged (top quantile)? Koenker and Bassett showed that &beta;&#x302;(0.1) and &beta;&#x302;(0.9) can differ substantially even when &beta;&#x302;&#x{OLS} is precisely estimated. Quantile process plots &mdash; plotting &beta;&#x302;(&tau;) for &tau;&isin;[0.05,0.95] &mdash; reveal this entire heterogeneity structure. A test of homogeneity H&#x2080;: &beta;(0.1) = &beta;(0.5) = &beta;(0.9) directly tests whether OLS meaningfully summarises the relationship.</span></p>
+        <span class="section">iii. inference and the quantile process</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Khmaladze transform and bootstrap — standard errors for QR use kernel density or bootstrap; simultaneous confidence bands for entire quantile process available</span>Standard errors for quantile regression estimates require the conditional density f(0|X), which is not directly observable. Three approaches are available: (i) sandwich estimators using kernel density estimates of f; (ii) bootstrap resampling, which is computationally straightforward and asymptotically valid; (iii) the Khmaladze martingale transform, which provides simultaneous confidence bands for the entire quantile process &beta;(&tau;) uniformly in &tau;. The Koenker&ndash;Xiao (2002) test using this transform has power against both location-shift and scale-shift alternatives, making it a unified test for the adequacy of OLS as a summary of the conditional distribution.</span></p>
+        <span class="section">iv. IVQR: quantile regression with endogenous regressors</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">IVQR (Chernozhukov–Hansen 2005) — identifies quantile structural function under rank invariance; endogeneity handled at quantile level; identifies distributional effects of endogenous variables</span>Chernozhukov and Hansen (2005) extend quantile regression to endogenous regressors via the Instrumental Variables Quantile Regression (IVQR) estimator. The structural quantile function Q&#x{&tau;}(Y&#x{d}|X) &mdash; the &tau;-th quantile of the potential outcome Y(d) at X &mdash; is identified under rank invariance:</p>
+        <code class="math">β̂_τ^{IVQR} = argmin_β max_α ||S(τ, β, α)||
+
+where S(τ,β,α) = Σᵢ [τ - 1(Yᵢ < Dᵢβ + Xᵢ'α)] · Zᵢ</code>
+        <p>This identifies the distributional effect of an endogenous treatment variable at each quantile, generalising both IV and quantile regression into a unified framework. IVQR reveals whether, say, the distributional effects of a wage policy are driven by heterogeneous responses or by endogenous selection &mdash; a question OLS cannot answer even approximately.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-qr-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The check function loss is robust to non-Gaussian errors and outliers; OLS quadratic loss is inefficient under fat tails</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The check function &rho;&#x{&tau;}(u) = u(&tau;&minus;1(u&lt;0)) penalises residuals asymmetrically with linear rather than quadratic weight, giving it bounded influence against outliers.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Under t&#x{5} errors, LAD (&tau;=0.5) is 73% more asymptotically efficient than OLS. Under double-exponential errors, LAD achieves the Cram&eacute;r&ndash;Rao bound while OLS does not.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Economic data &mdash; wages, income, asset returns &mdash; routinely exhibit heavy tails. OLS is systematically inefficient in these settings; quantile regression is not.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Under the fat-tailed, heteroskedastic distributions that characterise economic data, quantile regression is more efficient and more robust than OLS; the check function loss is appropriate where quadratic loss is not.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The quantile process reveals treatment effect heterogeneity that OLS conceals within its mean estimate</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The OLS estimate &beta;&#x302;&#x{OLS} = E[&partial;Y/&partial;X] averages across the entire conditional distribution. If the treatment lifts only the bottom tail or only the top, OLS hides this structure.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The quantile process {&beta;&#x302;(&tau;): &tau;&isin;(0,1)} fully characterises how X shifts the distribution of Y. Location shift (uniform effect), scale shift (dispersion effect), and asymmetric effects are all visible.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Khmaladze homogeneity test H&#x2080;: &beta;(&tau;) = constant in &tau; directly tests whether OLS meaningfully summarises the conditional relationship or masks important distributional heterogeneity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The quantile process provides information about distributional heterogeneity that OLS conceals by construction; wherever treatment effects are heterogeneous &mdash; the empirical norm &mdash; quantile regression strictly dominates OLS as an inferential strategy.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Bootstrap and Khmaladze inference provide valid simultaneous confidence bands for the entire quantile process</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Quantile regression standard errors are computed via sandwich estimators (requiring density estimates), bootstrap, or the Khmaladze martingale transform. All three provide asymptotically valid inference.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Simultaneous confidence bands for &beta;(&tau;) uniformly in &tau;&isin;[a,b] provide inference on the entire shape of the conditional distribution, not just point estimates at individual quantiles.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Koenker&ndash;Xiao (2002) test based on the Khmaladze transform has power against both location-shift and scale-shift departures from OLS adequacy, making it a unified specification test.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Valid inference on the full quantile process is available via bootstrap and Khmaladze methods; these tools provide a richer picture of conditional distribution shape than OLS while maintaining formal statistical validity.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; IVQR (Chernozhukov&ndash;Hansen 2005) identifies distributional effects of endogenous variables; OLS cannot</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>IVQR identifies the structural quantile function Q&#x{&tau;}(Y(d)|X) under rank invariance: the rank of unit i in the Y(d) distribution is invariant to d. This is a credible assumption in many settings.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The moment condition E[&tau;&minus;1(Y&lt;D&beta;(&tau;)+X'&alpha;(&tau;))|Z]=0 provides identification at each quantile via the instrument Z, generalising both IV and quantile regression.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>IVQR reveals whether distributional effects of an endogenous treatment are driven by heterogeneous responses or selection &mdash; a question neither IV (identifies LATE only) nor OLS can address.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>IVQR identifies distributional causal effects of endogenous variables under rank invariance; it generalises both IV and quantile regression and answers distributional policy questions that neither OLS nor IV can address.</span></div>
+        </div>
+      </div>
+    </div><!-- end qr -->
+
+    <!-- ─── LASSO ─── -->
+    <div class="speaker-panel" id="prop-lasso-panel">
+      <div id="prop-lasso-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>Modern empirical economics routinely involves datasets where the number of potential predictors p is comparable to or exceeds the sample size n. OLS is undefined when p &gt; n and is wildly unstable when p is close to n. LASSO and its econometric adaptations &mdash; particularly the Post-Double-Selection estimator of Belloni, Chernozhukov and Hansen (2014) &mdash; provide principled, inference-valid solutions to the high-dimensional confounder selection problem.</p>
+        <div class="case-box">
+          <strong>The LASSO optimisation problem.</strong><br><br>
+          LASSO (Tibshirani 1996) solves:<br><br>
+          &beta;&#x302; = argmin&#x{&beta;} (1/2n)&Vert;y &minus; X&beta;&Vert;&#x00B2; + &lambda;&Vert;&beta;&Vert;&#x2081;<br><br>
+          The &#x2113;&#x2081; penalty &lambda;&Vert;&beta;&Vert;&#x2081; = &lambda;&sum;|&beta;&#x{j}| shrinks small coefficients exactly to zero, performing simultaneous estimation and variable selection. Ridge regression uses &#x2113;&#x2082; penalty &lambda;&Vert;&beta;&Vert;&#x00B2; and shrinks all coefficients but selects none. The tuning parameter &lambda; is chosen by cross-validation or by the Belloni&ndash;Chernozhukov (2013) data-driven penalty &lambda; = c&sigma;&radic;(log(p)/n).
+        </div>
+        <span class="section">i. near-oracle rate convergence under sparsity</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Sparsity + REC — LASSO achieves near-oracle rates when true model is sparse and restricted eigenvalue condition holds; prediction error vanishes at optimal rate</span>Under the restricted eigenvalue condition (REC) and sparsity &mdash; the true coefficient vector &beta;&#x2080; has at most s non-zero entries, s &lt;&lt; n &mdash; LASSO achieves the prediction error bound:</p>
+        <code class="math">||Xβ̂ - Xβ₀||²/n ≤ C · s · λ² · log(p)/n  →  0
+
+β̂ convergence rate: ||β̂ - β₀||₁ ≤ C' · s · λ  (near-oracle)</span></code>
+        <p>This is near-oracle in the sense that the rate s&lambda; is at most a log(p) factor above the rate achievable if we knew the true support of &beta;&#x2080; in advance. LASSO achieves this simultaneously over estimation and model selection, without prior knowledge of which variables are relevant &mdash; exactly what is needed in high-dimensional confounding settings.</p>
+        <span class="section">ii. post-double-selection for valid causal inference</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">PDS-LASSO — runs LASSO on outcome AND treatment equations; takes union of selected controls; OLS on union gives valid inference on treatment effect α despite selection</span>The critical contribution of Belloni, Chernozhukov and Hansen (2014) is that naive post-LASSO &mdash; run LASSO on y&#x{i} = d&#x{i}&alpha; + x&#x{i}'&beta; + &epsilon;&#x{i}, then OLS on selected controls &mdash; gives invalid inference because LASSO may omit confounders correlated with d but with small coefficients in the outcome equation (the &ldquo;omitted variable at the boundary&rdquo; problem). Post-double-selection (PDS) fixes this:</p>
+        <code class="math">Step 1: LASSO of y on x → selected set Î₁
+Step 2: LASSO of d on x → selected set Î₂
+Step 3: OLS of y on d, x_{Î₁ ∪ Î₂} → α̂_PDS</code>
+        <p>By selecting confounders using both equations, PDS achieves uniformly valid inference on &alpha; even when LASSO makes model-selection mistakes in individual steps. The asymptotic distribution of &alpha;&#x302;&#x{PDS} is normal with near-oracle variance, enabling standard t-tests and confidence intervals for the treatment effect despite the high-dimensional control problem.</span></p>
+        <span class="section">iii. LASSO-based instrument selection</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">LASSO IV — Belloni et al. (2012): LASSO selects predictors of treatment from large instrument set; post-LASSO 2SLS achieves near-oracle rates under sparsity</span>Belloni, Chen, Chernozhukov and Hansen (2012) extend PDS to IV settings where the instrument set is also high-dimensional. LASSO selects instruments in the first stage &mdash; predicting the endogenous regressor d from a large set of potential instruments z:</p>
+        <code class="math">Step 1: LASSO of d on z → selected instruments ẑ
+Step 2: 2SLS of y on d using ẑ as instruments
+
+Rate: ||α̂_2SLS - α||² ≤ C · s_z · log(p_z)/n</code>
+        <p>This is particularly valuable in settings with many potential instruments &mdash; judge fixed effects, market access instruments, historical policy variables &mdash; where manual selection would be arbitrary and potentially invalid. LASSO instrument selection is principled, data-driven, and achieves near-oracle efficiency.</span></p>
+        <span class="section">iv. the tuning parameter and uniform inference</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Data-driven λ — Belloni–Chernozhukov (2013): λ = c·σ·√(log(p)/n) achieves near-oracle rate without cross-validation; universal critical value C = 1.1·Φ⁻¹(1 - 0.1/(2p))</span>The main practical challenge in LASSO is choosing &lambda;. Cross-validation minimises prediction error but is not designed for inference-valid variable selection. Belloni and Chernozhukov (2013) derive the theoretical optimal penalty for the &ell;&#x2081;-penalised regression in sub-Gaussian designs:</p>
+        <code class="math">λ* = c · σ · √(log(p)/n) · Φ⁻¹(1 - γ/(2p))
+where γ is the confidence level (typically 0.1/log(n))</code>
+        <p>This data-driven penalty achieves the near-oracle rate without cross-validation and is implemented in the hdm R package. Uniform inference on the treatment effect &alpha; after PDS-LASSO is valid across all parameter configurations &mdash; including those near the boundary of the identified set &mdash; giving PDS-LASSO a robustness guarantee that standard OLS model selection lacks.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-lasso-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; LASSO achieves near-oracle convergence rates under sparsity; OLS is undefined or inconsistent when p is large</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>OLS requires n &gt; p and full-rank X. When p &gt; n, OLS has no solution. When p/n &rarr; c &gt; 0, OLS has prediction error that does not vanish.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Under sparsity (s &lt;&lt; n) and the restricted eigenvalue condition, LASSO achieves &Vert;X&beta;&#x302;&minus;X&beta;&#x2080;&Vert;&#x00B2;/n &le; C&middot;s&middot;log(p)/n &rarr; 0 at the near-oracle rate.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This prediction rate is achievable simultaneously over estimation and model selection without knowledge of the true sparsity pattern &mdash; a fundamental advantage over OLS in high dimensions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>LASSO achieves near-oracle estimation and prediction rates in high-dimensional settings where OLS is undefined or inconsistent; it is the appropriate estimator for modern large-p empirical problems.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Post-Double-Selection achieves uniformly valid inference on treatment effects despite high-dimensional confounding</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Naive post-LASSO (LASSO then OLS on selected variables) produces invalid inference because model-selection mistakes generate omitted variable bias for the treatment effect &alpha;.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>PDS-LASSO runs LASSO on both outcome and treatment equations, takes the union of selected controls, and estimates &alpha; by OLS on the union. This achieves uniform validity: &radic;n(&alpha;&#x302;&#x{PDS}&minus;&alpha;) is asymptotically N(0,V) even when LASSO makes selection mistakes in individual steps.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Uniformity is crucial: standard inference is valid under all parameter configurations, including those near the boundary where selection uncertainty is highest.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>PDS-LASSO achieves uniformly valid inference on treatment effects under high-dimensional confounding; it solves a problem OLS cannot even diagnose, providing reliable confidence intervals regardless of selection uncertainty.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; LASSO instrument selection extends principled variable selection to high-dimensional IV settings</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>With many potential instruments, manual selection is arbitrary and potentially invalid (violating exclusion). LASSO selects instruments based on first-stage predictive power under a rigorous penalty.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Post-LASSO 2SLS achieves estimation rate &Vert;&alpha;&#x302;&minus;&alpha;&Vert;&#x00B2; &le; C&middot;s&#x{z}&middot;log(p&#x{z})/n under sparsity of the first stage. Near-oracle first-stage selection translates directly to near-oracle IV estimates.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is the principled solution to the weak-instrument problem in high-dimensional settings: LASSO finds the strongest valid instruments from a large candidate set without manual selection bias.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>LASSO instrument selection enables principled, near-oracle IV estimation when the instrument set is large; it is strictly superior to manual selection in terms of both statistical validity and estimation efficiency.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The Belloni&ndash;Chernozhukov data-driven penalty enables inference without cross-validation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Cross-validation minimises prediction error, not inference validity. It is not the correct criterion for selecting &lambda; in a causal inference context.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>&lambda;* = c&middot;&sigma;&middot;&radic;(log(p)/n)&middot;&Phi;&#x207B;&sup1;(1&minus;&gamma;/(2p)) achieves the near-oracle selection rate and is formally derived from the requirement that the selected model control the relevant maximum-norm condition.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The resulting PDS-LASSO inference is uniformly valid: standard errors can be used for t-tests and confidence intervals without any correction for the selection step.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Belloni&ndash;Chernozhukov data-driven penalty achieves both near-oracle model selection and uniformly valid causal inference; it resolves the tension between prediction and inference in high-dimensional regression.</span></div>
+        </div>
+      </div>
+    </div><!-- end lasso -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ═══════════════════════ OPPOSITION / CRITICS ═══════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','weak',this)">Weak IV Critique</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','moments',this)">Moment Proliferation</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','trends',this)">Parallel Trends</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','rddcrit',this)">RDD Limits</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','synth',this)">Synthetic Control</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','heckman',this)">Heckman &amp; Selection</button>
+  </div>
+
+  <!-- WEAK IV HEADER -->
+  <div class="col-header" id="opp-weak-header">
+    <div class="col-header-top"><span class="pill opp">The Weak Instruments &amp; LATE Critique</span><span class="col-subtitle">Bound, Jaeger &amp; Baker (1995) &bull; Deaton (2010) &bull; Stock &amp; Yogo (2005)</span></div>
+    <div class="col-position">The IV framework&rsquo;s greatest promise &mdash; consistency despite endogeneity &mdash; collapses when instruments are weak. With first-stage F&lt;10, 2SLS bias toward OLS can exceed OLS bias itself. Worse: the LATE that IV identifies for compliers may be a narrow subpopulation of no policy relevance. The cure is often more dangerous than the disease.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','weak','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','weak','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- MOMENT PROLIFERATION HEADER -->
+  <div class="col-header hidden" id="opp-moments-header">
+    <div class="col-header-top"><span class="pill opp">The Moment Proliferation &amp; J-Test Critique</span><span class="col-subtitle">Roodman (2009) &bull; Arellano &amp; Bover (1995) &bull; Hayashi (2000)</span></div>
+    <div class="col-position">GMM&rsquo;s power is its curse: in dynamic panels the instrument count explodes to O(T&#x00B2;), inducing severe finite-sample bias in the two-step estimator and destroying the J-test&rsquo;s discriminatory power. The efficient GMM estimator requires consistent estimation of the long-run variance S, which requires fourth-moment information and large n. In practice, GMM is frequently implemented badly, generating apparently-precise but deeply unreliable estimates.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','moments','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','moments','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- PARALLEL TRENDS HEADER -->
+  <div class="col-header hidden" id="opp-trends-header">
+    <div class="col-header-top"><span class="pill opp">The Parallel Trends &amp; Staggered Adoption Critique</span><span class="col-subtitle">Bertrand, Duflo &amp; Mullainathan (2004) &bull; de Chaisemartin &amp; D&rsquo;Haultf&oelig;uille (2020) &bull; Roth (2022)</span></div>
+    <div class="col-position">Parallel trends is not testable in the post-period and standard pre-trend tests are underpowered &mdash; Roth (2022) shows they often fail to detect economically meaningful violations. Serial correlation in DiD standard errors, documented by Bertrand&ndash;Duflo&ndash;Mullainathan (2004), causes drastic over-rejection even with correct pre-trends. And the TWFE negative-weight problem existed undetected for decades of applied economics work.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','trends','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','trends','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- RDD CRITIQUE HEADER -->
+  <div class="col-header hidden" id="opp-rddcrit-header">
+    <div class="col-header-top"><span class="pill opp">The RDD External Validity &amp; Bandwidth Critique</span><span class="col-subtitle">Imbens (2010) &bull; Cattaneo &amp; Titiunik (2022) &bull; Bertanha &amp; Imbens (2020)</span></div>
+    <div class="col-position">RDD identifies a treatment effect only at the cutoff, for the subpopulation at the margin of the threshold. This LATE-at-the-cutoff has minimal external validity: it tells us nothing about the policy effect away from the threshold, or for the average person affected by a policy. Bandwidth selection substantially affects estimates, and evidence of manipulation even at low levels destroys identification. The most internally valid method is often the least externally informative.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','rddcrit','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','rddcrit','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- SYNTHETIC CONTROL HEADER -->
+  <div class="col-header hidden" id="opp-synth-header">
+    <div class="col-header-top"><span class="pill opp">Synthetic Control: Donor Pool &amp; Inference Critique</span><span class="col-subtitle">Abadie, Diamond &amp; Hainmueller (2010) &bull; Doudchenko &amp; Imbens (2016) &bull; Ferman &amp; Pinto (2021)</span></div>
+    <div class="col-position">The synthetic control method (Abadie et al. 2010) constructs a weighted average of donor units to approximate the counterfactual for a single treated unit. Its inference relies on placebo tests with a small donor pool &mdash; often 20&ndash;40 units &mdash; giving extremely low-powered tests. Donor pool construction is arbitrary, weights are sensitive to predictor choice, and the SUTVA violation is endemic: treated unit shocks affect donor units in trade-linked or geographically close economies.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','synth','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','synth','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- HECKMAN HEADER -->
+  <div class="col-header hidden" id="opp-heckman-header">
+    <div class="col-header-top"><span class="pill opp">The Heckman Selection Model: Normality &amp; Instrument Critique</span><span class="col-subtitle">Heckman (1979) &bull; Puhani (2000) &bull; Vella (1998)</span></div>
+    <div class="col-position">Heckman&rsquo;s two-step correction for sample selection bias relies on bivariate normality of the error terms. Without a valid exclusion restriction &mdash; a variable affecting selection but not the outcome &mdash; identification comes entirely from the non-linearity of the inverse Mills ratio, which is fragile to normality violations. In practice, Heckman is often implemented without instruments, generating collinearity problems and estimates that are extremely sensitive to distributional misspecification.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','heckman','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','heckman','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ─── WEAK IV CRITIQUE ─── -->
+    <div class="speaker-panel active" id="opp-weak-panel">
+      <div id="opp-weak-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The IV estimator has a glittering theoretical reputation and a troubled empirical history. In practice, the most common problem in IV applications is not invalid instruments &mdash; though that is also endemic &mdash; but weak instruments, which cause the estimator&rsquo;s finite-sample distribution to be wildly non-normal, and which in the worst cases produce estimates more biased than OLS itself.</p>
+        <div class="case-box">
+          <strong>The anatomy of weak-instrument bias.</strong><br><br>
+          Let &mu;&#x00B2; = &pi;'(Z'Z/n)&pi;/&sigma;&#x{uu} be the concentration parameter, where &pi; is the first-stage coefficient. The approximate 2SLS bias relative to OLS is:<br><br>
+          Bias(2SLS)/Bias(OLS) &asymp; 1/(&mu;&#x00B2; + 1)<br><br>
+          When the concentration parameter &mu;&#x00B2; is small &mdash; corresponding to a weak first stage &mdash; the 2SLS bias approaches 1&times; the OLS bias. The F-statistic in the first stage is approximately (&mu;&#x00B2;/L) + 1, so F=10 corresponds to &mu;&#x00B2; &asymp; 9(L), giving at most 10% relative bias. But this rule of thumb is for a single endogenous variable and under specific assumptions about error structure.
+        </div>
+        <span class="section">i. the finite-sample non-normality problem</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Non-normality — with weak instruments, 2SLS t-statistics have heavy tails; standard confidence intervals under-cover; Staiger–Stock (1997) weak-IV asymptotics</span>Under strong instruments, 2SLS is asymptotically normal: &radic;n(&beta;&#x302;&#x{2SLS}&minus;&beta;) &rarr;&#x{d} N(0,V). Under weak instruments, Staiger and Stock (1997) show that the concentration parameter &mu;&#x00B2; is O(1) rather than O(n), and the limiting distribution of the 2SLS estimator is a ratio of two correlated normal random variables &mdash; a distribution with potentially undefined moments and thick tails. Standard confidence intervals are then severely miscalibrated:</p>
+        <code class="math">P(β₀ ∈ CI₀.₉₅) ≪ 0.95 under weak instruments
+
+Anderson–Rubin CI: [{β : AR(β) ≤ χ²_{L,0.05}}]
+is valid regardless of instrument strength but can be
+unbounded or disconnected when instruments are weak</code>
+        <p>The Anderson&ndash;Rubin test inverts a statistic that is pivotal under weak instruments, so it provides honest confidence sets &mdash; but the cost is that the confidence set may be the entire real line, honestly communicating that the data are uninformative. This is the correct answer, but it means IV produces no causal information in such cases.</span></p>
+        <span class="section">ii. the many-weak-instruments problem</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Many weak instruments — adding more weak instruments reduces individual F-statistics; 2SLS bias grows with L even if individual instruments are valid; LIML bias grows more slowly but has heavier tails</span>A common response to weak instruments is to add more instruments, hoping to increase the concentration parameter. But Bekker (1994) and Staiger&ndash;Stock (1997) show that when L (the number of instruments) grows with n, 2SLS exhibits persistent bias even when each instrument is individually weak. Specifically:</p>
+        <code class="math">Bias(2SLS) ≈ (L/n) · (σ_xu / σ_xx) when L/n → c > 0
+
+Bias grows with L even when each instrument's Cov(z_l, x)
+is diminishing at rate 1/√L</code>
+        <p>LIML has better median-unbiasedness under many weak instruments but heavier tails, so inference with LIML requires even more care. The Fuller (1977) modified LIML estimator is the most reliable under many-instrument settings, but it requires choosing a tuning constant. There is no free lunch: identifying variation that is genuinely weak cannot be rescued by accumulating more weak instruments.</span></p>
+        <span class="section">iii. the LATE external validity problem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">LATE external validity — IV identifies effect only for compliers; compliers may be unrepresentative; different instruments identify different LATEs; results are not portable across policies</span>Even when the instrument is strong and valid, IV identifies LATE &mdash; the average treatment effect for compliers. Deaton (2010) presses the point forcefully: compliers are an instrument-specific subpopulation whose characteristics we typically cannot fully characterise. Different instruments for the same treatment identify different LATEs, and these need not be comparable:</p>
+        <code class="math">LATE₁ = E[Y₁-Y₀ | D₁(Z=1) > D₁(Z=0)]  (compliers for Z₁)
+LATE₂ = E[Y₁-Y₀ | D₁(Z=1) > D₁(Z=0)]  (compliers for Z₂)
+
+LATE₁ ≠ LATE₂ in general; cannot aggregate without
+additional assumptions about treatment heterogeneity</code>
+        <p>A policy-maker who wants to know the effect of a programme for the average participant &mdash; ATT &mdash; gets no direct answer from IV. The LATE is the causal effect for the marginal complier, who may have very different characteristics from the average treated unit. Angrist and Imbens are correct that LATE is a well-defined estimand; Deaton is also correct that for many policy questions it is the wrong estimand.</span></p>
+        <span class="section">iv. the exclusion restriction and the credibility deficit</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Exclusion restriction — fundamentally untestable in just-identified models; Bound–Jaeger–Baker show even small violations cause large bias; the cure can be worse than the disease</span>The exclusion restriction &mdash; Cov(z,u)=0 &mdash; is the crucial untestable assumption of IV. In just-identified models, it is entirely untestable. Bound, Jaeger and Baker (1995) show that even very small violations of exclusion can produce IV estimates more biased than OLS. Specifically, if the instrument has a small direct effect &delta; on the outcome:</p>
+        <code class="math">plim(β̂ᴵᵛ) = β + δ/π₁
+
+where π₁ = Cov(z,x)/Var(z) is the first-stage coefficient.
+
+If |δ/π₁| > |Bias_OLS|, IV is more biased than OLS.</code>
+        <p>For weak instruments (small &pi;&#x{1}), even a tiny exclusion violation &delta; is amplified to a large bias. The J-test for overidentified models tests whether instruments give consistent answers, but it tests nothing about the common component of all instruments&rsquo; biases &mdash; a weakness that is often glossed over in applied work.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-weak-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Weak instruments cause non-normal 2SLS distributions; standard confidence intervals are severely miscalibrated</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When &mu;&#x00B2; = O(1) (weak instruments), the 2SLS estimator converges to a ratio of correlated normals, not to a normal distribution. Standard t-statistics have heavy tails; 95% CIs under-cover.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Anderson&ndash;Rubin CIs are valid under weak instruments but can be unbounded, correctly communicating that the data contain no causal information. This is the honest answer but defeats the purpose of IV.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The F-statistic threshold of 10 is adequate for a single endogenous variable under homoskedastic errors; it is too low under heteroskedasticity and for multiple endogenous variables. Effective instrument strength is routinely overstated in applied work.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Weak instruments render 2SLS estimates non-normal and confidence intervals invalid; the Anderson&ndash;Rubin solution is honest but often uninformative; the weak-instrument problem frequently means IV provides no usable causal information.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The many-weak-instruments problem means adding more instruments does not solve weak-IV bias</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Bekker (1994): when L/n &rarr; c &gt; 0, 2SLS is inconsistent with many weak instruments. Bias &asymp; (L/n)(Cov(x,u)/Var(x)) does not vanish even when each instrument is valid.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>LIML has better median-unbiasedness but heavier tails under many instruments; Fuller (1977) modified LIML requires a tuning constant. No estimator is uniformly superior.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The empirical strategy of accumulating many weak instruments to satisfy F &ge; 10 is misleading: the aggregate first-stage F may be high while individual instruments are all weak and collectively biased.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Adding weak instruments to achieve a high aggregate F-statistic does not solve weak-IV bias and introduces many-instrument inconsistency; there is no rescue strategy for genuinely weak identifying variation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; LATE external validity: complier subpopulations are instrument-specific and often policy-irrelevant</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Different instruments for the same treatment identify different LATE&#x{1}, LATE&#x{2}, ..., which are averages over different complier subpopulations. These LATEs are not comparable without strong homogeneity assumptions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Complier characteristics &mdash; who they are, how they differ from always-takers and never-takers &mdash; are partially identified (Abadie 2003) but often poorly understood. The policy-relevant population (ATT, ATE) is not what IV estimates.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A policy-maker asking &ldquo;what is the effect of expanding treatment broadly?&rdquo; gets no direct answer from IV/LATE. The LATE answers a different, narrower question about marginal compliers.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>IV&rsquo;s LATE is instrument-specific and often policy-irrelevant; the ATT and ATE that policy-makers need cannot be recovered from IV without additional assumptions that may be stronger than those required for alternative methods.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Small exclusion violations are amplified by weak first stages; the cure can be worse than the disease</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>plim(&beta;&#x302;&#x{IV}) = &beta; + &delta;/&pi;&#x{1} where &delta; = Cov(z,u) (exclusion violation) and &pi;&#x{1} = first-stage coefficient. Under weak instruments, even &delta; &asymp; 0 produces large IV bias if &pi;&#x{1} is small.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If |&delta;|&gt;|&pi;&#x{1}&middot;Bias&#x{OLS}|, IV is more biased than OLS. This condition is satisfied whenever the instrument has any small direct effect and the first stage is weak.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The J-test in overidentified models tests whether different instruments give consistent answers but cannot detect the common component of shared exclusion violations. It provides false comfort about instrument validity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Small exclusion violations combined with weak first stages produce IV bias larger than OLS bias; the J-test does not protect against correlated exclusion violations; in realistic empirical settings, the IV cure is often worse than the OLS disease.</span></div>
+        </div>
+      </div>
+    </div><!-- end weak iv -->
+
+    <!-- ─── MOMENT PROLIFERATION ─── -->
+    <div class="speaker-panel" id="opp-moments-panel">
+      <div id="opp-moments-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The promise of GMM &mdash; efficient estimation from weak distributional assumptions using moment conditions &mdash; is compromised in practice by two related pathologies: moment proliferation and the finite-sample breakdown of the J-test. Roodman (2009) documented these comprehensively for the Arellano&ndash;Bond estimator, showing that a large fraction of published panel GMM results are products of excessive instrumenting rather than genuine causal identification.</p>
+        <div class="case-box">
+          <strong>The instrument proliferation problem in Arellano&ndash;Bond.</strong><br><br>
+          The moment conditions E[y&#x{is}&Delta;&epsilon;&#x{it}]=0 for s&le;t&minus;2 generate a matrix of instruments of dimension n&times;(T&minus;2)(T&minus;1)/2. For T=10, this is 36 instruments per variable. With K endogenous variables, the instrument count is K&middot;T(T&minus;1)/2. Roodman (2009) shows that when instrument count L approaches or exceeds n, the two-step GMM estimator has severe downward bias in standard errors, and the J-test approaches a distribution with zero degrees of freedom relative to its nominal &chi;&#x00B2;(L&minus;K) &mdash; effectively always failing to reject.
+        </div>
+        <span class="section">i. the J-test size distortion under many instruments</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">J-test size collapse — when L → n, the J-statistic loses all discriminatory power; it fails to reject almost all models; published DiD papers show this systematic pattern</span>The J-statistic under the null is &chi;&#x00B2;(L&minus;K). When L is large relative to n, the consistent estimator of S used in constructing the J-statistic is imprecise, and its inverse is numerically unstable. Roodman (2009) documents:</p>
+        <code class="math">Under many instruments (L/n → c):
+J →_d χ²(L-K) with L/n → c ⇒ J →_p 0 systematically
+(the test becomes mechanically easy to pass)
+
+Windmeijer (2005) finite-sample corrected variance for
+two-step GMM: V_corr = V₂ + Δ where Δ accounts for
+estimation of the weighting matrix</code>
+        <p>Roodman&rsquo;s survey of published Arellano&ndash;Bond papers finds that in papers where instrument count exceeds n, J-statistics are uniformly small and p-values uniformly large &mdash; the exact pattern of a test with zero power. Authors interpreted non-rejection as evidence of valid instruments; in reality, the test was uninformative.</span></p>
+        <span class="section">ii. finite-sample bias in the two-step GMM estimator</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Two-step GMM bias — the efficient weighting matrix uses Ŝ⁻¹ estimated from first-step residuals; with many instruments, Ŝ is singular or near-singular; estimated standard errors collapse</span>The two-step efficient GMM estimator uses the weighting matrix W&#x{2} = &Ŝ;&#x207B;&sup1;, where &Ŝ; is estimated from first-step (2SLS) residuals:</p>
+        <code class="math">Ŝ = (1/n)Σᵢ ẑᵢẑᵢ' ⊗ ε̂ᵢ²   (heteroskedastic case)
+
+When L is large: rank(Ŝ) ≤ n < L, so Ŝ⁻¹ requires
+regularisation. Without it, standard errors of β̂_2step
+are downward biased by factor (1 - L/n)</code>
+        <p>The Windmeijer (2005) correction reduces but does not eliminate this bias; the correction itself requires assumptions about the second-derivative structure of the criterion function. The deeper problem is that the efficient GMM estimator is only efficient in large samples; in samples where L/n is non-negligible, one-step GMM (=2SLS) or LIML is more reliable than the &ldquo;efficient&rdquo; two-step estimator.</span></p>
+        <span class="section">iii. the consistent estimation of the long-run variance S</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Long-run variance — S = Σ_j E[g_t g_{t-j}'] requires kernel HAC estimation; depends on fourth moments; unreliable in small samples; optimal bandwidth for S is data-dependent</span>The optimal GMM estimator requires &Ŝ; &rarr; S = &Sigma;&#x{j=-&infin;}&#x{&infin;} E[g&#x{t}g&#x{t-j}']. For time-series applications, S must be estimated by a kernel heteroskedasticity-and-autocorrelation consistent (HAC) estimator:</p>
+        <code class="math">Ŝ_HAC = Σ_{|j|≤M} k(j/M) · Γ̂ⱼ
+where Γ̂ⱼ = (1/T)Σₜ ĝₜĝ'ₜ₋ⱼ (sample autocovariance)</code>
+        <p>Hayashi (2000) notes that consistent estimation of S requires &ldquo;very large sample sizes&rdquo; because S involves fourth moments. The bandwidth M grows with T, and the choice of kernel k(&middot;) affects finite-sample performance substantially. Andrews (1991) provides the data-driven M&#x302; that minimises MSE of &Ŝ;&#x{HAC}, but this relies on estimated AR(1) representations of g&#x{t}, which may be misspecified. Under misspecification of S, the claimed efficiency advantage of GMM over 2SLS disappears and may reverse.</span></p>
+        <span class="section">iv. the collapse of identification: testing instrument validity is harder than it looks</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Instrument validity untestable in GMM — J-test tests all restrictions jointly; C-test requires maintained subset; no instrument can be tested in isolation without auxiliary assumptions</span>The J-test&rsquo;s logical structure means it can never definitively validate a set of instruments &mdash; only reject them. In the Arellano&ndash;Bond context, the C-test compares J-statistics from models with and without a subset of instruments, but this requires treating the complement as validly specified &mdash; an assumption that is itself untestable. In applications:</p>
+        <code class="math">C-statistic = J_restricted - J_unrestricted
+~_d χ²(L_restricted - L_unrestricted) under H₀
+
+But H₀ requires maintaining J_unrestricted instruments
+as valid — which itself requires non-rejection of J_full</code>
+        <p>If J&#x{full} rejects, no subset can be tested without arbitrary choices about which instruments to maintain. If J&#x{full} does not reject &mdash; which is likely under many instruments &mdash; the non-rejection is uninformative. The identification framework of GMM panel estimators therefore rests on an untestable foundation precisely in the settings where it is most commonly applied.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-moments-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Many instruments cause J-test size collapse; published panel GMM results systematically confuse power failure with instrument validity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When L/n &rarr; c &gt; 0, the J-statistic has near-zero power: it systematically fails to reject even misspecified models. Roodman (2009) documents this in published Arellano&ndash;Bond applications.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Authors who report J-statistics with p-values &gt; 0.1 and interpret this as validation of their instruments are confusing power failure with non-rejection. The standard rule &ldquo;J does not reject, instruments are valid&rdquo; is invalid when L is large.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is a systematic methodological failure in a large fraction of published panel GMM work, not an isolated edge case. The credibility of an entire research programme is undermined.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Many-instrument J-test failure is a documented empirical phenomenon in published GMM research; the non-rejection interpretation is systematically invalid under L &asymp; n; a large body of GMM results is therefore unreliable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Two-step GMM standard errors are downward biased under many instruments; Windmeijer correction is insufficient</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Two-step GMM uses &Ŝ;&#x207B;&sup1; from first-step residuals. When L &asymp; n, &Ŝ; is nearly singular: standard errors are downward biased by factor approximately (1&minus;L/n).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Windmeijer (2005) correction reduces the bias but requires assumptions about the criterion function&rsquo;s second-derivative structure; it does not fully correct for instrument proliferation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>One-step GMM (=2SLS) with robust standard errors is more reliable under many instruments than the nominally &ldquo;efficient&rdquo; two-step estimator in finite samples. The efficiency gain of two-step GMM is an asymptotic result that does not hold in the sample sizes common in panel data.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Two-step GMM standard errors are systematically understated under many instruments; the efficiency advantage of efficient GMM is an asymptotic artefact that is outweighed by finite-sample bias in realistic panel data settings.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Consistent estimation of the long-run variance S requires fourth moments and large samples; it is unreliable in standard econometric settings</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>S = &Sigma;&#x{j} E[g&#x{t}g&#x{t-j}'] involves fourth moments of the data. HAC estimators &Ŝ;&#x{HAC} converge slowly (at rate T&#x207B;&sup1;&sup5; for the MSE-optimal bandwidth), requiring very large T for reliability.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Hayashi (2000) explicitly notes that reasonable fourth-moment estimation &ldquo;may require very large sample sizes&rdquo; &mdash; substantially larger than the panel datasets where GMM is typically applied.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Under misspecified S, the efficient GMM estimator is neither efficient nor consistent; its claimed advantage over 2SLS evaporates and may reverse. The premise of two-step GMM &mdash; a well-estimated weighting matrix &mdash; is routinely violated in practice.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Consistent estimation of S requires sample sizes substantially larger than those typical in panel econometrics; the efficiency advantage of efficient GMM is unreliable in standard empirical settings and may reverse in the relevant finite-sample regime.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The C-test requires a maintained valid subset; this creates an unfalsifiable testing structure under many instruments</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The C-statistic tests a subset of instruments conditional on maintaining the rest as valid. Testing any instrument requires maintaining others without testing them.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Under many instruments, J&#x{full} does not reject (power collapse), providing no basis for identifying which maintained instruments are actually valid. The testing structure is circular.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The claimed falsifiability advantage of GMM over OLS depends on the J-test having power. When the instrument count is large, this power disappears. The falsifiability claim is valid only under the restricted instrumental variable settings where GMM is identical to 2SLS.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Under many instruments, GMM&rsquo;s J-test and C-test form a circular and unfalsifiable testing structure; the falsifiability advantage over OLS evaporates precisely in the dynamic panel settings where GMM is most commonly used.</span></div>
+        </div>
+      </div>
+    </div><!-- end moments -->
+
+    <!-- ─── PARALLEL TRENDS CRITIQUE ─── -->
+    <div class="speaker-panel" id="opp-trends-panel">
+      <div id="opp-trends-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The DiD framework rests on the parallel trends assumption &mdash; a counterfactual claim about how the treated group would have evolved absent treatment. This assumption is untestable in the post-period. Pre-trend tests provide only indirect evidence and have limited power. Meanwhile, serial correlation in DiD errors was generating dramatic over-rejection in published research for decades before Bertrand, Duflo and Mullainathan (2004) documented the problem. The negative-weight TWFE failure was similarly undetected for years.</p>
+        <div class="case-box">
+          <strong>The serial correlation problem in DiD inference (BDM 2004).</strong><br><br>
+          The standard DiD regression Y&#x{it} = &alpha;&#x{i} + &lambda;&#x{t} + &tau;D&#x{it} + &epsilon;&#x{it} is estimated with heteroskedasticity-robust standard errors. But D&#x{it} is typically a long panel of 0s followed by 1s &mdash; serially correlated by construction. BDM (2004) show that treating &epsilon;&#x{it} as uncorrelated within unit, when in fact Corr(&epsilon;&#x{is}, &epsilon;&#x{it}) &ne; 0, causes the standard error of &tau;&#x302; to be understated by a factor that can approach 10 in long panels. The nominal t-statistic rejects H&#x{0}: &tau;=0 at 5% with probability up to 45% &mdash; a 9-fold over-rejection rate.
+        </div>
+        <span class="section">i. the BDM serial correlation problem</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Serial correlation — DiD treatment indicator is serially correlated; standard errors are understated by factor up to 10; rejection rate 45% at nominal 5% in long panels</span>Bertrand, Duflo and Mullainathan (2004) run Monte Carlo placebo experiments using US state-level data. They assign random &ldquo;treatments&rdquo; to random states and test H&#x{0}: &tau;=0. The correct rejection rate under H&#x{0} should be 5%. Using standard OLS standard errors, they find:</p>
+        <code class="math">Rejection rate at 5% level: up to 45% (≈9× correct rate)
+Cause: SE(τ̂) understated because within-unit serial
+correlation ignored:
+Var(τ̂) ∝ Σₜ Σₛ Cov(εᵢₜ, εᵢₛ) ≠ Σₜ Var(εᵢₜ)</code>
+        <p>The correct inference requires clustering standard errors at the level of treatment variation (the state), which allows for arbitrary within-cluster serial correlation. But cluster-robust inference requires many clusters &mdash; the rule of thumb is at least 50 &mdash; and with 50 states, the asymptotic approximation is reasonable. With fewer clusters (e.g., two countries, or policy variation across eight regions), even cluster-robust inference is unreliable, and wild cluster bootstrap or randomisation inference is required.</span></p>
+        <span class="section">ii. the pre-trend test power problem</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Roth (2022) — pre-trend tests are underpowered; failure to reject pre-trends does not validate parallel trends post-treatment; selection of DiD applications on passed pre-trend tests induces bias</span>The standard pre-trend test checks whether the event-study coefficients for pre-treatment periods are jointly zero. Roth (2022) makes a crucial point: this test is underpowered for detecting violations of parallel trends that are economically meaningful. Specifically:</p>
+        <code class="math">Power of pre-trend test ∝ σ_δ/SE(δ̂_pre)
+
+where σ_δ is the magnitude of the pre-trend slope and
+SE(δ̂_pre) is the standard error of pre-trend coefficients.
+
+Roth (2022) shows: pre-trend tests typically have power
+≤ 0.5 against violations that would bias τ̂_DiD by 20%.</code>
+        <p>Researchers who select studies on passed pre-trend tests are selecting on a noisy signal that is poorly correlated with post-treatment parallel trends. Moreover, when researchers pre-test and then condition on non-rejection, the resulting confidence intervals are invalid. The pre-trend test creates a selection bias that distorts both estimation and inference.</span></p>
+        <span class="section">iii. the negative-weight TWFE problem: undetected for decades</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">TWFE negative weights — Goodman-Bacon (2021) shows TWFE is weighted average of 2×2 DiDs; some weights are negative under effect heterogeneity; this was unknown for 30 years</span>The TWFE estimator in staggered adoption settings was the standard approach in applied economics from roughly 1990 to 2020. Goodman-Bacon (2021) showed that this estimator decomposes as:</p>
+        <code class="math">β̂_TWFE = ΣΩ_kl · DiD_kl
+where some weights Ω_kl < 0 when treatment effects
+vary with duration (dynamic heterogeneity)</code>
+        <p>de Chaisemartin and D&rsquo;Haultf&oelig;uille (2020) show that &beta;&#x302;&#x{TWFE} can be negative even when all ATT(g,t) are positive &mdash; a sign reversal caused entirely by the TWFE weighting structure. This failure was present in an enormous body of published work. The fact that the problem was undetected for three decades is itself evidence that the DiD research programme lacks the internal quality-control mechanisms its proponents claim. The Callaway&ndash;Sant&rsquo;Anna correction is welcome but it arrived retrospectively, potentially invalidating a large stock of empirical results.</span></p>
+        <span class="section">iv. parallel trends violations from economic selection</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Economic selection into treatment — rational policy adoption means treated units differ systematically from controls; parallel trends rules out this selection but economic theory predicts it</span>Parallel trends requires E[&Delta;Y(0)|D=1] = E[&Delta;Y(0)|D=0] &mdash; that treated and control units would have had the same trend absent treatment. But economic theory predicts that policy adoption is endogenous: governments adopt minimum wages when labour markets are tightening; firms adopt technology when productivity growth is slowing; countries liberalise trade when growth is high. In each case, the treatment occurs precisely because the treated unit is on a different trajectory from the control unit:</p>
+        <code class="math">Treatment ↑ when Y_trend(1) > Y_trend(0)
+⇒ E[ΔY(0)|D=1] > E[ΔY(0)|D=0]
+⇒ Parallel trends violated by economic rationality</code>
+        <p>This is not a pathological edge case. It is the generic prediction of rational policy adoption. DiD researchers are implicitly assuming that policy adoption is not driven by anticipated outcome trends &mdash; an assumption that directly contradicts standard economic models of policy choice. The method&rsquo;s identifying assumption and the economic models it is supposed to test are in direct tension.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-trends-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; BDM serial correlation causes up to 9&times; over-rejection; standard DiD inference is systematically invalid without within-cluster correction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The DiD treatment indicator D&#x{it} is serially correlated by construction (long strings of 0s then 1s). Standard heteroskedasticity-robust SEs treat &epsilon;&#x{is} and &epsilon;&#x{it} as uncorrelated, which is incorrect.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>BDM (2004) Monte Carlo: rejection rate of H&#x{0}: &tau;=0 at nominal 5% level reaches 45% with standard SEs. The null is true in the experiment by construction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Cluster-robust inference requires many clusters (&ge;50 for asymptotic validity); with fewer clusters, wild-bootstrap is needed but adds researcher degrees of freedom. A large fraction of DiD papers fail these standards.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Uncorrected serial correlation causes DiD inference to dramatically over-reject; the problem was pervasive in the pre-2004 literature; correcting it requires cluster-robust inference that is itself unreliable with few clusters.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Pre-trend tests are underpowered against economically relevant violations; they create a selection bias in published DiD results</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Roth (2022): pre-trend test power against violations that bias &tau;&#x302;&#x{DiD} by 20% is typically below 0.5 in standard designs. The test is poorly calibrated for its purpose.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Conditioning on passing a pre-trend test creates selection bias: published DiD results come from samples that passed a noisy, underpowered test correlated with but not equal to validity. Post-selection CIs are invalid.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Rambachan&ndash;Roth (2023) sensitivity analysis bounds the effect under violations of bounded magnitude &mdash; but this requires the researcher to specify a bound, introducing a new degree of freedom and reducing comparability across studies.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Pre-trend tests are underpowered and create selection bias in published DiD results; the pre-test/analysis pipeline is invalid; sensitivity analysis requires researcher-specified bounds that are not independently verified.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The TWFE negative-weight failure was undetected for 30 years; a large body of published DiD results may be sign-reversed</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>&beta;&#x302;&#x{TWFE} = &Sigma;&Omega;&#x{kl}DiD&#x{kl} with some &Omega;&#x{kl}&lt;0 under dynamic treatment effect heterogeneity. de Chaisemartin&ndash;D&rsquo;Haultf&oelig;uille (2020) show this can produce sign-reversed estimates.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This failure was present in all panel DiD studies using TWFE from approximately 1990&ndash;2020 but was unknown to practitioners. The research programme lacked the theoretical tools to detect its own failure mode.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>CS (2021) provides the correct estimator retrospectively but does not restore confidence in the earlier results. The stock of DiD estimates using TWFE is tainted by an unknown degree of sign-reversal bias.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The TWFE negative-weight failure represents a systematic, decades-long methodological error in applied economics; its belated correction does not validate the pre-2020 DiD literature; the magnitude of the problem across published research is unknown.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Rational policy adoption systematically violates parallel trends; the identifying assumption contradicts economic theory</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Parallel trends requires E[&Delta;Y(0)|D=1] = E[&Delta;Y(0)|D=0]. But optimal policy adoption implies treatment occurs when the treated unit&rsquo;s counterfactual trend differs from controls: treatment is endogenous to anticipated trend.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The assumption that parallel trends holds despite rational selection directly contradicts models of policy adoption based on expected utility maximisation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is not a pathological case but the generic prediction of economic models. DiD researchers are systematically assuming away the economic behaviour that their models are designed to analyse.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Rational policy adoption generically violates parallel trends; DiD&rsquo;s identifying assumption contradicts standard economic models of selection; the method is least credible precisely for evaluating economically-motivated policy decisions.</span></div>
+        </div>
+      </div>
+    </div><!-- end trends -->
+
+    <!-- ─── RDD CRITIQUE ─── -->
+    <div class="speaker-panel" id="opp-rddcrit-panel">
+      <div id="opp-rddcrit-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The RDD research programme has done more than any other quasi-experimental method to clarify the trade-off between internal and external validity. Its great virtue &mdash; local randomisation at the cutoff &mdash; is also its great limitation: it identifies a treatment effect only at a single point of the running variable, for a subpopulation at the margin of the threshold. This LATE-at-the-cutoff is, for most policy questions, the least interesting estimand available.</p>
+        <div class="case-box">
+          <strong>The external validity problem: what RDD identifies and what policy asks.</strong><br><br>
+          Sharp RDD identifies &tau;&#x302;&#x{RDD} = E[Y(1)&minus;Y(0)|X=c] &mdash; the treatment effect at exactly x=c, for units with a running variable at the threshold. Policy questions typically ask:<br><br>
+          (a) What is the effect for all treated units? (ATT)<br>
+          (b) What is the effect of changing the threshold? (policy extrapolation)<br>
+          (c) What is the effect for the average person? (ATE)<br><br>
+          RDD answers none of these directly. Extrapolation from the cutoff to the broader treated population requires assumptions about how effects vary with x that cannot be tested from the RDD design alone.
+        </div>
+        <span class="section">i. the LATE-at-the-cutoff and the limits of external validity</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">External validity failure — RDD estimates are valid only at X=c; effect heterogeneity with X makes extrapolation impossible without untestable functional form assumptions</span>RDD identification is locally valid: the continuity assumption E[Y(0)|X=x] is continuous at c, but says nothing about how the treatment effect varies with x away from the cutoff. To extrapolate &tau;(c) to &tau;(x) for x &ne; c requires either (a) constant treatment effects &mdash; a homogeneity assumption that defeats the purpose of RDD &mdash; or (b) a parametric model for how effects vary with x. Neither is identified from the RDD design. Angrist and Rokkanen (2015) provide conditions under which the RDD estimate can be extrapolated beyond the cutoff, but these require the selection-on-observables assumption outside the bandwidth &mdash; conditions that are often implausible and that remove the design advantage of RDD entirely if they hold.</span></p>
+        <span class="section">ii. bandwidth sensitivity and the specification curve problem</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Bandwidth sensitivity — RDD estimates vary substantially with bandwidth; Imbens–Kalyanaraman optimal h is a point estimate subject to its own sampling uncertainty; researchers can find significant results over range of h</span>The RDD estimate depends critically on the bandwidth h around the cutoff. The Imbens&ndash;Kalyanaraman (2012) MSE-optimal bandwidth minimises expected squared error:</p>
+        <code class="math">h_IK = C(K) · n^{-1/5} · (σ²(c))^{1/5} / (B(c))^{2/5}
+
+where B(c) is the second-derivative bias term.
+B̂(c) requires a global polynomial regression to estimate,
+introducing a new specification choice.</code>
+        <p>The estimate &tau;&#x302;&#x{RDD}(h) is sensitive to h: halving or doubling h routinely produces estimates that differ by 20&ndash;50% in applied settings. The CCT (2014) bias-corrected estimator reduces but does not eliminate this sensitivity. More problematically, if researchers run estimates over multiple bandwidths and report the most statistically significant one, the effective type-I error rate is far above nominal, and the bias-correction does not account for this multiple-testing problem.</span></p>
+        <span class="section">iii. manipulation and its consequences</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Manipulation — McCrary test is a necessary but not sufficient condition; low-level sorting (ε-manipulation) cannot be detected but is sufficient to invalidate continuity; doughnut-hole exclusion reduces power</span>The McCrary density test checks for discontinuities in the density of the running variable at the cutoff. But manipulation need not be perfect to invalidate RDD. &ldquo;&epsilon;-manipulation&rdquo; &mdash; where agents can shift the running variable by small amounts &mdash; does not produce detectable density discontinuities but is sufficient to violate continuity of the potential outcome at c:</p>
+        <code class="math">If units with X* ∈ [c-ε, c) can shift to [c, c+ε]
+with cost proportional to effort, then:
+E[Y(0)|X=c⁺] ≠ E[Y(0)|X=c⁻] even if
+density(c⁺) = density(c⁻)  (undetectable by McCrary test)</code>
+        <p>In education: students who just failed can study harder and retake; firms near a tax threshold can adjust; voters near an electoral threshold can mobilise. In each case, the running variable is manipulable at low cost near the cutoff, inducing selective composition above and below c that the McCrary test cannot detect. The doughnut-hole &mdash; excluding observations within &epsilon; of the cutoff &mdash; eliminates both manipulation and the identifying variation simultaneously.</span></p>
+        <span class="section">iv. the polynomial order problem: sensitivity to specification</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Polynomial order — global polynomials are unreliable; local linear is preferred but low-order bias increases near boundaries; Gelman–Imbens (2019) warn against high-order polynomials</span>The choice of polynomial order p and bandwidth h jointly determine the RDD estimate. Gelman and Imbens (2019) demonstrate that global polynomial RDD &mdash; fitting a degree-p polynomial to the full running variable range &mdash; is unreliable because Runge&rsquo;s phenomenon causes polynomial interpolation to oscillate wildly near the boundary:</p>
+        <code class="math">Global polynomial: Y = Σ_p β_p X^p + τD + ε
+Runge oscillations near cutoff: large variance in τ̂
+even when the true regression function is smooth
+
+Local linear (p=1): τ̂_LL has boundary bias O(h²)
+Local quadratic (p=2): bias O(h³) but variance increases
+
+Optimal order p: Imbens–Wager (2019) suggest p=1 (local linear)
+for most applications, but the choice materially affects estimates</code>
+        <p>The local linear estimator is recommended by Imbens and Lemieux (2008) and Calonico et al. (2014) as the default, but in settings with non-linear conditional expectations near the cutoff, local linear may have large bias &mdash; precisely in the settings where treatment effect estimation is most important. There is no specification-independent RDD estimate.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-rddcrit-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; RDD identifies LATE-at-the-cutoff only; extrapolation requires untestable assumptions that eliminate the design advantage</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>RDD identifies E[Y(1)&minus;Y(0)|X=c] &mdash; the treatment effect at the cutoff only. Treatment effects at other values of X are not identified from the RDD design.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Extrapolation to ATE or ATT requires either constant-effects assumptions or parametric models for effect-x heterogeneity &mdash; neither is identified from the RDD design.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Angrist&ndash;Rokkanen (2015) extrapolation conditions require selection-on-observables away from the cutoff &mdash; assumptions that eliminate the non-parametric advantage of RDD. If these hold, matching or regression would also be valid; RDD adds no value.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>RDD is the most internally valid but least externally valid quasi-experimental method; it answers a narrow, localized question that is typically not the policy-relevant one; extrapolation requires assumptions that undermine the design&rsquo;s core advantage.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Bandwidth sensitivity introduces researcher degrees of freedom; multiple-bandwidth testing inflates type-I error despite CCT correction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>&tau;&#x302;&#x{RDD}(h) is sensitive to h; halving or doubling the optimal bandwidth changes estimates by 20&ndash;50% in typical applications. The IK-optimal bandwidth requires estimating B(c) from global polynomial regression, introducing new specification choice.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If researchers test over a range of bandwidths and report the most significant result, the effective type-I error is far above nominal. CCT bias-correction does not account for this multiple-testing problem.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Pre-registered bandwidth selection is the appropriate remedy but is rarely implemented in practice. The bandwidth-sensitivity problem is a documented source of replication failure in RDD applications.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Bandwidth sensitivity combined with the absence of pre-registration creates researcher degrees of freedom that inflate type-I error in RDD applications; the CCT correction does not eliminate this problem.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Low-level manipulation undetectable by McCrary test is sufficient to invalidate continuity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>&epsilon;-manipulation: units shift X by small random amounts proportional to effort near the cutoff. The density remains continuous but composition of units above and below c changes selectively.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If high-ability units disproportionately shift above c, E[Y(0)|X=c&#x207A;] &gt; E[Y(0)|X=c&#x207B;] even with a continuous density. The McCrary test gives a false negative; RDD continuity is violated.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The doughnut-hole excludes the observations contaminated by manipulation but also removes the identifying variation from the design. The solutions (doughnut-hole, density testing) are in tension with each other and with the estimator.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Undetectable low-level manipulation violates continuity without triggering the McCrary test; the necessary conditions for valid RDD are stronger than the necessary conditions for passing its diagnostic tests.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Polynomial order selection materially affects RDD estimates; there is no specification-independent result</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Global polynomials exhibit Runge oscillations near the boundary, producing spurious discontinuities. Local linear is preferred but has O(h&#x00B2;) boundary bias; local quadratic reduces bias to O(h&#x00B3;) but increases variance.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Different polynomial orders routinely produce materially different estimates in the same dataset. The choice of p is not identified from the design and is made by the researcher.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The researcher&rsquo;s choice of p jointly with h provides degrees of freedom to find statistically significant results. Pre-registration of both p and h is required for valid inference but is rarely implemented.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Polynomial order selection is a source of researcher degrees of freedom in RDD; there is no specification-independent estimate; pre-registration of p and h is necessary for valid inference but is uncommon in applied practice.</span></div>
+        </div>
+      </div>
+    </div><!-- end rdd crit -->
+
+    <!-- ─── SYNTHETIC CONTROL ─── -->
+    <div class="speaker-panel" id="opp-synth-panel">
+      <div id="opp-synth-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The synthetic control method is an important advance for comparative case studies, and I do not dispute its ingenuity. But its statistical properties are far weaker than its promoters acknowledge. With a donor pool of 20&ndash;40 units, placebo-based inference has power equivalent to a test at the 2&ndash;5% level that can reject with at most 2&ndash;5% power against alternatives of realistic magnitude. This is not robust causal inference; it is causal suggestion.</p>
+        <div class="case-box">
+          <strong>The synthetic control estimator.</strong><br><br>
+          Abadie, Diamond and Hainmueller (2010) construct weights W* = (w&#x{1},...,w&#x{J}) on J donor units minimising &Vert;X&#x{1} &minus; X&#x{0}W&Vert;&#x{V} subject to w&#x{j}&ge;0, &sum;w&#x{j}=1, where X&#x{1} is a K&times;1 vector of pre-treatment predictors for the treated unit and X&#x{0} = [X&#x{2},...,X&#x{J+1}] is K&times;J for donor units. V is a diagonal weighting matrix for predictors. The treatment effect estimate is:<br><br>
+          &alpha;&#x302;&#x{1t} = Y&#x{1t} &minus; &sum;&#x{j=2}&#x{J+1} w&#x{j}*Y&#x{jt} for t &gt; T&#x{0}<br><br>
+          Inference relies on running synthetic controls for each donor unit and comparing effect sizes via the ratio of post/pre RMSPE.
+        </div>
+        <span class="section">i. the low-power inference problem</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Inference power — placebo inference with J=39 donors gives minimum p-value 1/40 = 2.5%; this is a ceiling on the power of the procedure</span>The synthetic control inference procedure is permutation-based: apply the synthetic control method to each of J donor units to generate placebo effects, then test whether the treated unit&rsquo;s effect is extreme relative to the placebo distribution. With J=39 donor units (the Proposition 99 case), the minimum achievable p-value is 1/40 = 0.025. This is not a 5% test &mdash; it is a 2.5% test at best. More problematically, the power of this test against alternatives of realistic magnitude is:</p>
+        <code class="math">Power ∝ (1 - α_post · T_post)^{J-1} where α_post is
+the fraction of placebo RMSPEs smaller than the treated.
+
+With J=20 donors and effect half the RMSPE:
+Power ≈ 0.35 at nominal α = 1/20 = 5% level</code>
+        <p>Ferman and Pinto (2021) show that in standard synthetic control applications, the placebo test has power below 0.5 against treatment effects equal to the observed estimate under realistic noise distributions. The conclusion &ldquo;the California Proposition 99 effect is significant at the 2.5% level&rdquo; relies on a test with unknown and often low power against the alternatives it is supposed to detect.</span></p>
+        <span class="section">ii. the predictor weighting problem</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Predictor sensitivity — V matrix choice is arbitrary; different predictor sets and lags produce different weights and different effects; no data-driven V is identified from the design</span>The synthetic control weights W* depend on the predictor weighting matrix V. ADH (2010) suggest choosing V to minimise the pre-treatment prediction error &mdash; but this is a nested optimisation that creates degrees of freedom:</p>
+        <code class="math">W*(V) = argmin_W ||X₁ - X₀W||_V  subject to constraints
+V* = argmin_V ||Y₁_pre - Y₀_pre W*(V)||²
+
+The two-level optimisation is not convex and has multiple local
+optima. V* depends sensitively on: which predictors to include,
+which years of outcome to use as predictors, the optimisation
+algorithm and starting values.</code>
+        <p>Klossner et al. (2018) demonstrate that estimates change substantially under alternative predictor sets and optimisation specifications. The researcher-facing choice of predictors and the optimisation method creates degrees of freedom that are never accounted for in the reported confidence set. Different implementation choices for the same question can produce estimates spanning the null.</span></p>
+        <span class="section">iii. SUTVA violations and spillover</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">SUTVA violation — treatment unit effect spills over to donors via trade, migration, or policy diffusion; polluted counterfactual; systematic underestimation of effects</span>The synthetic control method requires the Stable Unit Treatment Value Assumption (SUTVA): the outcome of donor unit j is unaffected by treatment of unit 1. For macro-level policy evaluations &mdash; Proposition 99, German reunification, trade liberalisation &mdash; this assumption is routinely violated. Treatment of California&rsquo;s tobacco policy reduces smoking in donor states through diffusion of anti-smoking norms, price spillovers, and regulatory emulation:</p>
+        <code class="math">If Y₀ₜ(1) ≠ Y₀ₜ(0) for donor units j=2,...,J+1:
+Y₁ₜ - Σwⱼ*Yⱼₜ = α₁ₜ - Σwⱼ*(Yⱼₜ(1) - Yⱼₜ(0))
+                 ≈ α₁ₜ - spillover bias</code>
+        <p>Spillover to the donor pool through the treatment causes the synthetic control to under-state the treatment effect &mdash; it uses donors that have themselves been partially treated. For geographically proximate or economically integrated donors (EU member states, US states, trade partners), SUTVA violations are the norm rather than the exception.</span></p>
+        <span class="section">iv. the donor pool construction problem</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Donor pool — no principled rule for donor inclusion; cherry-picking donors produces pre-specified conclusion; exclusion of outlier donors changes weights dramatically</span>There is no principled criterion for which units to include in the donor pool. ADH (2010) suggest excluding donors with very different pre-treatment outcomes from the treated unit (to avoid extrapolation) &mdash; but this requires comparing the treated unit to potential donors, creating a specification-searching problem. When a donor that &ldquo;would receive high weight&rdquo; is excluded, the remaining weights and the synthetic control outcome change substantially. Klossner et al. (2018) show that leave-one-out robustness plots &mdash; the standard diagnostic &mdash; reveal sensitivity to donor exclusion but provide no principled resolution. The researcher can select the donor pool until the pre-treatment fit is visually satisfying, a procedure with unknown but potentially high false-positive rates.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-synth-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Permutation inference with J donors has minimum p-value 1/(J+1); power against realistic alternatives is low</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>With J=39 donors, minimum achievable p-value = 1/40 = 0.025. The test cannot achieve significance at any level below 2.5% regardless of effect size.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Ferman&ndash;Pinto (2021): under realistic noise, power of the placebo test against treatment effects of magnitude equal to the observed estimate is often below 0.5 with 20&ndash;30 donors.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Low power means many true effects go undetected; it also means &ldquo;significant&rdquo; results at the 5% level correspond to very strong effects, creating systematic publication bias toward large-effect studies.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Placebo-based inference for synthetic controls has a hard floor on p-values and low power against realistic alternatives; inference claims from standard synthetic control applications are substantially weaker than reported.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Predictor weighting matrix V is not identified from the design; different choices produce materially different synthetic controls</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>W*(V) and V* are jointly determined in a non-convex two-level optimisation. Multiple local optima exist; results depend on implementation choices including predictor set, outcome lags used, and optimisation algorithm.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Klossner et al. (2018) demonstrate that alternative V specifications for the Proposition 99 application produce synthetic California donor weights and estimated effects that vary substantially.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These researcher degrees of freedom are not accounted for in the reported confidence set, inflating the effective false-positive rate beyond what permutation inference reports.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The predictor weighting matrix V is not identified from the synthetic control design; researcher choices of V create unreported degrees of freedom; the effective false-positive rate exceeds the nominal permutation-based level.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; SUTVA violations from spillover contaminate donor outcomes and systematically understate treatment effects</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>SUTVA requires donor outcomes to be unaffected by the treated unit&rsquo;s treatment. In macro applications (state tobacco policy, national trade liberalisation, German reunification), spillovers through trade, migration, and norm diffusion are generic.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Spillover to donors causes &alpha;&#x302;&#x{1t} = &alpha;&#x{1t} &minus; &Sigma;w&#x{j}*(Y&#x{jt}(1)&minus;Y&#x{jt}(0)): the estimated effect is net of spillover to donors. This systematically understates the direct effect of the treatment.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>SUTVA violations are the norm, not the exception, for the macro policy questions that motivate synthetic control applications. The method is most needed precisely where its core assumption is most implausible.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>SUTVA violations systematically understate synthetic control treatment effects in macro applications; the method is least reliable for the class of questions it was designed to address.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Donor pool construction is unprincipled; leave-one-out diagnostics reveal but cannot resolve sensitivity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>No principled criterion governs donor inclusion. Excluding poor pre-treatment matches requires comparing to the treated unit, creating a specification-search problem before the main analysis.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Leave-one-out robustness plots show sensitivity to individual donor exclusion but provide no resolution: a researcher can iterate until a satisfying pre-treatment fit is achieved, exploiting an uncontrolled degree of freedom.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The false-positive rate of synthetic control applications subject to donor pool searching is unknown but likely substantially above the nominal permutation-inference level.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Donor pool construction is a researcher-controlled degree of freedom that inflates false-positive rates beyond what permutation inference reports; the method&rsquo;s specification-searching problem is undisciplined by any formal pre-registration standard.</span></div>
+        </div>
+      </div>
+    </div><!-- end synth -->
+
+    <!-- ─── HECKMAN ─── -->
+    <div class="speaker-panel" id="opp-heckman-panel">
+      <div id="opp-heckman-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The Heckman selection model is a genuine contribution to the literature on sample selection bias &mdash; a problem that is real and pervasive. But the two-step estimator&rsquo;s identification strategy is fragile in a way that is systematically understated in applied practice. Without a valid exclusion restriction, identification relies entirely on the non-linearity of the inverse Mills ratio under bivariate normality &mdash; an assumption that is rarely tested and routinely violated.</p>
+        <div class="case-box">
+          <strong>The Heckman two-step estimator.</strong><br><br>
+          Let y&#x{2i} be the outcome of interest, observed only when y&#x{1i}=1 (the selection indicator). The structural equations are:<br><br>
+          Selection: y&#x{1i} = 1(z&#x{i}'&gamma; + u&#x{1i} &gt; 0), with u&#x{1i} ~ N(0,1)<br>
+          Outcome: y&#x{2i} = x&#x{i}'&beta; + u&#x{2i}, with (u&#x{1i},u&#x{2i}) ~ BVN(0,0,1,&sigma;&#x{22},&rho;)<br><br>
+          E[y&#x{2i}|x&#x{i},y&#x{1i}=1] = x&#x{i}'&beta; + &rho;&sigma;&#x{22} &lambda;(z&#x{i}'&gamma;&#x302;)<br><br>
+          where &lambda;(&middot;) = &phi;(&middot;)/&Phi;(&middot;) is the inverse Mills ratio. Step 1: probit to get &gamma;&#x302;. Step 2: OLS of y&#x{2i} on x&#x{i} and &lambda;(z&#x{i}'&gamma;&#x302;) for selected observations. The coefficient on &lambda; is &rho;&sigma;&#x{22}.
+        </div>
+        <span class="section">i. identification without exclusion restrictions</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">No exclusion restriction — without an instrument, identification comes from normality alone via non-linearity of λ; this is parametric identification, not causal identification</span>When x = z (all variables in the outcome equation also appear in the selection equation), the Heckman model is theoretically identified purely from the non-linearity of the inverse Mills ratio &lambda;(z'&gamma;) &asymp; z'&gamma; + (z'&gamma;)&#x00B2;/2 for small arguments. Vella (1998) and Puhani (2000) demonstrate that this identification is extremely fragile:</p>
+        <code class="math">λ(t) = φ(t)/Φ(t) ≈ t for small t (approximately linear)
+
+Without exclusion: identification relies on curvature of λ(t)
+which is negligible unless z'γ̂ spans wide range.
+
+In practice: λ̂ is nearly collinear with linear combination
+of x_i → near-singular second-stage regression
+→ enormous standard errors and numerical instability</code>
+        <p>The Heckman estimator without exclusion restrictions is, in practice, an OLS regression with an additional nearly-collinear regressor. The estimates are numerically unstable, standard errors are inflated by a factor of 5&ndash;20 compared to a correctly-specified model with instruments, and the coefficient on the inverse Mills ratio &mdash; which measures the selection bias &mdash; is imprecisely estimated regardless of the magnitude of the true bias.</span></p>
+        <span class="section">ii. the bivariate normality assumption</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Bivariate normality — both error terms must be jointly normal; semi-parametric alternatives exist but require exclusion restriction; violation causes inconsistency of all parameters</span>The Heckman model requires that (u&#x{1i}, u&#x{2i}) are jointly bivariate normally distributed. This assumption is sufficient for the inverse Mills ratio correction to produce consistent estimates of &beta;. Under non-normal errors:</p>
+        <code class="math">E[y₂ᵢ | xᵢ, y₁ᵢ=1] = xᵢ'β + E[u₂ᵢ | u₁ᵢ > -zᵢ'γ]
+
+Under normality: E[u₂ | u₁ > t] = ρσ₂ λ(t)
+Under non-normality: E[u₂ | u₁ > t] = g(t), an unknown function
+→ the IMR correction is misspecified
+→ β̂ is inconsistent for all components</code>
+        <p>Heckman (1990) and subsequent work provide semi-parametric alternatives (distribution-free selection models) that do not require normality &mdash; but these all require an exclusion restriction and are substantially more computationally demanding. The choice between the parametric two-step and the semi-parametric alternatives is itself endogenous to whether a plausible exclusion restriction is available. Without one, applied researchers default to the parametric model whose normality assumption they typically do not test.</span></p>
+        <span class="section">iii. the inverse Mills ratio collinearity problem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">IMR collinearity — in high-selection-rate samples, λ(z'γ) is nearly linear in z'γ and hence nearly linear in x; collinearity inflates SE of β by factor 5–20; corrections unreliable</span>Even when an exclusion restriction is available, the second-stage Heckman regression frequently suffers from near-multicollinearity between the inverse Mills ratio and the regressors. Leung and Yu (1996) show that the correlation between &lambda;(z&#x{i}'&gamma;&#x302;) and x&#x{i} is typically 0.9&ndash;0.99 in samples where selection rates exceed 70% or are below 30%:</p>
+        <code class="math">Corr(λ(z'γ̂), xᵢ) → 1 as P(y₁=1) → 0 or 1
+
+Inflation factor on SE(β̂): κ = 1/(1 - R²_{λ,x}) → ∞
+
+In practice: SE(β̂_Heckman) / SE(β̂_OLS) ∈ [5, 20]
+for typical selection rates and sample sizes</code>
+        <p>This collinearity means the Heckman correction reduces the bias of &beta;&#x302; but massively inflates its variance. The net mean-squared-error of the Heckman estimator may exceed that of the (biased) OLS estimator in finite samples. Vella (1998) recommends using the two-step only as a specification test for selectivity, not as the primary estimator: if the coefficient on &lambda; is significant, an IV or other approach is needed rather than the Heckman two-step itself.</span></p>
+        <span class="section">iv. the semiparametric alternative and its requirements</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Semiparametric selection models — distribution-free but require exclusion restriction AND large samples for density estimation; no free lunch relative to Heckman parametric</span>Ahn and Powell (1993), Das, Newey and Vella (2003), and Newey (2009) provide semiparametric selection models that replace the normality assumption with nonparametric estimation of E[u&#x{2i}|u&#x{1i}&gt;&minus;z&#x{i}'&gamma;]. These require:</p>
+        <code class="math">Step 1: Estimate conditional density f(u₁ | z) nonparametrically
+Step 2: Estimate correction function g(t) = E[u₂ | u₁ > t]
+         using series or kernel estimators
+Step 3: OLS with nonparametric correction
+
+Rate: ||β̂_semi - β|| = O_p(n^{-2/5}) for kernel density
+vs.  ||β̂_Heckman - β|| = O_p(n^{-1/2}) under normality
+
+Semiparametric is slower: requires n^{1.25} sample size
+to achieve same RMSE as parametric Heckman under normality</code>
+        <p>The semiparametric estimator is consistent under much weaker assumptions but converges at a slower rate and requires a valid exclusion restriction. It is not a free alternative to the parametric Heckman model: it simply requires that the exclusion restriction be available and the sample be very large. Neither Heckman nor its semi-parametric alternatives provide a genuine solution to selection bias in the absence of an exclusion restriction. OLS on the selected sample, while biased, at least has transparent failure modes. The Heckman estimator without instruments provides a precise-looking but structurally unreliable estimate.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-heckman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Without exclusion restrictions, Heckman identifies from normality alone via IMR curvature; this identification is effectively non-existent in practice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When x=z, &lambda;(z'&gamma;) &asymp; z'&gamma; for most of the sample. The second stage regresses y&#x{2} on x and &lambda;(z'&gamma;) &asymp; x'&theta; &mdash; near-collinear regressors. Standard errors inflate by factor 5&ndash;20.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The theoretically valid identification from IMR curvature requires the running variable z'&gamma;&#x302; to span a wide range, including the non-linear tails of &lambda;. In typical applications it does not.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Puhani (2000) documents that applied Heckman estimations without valid exclusion restrictions are numerically unstable and their standard errors are uninformative about the magnitude of selection bias.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Heckman without exclusion restrictions identifies from normality via near-linear IMR curvature; this is parametric, not causal identification; standard errors are inflated to the point of uninformativeness in typical applications.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Bivariate normality violation causes inconsistency of all parameters; the assumption is rarely tested</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Under non-normal (u&#x{1i},u&#x{2i}): E[u&#x{2i}|u&#x{1i}&gt;t] = g(t) &ne; &rho;&sigma;&#x{2}&lambda;(t). The IMR correction is misspecified; &beta;&#x302; is inconsistent for all parameters in the outcome equation, not just the correction term.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Normality tests for the selection residuals provide some evidence but cannot directly test bivariate normality of (u&#x{1i},u&#x{2i}). The joint normality assumption is effectively untestable without large samples and additional structure.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In practice, researchers rarely test normality and proceed directly to the two-step estimator. A large fraction of applied Heckman models are estimated under violated distributional assumptions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Bivariate normality violation causes inconsistency of all Heckman estimates; the assumption is routinely untested; the majority of applied Heckman applications rest on an unverified distributional assumption.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; IMR collinearity inflates SE(β̂) by factor 5&ndash;20; Heckman&rsquo;s MSE may exceed OLS MSE in finite samples</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Corr(&lambda;(z'&gamma;&#x302;),x&#x{i}) &rarr; 1 as selection rate P(y&#x{1}=1) &rarr; 0 or 1. Variance inflation factor 1/(1&minus;R&#x00B2;&#x{&lambda;,x}) &rarr; &infin;. SE(&beta;&#x302;&#x{Heckman})/SE(&beta;&#x302;&#x{OLS}) &isin; [5,20] in typical applications.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>MSE = Bias&#x00B2; + Variance. Heckman reduces bias (under normality and correct specification) but massively increases variance. In finite samples, MSE(&beta;&#x302;&#x{Heckman}) &gt; MSE(&beta;&#x302;&#x{OLS}) whenever selection bias is moderate and collinearity is severe.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Vella (1998) recommends using Heckman two-step as a specification test rather than a primary estimator: if the IMR coefficient is significant, the test indicates selection bias is present and an IV or structural approach is needed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>IMR collinearity inflates Heckman standard errors to the point where its MSE can exceed OLS MSE; Heckman two-step is better used as a diagnostic than as a primary estimator; it does not replace the need for an exclusion restriction.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Semiparametric alternatives require exclusion restrictions and large samples; no method resolves selection without external variation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Semiparametric selection models (Ahn&ndash;Powell, Das&ndash;Newey&ndash;Vella) replace normality with nonparametric density estimation; they require exclusion restrictions and converge at rate n&#x207B;&sup2;&#x2044;&sup5; rather than n&#x207B;&sup1;&#x2044;&sup2;.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>For the semiparametric estimator to achieve the same RMSE as Heckman under normality, n must be approximately n&#x{para}&#x{1.25}. This is a substantial efficiency cost that is rarely acknowledged in applications.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Neither parametric Heckman nor semi-parametric alternatives provide consistent estimation without an exclusion restriction. The selection problem cannot be solved without external variation; Heckman merely conceals this requirement behind the normality assumption.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Semiparametric alternatives to Heckman require exclusion restrictions and converge more slowly; neither parametric nor semiparametric selection models resolve the fundamental need for external variation; Heckman&rsquo;s parametric convenience disguises an unsolved identification problem.</span></div>
+        </div>
+      </div>
+    </div><!-- end heckman -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'iv',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'weak',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
