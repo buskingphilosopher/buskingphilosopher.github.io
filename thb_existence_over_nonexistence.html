@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Existence Comparativism</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 10px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Population Ethics &mdash; Otsuka (2015) &bull; Holtug (2001, 2010) &bull; Pummer (2023) &bull; Arrhenius (2000, 2011) &bull; Hare (2007, 2009) &bull; McMahan (1981, 2012) &bull; Parfit (1984) &bull; Benatar (2006) &bull; Broome (1999)</div>
+  <div class="motion-title">&ldquo;This House Believes That Existing Can Be Personally Better For a Person Than Never Existing&rdquo;</div>
+  <div class="motion-sub">Proposition &bull; Otsuka &middot; Holtug &middot; Pummer &nbsp;&mdash;&nbsp; Opposition &bull; Arrhenius &middot; Hare &middot; McMahan</div>
+</div>
+
+<div class="columns">
+
+<!-- ════════════════════ PROPOSITION ════════════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','otsuka',this)">Otsuka</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','holtug',this)">Holtug</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','pummer',this)">Pummer</button>
+  </div>
+
+  <!-- OTSUKA HEADER -->
+  <div class="col-header" id="prop-otsuka-header">
+    <div class="col-header-top"><span class="pill prop">Existence Comparativism via Rationality</span><span class="col-subtitle">Michael Otsuka &bull; Rutgers University</span></div>
+    <div class="col-position">Rationality dictates that a person with a good life can be glad &mdash; rationally glad &mdash; that she exists rather than never having existed. This rational gladness is not a merely attitudinal fact but commits us to a genuine comparative evaluative claim: that existence is, for her, better than non-existence. The opposition&rsquo;s subject-of-harm requirement is too strong and would equally cripple our standard account of death&rsquo;s badness.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','otsuka','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','otsuka','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- HOLTUG HEADER -->
+  <div class="col-header hidden" id="prop-holtug-header">
+    <div class="col-header-top"><span class="pill prop">The Zero-Level Baseline Account</span><span class="col-subtitle">Nils Holtug &bull; University of Copenhagen</span></div>
+    <div class="col-position">Non-existence can logically serve as a zero welfare level &mdash; a baseline of neither wellbeing nor ill-being against which existence can be measured. A life worth living is one whose welfare level lies above this zero point, and such a life is therefore better for the person than never having existed at all. This grounding is sufficient for existence to be a personal benefit, and it makes the comparison tractable within a rigorous welfare theory.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','holtug','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','holtug','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- PUMMER HEADER -->
+  <div class="col-header hidden" id="prop-pummer-header">
+    <div class="col-header-top"><span class="pill prop">The Non-Identity Rescue Argument</span><span class="col-subtitle">Theron Pummer &bull; University of St Andrews</span></div>
+    <div class="col-position">Existence comparativism is the only view that delivers the intuitively correct verdicts in non-identity rescue cases where we must choose between creating a person who will suffer badly and creating no one at all. Without the comparative claim that existence can be worse for a person than non-existence, and correspondingly better, we cannot explain why we are required to avoid creating miserable lives in precisely the cases where we should be most confident we are.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','pummer','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','pummer','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ─── OTSUKA ─── -->
+    <div class="speaker-panel active" id="prop-otsuka-panel">
+      <div id="prop-otsuka-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The motion before us is whether existing can be personally better for a person than never existing. I want to defend a resounding yes &mdash; and I want to show that the denial of this claim leads to consequences that should be far more disturbing to the opposition than anything they can raise against us.</p>
+        <p>My entry point is not abstract metaphysics but a fact that every person with a good life can recognise from their own case: it is rational to be glad that one exists. And I will argue that this rational gladness commits the one who holds it to precisely the comparative claim that the motion asserts.</p>
+        <div class="case-box">
+          <strong>The rationality of gladness and what it entails.</strong><br><br>
+          Consider Anna, who has a life that is, by any reasonable measure, very much worth living: rich with friendships, achievements, pleasures, and meaning. Anna reflects on this life and is glad &mdash; genuinely, rationally glad &mdash; that she exists rather than never having existed at all. This is not a bizarre or irrational attitude. It is among the most ordinary and defensible things a person can feel.<br><br>
+          Now consider what this gladness commits Anna to. To be genuinely glad that p rather than q obtains is to regard p as better, from one&rsquo;s own evaluative perspective, than q. Anna is glad that she exists rather than never having existed. She is therefore committed to regarding her existence as better, for her, than her non-existence would have been. The motion is simply the claim that this common, rational attitude is evaluatively coherent &mdash; and I say it is.
+        </div>
+        <span class="section">i. the rationality argument</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Rational gladness — if Anna can rationally be glad to exist, she is committed to existence being comparatively better for her; irrationality follows from denying this</span>The argument is straightforward. If Anna can rationally be glad she exists rather than never having existed, then Anna&rsquo;s gladness has genuine evaluative content &mdash; it is a rational response to a real evaluative difference between the two states. To say that this gladness is rational but that it does not commit Anna to existence being better for her than non-existence is to sever the connection between the rationality of an attitude and its evaluative basis in a way that is indefensible. We do not generally say that it is rational to prefer p to q while denying that p is better than q for the one who prefers it. The proposition&rsquo;s claim is just that this ordinary, near-universal attitude of gladness at one&rsquo;s own existence is rationally grounded &mdash; which means that existence really is better, for the person who lives a good life, than non-existence.</span></p>
+        <span class="section">ii. the subject-of-harm objection and its failure</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Subject-of-harm parallel — the same objection would equally defeat the deprivation account of death's badness; we accept death harms despite no posthumous subject; same logic applies here</span>The opposition will say: a comparative claim requires a subject to hold the comparison, and non-existence provides no such subject. How can existence be better for Anna-if-she-never-existed, when there is no such person? This objection has genuine philosophical weight. But it proves too much. Nagel&rsquo;s deprivation account of death&rsquo;s badness &mdash; that death is bad because it deprives the person of goods they would otherwise have had &mdash; faces the exact same puzzle. Death is bad for the person who dies, yet once dead there is no subject to bear that harm. We do not take this as a decisive refutation of the deprivation account. We say instead that the harm is borne by the ante-mortem person, or that harm can be attributed to a person without requiring them to be present as a subject at the time the harmful state obtains. The same move is available to the proposition: the benefit of existence is comparative, and it is borne by the person who actually comes to exist, even though at the time of the relevant counterfactual non-existence there is no subject.</span></p>
+        <span class="section">iii. the self-defeating character of the denial</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Denial is self-defeating — if existence is not better for a person than non-existence, neither is it worse; Benatar's antinatalism loses its foundation equally; the denial collapses population ethics</span>If we deny that existence can be personally better for a person than non-existence, we must equally deny that it can be personally worse. The comparative claim is symmetrical: either we allow comparisons between existence and non-existence at the personal level, or we do not. But the denial that existence can be worse than non-existence is the denial that bringing a person into a horrifically bad life harms that person in a personal, comparative sense. Most people &mdash; and the opposition should agree &mdash; find this denial deeply counterintuitive. It is one thing to resist Benatar&rsquo;s antinatalism. It is another thing altogether to deny that a life of unrelenting suffering is worse, for the one who lives it, than never having existed. The symmetry of the comparative claim is its strength: it accounts for both the badness of terrible lives and the goodness of wonderful ones within a single coherent framework.</span></p>
+        <span class="section">iv. the asymmetry of the non-comparative view</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">McMahan's asymmetry is unstable — if bad lives harm comparatively but good lives don't benefit comparatively, this asymmetry requires independent justification that has not been provided</span>McMahan, speaking for the opposition, will argue for an asymmetry: causing a bad life harms comparatively but causing a good life does not benefit comparatively. This asymmetry needs independent motivation. McMahan borrows it from Parfit, who worried about the Repugnant Conclusion. But the repugnant conclusion is a problem about population axiology &mdash; about impersonal value &mdash; not about personal comparative value. Even if we want to avoid the repugnant conclusion at the population level, there is no obvious reason why we should do so by introducing an asymmetry in personal comparative value, rather than by other means. The asymmetry McMahan asserts is not motivated by the logic of comparison itself; it is motivated by a wish to avoid uncomfortable implications in population ethics. That is a reason to look for other ways to handle those implications, not a reason to accept an asymmetrical and philosophically unmotivated exception at the personal level.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-otsuka-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Rational gladness at one&rsquo;s existence commits the glad person to the comparative claim that existence is better for them than non-existence</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>To be rationally glad that p rather than q obtains is to regard p as evaluatively better, from one&rsquo;s own perspective, than q. This is a constitutive feature of what rational gladness is.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A person with a good life can be rationally glad that she exists rather than never having existed. This attitude is ordinary, near-universal, and not irrational &mdash; it is a paradigmatic case of rational gladness.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Therefore, a person with a good life is committed, by her rational gladness, to regarding her existence as evaluatively better for her than her non-existence. The comparative claim follows from the rationality of the attitude.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Rational gladness at one&rsquo;s existence is an evaluatively coherent attitude that commits the one who holds it to the comparative claim that existence is better for them than non-existence; denying the comparative claim makes the attitude irrational, which is unacceptable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The subject-of-comparison objection fails: it equally defeats the deprivation account of death&rsquo;s badness, which we independently accept</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Objection: a comparative claim requires a subject, and non-existence provides no subject. How can existence be better for the person if, counterfactually, there is no such person?</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But this objection, if valid, equally defeats the deprivation account of death&rsquo;s badness (Nagel 1970): death is bad for the person who dies, yet once dead there is no subject to undergo the harm. We accept the deprivation account despite this.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The same move available to the deprivationist &mdash; locating the harm/benefit in the person who actually exists, atemporally or ante-mortem &mdash; is available to the existence comparativist. The subject-of-comparison objection is therefore not decisive against the motion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The subject-of-comparison objection proves too much: it equally defeats the deprivation account of death&rsquo;s badness; since we accept that account, the objection cannot be decisive; the same structural response is available to existence comparativism.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Denial of the comparative claim is self-defeating: it symmetrically denies that terrible lives are personally worse than non-existence</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The comparative claim is symmetrical: if we deny that existence can be personally better than non-existence, we must equally deny that it can be personally worse. The subject-of-comparison objection applies in both directions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the denial that a life of unrelenting suffering is personally worse than non-existence is deeply counterintuitive &mdash; it is among the most morally disturbing claims in the debate. Virtually everyone accepts that there can be lives so bad that non-existence would be preferable.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the opposition accepts that terrible lives are personally worse than non-existence, they must accept the intelligibility of the comparison; and if the comparison is intelligible in the negative direction, it is intelligible in the positive direction too.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Denying the comparative claim in the positive direction while accepting it in the negative direction is arbitrary; accepting the comparison&rsquo;s intelligibility in one direction commits the opposition to accepting it in both; the symmetry supports the motion.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; McMahan&rsquo;s asymmetry between bad and good lives is unmotivated by the logic of comparison and driven only by population-level concerns</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>McMahan claims that causing a bad life harms comparatively but causing a good life does not benefit comparatively. This asymmetry has no grounding in the logic of personal comparison itself.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The motivation for the asymmetry is avoiding the Repugnant Conclusion at the population level &mdash; a desire to limit pro-natalist implications. But the repugnant conclusion is a problem about impersonal value, not about personal comparative value.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>There are other ways to avoid the Repugnant Conclusion in population ethics without introducing an unmotivated asymmetry in personal comparative value. The asymmetry is a philosophically ad hoc response to a problem that should be handled elsewhere.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>McMahan&rsquo;s asymmetry is philosophically unmotivated at the personal level and driven by population-level concerns that can be addressed by other means; the asymmetry should be rejected in favour of a symmetric and coherent comparative account.</span></div>
+        </div>
+      </div>
+    </div><!-- end otsuka -->
+
+    <!-- ─── HOLTUG ─── -->
+    <div class="speaker-panel" id="prop-holtug-panel">
+      <div id="prop-holtug-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My contribution is to show that the comparative claim the motion asserts is not only intuitively defensible but theoretically tractable. The opposition will insist that the comparison between existence and non-existence is metaphysically incoherent: there is no welfare level to assign to non-existence, and therefore no basis for a comparison. I reject this. Non-existence can coherently function as a zero welfare level &mdash; a baseline of neither wellbeing nor ill-being &mdash; and this is all we need.</p>
+        <div class="case-box">
+          <strong>The zero-level account of non-existence.</strong><br><br>
+          Consider the welfare scale. Lives worth living are lives with positive welfare levels. Lives worse than death have negative welfare levels. What is the welfare level of non-existence?<br><br>
+          I propose: non-existence has welfare level zero &mdash; it is the neutral point, neither good nor bad for the person who would have existed. This is not to say that a non-existent person has welfare zero: the non-existent person has no welfare at all. The claim is rather that when we evaluate outcomes for a person, we use zero as the baseline against which existence is measured. A life with positive welfare level is better, for the person who lives it, than the alternative of never having existed, precisely because it lies above the zero baseline.
+        </div>
+        <span class="section">i. the zero-level baseline and its motivation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Zero-level — non-existence is welfare level zero; not that non-existents have welfare, but that zero anchors the scale; lives worth living lie above it</span>The zero-level account is motivated by two considerations. First, it is what our welfare scale already presupposes. When we say a life is &ldquo;worth living&rdquo; or &ldquo;worth starting&rdquo; &mdash; as opposed to a life so bad that non-existence would be preferable &mdash; we are implicitly comparing welfare to a neutral baseline. The concept of a life worth living is precisely the concept of a life whose welfare level lies above the baseline of non-existence. This distinction has independent traction in bioethics, end-of-life care, and reproductive ethics: it is the basis on which we decide whether to intervene to save a severely damaged neonate, or whether a life is so bad that the kindest act is non-intervention. All of this presupposes a zero-level against which positive and negative welfare are measured. My claim simply makes the presupposition explicit.</span></p>
+        <span class="section">ii. against the accusation of metaphysical incoherence</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Incoherence objection fails — the zero-level is a property of the welfare scale, not a welfare state of non-existents; the comparison is between outcomes, not between experiential states</span>The opposition&rsquo;s incoherence objection runs as follows: to say that existence is better for a person than non-existence is to predicate a relational property of a non-existent person, which is incoherent because non-existent persons cannot bear properties. But this is a mistake about the logical structure of the comparison. The comparison is not between Anna-if-she-exists and Anna-if-she-never-exists, predicating a relational property of the latter. It is between two outcomes &mdash; the outcome in which Anna exists and the outcome in which she does not &mdash; evaluated from the perspective of the person who actually comes to exist. The welfare scale has a zero point, and we use it to evaluate whether the outcome in which Anna exists lies above that zero point. This is a claim about outcomes and their evaluative ranking, not a claim about the properties of a non-existent subject.</span></p>
+        <span class="section">iii. the value of coming into existence</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Value of coming into existence — if a life is worth living (welfare > 0), then coming into existence benefits the person who comes to exist; this follows analytically from the zero-level account</span>My central claim follows directly from the zero-level account. A life is worth living if and only if its welfare level is positive &mdash; above the zero baseline. For such a life, the outcome in which the person exists lies above the zero point that represents non-existence on the welfare scale. This is precisely what it means for existence to be better, for the person, than never having existed: the welfare level of the life she has is above the level &mdash; zero &mdash; that represents non-existence. The comparison is now tractable: it is the comparison between a positive welfare level and zero, which is a perfectly ordinary numerical comparison. The metaphysical difficulties the opposition invokes dissolve once the zero-level account is in place.</span></p>
+        <span class="section">iv. the connection to population ethics and the Asymmetry</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Asymmetry resolved — the zero-level grounds the Asymmetry correctly: positive welfare > 0 gives existence personal benefit; negative welfare < 0 gives non-existence personal benefit; no sui generis asymmetry needed</span>The zero-level account also illuminates the Asymmetry in population ethics &mdash; the claim that bringing someone into a bad life is wrong but bringing someone into a good life is not obligatory. On the zero-level view: a life with negative welfare is worse, for the person who lives it, than non-existence; a life with positive welfare is better. This grounding makes the Asymmetry tractable without requiring a sui generis claim that bad-life cases involve personal harm while good-life cases do not. Instead, the Asymmetry follows from a straightforward welfare-level comparison in both directions, and the moral significance of each is determined by the welfare level relative to the zero baseline. My account thereby provides a unified theoretical framework that handles both arms of the Asymmetry without the ad hoc moves the opposition requires.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-holtug-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The zero-level account makes the comparison between existence and non-existence tractable: non-existence anchors the welfare scale at zero</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The concept of a life &ldquo;worth living&rdquo; already presupposes a zero baseline: it means a life whose welfare level lies above the neutral point that represents non-existence. This presupposition is at work in bioethics, end-of-life care, and reproductive ethics.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Non-existence functions as welfare level zero on the scale: not as a state in which a non-existent person has zero welfare, but as the neutral reference point against which positive and negative welfare are measured.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A life with positive welfare level is therefore better, for the person who lives it, than non-existence: it lies above zero, the baseline representing non-existence. This is the motion&rsquo;s comparative claim, now made tractable by the zero-level account.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The zero-level account makes the comparative claim tractable: non-existence anchors the welfare scale at zero, and a life worth living is one that lies above zero; existence is therefore personally better than non-existence for such a life.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The incoherence objection misfires: the comparison is between outcomes, not between states of a non-existent subject</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Objection: the comparative claim predicates a relational property of a non-existent person, which is incoherent. But this misunderstands the logical structure of the comparison.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The comparison is between two outcomes &mdash; the world-state in which the person exists and the world-state in which she does not &mdash; evaluated from the perspective of the person who actually exists. It is not a claim about the properties of a non-existent subject.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The zero-level account specifies how to evaluate these outcomes: the existence-outcome has the welfare level of the life lived; the non-existence-outcome has welfare level zero. The comparison is between a positive number and zero &mdash; a perfectly ordinary numerical comparison.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The incoherence objection misfires because it misidentifies the logical structure of the comparison; the zero-level account shows that the comparison is between outcome-welfare-levels, not between states of non-existent subjects; no incoherence remains.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The value of coming into existence follows analytically from the zero-level account for lives worth living</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A life is worth living if and only if its welfare level is positive &mdash; above zero on the welfare scale. This is what &ldquo;worth living&rdquo; means.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>For a life worth living, the welfare level of the existence-outcome lies above the zero level representing non-existence. This is precisely the comparative claim that existence is better for the person than non-existence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The derivation is analytic: &ldquo;worth living&rdquo; means &ldquo;welfare > 0&rdquo;, and &ldquo;existence better than non-existence&rdquo; means &ldquo;welfare > 0&rdquo; relative to the zero baseline. They are the same claim.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>For lives worth living, the value of coming into existence follows analytically from the zero-level account: existence is better for the person than non-existence if and only if the life is worth living, and this is what the motion claims.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The zero-level account provides a unified grounding for the Asymmetry without ad hoc asymmetric stipulations</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Asymmetry (it is wrong to create lives with negative welfare but not obligatory to create lives with positive welfare) requires a grounding. McMahan&rsquo;s non-comparative account provides an ad hoc asymmetric stipulation that has no independent motivation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The zero-level account grounds the Asymmetry symmetrically: negative welfare &lt; 0 makes existence personally worse than non-existence (grounding the obligation to avoid creating bad lives); positive welfare &gt; 0 makes existence personally better than non-existence (grounding the permission, but not obligation, to create good lives, via additional considerations about procreative latitude).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This unified grounding is more parsimonious and theoretically coherent than McMahan&rsquo;s sui generis asymmetry. The zero-level account handles both arms of the Asymmetry within a single welfare-level framework.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The zero-level account provides a unified, parsimonious grounding for the Asymmetry that avoids the ad hoc asymmetric stipulations required by the non-comparative view; it is theoretically superior to the opposition&rsquo;s account.</span></div>
+        </div>
+      </div>
+    </div><!-- end holtug -->
+
+    <!-- ─── PUMMER ─── -->
+    <div class="speaker-panel" id="prop-pummer-panel">
+      <div id="prop-pummer-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My argument is practical rather than purely theoretical. I want to show that existence comparativism &mdash; the view that existence can be personally better or worse for a person than non-existence &mdash; is not a theoretical nicety but a moral necessity. Without it, we cannot deliver the right verdicts in the most compelling cases in population ethics. The non-identity problem, and in particular the rescue cases it generates, expose the opposition&rsquo;s position as one that cannot explain why we are sometimes morally required to prefer creating one life over another, or over creating no life at all.</p>
+        <div class="case-box">
+          <strong>The Miserable Non-Identity case.</strong><br><br>
+          Suppose you must create someone. You can create Amy, who will have no happiness and sixty years of suffering, or Bobby, who will have fifty years of happiness and sixty years of suffering. Both will exist no matter what you do; only which of them you create is up to you. Most people judge that it is better &mdash; and required &mdash; to create Bobby rather than Amy.<br><br>
+          Now consider a variant: you can create Amy (no happiness, sixty years suffering) or create no one at all. The non-identity puzzle here is that if you create Amy, Amy cannot complain that non-existence would have been better for her &mdash; unless existence comparativism is true. If the comparative claim is false, Amy is not personally harmed by being brought into existence, and it seems we have no personal-level reason to prefer not creating her.
+        </div>
+        <span class="section">i. why non-identity rescue cases require existence comparativism</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Miserable Non-Identity — if existence can't be worse than non-existence, we can't explain why creating Amy is wrong; personal-level moral obligation requires the comparative claim</span>The case is vivid but the point generalises. Wherever we must choose between creating a person whose life will be very bad and creating no one &mdash; or creating a person whose life will be very good &mdash; we need a personal-level explanation for our moral obligations. The person-affecting intuition says: an outcome can only be better or worse if it is better or worse for someone. If we cannot say that Amy&rsquo;s existence is worse for Amy than her non-existence would have been, then we have no person-affecting reason to prefer the outcome in which she is not created. The only alternative is an impersonal reason &mdash; that the world is worse when Amy exists, independently of whether this is worse for Amy. But impersonal reasons lead, notoriously, to the Repugnant Conclusion. The comparativist avoids this by anchoring the evaluation in the personal: Amy&rsquo;s existence is worse for Amy, and that is why we should avoid it.</span></p>
+        <span class="section">ii. the suffering-avoiding rescue case</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Rescue case — if we can choose between creating Amy (suffering) and creating Bobby (flourishing), existence comparativism explains why we must create Bobby; non-comparative views cannot</span>Here is a rescue case that puts the comparative claim at its sharpest. You can create Bobby, who will flourish, or you can create Amy, who will suffer terribly. Creating Bobby rather than Amy prevents a great deal of suffering &mdash; Amy&rsquo;s suffering &mdash; while conferring a great deal of benefit &mdash; Bobby&rsquo;s flourishing. The comparative claim explains why this is required: Amy&rsquo;s existence would be worse, for Amy, than non-existence; Bobby&rsquo;s existence is better, for Bobby, than non-existence. We choose Bobby over Amy because one outcome is personally better than non-existence and the other is personally worse. Without the comparative claim, we have no personal-level basis for preferring Bobby&rsquo;s creation to Amy&rsquo;s. The non-comparative view has to appeal to impersonal badness of suffering, but this cuts off from the person-affecting intuition that gives population ethics most of its force.</span></p>
+        <span class="section">iii. the person-affecting view and its requirements</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Person-affecting view — the most defensible approach to population ethics grounds evaluations in what is better or worse for actual individuals; this requires existence comparativism for choices about who to create</span>The most compelling approach to population ethics is the person-affecting view: outcomes are better or worse only insofar as they are better or worse for actual people. This view has the advantage of explaining why we care about the welfare of existing people, why we are more confident in our verdicts about fixed-population cases than about variable-population ones, and why impersonal theories lead to the Repugnant and Sadistic Conclusions. But the person-affecting view can only do its work if, when the choice is about who to create, the evaluations are still person-affecting &mdash; still grounded in what is better or worse for the particular individuals whose existence is at stake. And that requires the comparative claim: existence is personally better or worse for the person who comes to exist, depending on the quality of the life they will have.</span></p>
+        <span class="section">iv. responding to the non-identity problem directly</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Non-identity solution — existence comparativism solves the non-identity problem by allowing that a life can be worse for its subject than non-existence even if the subject is glad to be alive; the solution requires the comparative claim</span>Parfit&rsquo;s non-identity problem arises when a policy that benefits all the particular people who will exist given that policy is evaluated against an alternative policy under which different, better-off people would have existed. The comparison cannot be made at the personal level because the people who would benefit under the better policy would never have existed under the worse policy. Existence comparativism provides the resources to handle this: if a life under the worse policy is not merely bad in absolute terms but is personally worse than non-existence would have been, then the worse policy does harm to those who exist under it &mdash; a personal-level harm, not merely an impersonal badness. This is the only solution to the non-identity problem that preserves person-affecting intuitions while delivering the right moral verdict, and it requires the comparative claim that is at the heart of the motion.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-pummer-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Non-identity rescue cases require the comparative claim to explain why creating miserable lives is wrong at the personal level</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the Miserable Non-Identity case, Amy has no happiness and sixty years of suffering. If the comparative claim is false &mdash; if Amy&rsquo;s existence is not personally worse for Amy than her non-existence &mdash; then there is no personal-level reason to avoid creating Amy.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The person-affecting intuition says: outcomes are better or worse only insofar as they are better or worse for actual individuals. Without the comparative claim, there is no person-affecting reason to avoid Amy&rsquo;s creation, and the only available reason is an impersonal one.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Impersonal reasons lead to the Repugnant Conclusion and related absurdities. The comparative claim is therefore required to preserve the person-affecting intuition while delivering the correct verdict in rescue cases.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The comparative claim is required to deliver the correct person-affecting verdict in non-identity rescue cases; without it, the only available reasons are impersonal and lead to repugnant conclusions; existence comparativism is morally necessary.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The choice between flourishing and miserable lives requires both arms of the comparative claim for a personal-level justification</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When we can create Bobby (flourishing) rather than Amy (suffering), the comparative claim explains why: Amy&rsquo;s existence is personally worse for Amy than non-existence; Bobby&rsquo;s existence is personally better for Bobby than non-existence. We choose Bobby because the outcome is personally better.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Without both arms of the comparative claim, the personal-level justification is unavailable: we could say Amy&rsquo;s existence is personally worse (if we allow negative comparisons) but cannot say Bobby&rsquo;s is personally better. This generates an asymmetric but unmotivated structure.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The symmetric comparative claim gives us a unified person-affecting justification for both the requirement to avoid creating miserable lives and the value of creating flourishing ones.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The choice between flourishing and miserable lives requires both arms of the symmetric comparative claim; existence comparativism provides the unified person-affecting justification for both verdicts that non-comparative views cannot deliver.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The person-affecting view requires existence comparativism for choices involving who to create</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The person-affecting view grounds evaluations in what is better or worse for actual individuals. It is the most defensible approach to population ethics and avoids impersonal absurdities.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When choices involve who to create, the person-affecting view can only evaluate outcomes by asking what is better or worse for the particular individuals whose existence is at stake. This requires the comparative claim: what is better or worse for them relative to their non-existence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Without existence comparativism, the person-affecting view goes silent on choices about who to create &mdash; precisely the choices that population ethics most urgently needs to evaluate. Existence comparativism is therefore a requirement of any satisfactory person-affecting population ethics.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>A satisfactory person-affecting population ethics requires existence comparativism: when evaluating choices about who to create, we need to know what is better or worse for the individuals whose existence is at stake relative to their non-existence.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Existence comparativism is the only solution to the non-identity problem that preserves person-affecting intuitions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Parfit&rsquo;s non-identity problem: a policy that harms future people by making their lives worse cannot be condemned at the personal level if those people would not have existed under the better policy &mdash; they cannot be worse off than they would otherwise have been.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Existence comparativism resolves this: if a life under the worse policy is personally worse for its subject than non-existence would have been, then the policy harms those who exist under it at the personal level, even though they would not otherwise have existed.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is the only solution that delivers the right verdict (the worse policy wrongs those who live under it) while preserving the person-affecting intuition (outcomes are wrong because they are personally bad for actual individuals).</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Existence comparativism is the only solution to the non-identity problem that preserves person-affecting intuitions; it resolves the puzzle by anchoring the wrong of the worse policy in a genuine personal harm to those who exist under it.</span></div>
+        </div>
+      </div>
+    </div><!-- end pummer -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ════════════════════ OPPOSITION ════════════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','arrhenius',this)">Arrhenius</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','hare',this)">Hare</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','mcmahan',this)">McMahan</button>
+  </div>
+
+  <!-- ARRHENIUS HEADER -->
+  <div class="col-header" id="opp-arrhenius-header">
+    <div class="col-header-top"><span class="pill opp">Axiological Impossibility &amp; Comparativist Paradoxes</span><span class="col-subtitle">Gustaf Arrhenius &bull; Stockholm University</span></div>
+    <div class="col-position">Standard existence comparativism &mdash; the view encoded in the motion &mdash; is one interpretation of the person-affecting principle that is available in population ethics. But it is the interpretation that generates the deepest mathematical paradoxes. Arrhenius&rsquo;s impossibility theorems show that any population axiology satisfying comparativist adequacy conditions collapses into either the Repugnant Conclusion, the Sadistic Conclusion, or an equally unacceptable verdict. The motion&rsquo;s comparative claim is not merely metaphysically problematic; it is axiologically catastrophic.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','arrhenius','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','arrhenius','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- HARE HEADER -->
+  <div class="col-header hidden" id="opp-hare-header">
+    <div class="col-header-top"><span class="pill opp">Morphing &amp; The Failure of Personal Tracking</span><span class="col-subtitle">Caspar Hare &bull; MIT</span></div>
+    <div class="col-position">Existence comparativism requires a coherent account of what makes comparisons person-relative &mdash; what makes the comparison be about this person rather than some other. Morphing sequences &mdash; gradual identity shifts in which one person blends smoothly into another &mdash; reveal that there is no principled way to track the subject of a comparative claim across existence and non-existence. The comparison fails not because it is impossible in principle but because the subject it purports to track dissolves under scrutiny.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','hare','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','hare','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- MCMAHAN HEADER -->
+  <div class="col-header hidden" id="opp-mcmahan-header">
+    <div class="col-header-top"><span class="pill opp">The Asymmetry &amp; Non-Comparative Benefit</span><span class="col-subtitle">Jeff McMahan &bull; Oxford University</span></div>
+    <div class="col-position">The relationship between existence and personal value is asymmetrical: causing a person to exist with a very bad life harms them &mdash; in a comparative personal sense &mdash; but causing a person to exist with a very good life does not comparatively benefit them. Coming into existence with a good life is a non-comparative benefit &mdash; an absolute good for the person who lives it &mdash; but it is not better for her than never existing. This asymmetry, which McMahan coined in 1981, is the correct account and preserves the moral force of the welfare considerations at stake.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','mcmahan','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','mcmahan','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ─── ARRHENIUS ─── -->
+    <div class="speaker-panel active" id="opp-arrhenius-panel">
+      <div id="opp-arrhenius-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to approach the motion from a different angle from my opposition colleagues. My concern is not primarily with the metaphysics of the comparison &mdash; whether it is coherent to compare a person&rsquo;s existence to their non-existence &mdash; but with the devastating axiological consequences that follow once we accept it. Existence comparativism, taken seriously in population ethics, leads not to a satisfactory theory of personal and population value but to a series of mathematical impossibility results showing that our basic evaluative intuitions are inconsistent.</p>
+        <div class="case-box">
+          <strong>The person-affecting restriction and comparativism.</strong><br><br>
+          The Person-Affecting Restriction (PAR) says: an outcome can only be better or worse than another if it is better or worse for at least one person. Comparativism is the interpretation of PAR that allows comparisons between existence and non-existence at the personal level.<br><br>
+          Arrhenius (2000, 2011) shows that any population axiology satisfying comparativism and a set of highly plausible additional conditions &mdash; the Dominance Addition Condition, the Egalitarian Dominance Condition, the Quality Condition &mdash; is logically impossible: these conditions cannot all be satisfied simultaneously. At least one must be given up. Comparativism is the common thread running through all the impossibility results.
+        </div>
+        <span class="section">i. the first impossibility theorem</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Impossibility theorem I — any axiology satisfying Dominance Addition, Non-Sadism, Quality, and Egalitarian Dominance is impossible; comparativism entails one of these; collapse is inescapable</span>My first theorem demonstrates that no population axiology can simultaneously satisfy the following conditions: the Quality Condition (it is better, all else equal, to have a high-welfare population than a very large population of lives barely worth living), the Dominance Addition Condition (it is not worse to add people with very good lives to a population), the Egalitarian Dominance Condition (a perfectly equal population of n people is better than an unequal population of n people if everyone in the equal population is better off than everyone in the unequal one), and Non-Sadism (adding people with lives worth living is not worse than adding people with negative welfare). Comparativism, combined with PAR, generates pressure on each of these conditions simultaneously. The result: any axiological framework that tries to honour the comparison between existence and non-existence at the personal level ends up having to sacrifice at least one of these apparently non-negotiable adequacy conditions.</span></p>
+        <span class="section">ii. comparativism and the repugnant conclusion</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Repugnant Conclusion — existence comparativism, combined with totalism about personal value, generates the RC; the RC is at least as counterintuitive as the motion's denial</span>If existence is personally better for a person than non-existence, and this comparison can be aggregated across persons, then a sufficient number of people with lives barely worth living &mdash; lives just above the zero-level Holtug proposes &mdash; will produce more total comparative personal benefit than a smaller number of people with very high welfare. This is the Repugnant Conclusion: for any population of wonderfully flourishing people, there is a much larger population of people with lives barely worth living that is, by the lights of existence comparativism aggregated, better. The proposition will say this is a problem for total utilitarianism, not for their view. But the comparative claim is what generates the comparison between a positive welfare level and zero in the first place: it is the engine of the Repugnant Conclusion, not a innocent bystander.</span></p>
+        <span class="section">iii. the sadistic conclusion as an alternative failure mode</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Sadistic Conclusion — any axiology that avoids the RC while accepting comparativism is forced toward the Sadistic Conclusion: it can be better to add people with negative welfare than positive welfare</span>Suppose we try to avoid the Repugnant Conclusion by denying that a sufficiently large population of barely-worth-living lives can be better than a smaller wonderful population. Then, as I show, any remaining population axiology that accepts comparativism is forced toward the Sadistic Conclusion: it is sometimes better to add people with negative welfare &mdash; lives worse than nothing &mdash; to a population than to add people with positive welfare, when the alternative is a sufficiently unequal distribution. This is at least as counterintuitive as the Repugnant Conclusion, if not more so. The comparativist is trapped: any attempt to escape one counterintuitive conclusion drives them toward another. The comparative claim is not just metaphysically problematic &mdash; it is axiologically explosive.</span></p>
+        <span class="section">iv. soft comparativism and its limits</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Soft comparativism — weakening comparativism to avoid impossibility results in compatibility with total utilitarianism, undermining the person-affecting motivation; no satisfactory middle ground</span>The proposition might retreat to what I call &ldquo;soft comparativism&rdquo; &mdash; a weakened version of the comparative claim that avoids some impossibility results. But soft comparativism has a fatal flaw: it is compatible with total utilitarianism and other impersonal theories, making it axiologically inert. If soft comparativism adds nothing to what total utilitarianism already delivers, it has lost the person-affecting motivation that makes it interesting. And soft comparativism still cannot solve the non-uniquely-realizable persons problem: it cannot deliver verdicts in cases where the comparative claim needs to track which particular person would come to exist. The proposition is left with a choice between a strong comparative claim that generates impossibility results and a weak one that is explanatorily empty.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-arrhenius-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The first impossibility theorem: no population axiology can satisfy all intuitive adequacy conditions given comparativism</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Quality Condition, Dominance Addition Condition, Egalitarian Dominance Condition, and Non-Sadism are each highly plausible adequacy conditions on population axiology; each captures a strong moral intuition.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Arrhenius (2000, 2011) proves that no population axiology can simultaneously satisfy all four conditions given the comparativist interpretation of the person-affecting principle. The proof is mathematical and the result is fully general.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Comparativism, combined with PAR, generates the pressure that makes these conditions mutually unsatisfiable. Abandoning comparativism relieves this pressure and allows a broader range of consistent axiologies.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Accepting the motion&rsquo;s comparative claim commits us to an axiological framework in which at least one highly plausible adequacy condition must be abandoned; this is a decisive cost that the proposition has not acknowledged.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Existence comparativism combined with aggregation generates the Repugnant Conclusion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If existence is personally better than non-existence for each person with a life above the zero level, and these personal comparative benefits aggregate, then a large enough population of barely-worth-living lives produces more total comparative benefit than a small population of flourishing lives.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is the Repugnant Conclusion: for any wonderful population, there is a larger miserable population that is better. The comparative claim is the engine of this result, not an innocent bystander.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition cannot blame aggregation alone: the very tractability of the comparison that Holtug celebrates &mdash; comparing positive welfare levels to zero &mdash; is what makes the RC derivable. Accepting the motion accepts the RC&rsquo;s derivation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Existence comparativism combined with aggregation directly generates the Repugnant Conclusion; the comparative claim is the driver of this result; the motion cannot be accepted without accepting the RC&rsquo;s derivation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Any comparative axiology that avoids the Repugnant Conclusion is forced toward the Sadistic Conclusion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Suppose the comparativist tries to avoid the RC by denying that barely-worth-living lives aggregate to exceed flourishing lives. This move is available, but it forces the axiology toward the Sadistic Conclusion: sometimes it is better to add people with negative welfare than people with positive welfare.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Sadistic Conclusion is at least as counterintuitive as the RC. The comparativist is trapped between two axiological disasters: escaping one pushes them toward the other.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This trap is structurally generated by the comparative claim itself. Abandoning the claim avoids the trap.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Existence comparativism creates an axiological trap: any move to avoid the Repugnant Conclusion forces the view toward the Sadistic Conclusion; the motion&rsquo;s comparative claim is not axiologically neutral but actively generates these disasters.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Soft comparativism is axiologically inert: it adds nothing over total utilitarianism and cannot solve the non-uniquely-realizable persons problem</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Soft comparativism weakens the comparative claim to avoid impossibility results. But the resulting view is compatible with total utilitarianism &mdash; it does not add any person-affecting constraint that total utilitarianism violates.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If soft comparativism is compatible with total utilitarianism, it has lost the person-affecting motivation. The proposition&rsquo;s goal was to ground evaluations in what is better or worse for actual persons; soft comparativism does not achieve this.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Moreover, soft comparativism cannot deliver verdicts in non-uniquely-realizable person cases where the same welfare level could be realised by different persons. The comparative claim needs to track particular persons, and soft comparativism does not provide this tracking.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The proposition faces a dilemma: strong comparativism generates axiological impossibility results; soft comparativism is explanatorily inert; neither version successfully grounds a coherent population axiology based on the comparative claim.</span></div>
+        </div>
+      </div>
+    </div><!-- end arrhenius -->
+
+    <!-- ─── HARE ─── -->
+    <div class="speaker-panel" id="opp-hare-panel">
+      <div id="opp-hare-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to attack existence comparativism from a different angle: not from the direction of population-level paradoxes but from the question of what makes a comparative claim genuinely person-relative. A comparative claim that existence is better for Anna than non-existence must be about Anna &mdash; about this particular person, with this particular identity, these particular relationships, these particular projects. But when we trace the subject of the comparison from the existence-world to the non-existence-world, what we find is that the subject dissolves. The morphing argument reveals this dissolution.</p>
+        <div class="case-box">
+          <strong>The morphing thought experiment.</strong><br><br>
+          Consider Anna. She exists, has a wonderful life, and Otsuka says she can rationally be glad that she exists rather than never having existed &mdash; that existence is better for her than non-existence.<br><br>
+          Now consider a morphing sequence. Starting from Anna, imagine gradually altering the spatio-temporal circumstances of her conception: small changes in timing, in genetic contribution, in parental circumstances. At each step the resulting person is slightly different from Anna &mdash; different memories, different friendships, different projects. Eventually, after enough small changes, we reach a point where the person who comes to exist has no overlap with Anna in any morally relevant respect. She is, for all practical purposes, a completely different person.<br><br>
+          At which step in this morphing sequence does the comparison cease to be about Anna? There is no principled answer. The personal tracking that existence comparativism requires fails smoothly across the sequence, leaving no basis for identifying whose existence is being compared to whose non-existence.
+        </div>
+        <span class="section">i. the morphing argument against personal tracking</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Morphing — smooth identity transitions show there is no principled fact about when the comparison is about Anna vs. a different person; personal tracking fails gradually and undetectably</span>The morphing argument does not depend on the metaphysical impossibility of comparing existence to non-existence. It attacks a different assumption: that the comparison has a determinate subject. For the motion to be true, it must be the case that existence is better for a specific person &mdash; Anna, and not just any person &mdash; than non-existence. But as we trace the morphing sequence, we find that the facts about personal identity shift gradually and continuously, while the predicate &ldquo;it is better for Anna&rdquo; is either true or false at each step. This creates what I call the personal-tracking problem: the comparative claim must track Anna, but there is no sharp boundary between worlds where Anna exists and worlds where a different person exists. The comparison&rsquo;s personal character evaporates across the morphing sequence without our being able to say where it went.</span></p>
+        <span class="section">ii. the voices from another world</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Voices from another world — possible people whose existence was foreclosed have interests in the world as it was chosen; if this is coherent, then possible non-existent people can make comparative claims about their non-existence</span>In my paper &ldquo;Voices from Another World&rdquo; (2007), I argue that even people who do not and will never exist can make evaluative claims about the worlds in which they do not exist. If we take this seriously, it extends the comparative claim in directions the proposition has not acknowledged. If Anna&rsquo;s existence is better for Anna than her non-existence, then the person who would have come to exist instead of Anna &mdash; had her parents conceived at a slightly different time &mdash; can equally claim that their non-existence is worse for them. Every actual person&rsquo;s existence has displaced a vast number of possible people who can make analogous comparative claims about their non-existence. The proposition must either endorse this proliferation of comparative claims by possible non-existent people, or provide a principled reason to restrict the comparative claim to actual people &mdash; but providing that restriction is precisely what the morphing argument shows to be impossible.</span></p>
+        <span class="section">iii. the counterpart problem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Counterpart problem — in worlds where Anna never exists, there is no subject for the comparison unless we invoke a counterpart; but counterpart theory collapses the personal character of the claim</span>One response to the morphing argument is to invoke counterpart theory: in worlds where Anna never exists, we evaluate the comparison using Anna&rsquo;s counterpart &mdash; the closest possible individual to Anna who exists in that world. But this move changes the character of the comparison. The claim is no longer that existence is better for Anna &mdash; this very individual &mdash; than non-existence; it is that existence for Anna-or-someone-very-like-her is better than existence for Anna&rsquo;s closest counterpart in the non-existence world. This is a significantly weaker and more attenuated comparative claim than the motion asserts. Moreover, the choice of counterpart is not uniquely determined: there are many possible individuals who are close to Anna, and the comparative claim will vary depending on which counterpart we select. Personal-level comparisons become hostage to the arbitrary choice of counterpart.</span></p>
+        <span class="section">iv. the aggregation across morphing sequences</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Aggregation via morphing — if personal comparisons are valid across morphing sequences, then benefits within a single life can be traded off against costs across different lives; this collapses the distinction between personal and impersonal value</span>In my paper &ldquo;The Ethics of Morphing&rdquo; (2009), I show that accepting personal value comparisons across morphing sequences commits us to something more radical: the ability to trade off costs and benefits across lives, not just within them. If the comparison between Anna&rsquo;s existence and her non-existence is a genuine personal comparative claim, and if morphing sequences link Anna smoothly to other persons, then the same logic that validates Anna&rsquo;s comparative claim validates comparisons across other stages of the morphing sequence &mdash; stages that clearly involve different people. This collapses the distinction between personal and impersonal value. The proposition&rsquo;s claim that existence is personally better for Anna threatens to dissolve the very person-affecting framework that makes the claim interesting.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-hare-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The morphing argument: there is no principled boundary at which the comparative claim ceases to be about Anna and becomes about someone else</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Existence comparativism requires that the comparison be about a specific person: it must be the case that existence is better for Anna (not just any person) than non-existence.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Morphing sequences gradually alter the spatio-temporal circumstances of conception, producing a continuous transition from Anna to a completely different person with no shared identity-constituting properties. There is no principled step at which the comparison ceases to be about Anna.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the personal character of the comparison evaporates gradually across the morphing sequence without a principled boundary, then there is no determinate fact about whose existence is being compared to whose non-existence. The personal-tracking requirement for the comparative claim fails.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The morphing argument shows that existence comparativism cannot track its subject across the comparison: the personal character of the claim dissolves gradually and there is no principled fact about when the comparison is about Anna versus a different person.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Voices from another world: accepting the comparative claim proliferates it to possible non-existent people who were displaced by actual people</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If Anna&rsquo;s existence is personally better for Anna than her non-existence, then by parity of reasoning, the person who would have existed instead of Anna (had conception been slightly different) can claim that their non-existence is personally worse for them.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Every actual person displaces a vast number of possible people who can make this analogous comparative claim. The proposition must either accept this proliferation or provide a principled restriction to actual people.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The morphing argument shows that no principled restriction to actual people is available, because the boundary between actual and merely possible people is precisely what dissolves across morphing sequences.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Existence comparativism, if accepted, proliferates to comparative claims by possible non-existent people; the proposition has no principled way to restrict the claim to actual people given that the relevant boundary dissolves in morphing sequences.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The counterpart response changes the character of the comparison and makes it hostage to arbitrary counterpart selection</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The counterpart response: in worlds where Anna never exists, use her closest counterpart to ground the comparison. But this changes the claim from one about Anna to one about Anna-or-her-counterpart.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The counterpart is not uniquely determined: many possible individuals are similarly close to Anna. The comparative claim varies depending on which counterpart is selected, creating indeterminacy in what the claim means.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A claim that varies arbitrarily with counterpart selection is not a genuine personal comparative claim about Anna; it is a disguised claim about possible individuals that loses the very personal-level grounding the proposition was trying to establish.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The counterpart response to the morphing argument makes the comparative claim hostage to arbitrary counterpart selection; it changes the character of the claim from a genuine personal comparison to a disguised comparison about possible individuals.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Aggregation across morphing sequences collapses the distinction between personal and impersonal value</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If personal value comparisons are valid across morphing sequences, then the same logic that validates Anna&rsquo;s existence-comparison validates comparisons across stages of the sequence that clearly involve different people.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This implies that costs to one person can be traded off against benefits to another, provided they are linked by a morphing sequence. But this is the collapse of the personal/impersonal distinction that the person-affecting view was meant to preserve.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition&rsquo;s claim that existence is personally better for Anna threatens to dissolve the person-affecting framework that makes the comparative claim interesting in the first place.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Existence comparativism, via the morphing argument, threatens to collapse the personal/impersonal distinction; the very framework of person-affecting evaluation that the proposition invokes is undermined by the implications of its own comparative claim.</span></div>
+        </div>
+      </div>
+    </div><!-- end hare -->
+
+    <!-- ─── MCMAHAN ─── -->
+    <div class="speaker-panel" id="opp-mcmahan-panel">
+      <div id="opp-mcmahan-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I coined the term &ldquo;the Asymmetry&rdquo; in 1981, and I have spent forty years thinking carefully about what the right account of the relationship between existence and personal value is. My conclusion is that the relationship is indeed asymmetrical, and that this asymmetry is not an ad hoc stipulation &mdash; as Otsuka claims &mdash; but is forced upon us by careful attention to the structure of personal value and the logic of harm and benefit.</p>
+        <div class="case-box">
+          <strong>The Asymmetry.</strong><br><br>
+          The Asymmetry, as I formulated it, has two arms:<br><br>
+          (1) The fact that a person&rsquo;s life would be worse than no life at all is a reason against causing her to exist &mdash; creating her would harm her in a comparative personal sense.<br><br>
+          (2) The fact that a person&rsquo;s life would be better than no life at all is not a reason to cause her to exist &mdash; creating her would not benefit her in a comparative personal sense.<br><br>
+          The motion asserts the denial of arm (2). I maintain that arm (2) is true and that the motion is therefore false. But I go further: I argue that even causing a person to exist with a life that is very much worth living confers a genuine benefit on her &mdash; a non-comparative benefit &mdash; and that this benefit does have moral weight. The opposition to the motion does not require denying that coming into existence can be good; it requires only denying that it can be comparatively better.
+        </div>
+        <span class="section">i. the non-comparative benefit of existence</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Non-comparative benefit — coming into existence is an absolute benefit for those with good lives; it is good that this person exists, even though it is not better for her than non-existence; the benefit is intrinsic, not comparative</span>Arm (2) of the Asymmetry does not deny that coming into existence with a good life benefits the person who comes to exist. I am not an antinatalist about personal value. I argue that coming into existence is a non-comparative benefit: it is an absolute good that this person has the life she has, even though her having that life is not better for her than her never having existed. The distinction between comparative and non-comparative benefit is crucial. A comparative benefit is one constituted by being better off than one would otherwise have been. A non-comparative benefit is one that is good absolutely &mdash; not relative to any counterfactual. The person who is brought into a wonderful life has something absolutely good: she has that life. This is genuinely good for her. But it is not comparatively good &mdash; it does not make her better off than she would otherwise have been, because in the relevant counterfactual she would not have existed at all.</span></p>
+        <span class="section">ii. why the comparative claim fails for good lives</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Comparative claim fails — for existence to be comparatively better for Anna, non-existence must be worse for her; but non-existence has no welfare level for Anna; the comparison presupposes an asymmetric structure</span>For existence to be comparatively better for Anna than non-existence, non-existence must be, in some sense, worse for her. But in the world where Anna never exists, there is no welfare level for Anna &mdash; there is no experiential or welfare state she occupies. The comparison requires a welfare baseline at the point of non-existence, and the zero-level Holtug proposes is not, I argue, Anna&rsquo;s welfare level &mdash; it is simply the number zero. Assigning zero as Anna&rsquo;s welfare in the non-existence world is a notational device, not a genuine welfare attribution. It imports the structure of numerical comparison without the substance. The claim that existence is better for Anna than non-existence requires that non-existence have a genuine welfare dimension for Anna, which it cannot have, because Anna does not exist in it.</span></p>
+        <span class="section">iii. the asymmetry of harm and benefit in creation</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Asymmetry of harm and benefit — for harms to be personal they require a subject who is worse off; a person brought into a bad life is worse off than nothing; a person brought into a good life has no counterfactual to be better than</span>The asymmetry I assert is grounded in the different logical structures of harm and benefit in the creation context. To be harmed by being created, a person must be worse off than they would otherwise have been. In the bad-life case, the relevant counterfactual is non-existence, and the claim is that the person would have been better off never existing &mdash; better off as having no welfare at all than having negative welfare. This claim is asymmetric: it is coherent to say that a life of unrelenting suffering is worse than nothing, because the suffering is real and its absence would have been an absolute improvement. But the corresponding claim &mdash; that a wonderful life is better than nothing &mdash; does not have the same structure. A wonderful life is good; its being good does not require it to be better than the null alternative.</span></p>
+        <span class="section">iv. addressing Pummer&rsquo;s rescue cases</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Rescue cases — non-comparative benefits can still ground moral reasons; we have reason to create Bobby rather than Amy based on absolute goodness of Bobby's life and badness of Amy's, without needing the comparative claim</span>Pummer argues that existence comparativism is needed to explain why we should create Bobby rather than Amy in his rescue cases. I deny this. Non-comparative benefits and harms are morally significant. We have reason to create Bobby because Bobby&rsquo;s life will be absolutely good &mdash; this is a genuine non-comparative benefit, and it constitutes a reason. We have reason not to create Amy because Amy&rsquo;s life will be personally worse than non-existence &mdash; arm (1) of the Asymmetry. These two reasons together generate the verdict Pummer wants: create Bobby rather than Amy. The comparative claim in the positive direction &mdash; that Bobby&rsquo;s existence is better for Bobby than non-existence &mdash; is not needed to derive this verdict. Non-comparative benefit, combined with the negative comparative harm of creating Amy, suffices. The rescue cases do not force existence comparativism on us; they are explained by the asymmetric structure I defend.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-mcmahan-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Non-comparative benefit: coming into existence with a good life benefits the person absolutely, without requiring the comparison to be a comparative personal gain</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A non-comparative benefit is one that is good absolutely, not relative to any counterfactual. It is good for Anna that she has the wonderful life she has, even if this is not comparatively better than non-existence.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The distinction between comparative and non-comparative benefit is well-motivated: we can distinguish between a benefit constituted by being better off than one would otherwise have been (comparative) and a benefit that is intrinsically good for the person who has it (non-comparative).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Coming into existence with a good life is a paradigm case of non-comparative benefit: Anna&rsquo;s wonderful life is absolutely good for her, independently of any comparison with non-existence. The opposition does not deny this good; it only denies that it constitutes a comparative advantage over non-existence.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The opposition accepts that coming into existence with a good life genuinely benefits the person; it denies only that this benefit is comparative; non-comparative benefit is real, morally significant, and sufficient to ground the intuitions the proposition invokes.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The comparative claim fails for good lives: non-existence has no welfare level for Anna; Holtug&rsquo;s zero is a notational device, not a genuine welfare attribution</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>For existence to be comparatively better for Anna, non-existence must be worse for her in a genuine welfare sense. But in the non-existence world, Anna has no welfare level: she does not exist and therefore undergoes no welfare state.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Holtug&rsquo;s zero-level assigns the number zero as Anna&rsquo;s welfare in the non-existence world. But this is a notational device, not a genuine welfare attribution. It imports numerical comparison structure without the substance of a welfare state.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A genuine comparative welfare claim requires that both poles of the comparison have real welfare content for the subject. Non-existence has no such content for the person who never exists; the comparative claim therefore lacks a genuine welfare basis on the non-existence side.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The comparative claim for good lives fails because non-existence has no genuine welfare content for the non-existent person; Holtug&rsquo;s zero-level is a notational convenience that does not vindicate the comparative claim.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The Asymmetry is grounded in the different logical structures of harm and benefit in the creation context</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the bad-life case: existence is worse than non-existence because unrelenting suffering is real, and its absence would be an absolute improvement. The comparative claim is coherent: suffering is worse than no suffering, even for a non-existent subject.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In the good-life case: the wonderful life is absolutely good, but its being good does not require it to be better than the null alternative. Being good is sufficient to be a non-comparative benefit; it does not additionally require being comparatively better than non-existence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The asymmetry is grounded in this logical difference: harm in creation requires a comparison because suffering has a determinate negative value relative to its absence; benefit in creation does not require a comparison because the goodness of the life is absolute.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Asymmetry is not ad hoc but grounded in the different logical structures of harm and benefit in the creation context; causing a bad life harms comparatively while causing a good life benefits non-comparatively; the motion&rsquo;s symmetrical comparative claim misrepresents this structure.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Non-comparative benefit, combined with the negative comparative harm of bad lives, explains Pummer&rsquo;s rescue cases without requiring the comparative claim in the positive direction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the Miserable Non-Identity case, we have reason to create Bobby rather than Amy. This is explained by: (a) Amy&rsquo;s existence is personally worse for Amy than non-existence (arm 1 of the Asymmetry); (b) Bobby&rsquo;s existence is a genuine non-comparative benefit for Bobby.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These two reasons together &mdash; the comparative harm of Amy&rsquo;s creation and the non-comparative benefit of Bobby&rsquo;s &mdash; generate the verdict that Bobby should be created and Amy should not. The positive comparative claim &mdash; that Bobby&rsquo;s existence is comparatively better for Bobby than non-existence &mdash; is not needed.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Pummer&rsquo;s rescue cases therefore do not force existence comparativism in the positive direction; the asymmetric framework provides all the moral resources needed to deliver the correct verdicts without accepting the motion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Pummer&rsquo;s rescue cases are fully explained by the Asymmetric framework: non-comparative benefit of good lives plus comparative harm of bad lives delivers the correct verdicts; the positive comparative claim asserted by the motion is not required.</span></div>
+        </div>
+      </div>
+    </div><!-- end mcmahan -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'otsuka',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'arrhenius',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
