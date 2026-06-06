@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Identity — The Symposium</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:"";position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 9px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.mathbox{background:rgba(200,169,90,.07);border:1px solid rgba(200,169,90,.25);border-radius:5px;padding:.75rem 1rem;margin:.6rem 0 .9rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.85}
+.mathbox .mbtitle{color:var(--gold);font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:block}
+.mathbox .formula{color:var(--text);font-style:italic;font-size:13px;margin:.3rem 0;font-family:Georgia,serif}
+.mathbox .fdef{font-size:11px;color:var(--text3);margin-top:4px}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Parfit (Reasons and Persons, 1984) &bull; Shoemaker (Persons and their Pasts, 1970) &bull; Nozick (Personal Identity Through Time, 1981) &bull; Schechtman (Constitution of Selves, 1996) &bull; Olson (The Human Animal, 1997; What Are We?, 2007) &bull; Williams (Problems of the Self, 1973) &bull; Wiggins (Sameness and Substance, 1980) &bull; van Inwagen (Material Beings, 1990) &bull; Strawson (Against Narrativity, 2004)</div>
+  <div class="motion-title">&ldquo;This House Believes that Personal Identity is Not What Matters: that persons persist in virtue of psychological continuity and connectedness alone, that there is no further fact about identity beyond these relations, that the self is not a separately existing entity, and that what matters in survival is Relation R &mdash; not strict numerical identity&rdquo;</div>
+  <div class="motion-sub">Proposition &bull; Parfit &middot; Shoemaker &middot; Nozick &middot; Schechtman &nbsp;&mdash;&nbsp; Opposition &bull; Williams (bodily continuity) &middot; Olson (animalism) &middot; Wiggins (sortal essentialism) &middot; Strawson (against narrativity)</div>
+</div>
+
+<div class="columns">
+
+<!-- PROPOSITION -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker(\'prop\',\'parfit\',this)">Parfit</button>
+    <button class="speaker-btn" onclick="switchSpeaker(\'prop\',\'shoemaker\',this)">Shoemaker</button>
+    <button class="speaker-btn" onclick="switchSpeaker(\'prop\',\'nozick\',this)">Nozick</button>
+    <button class="speaker-btn" onclick="switchSpeaker(\'prop\',\'schechtman\',this)">Schechtman</button>
+  </div>
+
+  <div class="col-header" id="prop-parfit-header">
+    <div class="col-header-top"><span class="pill prop">Reductionism &amp; Relation R &mdash; Identity is Not What Matters</span><span class="col-subtitle">Derek Parfit &mdash; Oxford &bull; Reasons and Persons, 1984; Personal Identity, Phil. Review 1971</span></div>
+    <div class="col-position">We are not separately existing entities, distinct from our brains and bodies and the series of our physical and mental events. Our existence just consists in the holding of more particular facts. There is no further fact about identity over and above psychological continuity and connectedness. And once we see this, we should accept that what matters in survival is not strict identity but Relation R: psychological continuity and connectedness, with the right kind of cause. This conclusion is liberating: it dissolves puzzles about fission, teleportation, and gradual replacement, and it transforms our picture of rational self-concern.</div>
+    <div class="tabs"><div class="tab active" onclick="sw(\'prop\',\'parfit\',\'speech\',this)">Speech</div><div class="tab" onclick="sw(\'prop\',\'parfit\',\'logic\',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-header hidden" id="prop-shoemaker-header">
+    <div class="col-header-top"><span class="pill prop">Quasi-Memory &amp; the Causal Theory of Personal Identity</span><span class="col-subtitle">Sydney Shoemaker &mdash; Cornell &bull; Self-Knowledge and Self-Identity, 1963; Persons and their Pasts, 1970</span></div>
+    <div class="col-position">Psychological continuity theories face the circularity objection: memory presupposes personal identity and so cannot constitute it. Shoemaker dissolves this by introducing quasi-memory &mdash; a notion of apparent memory purged of the implicit identity claim. With quasi-memory, the psychological continuity account avoids circularity and gains a causal dimension: what matters is not just psychological continuity but psychological continuity sustained by the right kind of causal connection between successive mental states. This is the most technically precise version of the Lockean position available in the analytic literature.</div>
+    <div class="tabs"><div class="tab active" onclick="sw(\'prop\',\'shoemaker\',\'speech\',this)">Speech</div><div class="tab" onclick="sw(\'prop\',\'shoemaker\',\'logic\',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-header hidden" id="prop-nozick-header">
+    <div class="col-header-top"><span class="pill prop">The Closest Continuer Theory</span><span class="col-subtitle">Robert Nozick &mdash; Harvard &bull; Philosophical Explanations, 1981</span></div>
+    <div class="col-position">The psychological continuity theories of Locke, Shoemaker, and Parfit face a decisive objection: they cannot handle fission cases, because psychological continuity is a one-many relation while identity is one-one. Nozick&rsquo;s Closest Continuer Theory resolves this: a future entity is you if and only if it is your closest continuer &mdash; the entity most similar to you in psychologically relevant respects &mdash; and there is no equally close competitor. This is the most elegant solution to the branching problem in the psychological continuity tradition, and it preserves the insight that what matters is psychological, not biological, while handling fission with precision.</div>
+    <div class="tabs"><div class="tab active" onclick="sw(\'prop\',\'nozick\',\'speech\',this)">Speech</div><div class="tab" onclick="sw(\'prop\',\'nozick\',\'logic\',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-header hidden" id="prop-schechtman-header">
+    <div class="col-header-top"><span class="pill prop">Narrative Self-Constitution &amp; the Characterisation Question</span><span class="col-subtitle">Marya Schechtman &mdash; Illinois-Chicago &bull; The Constitution of Selves, 1996; Staying Alive, 2014</span></div>
+    <div class="col-position">Analytic theories of personal identity have focused obsessively on the reidentification question &mdash; what makes a person at t2 the same as a person at t1 &mdash; while neglecting the equally important characterisation question: what makes a set of characteristics the characteristics of a single person. Schechtman argues that persons constitute their identity by constructing a largely implicit narrative self-understanding that organises their experience, actions, and mental states into a coherent life. This narrative view captures what psychological continuity theories miss: that identity is not just causal chain but self-authorship, and that the practical concerns that make identity matter cannot be accounted for by mere causal continuity.</div>
+    <div class="tabs"><div class="tab active" onclick="sw(\'prop\',\'schechtman\',\'speech\',this)">Speech</div><div class="tab" onclick="sw(\'prop\',\'schechtman\',\'logic\',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- PARFIT -->
+    <div class="speaker-panel active" id="prop-parfit-panel">
+      <div id="prop-parfit-speech" class="speech-text">
+        <p class="salut">I want to begin with what I take to be the most important conclusion in the theory of personal identity: that personal identity is not what matters. This sounds paradoxical. What could matter more than whether I survive? But the appearance of paradox dissolves once we understand what personal identity actually consists in and what the alternatives are. Let me make the reductionist case with full precision, because the implications are profound &mdash; not just for metaphysics, but for our understanding of rational self-concern, ethics, and what it means to be a person.</p>
+        <p>The non-reductionist holds that personal identity is a deep further fact about the world &mdash; something over and above the physical and psychological facts. On this view, when I ask whether the person who wakes tomorrow will be me, there is a determinate answer, and that answer consists in whether some additional relation holds &mdash; whether some further ingredient of personal identity is present or absent. Non-reductionists typically ground this in the persistence of a Cartesian ego, a soul, or some other separately existing entity that is the true subject of experience. I believe this view is false, and that its falsity can be demonstrated by thought experiments.</p>
+
+        <div class="mathbox">
+          <span class="mbtitle">Parfit&rsquo;s reductionism and the No-Further-Fact view</span>
+          <div class="formula">Reductionist thesis: A person&rsquo;s existence just consists in the existence of a brain and body and the occurrence of a series of interrelated physical and mental events. There is no further fact about personal identity over and above these facts.</div>
+          <div class="fdef">Relation R: psychological continuity and connectedness with any cause. This is what holds between me-now and my past and future selves, and it is what matters in survival.</div>
+          <div class="fdef">Psychological connectedness: direct psychological connections &mdash; memories, intentions, beliefs, desires, and other mental states &mdash; between a person at t1 and a person at t2.</div>
+          <div class="fdef">Psychological continuity: the ancestral of strong connectedness &mdash; overlapping chains of psychological connection. Strong connectedness requires many direct connections; continuity requires only that each successive stage be strongly connected to the next.</div>
+          <div class="fdef" style="color:var(--prop-green);margin-top:8px">The pivotal claim: in fission cases, Relation R holds between me-now and both resulting persons, yet identity (a one-one relation) cannot hold between me-now and two distinct future people simultaneously. Therefore Relation R is not the same as identity. Since Relation R is what matters in survival &mdash; what we care about when we care about our futures &mdash; identity is not what matters.</div>
+        </div>
+
+        <span class="section">i. the fission argument against the further-fact view</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Fission argument &mdash; my brain is divided and transplanted into two bodies; Relation R holds to both; identity cannot hold to both; so identity is not Relation R; so identity is not what matters</span>The most powerful argument for reductionism comes from fission cases. Suppose that my brain is divided, each hemisphere transplanted into a different body. Both resulting people are psychologically continuous with me: each has my memories, my personality, my beliefs, my plans. Psychological continuity &mdash; Relation R &mdash; holds between me-now and both Lefty and Righty. Now: which one is me? The non-reductionist says there must be a determinate answer. But consider: whatever we say, we face a problem. If Lefty is me, why does the same reasoning not also make Righty me? If Righty is me, why not Lefty? If both are me, we have the absurd result that Lefty and Righty are the same person, which they manifestly are not &mdash; they are two distinct people leading two different lives after the operation. And if neither is me, then we have the extraordinary result that I cease to exist even though two people survive who are each as psychologically continuous with me as ordinary survival makes me with myself tomorrow. The only coherent response is the reductionist one: identity is indeterminate in fission cases because there is no further fact to make it determinate. What matters &mdash; Relation R &mdash; branches, and that is all there is to say.</span></p>
+
+        <span class="section">ii. the spectrum arguments</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Spectrum arguments &mdash; gradual replacement of neurons / gradual personality change; at no point is there a sharp transition; identity admits of degree; the sharp-line conception of the self is indefensible</span>The spectrum arguments show that the non-reductionist&rsquo;s demand for a sharp determinate fact about identity is untenable. Consider a physical spectrum: starting from my brain as it now is, we gradually replace each neuron with a functionally identical silicon substitute. At the start, I clearly survive. At the end, the resulting entity has no biological brain matter in common with me. Where along the spectrum does survival cease? The non-reductionist must say there is a sharp point &mdash; some replacement of the n-th neuron that marks the transition from survival to non-survival. But this is incredible: no single neuron replacement can be the difference between existing and not existing. The psychological spectrum raises the same problem: if I gradually take on the psychology of some very different person, at what point am I no longer me? The reductionist can answer: it is not a sharp fact. The non-reductionist cannot answer coherently at all.</span></p>
+
+        <span class="section">iii. identity is not what matters: what follows</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">What matters in survival &mdash; it is Relation R not identity; fission gives me what matters twice over; teleportation with the right cause gives me what matters; the self is less deep than we thought</span>Once we accept that Relation R and not strict identity is what matters in survival, several puzzling cases resolve elegantly. In fission, I do not survive in the strict sense &mdash; neither Lefty nor Righty is me. But I do get what matters: each of them has Relation R with me, and that is as good as ordinary survival. Indeed, it is twice as good: two people will live out lives that are psychologically continuous with mine. The teleportation case: if a machine destroys me on Earth and reconstructs me perfectly on Mars &mdash; same psychological profile, same memories &mdash; the resulting person has Relation R with me. The non-reductionist must say I die and a replica is created. I say the replica has what matters in my survival. The non-reductionist&rsquo;s verdict seems to reflect not a deep fact about identity but an empty verbal commitment to the further-fact view.</span></p>
+
+        <span class="section">iv. the liberating implications</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Liberation &mdash; the emptiness of identity dissolves excessive self-concern; future generations are less separate from us; ethics becomes more impartial; the Cartesian ego is not threatened because it never existed</span>The most important philosophical upshot of reductionism is what I call the liberating implications. Once we see that the self is not a separately existing entity &mdash; that there is no further fact about identity &mdash; we see that what seemed like a deep metaphysical gulf between ourselves and others is not so deep. My future self is not strictly me in any deep sense; but it is not strictly not-me either. The connections between me-now and my future self are not different in kind from the connections between me-now and other people; they are only stronger in degree. This makes excessive prudential concern &mdash; the idea that my future self&rsquo;s suffering matters enormously more than anyone else&rsquo;s, simply because it is mine &mdash; seem less rationally mandatory. Reductionism supports a more impartial ethics: the separateness of persons, while real in one sense, is not grounded in the deep metaphysical gulf that non-reductionism imagines.</span></p>
+        <p><em>Identity is not what matters. Relation R is enough. I yield the floor.</em></p>
+      </div>
+      <div id="prop-parfit-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The fission argument: Relation R branches in fission; identity cannot branch; so Relation R is not identity; so identity is not what matters</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In a fission case, my brain is divided; each hemisphere is transplanted into a distinct body. Each resulting person &mdash; Lefty and Righty &mdash; is psychologically continuous with me: each has my memories, personality, intentions, and beliefs. Relation R holds between me-now and both.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Identity is a one-one relation: it cannot hold between me-now and two distinct future people simultaneously (that would make Lefty and Righty the same person, which they are not).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Therefore Relation R and strict identity come apart. What matters in survival &mdash; Relation R &mdash; obtains twice in fission. I do not survive as either Lefty or Righty, but I get what matters &mdash; twice over. Identity is not what matters.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The fission argument establishes that Relation R (psychological continuity and connectedness) is not the same as strict numerical identity; since Relation R is what we care about when we care about survival, identity is not what matters in survival; the further-fact view of identity is indefensible under fission.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The spectrum arguments: gradual replacement shows identity admits of degree; no sharp transition exists; the further-fact view is untenable</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Physical spectrum: gradual neuron-by-neuron replacement with silicon equivalents. At the start, I clearly survive. At the end, no biological neurons remain. The non-reductionist must identify a sharp transition from survival to non-survival at some specific neuron replacement.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No such sharp transition is plausible: replacing a single neuron cannot be the difference between existing and not existing. The psychological spectrum case is analogous: gradual personality replacement has no sharp transition point.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The reductionist can accept that identity admits of degree along these spectra. The non-reductionist cannot: they are committed to a sharp further fact whose location they cannot specify without arbitrariness.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The spectrum arguments show that the non-reductionist&rsquo;s further-fact view requires a sharp transition that cannot be located without arbitrary stipulation; reductionism handles the spectra naturally by treating identity as a matter of degree; the further-fact view is refuted.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Teleportation and reconstruction: the replica has Relation R; the non-reductionist verdict is empty verbiage about identity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Teleportation case: a machine destroys me on Earth and perfectly reconstructs me on Mars. The Martian has all my memories, personality, beliefs, desires &mdash; strong psychological continuity with me. Relation R holds.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Non-reductionist verdict: I die and a replica is created. This verdict reflects only the causal interruption (physical discontinuity), not any difference in what matters psychologically.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Reductionist verdict: what matters in my survival &mdash; Relation R &mdash; holds. The non-reductionist verdict reflects a commitment to the further-fact view, not a substantive difference in what the Martian has or lacks.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>In teleportation, the reductionist verdict captures what matters; the non-reductionist verdict treats the causal break as a metaphysical gulf that no observable or psychological difference tracks; the further-fact view is revealed as an empty verbal commitment rather than a substantive metaphysical claim.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The liberating implications: reductionism dissolves excessive self-concern and supports more impartial ethics</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Non-reductionism grounds a deep metaphysical gulf between self and others: my future self is strictly me in a way that no one else can be, and this grounds the rationality of extreme prudential concern.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Reductionism: the connections between me-now and my future self are not different in kind from the connections between me-now and other people &mdash; only stronger in degree. There is no deep further fact about the self that grounds extreme prudential priority.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This supports a more impartial ethics: the separateness of persons is real but not grounded in a deep metaphysical gulf; it does not rationally mandate the degree of self-preference that common sense assumes.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Reductionism has liberating ethical implications: by dissolving the deep metaphysical gulf between self and others, it undermines the rational basis for extreme prudential concern and supports a more impartial ethics in which the boundaries between persons are less metaphysically absolute.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHOEMAKER -->
+    <div class="speaker-panel" id="prop-shoemaker-panel">
+      <div id="prop-shoemaker-speech" class="speech-text">
+        <p class="salut">Parfit has made the positive case for reductionism. My task is to defend the psychological continuity view against its most technically serious objection: the circularity problem. The objection says that any attempt to ground personal identity in memory must fail, because memory already presupposes personal identity. To remember doing something is to remember that <em>I</em> did it &mdash; memory is inherently first-personal, and so it cannot constitute the identity of the person who has it. I want to show that this objection, while pointing to a real problem with the naive Lockean view, can be resolved by introducing the notion of quasi-memory, and that the resulting account of psychological continuity is both non-circular and causally grounded.</p>
+
+        <div class="case-box">
+          <strong>The circularity objection and quasi-memory.</strong><br><br>
+          Lockean memory criterion: person A at t2 is the same person as person B at t1 if and only if A can remember the experiences of B.<br><br>
+          Circularity objection (Reid, Butler): &ldquo;remembering&rdquo; in the ordinary sense already entails that the rememberer is the same person as the one who had the original experience. Memory is not merely an apparent experience of the past; it is a genuine experience of the past that &mdash; in its ordinary concept &mdash; presupposes that the rememberer is the original experiencer. Therefore memory cannot ground identity without circularity.<br><br>
+          Shoemaker&rsquo;s response: introduce quasi-memory (q-memory). A q-memory is an apparent memory of a past experience that includes no implicit identity claim: to q-remember an experience is to have an apparent memory that was caused in the right way by that experience, regardless of whether the q-rememberer is the original experiencer. Q-memory is memory with the identity claim factored out. Personal identity then consists in q-memory chains, not ordinary memory chains &mdash; avoiding the circularity.
+        </div>
+
+        <span class="section">i. the quasi-memory solution to the circularity objection</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Quasi-memory &mdash; apparent memory purged of identity claim; caused by the original experience; avoids circularity; preserves the psychological continuity criterion in a non-circular form</span>The quasi-memory notion resolves the circularity without sacrificing the Lockean insight. The key move is to notice that the ordinary concept of memory contains two distinct components: a causal component (the apparent memory was caused by the original experience) and an identity component (the rememberer is the original experiencer). The circularity objection targets the identity component: if memory includes an identity claim, using it to ground identity is circular. But the causal component is not circular. Q-memory preserves the causal component and discards the identity component: to q-remember an experience is to have a state that was caused, in the right way, by that experience. Whether the q-rememberer is the original experiencer is then a further question &mdash; one that can be answered without circularity by asking whether there is a chain of q-memories connecting them.</span></p>
+
+        <span class="section">ii. the causal theory: psychological continuity with the right kind of cause</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Causal theory &mdash; psychological continuity must be sustained by the right kind of causal mechanism; not any causal chain suffices; the right kind is the internal causal mechanism characteristic of persons</span>The quasi-memory account makes explicit what was implicit in Locke: the psychological continuity that grounds personal identity must be causally sustained. Not any causal connection will do. If someone reads your diary and thereby comes to have apparent memories of your experiences, the resulting apparent memories are not q-memories in the relevant sense &mdash; the causal chain runs through an inappropriate mechanism. What matters is that the psychological continuity be sustained by the kind of internal causal mechanism that is characteristic of the persistence of a single mind. Parfit sometimes expresses this as requiring psychological continuity &ldquo;with any cause&rdquo; &mdash; but I think this is too permissive. The right kind of cause is the normal psychological cause: the internal workings of the brain and mind that sustain the continuity of a single psychological entity over time.</span></p>
+
+        <span class="section">iii. immunity to error through misidentification</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Immunity to error &mdash; first-person self-ascriptions are immune to error through misidentification; this is explained by the psychological continuity view; it is a datum the biological view cannot easily accommodate</span>My work on self-knowledge establishes an important datum that any theory of personal identity must explain: first-person self-ascriptions of mental states are immune to error through misidentification. When I say &ldquo;I am in pain&rdquo;, there is one kind of error I cannot make: I cannot be wrong about which person is in pain. I know immediately, without inference, that it is I who am in pain and not someone else. This immunity is not a trivial feature of language; it reflects something deep about the relationship between a subject and their mental states. The psychological continuity view explains this: self-knowledge is immediate precisely because the mental states in question are states of the very psychological entity whose persistence is constituted by psychological continuity. The biological view &mdash; which grounds identity in animal continuity &mdash; has no comparable explanation for why first-person access to mental states should be immediate rather than inferred.</span></p>
+
+        <span class="section">iv. responding to the animalist challenge</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against animalism &mdash; the thinking animal argument; if we are animals, there are too many thinkers; the psychological view handles thinking correctly; animals have the wrong persistence conditions</span>Olson argues that the thinking animal argument shows we must be animals: there is a human animal where I sit, that animal is thinking, and there is only one thinker here, so I am the animal. But this argument has a flaw: it assumes that the human animal and I have the same thoughts. I deny this. The animal and I may share our physical constitution, but the animal has different persistence conditions from me: the animal persists through severe psychological change in ways that I do not. If my brain were slowly replaced by one with entirely different memories and personality, the animal would persist but the person &mdash; the bearer of psychological continuity &mdash; would not. The animal has the wrong persistence conditions for a thinker. What thinks, in the morally relevant sense, is the psychological entity that persists through psychological continuity &mdash; not the animal.</span></p>
+        <p><em>Quasi-memory resolves the circularity. The causal theory grounds the criterion. I yield the floor.</em></p>
+      </div>
+      <div id="prop-shoemaker-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Quasi-memory resolves the circularity objection: it preserves the causal component of memory while factoring out the identity claim</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Ordinary memory includes both a causal component (apparent memory was caused by the original experience) and an identity component (the rememberer is the original experiencer). The circularity objection targets the identity component.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Quasi-memory factors out the identity component: to q-remember an experience is to have a state that was caused, in the right way, by that experience &mdash; with no implicit claim about who the original experiencer was.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Personal identity then consists in chains of q-memories: a person at t2 is the same as a person at t1 if and only if there is a q-memory chain running from t2 back to t1. This account is not circular: the q-memory relation does not presuppose identity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Quasi-memory dissolves the circularity objection: by factoring out the identity component from memory, it provides a non-circular foundation for the psychological continuity criterion; the Lockean insight is preserved in a technically defensible form.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The causal theory: psychological continuity must be sustained by the right internal causal mechanism; not any causal chain suffices</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Not any causal chain between t1 experiences and t2 apparent memories is sufficient for psychological continuity in the personal identity-conferring sense. Reading a diary causes apparent memories of its author&rsquo;s experiences but does not constitute psychological continuity with the author.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The relevant causal mechanism is the internal mechanism characteristic of a single persisting mind: the normal workings of brain and psychology that sustain continuity over time.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This causal requirement distinguishes genuine psychological continuity (identity-conferring) from mere psychological similarity (not identity-conferring) and provides the right-kind-of-cause clause that Parfit&rsquo;s Relation R needs.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The causal theory specifies the right-kind-of-cause clause for Relation R: psychological continuity is identity-conferring only when sustained by the internal causal mechanism characteristic of a single persisting mind; this distinguishes genuine survival from replica creation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Immunity to error through misidentification: the psychological view explains first-person access; the biological view cannot</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>First-person self-ascriptions of mental states (&ldquo;I am in pain&rdquo;) are immune to error through misidentification: I cannot be mistaken about which entity is in pain when I self-ascribe pain in the first person.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The psychological continuity view explains this: self-knowledge is immediate because the mental states ascribed are states of the very psychological entity whose persistence I am continuous with. The subject and its states are constitutively connected.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The biological view (animalism) has no comparable explanation: if I am an animal, my first-person access to my mental states would appear to require inference about which animal I am, yet it does not feel inferential.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Immunity to error through misidentification is a datum that supports the psychological continuity view: it is naturally explained by the constitutive connection between a person and their psychological states; the biological view cannot offer a comparable explanation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The thinking animal problem: animals have the wrong persistence conditions for thinkers; the psychological entity, not the animal, is what thinks</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Olson&rsquo;s thinking animal argument: there is a human animal where I sit; it is thinking; there is only one thinker; therefore I am the animal.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Response: the animal and I do not have the same persistence conditions. The animal persists through radical psychological change (total amnesia, personality replacement) in ways that I &mdash; the person constituted by psychological continuity &mdash; do not.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>What thinks, in the morally and psychologically relevant sense, is the entity with the right persistence conditions for a thinker: the psychological entity, not the animal. The animal has the wrong persistence conditions to be the subject of psychological continuity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The thinking animal argument fails because animals have the wrong persistence conditions for psychological subjects; what thinks, in the relevant sense, is the psychological entity constituted by continuity &mdash; not the biological animal that happens to share our physical constitution.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOZICK -->
+    <div class="speaker-panel" id="prop-nozick-panel">
+      <div id="prop-nozick-speech" class="speech-text">
+        <p class="salut">Both Parfit and Shoemaker have made the case for psychological continuity. The problem I want to address is the one they have not fully resolved: what happens when psychological continuity branches? When two candidates are each psychologically continuous with me, neither the Parfitian verdict (&ldquo;identity is indeterminate&rdquo;) nor the Shoemakerean verdict (&ldquo;add a no-branching clause&rdquo;) is satisfying. Parfit&rsquo;s response makes identity arbitrary. Shoemaker&rsquo;s response makes identity hostage to facts about the existence of competitors that seem irrelevant to what matters for the person in question. My Closest Continuer Theory resolves this problem elegantly.</p>
+
+        <div class="mathbox">
+          <span class="mbtitle">The Closest Continuer Theory</span>
+          <div class="formula">X at t2 is the same person as Y at t1 if and only if: (1) X is Y&rsquo;s closest continuer &mdash; the entity at t2 most similar to Y in psychologically and physically relevant respects; and (2) X is close enough &mdash; the degree of similarity exceeds some threshold; and (3) there is no equally close competitor &mdash; no other entity at t2 is equally similar to Y.</div>
+          <div class="fdef">Closest continuer: the entity at t2 that has the most overlap with Y in relevant respects &mdash; memories, beliefs, desires, intentions, character, physical features &mdash; weighted by their relative importance.</div>
+          <div class="fdef">The no-competitor condition: identity fails not because psychological continuity is absent but because there is an equally close competitor. If Lefty and Righty are equally close continuers of me, neither is me &mdash; not because the further-fact view is correct, but because the closest-continuer relation requires uniqueness.</div>
+          <div class="fdef" style="color:var(--prop-green);margin-top:8px">Why this is not arbitrary: the closest-continuer theory does not make identity depend on irrelevant external facts. It makes identity depend on the degree of similarity between the candidate continuer and the original &mdash; a relation that is about the intrinsic features of the candidate, not about what competitors happen to exist.</div>
+        </div>
+
+        <span class="section">i. the problem with the no-branching clause</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">No-branching clause problem &mdash; requiring uniqueness for identity makes my survival depend on facts about competitors I know nothing about and which affect nothing about me; this seems wrong</span>Shoemaker and others add a no-branching clause to the psychological continuity criterion: a future person is me only if no other future person is equally psychologically continuous with me. This handles fission: if both Lefty and Righty are equally continuous with me, neither is me. But the no-branching clause has a deeply counterintuitive implication. Suppose I enter a teleporter. At the receiving end, one person emerges &mdash; clearly a case of survival. Now suppose that, unknown to either of us, a second receiving station briefly operates and produces another person equally continuous with me, before immediately malfunctioning. On the no-branching view, I survive in the first scenario but not in the second &mdash; even though nothing about me or my psychological continuity has changed. My survival depends on facts about a competitor I never knew existed. This seems wrong: facts about competitors should not affect whether I survive if those facts have no effect on the psychological continuity between me and the surviving candidate.</span></p>
+
+        <span class="section">ii. the closest continuer theory handles fission correctly</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Fission handled &mdash; in fission, two equally close continuers exist; neither is the closest; identity fails; but this failure is explained by competition not by a no-branching clause imposed from outside</span>My theory handles fission without a separate no-branching clause, because the no-competitor condition is built into the definition of closest continuer. In fission, both Lefty and Righty are equally close continuers of me. Since neither is uniquely the closest, neither is my closest continuer, and neither is me. This is not an arbitrary rule: it follows from the very definition of the relation. And the explanation of why identity fails in fission is not an externally imposed clause but a consequence of what closeness means: when two entities are equally close to a prior person, there is no fact about which one she is more similar to, and therefore no fact about which one she is. The closest-continuer theory captures this naturally.</span></p>
+
+        <span class="section">iii. why degrees of similarity matter</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Degrees of similarity &mdash; psychological continuity is not all-or-nothing; the closest-continuer framework allows it to be weighted; this is more realistic than the binary criterion</span>One advantage of the closest-continuer framework is that it allows psychological continuity to be treated as a matter of degree rather than binary. Parfit already recognises this in distinguishing strong from weak connectedness and continuity from connectedness. The closest-continuer theory makes this central: it asks, for each candidate at t2, how psychologically similar they are to me at t1, weighted by the importance of the various psychological features in question. Memories of central experiences matter more than memories of peripheral ones. Core beliefs and values matter more than peripheral preferences. The theory allows a nuanced, graduated account of survival that the binary psychological criterion cannot achieve.</span></p>
+
+        <span class="section">iv. the threshold condition</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Threshold &mdash; even the closest continuer must be close enough; extreme psychological discontinuity defeats identity even without competitors; this handles the gradual-change cases</span>The closest-continuer theory includes a threshold condition: the closest continuer must be close enough. This handles the gradual-change spectra that trouble Parfit and the non-reductionists. If I undergo total amnesia and complete personality replacement, the resulting person &mdash; even if there is no competitor &mdash; may not be close enough to be my closest continuer in the identity-conferring sense. They are the closest there is, but &ldquo;closest&rdquo; is not enough if the threshold is not met. This provides an elegant account of the spectrum cases: there is a gradual decrease in closeness as psychological change accumulates, and at some point the threshold is crossed. No single step is decisive; but the cumulative change can defeat identity without there being any sharp moment at which the transition occurs.</span></p>
+        <p><em>The closest continuer captures what matters without branching problems. I yield the floor.</em></p>
+      </div>
+      <div id="prop-nozick-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The no-branching clause makes survival depend on external competitors; this is counterintuitive; the closest-continuer theory avoids this</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>No-branching clause: a future person is me only if no other future person is equally psychologically continuous with me. But this makes my survival depend on facts about competitors that have no effect on my psychological continuity with the surviving candidate.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Case: I teleport; one person emerges; a second station briefly produces a competitor before malfunctioning. On the no-branching view: I do not survive in this scenario even though the relevant psychological continuity between me and the survivor is unchanged.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is counterintuitive: facts about irrelevant competitors should not determine whether I survive, if those competitors have no effect on what the survivor is psychologically like.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The no-branching clause has counterintuitive implications; the closest-continuer theory avoids this by making identity a function of degree of similarity rather than absence of competitors; it is a more principled resolution of the branching problem.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Fission is handled correctly: two equally close continuers means no closest continuer; identity fails by the definition of closeness, not by an external clause</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In fission: Lefty and Righty are equally close continuers of me. Since neither is uniquely the closest, neither satisfies the closest-continuer criterion for identity with me.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This follows from the definition: &ldquo;closest continuer&rdquo; requires uniqueness. The failure of identity in fission is not an externally imposed no-branching clause but a consequence of what closest-continuer means.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The explanation is principled: when two entities are equally close to a prior person, there is no fact about which is more similar to her, and therefore no fact about which is her closest continuer, and therefore no fact about which is her.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The closest-continuer theory handles fission without a separate no-branching clause; the failure of identity in fission follows from the definition of closeness itself; this is a more principled and less ad hoc resolution than adding a no-branching clause.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Psychological continuity admits of degree; the closest-continuer framework handles this more naturally than binary criteria</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Psychological continuity is not binary: memories, beliefs, desires, and character can be more or less continuous between t1 and t2. Central memories matter more than peripheral ones; core values matter more than passing preferences.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The closest-continuer framework makes this central: it asks for the degree of weighted similarity between the candidate and the original, not merely whether some threshold of connectedness is met.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This allows a nuanced, graduated account of survival that binary psychological criteria cannot achieve and that is more faithful to the graduated nature of psychological continuity in real cases.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The closest-continuer theory is superior to binary psychological criteria: it treats psychological continuity as a matter of degree, allows weighted comparisons, and provides a more nuanced and realistic account of survival across difficult cases.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The threshold condition handles spectrum cases: cumulative psychological change can defeat identity without a sharp transition</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Even the closest continuer must be close enough: extreme psychological discontinuity defeats identity even without competitors. Total amnesia plus complete personality replacement may not meet the threshold.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This handles the spectrum cases: as psychological change accumulates, the degree of closeness decreases. At some point the threshold is crossed, not at a single step but cumulatively.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The non-reductionist must locate a sharp transition; the closest-continuer theory can treat the threshold as a gradual matter, consistent with the fact that no single change is decisive.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The threshold condition elegantly handles spectrum cases: it acknowledges that no single step is decisive while allowing cumulative change to defeat identity; this is more faithful to the phenomenology of gradual change than either the non-reductionist sharp-line view or Parfit&rsquo;s eliminativist verdict.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHECHTMAN -->
+    <div class="speaker-panel" id="prop-schechtman-panel">
+      <div id="prop-schechtman-speech" class="speech-text">
+        <p class="salut">I want to approach personal identity from a direction that the reductionism debate has largely neglected: not from the reidentification question but from the characterisation question. Parfit, Shoemaker, and Nozick have all focused on asking what makes a person at t2 the same as a person at t1. This is the reidentification question: it asks for criteria of numerical identity over time. But there is a second question that is equally important and that the analytic tradition has systematically undervalued: the characterisation question, which asks what makes a set of characteristics, experiences, actions, and mental states the characteristics, experiences, actions, and mental states of <em>a single person</em>. My answer is that persons constitute their identity by constructing a largely implicit narrative self-understanding &mdash; and that this narrative account captures something that causal chains of psychological continuity cannot.</p>
+
+        <div class="case-box">
+          <strong>The reidentification and characterisation questions distinguished.</strong><br><br>
+          Reidentification question: Is the person who wakes tomorrow the same person as the one who went to sleep last night? What makes a person at t2 numerically identical to a person at t1?<br><br>
+          Characterisation question: What makes the set of memories, beliefs, desires, intentions, and experiences that constitute a person&rsquo;s mental life the mental life of a single unified person rather than a collection of disconnected mental states?<br><br>
+          Schechtman&rsquo;s claim: The psychological continuity theories of Parfit, Shoemaker, and Nozick all aim to answer the reidentification question. But they covertly import assumptions from the characterisation question without explicitly addressing it, and this causes systematic confusions. A satisfying theory of personal identity must answer both questions &mdash; and the answer to the characterisation question is not causal chains but narrative self-constitution.
+        </div>
+
+        <span class="section">i. the failure of psychological continuity to answer the characterisation question</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Characterisation question &mdash; psychological continuity answers reidentification but not what makes a life unified; the narrative view is needed to address the unity of a life across time</span>Psychological continuity theories answer the reidentification question with some success: they specify conditions under which a person at t2 is the same as a person at t1. But they say nothing about what makes the experiences, actions, and mental states of a person over time the experiences, actions, and mental states of a unified self. Why should a chain of psychological connections constitute a single life rather than a sequence of loosely related episodes? The causal chain answer says: because each stage is causally connected to the next. But causal connection alone cannot constitute the unity of a life. There are causal chains connecting many things that do not constitute unified selves. What is needed is a richer account of how mental states are organised into a single life &mdash; and that is what the narrative account provides.</span></p>
+
+        <span class="section">ii. the narrative self-constitution view</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Narrative self-constitution &mdash; persons constitute identity by organising their experiences into a narrative self-understanding; this explains practical concerns of identity that causal chains cannot; the narrative is largely implicit</span>My narrative self-constitution view holds that to be a person is to have an identity-constituting narrative: a largely implicit self-understanding that organises one&rsquo;s experiences, actions, and mental states into a coherent life story. This narrative is not a literary artefact that we compose and revise consciously; it is the background self-understanding through which we interpret our experiences, attribute our actions to ourselves, and extend our concern to our future selves. What makes an experience mine is not just that it is causally connected to other experiences in the right way, but that it is appropriately situated within my self-understanding as part of the story I tell myself about who I am. The narrative account explains why personal identity matters for moral responsibility, self-interested concern, and the intelligibility of action &mdash; all of which require not just causal chain but self-authorship.</span></p>
+
+        <span class="section">iii. narrative and the four features of personal existence</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Four features &mdash; survival, moral responsibility, self-interested concern, compensation: narrative self-constitution explains all four; psychological continuity explains them poorly or not at all</span>I argue that there are four features of personal existence that any adequate theory of personal identity must explain: the appropriateness of survival-based concern for one&rsquo;s future, the grounding of moral responsibility for past actions, the rationality of self-interested concern for one&rsquo;s future welfare, and the intelligibility of compensation across time. Psychological continuity theories struggle with all four. They explain survival concern only instrumentally, as a consequence of causal connection rather than self-authorship. They cannot explain why I am responsible for what my past self did unless there is a genuine sense in which those actions were expressions of who I am &mdash; a sense that requires narrative self-understanding, not just causal chain. The narrative view explains all four features: it is because I constitute my identity through narrative self-understanding that my future self&rsquo;s welfare is a matter of special concern, that my past actions are genuinely mine, and that I can be compensated across time for sacrifices I make now.</span></p>
+
+        <span class="section">iv. responding to galen strawson: against the episodic objection</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Strawson &mdash; Strawson argues some people do not experience themselves narratively; Schechtman&rsquo;s narrative is not phenomenological autobiography but implicit self-understanding; it need not be consciously told</span>Galen Strawson argues forcefully against narrative theories of personal identity, claiming that not everyone experiences themselves as protagonists of a continuous life narrative. Some people &mdash; what he calls &ldquo;episodics&rdquo; &mdash; experience their lives as a series of relatively disconnected episodes rather than as a single flowing story. If personal identity requires narrative self-constitution, and some people do not have narratively organised selves, then those people lack personal identity &mdash; which is absurd. I have a decisive response: the narrative I am postulating is not a phenomenological autobiography. It is an implicit, largely unconscious structure of self-understanding that organises experience, grounds attributions of action and experience to a self, and enables the four features of personal existence. You do not need to experience yourself as a narrative protagonist to have an identity-constituting narrative. Even Strawson&rsquo;s episodics have an implicit self-understanding that grounds their actions, their moral responsibility, and their self-interested concern &mdash; and that is all my view requires.</span></p>
+        <p><em>The characterisation question demands narrative. I yield the floor.</em></p>
+      </div>
+      <div id="prop-schechtman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Psychological continuity answers the reidentification question but not the characterisation question; the latter requires narrative self-constitution</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Reidentification question: What makes a person at t2 the same as a person at t1? Characterisation question: What makes a set of mental states and experiences the mental life of a single unified person rather than a disconnected collection?</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Psychological continuity theories address only the reidentification question. They leave the characterisation question unanswered: why does a causal chain of psychological connections constitute a unified self?</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The characterisation question requires a different kind of answer &mdash; not causal chain but the kind of organisation that a narrative self-understanding provides: the integration of experiences, actions, and mental states into a coherent life.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Psychological continuity theories are incomplete: they address reidentification but not characterisation; the narrative view is needed to explain what makes a sequence of causally connected mental states the life of a single unified person.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The narrative self-constitution view: persons organise their lives through implicit narrative self-understanding; this explains what causal chains cannot</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>What makes an experience mine is not just that it is causally connected to other experiences but that it is appropriately situated within my self-understanding as part of the story of who I am.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Narrative self-constitution: persons constitute their identity by constructing a largely implicit self-understanding that organises experience, action, and mental states into a coherent life. This narrative is not consciously authored but is the background structure of self-understanding.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This view explains self-authorship &mdash; the sense in which actions and experiences are genuinely mine &mdash; in a way that causal chain accounts cannot: not because of causal connection but because of integration into my narrative self-understanding.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The narrative self-constitution view explains what psychological continuity cannot: the unity of a life as the life of a single person, through the integration of experience and action into an identity-constituting narrative self-understanding.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The four features: narrative self-constitution explains survival concern, moral responsibility, self-interest, and compensation; causal chain cannot</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Survival concern, moral responsibility, self-interested concern, and compensation are the four features of personal existence that any adequate theory must explain. These are practical concerns, not just theoretical questions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Psychological continuity explains these only instrumentally: the causal chain grounds them without explaining why. The narrative view explains them constitutively: it is because I author my life through narrative self-understanding that my past actions are genuinely mine, my future welfare specially matters, and I can be compensated across time.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The narrative account gives a more satisfying explanation of practical concerns than causal chain accounts: it grounds them in self-authorship rather than contingent causal connection.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The narrative view gives a more adequate explanation of the four features of personal existence than causal chain accounts: by grounding them in narrative self-authorship rather than causal connection, it explains why they matter rather than merely asserting that they follow from the relevant causal relation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Against Strawson&rsquo;s episodic objection: the narrative is implicit self-understanding, not phenomenological autobiography</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Strawson&rsquo;s objection: some people experience themselves episodically, not narratively. If personal identity requires narrative self-constitution, episodics lack personal identity &mdash; absurd.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Response: the narrative I postulate is an implicit, largely unconscious structure of self-understanding &mdash; not a phenomenological autobiography or consciously told life story. Episodics have implicit self-understanding that grounds their actions, moral responsibility, and self-concern &mdash; that is all my view requires.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Strawson confuses narrative self-constitution with phenomenological self-narration. The former is a structural feature of persons; the latter is a phenomenological experience. The objection targets the latter, not the former.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Strawson&rsquo;s episodic objection fails because it conflates phenomenological self-narration with narrative self-constitution; the latter is an implicit structural feature that even episodics have; the narrative view survives the objection.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- end prop col -->
+
+<!-- OPPOSITION -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker(\'opp\',\'williams\',this)">Williams</button>
+    <button class="speaker-btn" onclick="switchSpeaker(\'opp\',\'olson\',this)">Olson</button>
+    <button class="speaker-btn" onclick="switchSpeaker(\'opp\',\'wiggins\',this)">Wiggins</button>
+    <button class="speaker-btn" onclick="switchSpeaker(\'opp\',\'strawson\',this)">G. Strawson</button>
+  </div>
+
+  <div class="col-header" id="opp-williams-header">
+    <div class="col-header-top"><span class="pill opp">Bodily Continuity &amp; the Limits of Thought Experiments</span><span class="col-subtitle">Bernard Williams &mdash; Cambridge &bull; The Self and the Future, 1970; Problems of the Self, 1973</span></div>
+    <div class="col-position">The psychological continuity view gets the phenomenology of personal identity systematically wrong. Williams&rsquo;s famous two-series thought experiment shows that the same case, described from two different perspectives, generates conflicting intuitions that the psychological view cannot reconcile: described as a transfer of psychological content, our intuition favours the psychological view; described as what will happen to this body, our intuition favours bodily continuity. Williams argues that the second description is more fundamental &mdash; that personal identity, properly understood, requires bodily continuity, and that the psychological view mistakes the persuasiveness of a certain description for a deep metaphysical truth.</div>
+    <div class="tabs"><div class="tab active" onclick="sw(\'opp\',\'williams\',\'speech\',this)">Speech</div><div class="tab" onclick="sw(\'opp\',\'williams\',\'logic\',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-header hidden" id="opp-olson-header">
+    <div class="col-header-top"><span class="pill opp">Animalism &mdash; We Are Human Animals</span><span class="col-subtitle">Eric Olson &mdash; Sheffield &bull; The Human Animal, 1997; What Are We?, 2007</span></div>
+    <div class="col-position">We are human animals. The persistence conditions of human animals are biological, not psychological: a human animal persists through biological continuity &mdash; the continuation of the biological processes that constitute a living organism &mdash; regardless of psychological continuity or discontinuity. Olson&rsquo;s Thinking Animal Argument shows that psychological continuity views are committed to an implausible population of coincident thinkers: if I am a distinct psychological entity that merely coincides with a human animal, then the animal is also thinking, and there are two thinkers where everyone else sees only one. Parsimony demands identifying the person with the animal.</div>
+    <div class="tabs"><div class="tab active" onclick="sw(\'opp\',\'olson\',\'speech\',this)">Speech</div><div class="tab" onclick="sw(\'opp\',\'olson\',\'logic\',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-header hidden" id="opp-wiggins-header">
+    <div class="col-header-top"><span class="pill opp">Sortal Essentialism &mdash; What a Thing Is Determines How It Persists</span><span class="col-subtitle">David Wiggins &mdash; Oxford/London &bull; Sameness and Substance, 1980; Sameness and Substance Renewed, 2001</span></div>
+    <div class="col-position">Personal identity cannot be specified without reference to what kind of thing a person is &mdash; without a sortal concept that determines the substance of the persisting entity. Wiggins argues that the question &ldquo;are these the same?&rdquo; is always implicitly the question &ldquo;the same what?&rdquo; &mdash; and that the persistence conditions of a thing are determined by its sortal. For persons, the relevant sortal is that of a human being: a biological and psychological entity whose persistence conditions are given by the natural kind to which it belongs. The reductionist attempt to specify persistence conditions independently of what kind of thing a person is must fail, because persistence is always kind-relative.</div>
+    <div class="tabs"><div class="tab active" onclick="sw(\'opp\',\'wiggins\',\'speech\',this)">Speech</div><div class="tab" onclick="sw(\'opp\',\'wiggins\',\'logic\',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-header hidden" id="opp-strawson-header">
+    <div class="col-header-top"><span class="pill opp">Against Narrativity &mdash; The Episodic Self &amp; the Myth of Psychological Continuity</span><span class="col-subtitle">Galen Strawson &mdash; Texas &bull; Against Narrativity, Ratio 2004; Selves, 2009</span></div>
+    <div class="col-position">Both the psychological continuity tradition and the narrative tradition rest on a false empirical assumption: that persons typically experience themselves as psychologically continuous selves with rich connections to their past and future. Strawson argues this is simply not true for many people. Some people &mdash; episodics &mdash; experience themselves as relatively disconnected in time, without a strong sense of psychological connection to their past selves. Neither psychological continuity nor narrative self-understanding is a universal feature of persons. Strawson also argues for a minimal, momentary self &mdash; the thin subject of experience &mdash; as the basic unit of personal identity, against both the Parfitian and the Schechtman positions.</div>
+    <div class="tabs"><div class="tab active" onclick="sw(\'opp\',\'strawson\',\'speech\',this)">Speech</div><div class="tab" onclick="sw(\'opp\',\'strawson\',\'logic\',this)">Logical Arguments</div></div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- WILLIAMS -->
+    <div class="speaker-panel active" id="opp-williams-panel">
+      <div id="opp-williams-speech" class="speech-text">
+        <p class="salut">I want to make my case with the thought experiments that I believe expose the deepest flaw in the psychological continuity approach: the two-series argument from &ldquo;The Self and the Future.&rdquo; My claim is not that the psychological view is simply wrong, but that it is systematically susceptible to the seductions of a particular mode of description. When cases are described in psychological terms &mdash; transfers of personality, memories, and beliefs &mdash; our intuitions follow the psychology. But when the very same cases are described in bodily terms &mdash; what will happen to this body &mdash; our intuitions follow the body. The psychological view has no explanation for why one description should be privileged over the other. I believe the bodily description is more fundamental, and I will show why.</p>
+
+        <div class="case-box">
+          <strong>Williams&rsquo;s two-series thought experiment.</strong><br><br>
+          Series 1: You are told that tomorrow, two people will undergo an experience. Person A will have all of B&rsquo;s memories, personality, and psychological characteristics erased and replaced with those of Person C. Person B will have all of A&rsquo;s memories, personality, and psychological characteristics erased and replaced with those of Person D. After the operation, one of the resulting people will be tortured and one will receive a large sum of money. You are asked: which do you fear &mdash; being tortured or receiving money? The natural answer, for most people presented with this description, is: I fear being tortured if I will be the one who ends up with my current psychology after the operation. This supports the psychological view.<br><br>
+          Series 2: You are told that tomorrow, you will undergo the following: first, all your memories, personality, and psychological characteristics will be erased. Then, those of someone else will be implanted. Then you will be tortured. Williams asks: does knowing what your body will undergo change whether you fear the torture? And the natural answer is: yes, I fear it &mdash; because it will happen to this body, which is me. The second series generates the intuition that bodily continuity is what matters.
+        </div>
+
+        <span class="section">i. the two-series argument exposes description-dependence</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Description-dependence &mdash; the same case generates contradictory intuitions depending on whether it is described psychologically or bodily; the psychological view has no principled reason to privilege one description; Williams argues the bodily description is more fundamental</span>The two-series argument shows that our intuitions about personal identity are description-dependent in a way that should trouble the psychological continuity theorist. The same underlying case &mdash; a body that will be subjected to psychological manipulation and then tortured &mdash; generates two different intuitive verdicts depending on how it is described. When described psychologically (person A and person B swap psychologies), we follow the psychology. When described bodily (what will happen to this body), we follow the body. The psychological continuity theorist privileges the psychological description. But why? There is no principled argument for privileging one over the other. And I believe the bodily description is more fundamental, because it is the description that makes direct contact with what we most basically fear &mdash; suffering happening to this body.</span></p>
+
+        <span class="section">ii. bodily continuity and the logic of fear</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Fear and bodily continuity &mdash; my rational fear of future pain extends to whatever body will experience pain; it does not extend to whatever mind will have my memories; this shows bodily continuity is what grounds first-person concern</span>Consider the rational structure of fear. I fear future pain because it will happen to me. The psychological continuity theorist says: what makes future pain mine is that the person who experiences it will be psychologically continuous with me &mdash; will have my memories, my personality, my beliefs. But Williams argues that this is wrong. I fear future pain in a way that tracks my body, not my psychology. If a mad scientist were to erase my memories and replace them with someone else&rsquo;s, and then torture the resulting person, I would still fear the torture &mdash; because it will happen to this body, regardless of what psychology it carries. My fear extends to whatever this body undergoes, not to whatever mind carries my memories. The first-person concern that grounds personal identity is bodily, not psychological.</span></p>
+
+        <span class="section">iii. the problem with the psychological view&rsquo;s response</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Psychological view&rsquo;s problem &mdash; it must say I should not fear torture of my body if my psychology has been replaced; this is counterintuitive; any view that generates this verdict has something wrong with it</span>The psychological continuity theorist must say something deeply counterintuitive about the second series. They must say: if your memories and personality are erased and replaced before the torture, you need not fear the torture &mdash; because the person tortured will not be you in the psychologically relevant sense. But this is incredible. The torture will happen to this body. I will be strapped to the chair. The body that will be hurt is mine. Any philosophical theory that tells me I should not fear this &mdash; because some psychological manipulation occurred first &mdash; has misunderstood what fear and self-concern are fundamentally about. The bodily view does not have this problem: the torture is mine because it will happen to this body, full stop.</span></p>
+
+        <span class="section">iv. the limits of thought experiments</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Thought experiment methodology &mdash; intuitions from thought experiments are unreliable guides to personal identity; cases like teleportation and fission are so far from ordinary experience that our intuitions are not tracking anything real; bodily continuity is the everyday criterion</span>I want to make a methodological point. The psychological continuity view derives much of its plausibility from thought experiments: teleportation, fission, gradual replacement. But these thought experiments are so far from any actual human experience that the intuitions they generate may not be reliable guides to the deep facts about personal identity. We have no experience of fission, no experience of teleportation, no experience of gradual neural replacement. The intuitions these cases generate are responses to descriptions &mdash; and as the two-series argument shows, those responses are description-dependent. The criterion of personal identity that governs ordinary human life &mdash; the criterion that grounds our practices of holding each other responsible, feeling concern for our futures, and caring about our pasts &mdash; is bodily continuity. This is the criterion that we should start from, and it is not defeated by counterintuitive verdicts in wildly exotic thought experiments.</span></p>
+        <p><em>The body is not incidental. Bodily continuity is what matters. I yield the floor.</em></p>
+      </div>
+      <div id="opp-williams-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The two-series argument: the same case generates contradictory intuitions depending on description; the psychological view has no principled reason to privilege the psychological description</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Series 1 (psychological description): psychology transfers between bodies. Intuition tracks psychology: I fear being in the tortured body that carries my original psychology.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Series 2 (bodily description): this body will have its psychology erased and replaced, then be tortured. Intuition tracks the body: I fear what will happen to this body regardless of what psychology it carries.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The psychological view privileges the psychological description without argument. Williams argues the bodily description is more fundamental because it makes direct contact with what we most basically fear: suffering happening to this particular physical entity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The two-series argument shows that our intuitions about personal identity are description-dependent; the psychological view privileges one description without principled justification; the bodily description generates equally strong and more basic intuitions; bodily continuity is the more fundamental criterion.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The logic of fear: rational first-person concern tracks the body, not the psychological profile; bodily continuity grounds self-concern</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>I fear future pain because it will happen to me. The question is: what makes future pain mine? The psychological view says: the person who experiences it will be psychologically continuous with me.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Williams argues: my fear tracks my body, not my psychology. Even if my memories are erased and replaced, I fear torture of the resulting body because it will happen to this body, not because of any psychological continuity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The first-person concern that grounds personal identity is bodily: I fear whatever this body undergoes, not whatever mind carries my memories.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The logic of first-person fear and self-concern tracks bodily continuity, not psychological continuity; my rational concern extends to whatever this body will undergo; the psychological view&rsquo;s account of self-concern is therefore wrong about what we most fundamentally care about in caring about ourselves.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The psychological view generates a counterintuitive verdict about Series 2: you need not fear torture if your psychology is first replaced; this is incredible</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The psychological view must say: if your memories and personality are erased and replaced before the torture, the person tortured is not you in the psychologically relevant sense; you need not fear this torture.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But: the torture will happen to this body; I will be strapped to the chair; the body that will be hurt is mine. Any theory that tells me not to fear this has misunderstood what fear and self-concern are about.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The bodily view does not generate this counterintuitive verdict: the torture is mine because it will happen to this body, regardless of what psychological manipulation preceded it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The psychological view generates an incredible verdict about the Series 2 case: that psychological manipulation before torture means you need not fear the torture; this verdict is so counterintuitive that it constitutes a reductio of the psychological view; the bodily view generates the correct verdict without difficulty.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Thought experiment intuitions are unreliable in exotic cases; bodily continuity is the criterion that governs ordinary human life and practice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The psychological view derives its plausibility from intuitions about exotic thought experiments: teleportation, fission, gradual replacement. These cases are so far from ordinary experience that the intuitions they generate may not track deep metaphysical truths.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>As the two-series argument shows, these intuitions are description-dependent: they track how cases are described, not how they are. This makes them unreliable as guides to personal identity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The criterion that governs ordinary human life &mdash; practices of responsibility, future concern, and caring about the past &mdash; is bodily continuity. This is the criterion we should start from, not exotic thought-experiment intuitions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Thought experiment intuitions are unreliable guides to personal identity in exotic cases; the criterion that governs actual human practice &mdash; bodily continuity &mdash; is the right starting point; the psychological view&rsquo;s case rests on intuitions generated by description rather than deep metaphysical insight.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OLSON -->
+    <div class="speaker-panel" id="opp-olson-panel">
+      <div id="opp-olson-speech" class="speech-text">
+        <p class="salut">The psychological continuity view, in all its variants, faces a problem that it has not adequately addressed: the too-many-thinkers problem. Every version of the psychological view &mdash; whether Parfit&rsquo;s reductionism, Shoemaker&rsquo;s causal theory, or Nozick&rsquo;s closest continuer &mdash; holds that persons are not identical to human animals. A person, on these views, is a psychological entity that happens to coincide with a human animal but that has different persistence conditions. But this view is committed to a bizarre and parsimonious-violating ontology: wherever a person sits, there is also a human animal, the animal is thinking, and therefore there are two distinct thinking things where everyone else sees only one. I call this the too-many-thinkers problem, or the thinking animal argument, and it is the strongest argument for animalism.</p>
+
+        <div class="mathbox">
+          <span class="mbtitle">The Thinking Animal Argument for animalism</span>
+          <div class="formula">P1: There is a human animal sitting in your chair thinking your thoughts.</div>
+          <div class="formula">P2: The human animal sitting in your chair is thinking.</div>
+          <div class="formula">P3: You are the thinking thing in your chair.</div>
+          <div class="formula">P4: There is only one thinking thing in your chair.</div>
+          <div class="formula">C: Therefore, you are the human animal.</div>
+          <div class="fdef">The psychological continuity view denies P4 &mdash; or denies that the animal is a thinking thing. But both options are costly. Denying P4 requires accepting that there are two distinct thinking things wherever a person sits, differing in their persistence conditions but identical in their current mental states. Denying that the animal thinks requires explaining why a biological entity with a functioning brain is not thinking, which seems highly implausible.</div>
+          <div class="fdef" style="color:var(--opp-red);margin-top:8px">Animalism: we are biological organisms. Our persistence conditions are biological: we persist through whatever changes a living organism can persist through. Psychological continuity is causally important to us &mdash; it matters for what we value, for our practical concerns &mdash; but it is not what constitutes our identity. We could survive total amnesia and radical psychological change, just as an animal can survive such changes.</div>
+        </div>
+
+        <span class="section">i. the thinking animal argument</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Thinking animal argument &mdash; there is a human animal where you sit; it is thinking; you are the thinker; so you are the animal; psychological view generates too many thinkers; parsimony demands animalism</span>The thinking animal argument is the cornerstone of animalism. There is a human animal sitting in your chair. It is a biological organism with a functioning brain. That brain is producing the mental states &mdash; thoughts, memories, beliefs, desires &mdash; that constitute your mental life. The animal is therefore thinking, in any sense in which you are thinking. Now: are you identical to this animal, or are you a distinct entity that merely coincides with it? The psychological continuity view says the latter: you are a psychological entity with different persistence conditions from the animal. But this means there are two distinct thinking things in your chair &mdash; you and the animal. They share all their current mental states but differ in their persistence conditions. This is a very strange view. Parsimony strongly favours identifying you with the animal: there is just one thing in your chair, and it is the animal.</span></p>
+
+        <span class="section">ii. the transplant intuition and what it actually shows</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Transplant intuition &mdash; psychological view says you go with your brain in a transplant; but this shows what matters to you, not what you are; animalism distinguishes what matters from identity</span>The most powerful intuition for the psychological view is the brain transplant case. If your brain were transplanted into another skull, you would go with your brain &mdash; the person in the new body would be you, not the person in the old one. I accept that this intuition is strong. But I deny that it shows what the psychological view claims it shows. What the brain transplant intuition shows is where what matters in survival goes &mdash; where our practical concern for our future should be directed. It does not show where we go, where the animal goes. An animal whose brain is removed and transplanted does not survive the operation: the original animal ceases to exist, and a new animal comes into being in the transplant body. This is counterintuitive, but it is the correct animalist verdict. And the lesson is that what matters in survival &mdash; psychological continuity &mdash; can come apart from strict identity, exactly as Parfit says. I agree with Parfit that psychological continuity is what matters; I disagree that it is what identity consists in.</span></p>
+
+        <span class="section">iii. the fetus and the embryo problem</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Fetus problem &mdash; psychological view implies we did not exist as fetuses or newborns; but clearly we did; animalism handles this correctly by identifying us with the biological organism from conception</span>The psychological continuity view faces an embarrassing problem at the beginning of life. I was once a fetus, then a newborn, then an infant. None of these had the psychological connections that the psychological view requires for personal identity: no memories, no beliefs in the full sense, no stable personality. On the psychological view, I did not exist as a fetus, newborn, or infant. I came into existence only when sufficient psychological continuity was established. This is a very counterintuitive verdict: surely I was once a fetus. Animalism handles this correctly: I was once a fetus because I am a biological organism, and the fetus was an earlier stage of the same biological organism. My existence began when the organism began &mdash; at conception, or early fetal development &mdash; not when I acquired psychological sophistication.</span></div>
+
+        <span class="section">iv. animalism and the practical</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Animalism and practice &mdash; animalism does not deny that psychological continuity matters for practical concerns; it distinguishes metaphysical identity from what matters; this is a more honest and parsimonious position</span>Animalism does not deny that psychological continuity matters for our practical concerns. Parfit is right that what we care about in survival &mdash; the continuation of our memories, personality, and psychological life &mdash; is not the same as strict numerical identity. I agree with this. But agreeing that psychological continuity is what matters does not require identifying it with personal identity. The animalist can hold both that we are biological organisms and that what we most care about in survival is psychological continuity &mdash; because these are different claims. Identity is metaphysical; what matters is practical. By conflating them, the psychological view generates a metaphysics designed to serve practical interests rather than to track the actual facts about what we are. We are animals. Psychological continuity matters to us. These two things are not in competition.</span></p>
+        <p><em>We are animals. Psychological continuity is what matters, not what we are. I yield the floor.</em></p>
+      </div>
+      <div id="opp-olson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The thinking animal argument: the psychological view generates two thinkers where there is only one; parsimony demands identifying the person with the animal</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>There is a human animal in your chair. That animal has a functioning brain producing all your current mental states. The animal is therefore thinking in any sense in which you are thinking.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The psychological view says you are a distinct entity from the animal, coinciding with it but having different persistence conditions. This means there are two distinct thinkers in your chair: you and the animal.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Two thinkers sharing all their current mental states but differing in persistence conditions is a bizarre, parsimony-violating ontology. Identifying you with the animal eliminates the duplication.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The thinking animal argument shows that the psychological view generates an implausible population of coincident thinkers; parsimony demands identifying the person with the human animal; animalism is the simpler and more defensible metaphysical position.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The brain transplant intuition shows what matters in survival, not what identity consists in; animalism separates the metaphysical from the practical</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The brain transplant intuition: if your brain is transplanted, you go with your brain. This supports the psychological view&rsquo;s claim that identity follows psychological continuity.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Animalist reinterpretation: the intuition shows where what matters goes &mdash; where our practical concern should be directed. It does not show where we go. The animal does not survive a brain transplant; but what matters in survival &mdash; psychological continuity &mdash; does.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Parfit is right that psychological continuity is what matters; the animalist agrees. The disagreement is whether what matters is the same as what identity consists in. Animalism separates these.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The brain transplant intuition is compatible with animalism: it shows where what matters goes, not where the animal goes; animalism distinguishes the metaphysical question of identity from the practical question of what matters, and handles both correctly.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The fetus problem: the psychological view implies we did not exist as fetuses; animalism handles our beginning correctly</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Fetuses and newborns lack the psychological sophistication required by psychological continuity views. On the psychological view, we did not exist as fetuses: we came into existence only when sufficient psychological continuity was established.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But we clearly existed as fetuses: surely I was once the fetus that developed into me. The psychological view&rsquo;s verdict that I did not exist as a fetus is deeply counterintuitive.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Animalism handles this correctly: I am the biological organism, which existed from conception. My identity tracks the organism, not the psychological profile.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The psychological view generates a counterintuitive verdict about the beginning of our existence: we did not exist as fetuses or newborns; animalism avoids this by identifying us with the biological organism, which existed from the beginning of fetal development.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Animalism is compatible with what matters being psychological; identity and what matters can come apart</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Animalism does not deny that psychological continuity matters for our practical concerns. What we care about in survival &mdash; continuation of memories, personality, psychological life &mdash; is indeed psychological.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But what matters in survival and what identity consists in are different questions. Parfit conflates them by concluding that because psychological continuity is what matters, it is what identity consists in.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Animalism: we are animals (identity is biological); psychological continuity is what we care about (what matters is psychological). These are not competing claims; they answer different questions.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Animalism and Parfit&rsquo;s what-matters claim are compatible: we can agree that psychological continuity is what matters in survival while maintaining that personal identity (what we are) consists in biological continuity; the psychological view conflates these by treating what matters as what identity consists in.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WIGGINS -->
+    <div class="speaker-panel" id="opp-wiggins-panel">
+      <div id="opp-wiggins-speech" class="speech-text">
+        <p class="salut">I want to press an objection that is more fundamental than Williams&rsquo;s phenomenological challenge and more philosophically ambitious than Olson&rsquo;s biological naturalism: the objection from sortal essentialism. The psychological continuity theorists &mdash; Parfit, Shoemaker, and Nozick &mdash; all attempt to specify persistence conditions for persons without first asking what kind of thing a person is. This is a philosophical error of the first order. As I argued in Sameness and Substance, identity questions are always implicitly sortal-relative: to ask whether this is the same as that is always to ask whether it is the same <em>what</em>. And the answer to the question &ldquo;same what?&rdquo; determines the persistence conditions. You cannot specify what it takes for a person to persist without first specifying what a person essentially is &mdash; and the answer to that question is not given by psychology alone.</p>
+
+        <div class="mathbox">
+          <span class="mbtitle">Wiggins&rsquo;s sortal essentialism</span>
+          <div class="formula">Sortal-relative identity: &ldquo;a is the same as b&rdquo; is always implicitly &ldquo;a is the same F as b&rdquo; for some sortal F. Identity claims are incomplete without a sortal.</div>
+          <div class="fdef">A sortal concept F determines: (1) what it is to be an F; (2) what it is for one F to be the same as another at a time; (3) what it is for an F at one time to be the same F as an entity at another time (persistence conditions).</div>
+          <div class="fdef">The sortal for persons: for Wiggins, the relevant sortal for persons is that of a human being &mdash; a biological and psychological entity whose persistence conditions are determined by the natural kind to which it belongs. &lsquo;Person&rsquo; is not itself a fundamental sortal but is a covering concept that picks out entities falling under more specific sortals like &lsquo;human being&rsquo;.</div>
+          <div class="fdef" style="color:var(--opp-red);margin-top:8px">Against the psychological view: psychological continuity theorists treat &lsquo;person&rsquo; as a functional concept that specifies persistence conditions independently of what kind of thing a person is. But persistence is kind-relative: you cannot specify what it takes for a person to persist without specifying what natural kind they fall under, and the natural kind determines the persistence conditions &mdash; which are biological, not merely psychological.</div>
+        </div>
+
+        <span class="section">i. identity is always sortal-relative</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Sortal relativity &mdash; same-what is always the right question; identity claims are incomplete without a sortal; the psychological view specifies persistence conditions without specifying the sortal; this is a fundamental error</span>The question &ldquo;are A and B the same person?&rdquo; is shorthand for &ldquo;is A the same person as B?&rdquo; &mdash; and this presupposes a sortal concept (person) that determines what counts as a persistent individual and how such individuals persist. You cannot ask whether two things are the same without implicitly asking the same what. The psychological continuity theorists have failed to attend to this. They ask: what is it for a person at t2 to be the same as a person at t1? And they answer: psychological continuity. But they have not asked the prior question: what kind of thing is a person, essentially? If the answer to that prior question is that a person is essentially a human being &mdash; a biological and psychological entity falling under the natural kind <em>Homo sapiens</em> &mdash; then the persistence conditions are given by the biology of that natural kind, not by the functional concept of psychological continuity.</span></p>
+
+        <span class="section">ii. natural kinds and persistence conditions</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Natural kinds &mdash; natural kind membership determines persistence conditions; persons are natural kind members; their persistence conditions are biological; the psychological view specifies the wrong conditions</span>Natural kinds have their persistence conditions given by the nature of the kind, not by functional criteria. A tiger persists through changes in its stripes, its mood, its beliefs about its prey; but it does not persist through being reconstituted as a rock or a tree. What makes the tiger the same tiger over time is determined by the biological nature of tigers &mdash; by what tigers essentially are &mdash; not by any functional criterion we choose to impose. The same applies to persons. Persons fall under the natural kind human being. The persistence conditions of human beings are given by their biological nature: what it is to be a living human organism, what changes a human organism can survive and which it cannot. The psychological continuity theorists specify persistence conditions for persons using a functional criterion (psychological continuity) that is independent of natural kind membership. This is a category error.</span></p>
+
+        <span class="section">iii. person as a covering concept, not a fundamental sortal</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Person as covering concept &mdash; person is not a fundamental natural-kind sortal; it picks out entities falling under more specific sortals like human being; persistence is determined by the fundamental sortal not the covering concept</span>Parfit and Shoemaker treat &lsquo;person&rsquo; as if it were a fundamental sortal &mdash; a natural kind term that determines its own persistence conditions. I deny this. &lsquo;Person&rsquo; is a covering concept: it picks out entities of various kinds &mdash; human beings, perhaps some non-human animals, perhaps persons of other possible species &mdash; that share certain functional characteristics (rationality, self-consciousness, moral status). But the persistence conditions of any particular person are determined by the more specific sortal under which they fall, not by the covering concept. A human person persists through changes that the natural kind human being can survive. An alien person, if such things exist, might persist under different conditions, determined by the nature of the alien&rsquo;s natural kind. The psychological continuity criterion, applied uniformly across all possible persons, ignores this kind-relativity and specifies persistence conditions that are not grounded in the nature of any particular natural kind.</span></p>
+
+        <span class="section">iv. wiggins and the unity of the biological and the psychological</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Unity thesis &mdash; biological and psychological are unified in persons; Wiggins does not separate them; his naturalism holds that the psychological characteristics we care about are grounded in the biological nature of human beings</span>I want to resist the impression that I am simply arguing for the biological view at the expense of the psychological. My sortal essentialism holds that the natural kind human being is both biological and psychological: to be a human being is to have a biological nature that constitutively involves certain psychological capacities. The persistence conditions of human beings are biological, but those biological persistence conditions involve psychological features &mdash; because human beings are the kind of organisms whose biological nature includes a developed psychology. What I am opposing is not psychology but the attempt to specify persistence conditions using a detached functional criterion &mdash; psychological continuity &mdash; that floats free of natural kind membership. The right account of personal identity must begin with what we are, and what we are is a biological-psychological natural kind. Both the biological and the psychological are part of the story; neither can be abstracted from the other without distortion.</span></p>
+        <p><em>Identity is kind-relative. Persons are natural kinds. I yield the floor.</em></p>
+      </div>
+      <div id="opp-wiggins-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Identity is always sortal-relative: the psychological view specifies persistence conditions without specifying the sortal; this is a fundamental error</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>&ldquo;Are A and B the same?&rdquo; is always shorthand for &ldquo;are A and B the same F?&rdquo; for some sortal F. Identity claims are incomplete without a sortal. The psychological view asks &ldquo;are A and B the same person?&rdquo; without first asking &ldquo;what is a person, essentially?&rdquo;</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Psychological continuity is not a sortal: it does not tell us what kind of thing a person is; it specifies a functional criterion for persistence that is independent of natural kind membership.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The prior question must be answered: what kind of thing is a person essentially? The answer &mdash; a human being, a biological-psychological natural kind &mdash; determines the persistence conditions, which are biological-psychological rather than merely functional-psychological.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The psychological view commits the error of specifying persistence conditions without first answering the sortal question; once the sortal is specified (human being, a biological-psychological natural kind), the persistence conditions follow from the nature of the kind, not from a detached functional criterion.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Natural kind membership determines persistence conditions; persons are natural kind members; their persistence conditions are biological-psychological</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Natural kinds have their persistence conditions given by the nature of the kind. A tiger persists through certain changes and not others, not because of a functional criterion we impose but because of what tigers essentially are.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Persons fall under the natural kind human being. The persistence conditions of human beings are given by their biological-psychological nature, not by a functional criterion (psychological continuity) that floats free of natural kind membership.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Specifying persistence conditions using a functional criterion independent of natural kind membership is a category error: it imposes conditions from outside the kind rather than deriving them from what the kind essentially is.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Natural kind membership determines persistence conditions; the psychological view specifies persistence conditions using a functional criterion that is independent of natural kind membership; this is a category error that misidentifies what determines how persons persist.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; &lsquo;Person&rsquo; is a covering concept, not a fundamental sortal; persistence is determined by the fundamental sortal (human being), not the covering concept</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>&lsquo;Person&rsquo; picks out entities falling under more specific sortals (human being, and perhaps others) that share functional characteristics. It is a covering concept, not a fundamental natural-kind term.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The persistence conditions of any particular person are determined by the more specific sortal under which they fall: a human person persists as a human being persists, under the biological-psychological conditions given by that natural kind.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The psychological view treats &lsquo;person&rsquo; as a fundamental sortal and specifies persistence conditions from it. This ignores the covering concept / fundamental sortal distinction and yields persistence conditions that are kind-independent and therefore groundless.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>&lsquo;Person&rsquo; is a covering concept; its persistence conditions are inherited from the fundamental sortals of the entities it covers; for human persons, the fundamental sortal is human being, and persistence is biological-psychological in the sense determined by that natural kind.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The biological and psychological are unified in persons; sortal essentialism does not ignore psychology but grounds it in natural kind membership</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Human beings are biological-psychological natural kinds: to be a human being is to have a biological nature that constitutively involves psychological capacities. The biological and the psychological are not separable in the natural kind.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Sortal essentialism opposes the detached functional criterion of psychological continuity, not psychology itself. The persistence conditions of human beings involve psychological features because human biological nature includes a developed psychology.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The right account of personal identity begins with what we are &mdash; a biological-psychological natural kind &mdash; and derives persistence conditions from that. It is richer than pure animalism and more principled than pure psychological continuity theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Wiggins&rsquo;s sortal essentialism unifies the biological and psychological: persons are natural kinds in which both are essential; persistence conditions must be derived from what this natural kind is, not from a detached functional criterion that ignores natural kind membership.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GALEN STRAWSON -->
+    <div class="speaker-panel" id="opp-strawson-panel">
+      <div id="opp-strawson-speech" class="speech-text">
+        <p class="salut">I want to challenge the psychological continuity tradition from a direction that none of the other opposition speakers has pressed: from empirical psychology and from phenomenology. The entire tradition &mdash; Parfit, Shoemaker, Nozick, and Schechtman alike &mdash; rests on a substantive empirical assumption about how persons actually experience themselves over time. The assumption is that persons typically have a rich sense of themselves as psychologically continuous beings with strong connections to their past and future selves, and that this sense of continuity is a near-universal feature of personal experience. I believe this assumption is simply false. It does not describe how all &mdash; or even most &mdash; persons actually experience themselves, and a theory of personal identity built on it will be systematically distorted.</p>
+        <p>Let me distinguish two types of people. <em>Diachronics</em> experience themselves as continuous beings with a rich narrative self extending through time: they have a strong sense of their past as genuinely theirs, a vivid concern for their future selves as themselves, and a feeling of psychological continuity that threads through their lives. <em>Episodics</em> experience themselves quite differently. For episodics, the past self is not felt as a genuinely present self: I did things in the past, but those things do not feel intimately mine in the way the diachronic assumes. The future self does not feel like me in the way rational self-concern seems to demand. The episodic lives in a series of relatively disconnected present moments, each complete in itself.</p>
+
+        <div class="case-box">
+          <strong>The episodic/diachronic distinction and its implications.</strong><br><br>
+          Diachronic: experiences the self as extended through time, with a rich narrative connecting past, present, and future selves. Psychological continuity theories describe this type of self-experience and derive their plausibility from it.<br><br>
+          Episodic: experiences the self as relatively present-focused, without a strong sense of psychological continuity with past or future selves. The past self is recognised cognitively but not felt as genuinely the same self. Concern for the future is present but not grounded in a felt sense of identity.<br><br>
+          Implication: if episodics are genuine persons &mdash; which they obviously are &mdash; and if their experience does not include the psychological continuity that the standard theories require, then psychological continuity is not a necessary feature of personal identity. Either episodics have personal identity without psychological continuity, or the theories are wrong about what personal identity requires.
+        </div>
+
+        <span class="section">i. the episodic objection to narrative theories</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Episodic objection &mdash; some genuine persons do not experience themselves narratively or as psychologically continuous; this refutes the claim that narrative self-constitution is necessary for personal identity</span>Schechtman argues that persons necessarily constitute their identity through narrative self-understanding, and that what makes a life a unified person&rsquo;s life is the narrative structure that organises it. I believe this is an over-generalisation from the diachronic type of self-experience. Many genuine persons &mdash; including myself &mdash; have a predominantly episodic self-experience. I do not experience my life as a continuous narrative whose past is richly present to me and whose future I anticipate as genuinely mine in the way a novel protagonist relates to the rest of the story. I experience a series of present moments, some connected to others by memory, but not unified by any felt narrative structure. I am still a person. My lack of narrative self-experience does not disqualify me from personhood. Therefore narrative self-constitution is not necessary for personal identity.</span></p>
+
+        <span class="section">ii. the thin subject of experience</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Thin subject &mdash; what is necessary and sufficient for personal identity is the momentary subject of experience; the thin self; not psychological continuity through time but the unity of consciousness at a time</span>What is the minimal thing that must persist for there to be a person? I argue for the thin subject of experience: the momentary subject of experience &mdash; the entity that is the subject of a particular conscious episode. This thin subject is not a persisting entity in the sense Parfit requires: it is not identical to earlier or later thin subjects across time. What makes a series of thin subjects the experiences of a single person is not psychological continuity in Parfit&rsquo;s sense but something more minimal: the unity of consciousness at a time, and some degree of causal and psychological connection across time that is weaker than the full psychological continuity criterion. Personal identity, properly understood, requires not the full-blown Parfitian Relation R but only that degree of connectedness that suffices for there to be a single subject of experience.</span></p>
+
+        <span class="section">iii. against the ethical implications of reductionism</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Against Parfit&rsquo;s liberating conclusion &mdash; the ethical implications of reductionism do not follow; the thin subject has genuine first-person authority that the reductionist picture eliminates; the self is real even if simple</span>Parfit argues that reductionism has liberating ethical implications: by showing that the self is not a separately existing entity, it dissolves excessive prudential concern and supports a more impartial ethics. I deny that these implications follow. Even if the self is not a separately existing entity in the non-reductionist&rsquo;s sense, the thin subject of experience is a genuine first-person reality. My experience is mine in a way that no one else&rsquo;s experience is mine. The first-person perspective generates a genuine distinction between self and other that is not merely a matter of degree of psychological connection. Parfit&rsquo;s liberating implications depend on treating the self as, in a sense, dissolving into a series of person-stages with no deep connecting fact. But the thin subject &mdash; the genuinely real momentary subject of experience &mdash; does not dissolve this way. It is real even if simple, and its reality is sufficient to ground genuine first-person authority and genuine self-concern.</span></p>
+
+        <span class="section">iv. the metaphysics of the momentary self</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Momentary self &mdash; the self is real but momentary; it does not persist through time in the way all parties to this debate assume; the concept of personal identity through time may be less important than assumed</span>My final argument is the most radical. Both the proposition and the opposition in this debate share an assumption: that personal identity through time is the central problem, and that the task is to specify what makes a person at t2 the same as a person at t1. I want to challenge this assumption. The self is real &mdash; genuinely real, present in experience &mdash; but it may be fundamentally a momentary thing rather than a temporally extended one. The metaphysics of the momentary self suggests that what we call &ldquo;personal identity through time&rdquo; is a construction: a cognitive and linguistic practice of connecting successive momentary selves, rather than a deep metaphysical relation between them. If this is right, then the debate between psychological continuity theorists and animalists is, in an important sense, misguided: both are trying to specify the persistence conditions of an entity that does not, in the relevant deep sense, persist at all.</span></p>
+        <p><em>The episodic self is real. The thin subject grounds genuine first-person authority. The narrative is not necessary. I yield the floor.</em></p>
+      </div>
+      <div id="opp-strawson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The episodic objection: genuine persons exist who do not experience themselves narratively; narrative self-constitution is not necessary for personal identity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Episodics: genuine persons who experience themselves as relatively present-focused, without a rich narrative self-understanding or strong felt sense of psychological continuity with past and future selves.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Episodics are genuine persons: they have consciousness, rationality, moral agency, and all the other features of persons. Their lack of narrative self-experience does not disqualify them from personhood.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Therefore narrative self-constitution is not necessary for personal identity: genuine persons exist who lack the narrative self-understanding Schechtman requires.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The episodic objection refutes the narrative view as a claim about necessary conditions for personal identity: if genuine persons exist without narrative self-constitution, narrative self-constitution is not necessary for being a person; Schechtman&rsquo;s view, taken as a universal requirement, is false.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The thin subject of experience is the minimal necessary and sufficient condition for being a person; it does not require psychological continuity through time</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The thin subject of experience: the momentary entity that is the subject of a particular conscious episode. This is the minimal thing that must be present for there to be personal experience.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Personal identity through time requires some degree of causal and psychological connection across successive thin subjects, but not the full Parfitian psychological continuity criterion. A weaker relation suffices.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>What makes a series of thin subjects a single person&rsquo;s experience is not full psychological continuity but the minimal unity of consciousness required for there to be a single subject of experience at all.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The thin subject view provides a minimal account of personal identity that does not require the full Parfitian psychological continuity criterion; it captures what is genuinely necessary without the over-demanding requirements of the psychological continuity tradition.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Parfit&rsquo;s liberating ethical implications do not follow; the thin subject has genuine first-person authority; the self-other distinction is not merely a matter of degree</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Parfit argues that reductionism dissolves the deep metaphysical distinction between self and other, supporting more impartial ethics. But the thin subject of experience is a genuine first-person reality: my experience is mine in a way that no one else&rsquo;s is.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The first-person perspective generates a genuine self-other distinction that is not merely a matter of degree of psychological connection. Even a momentary self has genuine first-person authority over its own experience.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Parfit&rsquo;s liberating implications depend on dissolving the self into person-stages with no deep connecting fact. The thin subject does not dissolve this way: it is real even if simple, and its reality grounds genuine self-concern.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>Parfit&rsquo;s liberating ethical implications do not follow from reductionism about personal identity: the thin subject has genuine first-person authority that survives the reduction; the self-other distinction is not merely one of degree; excessive self-concern cannot be dissolved by metaphysical argument alone.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The self is real but fundamentally momentary; personal identity through time may be a cognitive construction rather than a deep metaphysical relation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Both sides in this debate assume personal identity through time is the central problem. But the self may be fundamentally momentary: the genuinely real entity is the thin subject of experience at a moment.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Personal identity through time may be a cognitive and linguistic construction: we connect successive thin subjects through memory and narrative, but there is no deep metaphysical relation of identity that binds them together.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If so, the debate between psychological continuity theorists and animalists is, in an important sense, misguided: both are specifying persistence conditions for an entity that does not, in the relevant deep sense, persist.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&there4;</span><span>The deepest challenge to the entire debate: the self may be fundamentally momentary, and personal identity through time a construction rather than a metaphysical fact; if so, the search for persistence conditions shared by both proposition and opposition is pursuing a pseudo-problem.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- end opp col -->
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:"parfit",view:"speech",speechScroll:0,logicScroll:0},
+  opp:{speaker:"williams",view:"speech",speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+"-"+st.speaker+"-panel").classList.remove("active");
+  document.getElementById(side+"-"+st.speaker+"-header").classList.add("hidden");
+  st.speaker=speaker;st.view="speech";st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+"-"+speaker+"-panel").classList.add("active");
+  document.getElementById(side+"-"+speaker+"-header").classList.remove("hidden");
+  var hdr=document.getElementById(side+"-"+speaker+"-header");
+  hdr.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active")});
+  hdr.querySelectorAll(".tab")[0].classList.add("active");
+  var sp=document.getElementById(side+"-"+speaker+"-speech");
+  var lg=document.getElementById(side+"-"+speaker+"-logic");
+  if(sp)sp.classList.remove("hidden");
+  if(lg)lg.classList.add("hidden");
+  document.getElementById(side+"-body").scrollTop=0;
+  document.getElementById(side+"-speaker-bar").querySelectorAll(".speaker-btn").forEach(function(b){b.classList.remove("active")});
+  btn.classList.add("active");
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+"-"+speaker+"-header");
+  hdr.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active")});
+  el.classList.add("active");
+  st.view=view;
+  var sp=document.getElementById(side+"-"+speaker+"-speech");
+  var lg=document.getElementById(side+"-"+speaker+"-logic");
+  var body=document.getElementById(side+"-body");
+  if(view==="speech"){if(sp)sp.classList.remove("hidden");if(lg)lg.classList.add("hidden");body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add("hidden");if(lg)lg.classList.remove("hidden");body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+"-body");
+  if(st.view==="speech")st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener("mouseover",function(e){
+  var hl=e.target.closest(".hl");if(!hl)return;
+  var tip=hl.querySelector(".tooltip");if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display="block";var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+"px";tip.style.top=(r.top-tip.offsetHeight-8)+"px";
+});
+document.addEventListener("mouseout",function(e){
+  var hl=e.target.closest(".hl");if(!hl)return;
+  var tip=hl.querySelector(".tooltip");if(tip)tip.style.display="none";
+});
+</script>
+</body>
+</html>
