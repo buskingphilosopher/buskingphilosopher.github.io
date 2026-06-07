@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ellsberg Paradox Debate</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e1117;--bg2:#151820;--bg3:#1c2030;--bg4:#252a3a;
+  --bdr:rgba(140,180,255,.07);--bdr2:rgba(140,180,255,.15);
+  --text:#dde4f0;--text2:#8a96b0;--text3:#4a5268;
+  --blue:#6a9fd8;
+  --prop-col:#4ab8a0;--prop-pill:#0d2620;--prop-pill-bdr:#1e5a4a;
+  --opp-col:#c07840;--opp-pill:#2a1800;--opp-pill-bdr:#6a4010;
+  --a1bg:rgba(255,200,60,.10);--a1brd:rgba(255,200,60,.38);--a1tip:#ffd040;
+  --a2bg:rgba(80,190,210,.10);--a2brd:rgba(80,190,210,.36);--a2tip:#55ccee;
+  --a3bg:rgba(110,195,100,.09);--a3brd:rgba(110,195,100,.35);--a3tip:#80dd60;
+  --a4bg:rgba(215,80,80,.10);--a4brd:rgba(215,80,80,.36);--a4tip:#f07878;
+  --a5bg:rgba(170,100,225,.10);--a5brd:rgba(170,100,225,.36);--a5tip:#cc88ff;
+  --a6bg:rgba(255,130,30,.10);--a6brd:rgba(255,130,30,.36);--a6tip:#ff9940;
+  --a7bg:rgba(160,215,200,.09);--a7brd:rgba(160,215,200,.32);--a7tip:#90ddcc;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--blue),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--blue);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 10px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp  .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--blue);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(106,159,216,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.7);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Decision Theory &mdash; The Ellsberg Paradox &bull; Ellsberg (1961) &bull; Keynes (1921) &bull; Schmeidler (1989) &bull; Gilboa &amp; Schmeidler (1989) &nbsp;&mdash;&nbsp; Savage (1954) &bull; Bradley (2016) &bull; Raiffa (1961) &bull; Binmore, Stewart &amp; Voorhoeve (2012)</div>
+  <div class="motion-title">&ldquo;This House Believes that ambiguity aversion &mdash; the systematic preference for known-probability risk over unknown-probability uncertainty &mdash; represents a genuinely rational response to Knightian uncertainty, and that Savage&rsquo;s Subjective Expected Utility framework is therefore inadequate as a universal normative standard of rational choice&rdquo;</div>
+  <div class="motion-sub">Proposition (Ambiguity is Rational) &bull; Ellsberg (Prime Minister) &middot; Keynes (Deputy PM) &middot; Schmeidler (Government Member) &middot; Gilboa (Government Whip) &nbsp;&mdash;&nbsp; Opposition (SEU Rules Supreme) &bull; Savage (Leader of Opposition) &middot; Bradley (Deputy Leader) &middot; Raiffa (Opposition Member) &middot; Binmore (Opposition Whip)</div>
+</div>
+<div class="columns">
+
+<!-- LEFT: Proposition (Ambiguity is Rational) -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','ellsberg',this)">Ellsberg</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','keynes',this)">Keynes</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','schmeidler',this)">Schmeidler</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','gilboa',this)">Gilboa</button>
+  </div>
+
+  <!-- ELLSBERG HEADER -->
+  <div class="col-header" id="prop-ellsberg-header">
+    <div class="col-header-top"><span class="pill prop">Prime Minister &mdash; The Empirical Case</span><span class="col-subtitle">Daniel Ellsberg &mdash; &ldquo;Risk, Ambiguity, and the Savage Axioms,&rdquo; Quarterly Journal of Economics, 1961</span></div>
+    <div class="col-position">Human agents systematically and deliberately distinguish between measurable risk (known probabilities) and unmeasurable ambiguity (unknown probabilities); this distinction is not a cognitive error but a rational response to different informational conditions; the two-urn thought experiment demonstrates that virtually everyone &mdash; including sophisticated decision theorists &mdash; violates Savage&rsquo;s Sure-Thing Principle in ways they endorse upon reflection; ambiguity aversion is not a bias to be corrected but a feature of rational choice to be theorised.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','ellsberg','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','ellsberg','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- KEYNES HEADER -->
+  <div class="col-header hidden" id="prop-keynes-header">
+    <div class="col-header-top"><span class="pill prop">Deputy Prime Minister &mdash; The Weight of Evidence</span><span class="col-subtitle">John Maynard Keynes &mdash; A Treatise on Probability, 1921</span></div>
+    <div class="col-position">Probability is not a single scalar quantity but has two irreducibly distinct dimensions: its magnitude (the numerical probability itself) and its weight (the quantity and quality of evidence on which it is based); a probability of 0.5 derived from perfect information is categorically different from a probability of 0.5 derived from total ignorance; rationality demands sensitivity to both dimensions simultaneously; Savage&rsquo;s framework, by collapsing all states into a single subjective probability distribution, systematically discards the evidential weight dimension and thereby impoverishes the concept of rational belief.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','keynes','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','keynes','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- SCHMEIDLER HEADER -->
+  <div class="col-header hidden" id="prop-schmeidler-header">
+    <div class="col-header-top"><span class="pill prop">Government Member &mdash; Choquet Expected Utility</span><span class="col-subtitle">David Schmeidler &mdash; &ldquo;Subjective Probability and Expected Utility without Additivity,&rdquo; Econometrica, 1989</span></div>
+    <div class="col-position">The proposition&rsquo;s position is not merely philosophically compelling but mathematically rigorous: Choquet Expected Utility theory replaces the standard requirement that probabilities sum to one (additivity) with the weaker requirement of monotonicity, using non-additive &lsquo;capacities&rsquo; in place of probability measures; this yields a fully axiomatic, internally consistent decision theory that accommodates Ellsberg preferences without logical contradiction; the opposition&rsquo;s claim that ambiguity aversion lacks rigorous formal foundations is false.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','schmeidler','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','schmeidler','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- GILBOA HEADER -->
+  <div class="col-header hidden" id="prop-gilboa-header">
+    <div class="col-header-top"><span class="pill prop">Government Whip &mdash; Maxmin Expected Utility</span><span class="col-subtitle">Itzhak Gilboa &amp; David Schmeidler &mdash; &ldquo;Maxmin Expected Utility with Non-Unique Prior,&rdquo; Journal of Mathematical Economics, 1989</span></div>
+    <div class="col-position">When a decision-maker faces genuine Knightian uncertainty &mdash; where no single probability distribution is epistemically warranted &mdash; it is rational to represent her beliefs as a set of probability priors and to evaluate actions by the worst-case expected utility across that set; Maxmin Expected Utility (MEU) provides a fully axiomatised framework for this; forcing a unique subjective prior when none is warranted is not the height of rationality but an artificial imposition of false precision onto genuine ignorance.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','gilboa','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','gilboa','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ELLSBERG PANEL -->
+    <div class="speaker-panel active" id="prop-ellsberg-panel">
+      <div id="prop-ellsberg-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I wish to begin by inviting every member of this House to participate in a thought experiment that I first presented in 1961, and which has lost none of its force in the decades since. It is not a philosophical abstraction. It is a direct probe of what rationality requires &mdash; and what it does not.</p>
+        <p>Before you are two urns. Urn I contains exactly 50 red balls and 50 black balls. Urn II contains 100 balls, each of which is either red or black, in an unknown proportion. You are offered four bets. Bet A: &pound;100 if you draw red from Urn I. Bet B: &pound;100 if you draw black from Urn I. Bet C: &pound;100 if you draw red from Urn II. Bet D: &pound;100 if you draw black from Urn II. Almost universally, people prefer A to C and B to D. They prefer the known urn. And they do so upon reflection. This is the Ellsberg Paradox.</p>
+        <div class="case-box">
+          <strong>Why the paradox violates Savage&rsquo;s Sure-Thing Principle.</strong><br><br>
+          Savage&rsquo;s framework requires that you hold a unique subjective probability for every event. If you prefer A to C, you are implicitly asserting that the probability of red from Urn I (0.5) is higher than the probability of red from Urn II &mdash; i.e. P(red|II) &lt; 0.5, implying P(black|II) &gt; 0.5. But if P(black|II) &gt; 0.5, you should prefer D over B, since Urn II offers a better chance of black. Yet you prefer B. Your choices are therefore self-contradictory within the SEU framework.<br><br>
+          But here is my central contention: they are not self-contradictory. They reflect a perfectly coherent response to a qualitatively different epistemic situation. The two urns do not present the same kind of uncertainty. Urn I presents <em>risk</em> &mdash; measurable, quantifiable probability. Urn II presents <em>ambiguity</em> &mdash; unmeasurable, unquantifiable uncertainty. These are not the same thing, and treating them identically is not a triumph of rationality but a suppression of relevant information.
+        </div>
+        <span class="section">i. the risk-ambiguity distinction is real and epistemically significant</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Risk vs ambiguity — Knight's distinction; Urn I gives measurable risk, Urn II gives Knightian uncertainty; collapsing them discards relevant information</span>Frank Knight drew this distinction in 1921: <em>risk</em> is uncertainty that can be expressed as a numerical probability because the underlying generating process is known; <em>ambiguity</em> (or Knightian uncertainty) is uncertainty that cannot be so expressed because the generating process is unknown. Urn I is a case of pure risk: the generating mechanism is a 50/50 draw. Urn II is a case of pure ambiguity: the generating mechanism is unknown. These are different epistemic situations, and a rational agent should respond to them differently. The Savage framework, by insisting that the rational agent always assign a unique subjective probability to every event, forces the agent to treat these qualitatively different situations as identical. This is not the height of rationality. It is a dogma &mdash; the dogma that all uncertainty can always be represented numerically.</span></p>
+        <span class="section">ii. competent decision-theorists endorse the paradox upon reflection</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Expert endorsement — Savage himself initially showed Ellsberg preferences; reversal under pressure, not reflection; competent agents endorse ambiguity aversion on review</span>When I first presented this paradox, one of the participants who initially showed Ellsberg preferences was Savage himself. He caught himself, recognised the violation, and corrected it &mdash; but only under the pressure of the theoretical framework he had already committed to. This is precisely my point. The correction was not motivated by reflection on the epistemic situation but by allegiance to a pre-committed theoretical framework. When subjects are asked, without the framework looming over them, whether they endorse their Ellsberg preferences on reflection, the great majority do. They can articulate exactly why they prefer the known urn: they know what they are dealing with in Urn I; they do not know what they are dealing with in Urn II; and in a one-shot decision, this difference matters. This is not confusion. It is epistemic sensitivity.</span></p>
+        <span class="section">iii. ambiguity aversion is rational in one-shot, high-stakes decisions</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">One-shot decisions — large-number frequency reasoning doesn't apply; in high-stakes single decisions, hedging against the unknown worst case is rational</span>The opposition will argue that in the long run, with many repetitions, the law of large numbers vindicates Bayesian reasoning: your subjective probability should converge to the true frequency. This is true in the long run. But the Ellsberg problem is a single decision, not a sequence of repeated gambles. When you bet once, on something that matters, against an adversary who may have chosen the proportion in Urn II strategically &mdash; or even just against nature, which has no obligation to be kind to your priors &mdash; there is a genuine argument for caution. The Savage framework is built on the assumption of repeated decisions where long-run frequency arguments apply. In genuine one-shot decision problems, this assumption fails, and ambiguity aversion is not merely understandable but rational.</span></p>
+        <span class="section">iv. the paradox proves the empirical inadequacy of SEU as a descriptive theory and motivates revisionism as a normative theory</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Descriptive failure motivates normative revision — if virtually everyone violates SEU on reflection, the theory's normative authority is weakened; rational alternatives are available</span>The opposition will retreat to the normative high ground: SEU is not a descriptive theory of how people do behave but a normative theory of how they should behave. Very well. But normative authority cannot be completely divorced from considered judgments. If virtually every decision-maker, including highly sophisticated ones, endorses Ellsberg preferences upon reflection &mdash; if they can articulate reasons for them, reasons that survive scrutiny &mdash; then the claim that SEU is the uniquely correct normative theory requires a defence that goes beyond mere assertion. The alternative frameworks that Schmeidler and Gilboa will present provide that defence: they show that Ellsberg preferences can be accommodated within rigorous, axiomatised decision theories. The normative debate is genuinely open.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-ellsberg-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Risk-Ambiguity Distinction: Knightian uncertainty cannot be represented as subjective probability</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Knightian uncertainty (ambiguity) is a qualitatively different epistemic situation from risk: in ambiguity cases, no single probability distribution is epistemically warranted because the generating process is unknown.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The Savage framework requires a unique subjective probability for every event, thereby treating risk and ambiguity identically and discarding the information that they are different.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A framework that discards epistemically relevant information is not a more rigorous standard of rationality but a less sensitive one.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>SEU&rsquo;s requirement of unique subjective probability discards epistemically relevant information about the quality of uncertainty; ambiguity aversion preserves it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Expert Endorsement: Ellsberg preferences survive sophisticated reflection; they are not simple confusion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When decision-makers are asked to reflect on their Ellsberg preferences without the SEU framework presupposed, the great majority endorse them and can articulate reasons for them.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The reasons they articulate &mdash; that known-urn bets involve a known generating process while unknown-urn bets do not &mdash; are epistemically coherent and not straightforwardly fallacious.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A decision pattern that survives reflection and can be articulated coherently cannot be dismissed as mere cognitive error; it must be theorised.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Ellsberg preferences are not unreflective biases; they survive sophisticated scrutiny and represent genuinely held considered judgments that any adequate normative theory must accommodate.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; One-Shot Decisions: frequency-based arguments for Bayesian priors fail in single high-stakes cases</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The justification for Bayesian subjective probability relies on long-run frequency convergence via the law of large numbers; this argument requires repeated trials.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In genuine one-shot decisions &mdash; including many of the most important decisions in life, business, and policy &mdash; the repeated-trial justification does not apply.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In one-shot decisions against a potentially adversarial or indifferent nature, hedging against the unknown worst case within the ambiguity is a rational precautionary strategy.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Ambiguity aversion is especially rational in one-shot high-stakes decisions where the frequency justification for unique subjective priors does not apply.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Normative Authority: widespread reflective endorsement weakens SEU&rsquo;s exclusive normative claim</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Normative decision theory cannot be entirely divorced from considered judgments; a theory that virtually all sophisticated agents reflectively reject has diminished normative authority.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Alternative axiomatised frameworks (CEU, MEU) accommodate Ellsberg preferences without logical contradiction, showing that SEU is not the uniquely coherent decision theory.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If equally rigorous alternatives exist, SEU&rsquo;s claim to exclusive normative authority cannot rest on formal rigour alone but requires additional argument.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>SEU is not the uniquely correct normative standard; equally rigorous alternatives exist, and the normative debate is genuinely open.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEYNES PANEL -->
+    <div class="speaker-panel" id="prop-keynes-panel">
+      <div id="prop-keynes-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>The debate before this House turns on what we mean by rationality under uncertainty. I published my <em>Treatise on Probability</em> in 1921, four decades before Ellsberg&rsquo;s thought experiment was formulated, and I believe the conceptual foundations for understanding the paradox are already present in that work. They have simply been ignored by the orthodoxy that followed.</p>
+        <p>The central concept I wish to bring to this debate is the <em>weight of evidence</em>. This is not the same as the magnitude of a probability. It is a second dimension of probabilistic reasoning that the Savage framework systematically collapses and discards. And once we see that it exists and that rationality demands sensitivity to it, the Ellsberg preferences cease to be paradoxical and become exactly what a thoughtful agent ought to feel.</p>
+        <div class="pull">&ldquo;As the evidence increases, the weight of the argument increases, even though the probability of the conclusion may not be altered.&rdquo; &mdash; Keynes, A Treatise on Probability, 1921</div>
+        <span class="section">i. the two dimensions of probability: magnitude and weight</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Two dimensions — magnitude is the probability estimate; weight is the evidential basis for that estimate; these are independent; Savage collapses them into one number</span>Probability has two distinct dimensions. Its <em>magnitude</em> is the numerical estimate itself: 0.5, 0.7, 0.3. Its <em>weight</em> is the quantity and quality of evidence on which that estimate is based. Consider two probability assessments of 0.5. The first is based on examining an urn that contains exactly 50 red and 50 black balls. The second is based on no information at all &mdash; I simply have no idea what the urn contains. Both assessments yield a probability of 0.5 by the Principle of Insufficient Reason. But these two assessments are not the same. The first is based on solid, direct evidence. The second is based on nothing. Any rational agent should feel differently about them, and any adequate theory of rational belief should represent that difference. The Savage framework, by reducing all beliefs to a single numerical probability, cannot represent it. The probability 0.5 in both cases is treated as identical. This is a fundamental impoverishment of rational belief.</span></p>
+        <span class="section">ii. the urn problem as a demonstration of weight differences</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Urn problem shows weight — Urn I has maximum evidential weight; Urn II has zero weight; same probability magnitude, different weight; rational agents should respond differently</span>The Ellsberg urn experiment is precisely a demonstration that evidential weight matters. Urn I has maximum evidential weight for the probability 0.5: I know the exact composition of the urn. My probability estimate of 0.5 for red is as well-grounded as any probability estimate could be. Urn II has zero evidential weight for any probability estimate: I have no information about its composition. My only basis for assigning any probability at all is the Principle of Insufficient Reason &mdash; the inference from total ignorance to equal probability. But this is not the same kind of probability as the one I assign to Urn I. It is a probability of zero weight: an estimate with no evidential backing. A rational agent who prefers Urn I is not making a logical error. She is responding to a real difference in the evidential situation &mdash; a difference that the probability magnitude alone fails to capture.</span></p>
+        <span class="section">iii. the inadequacy of the principle of insufficient reason</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Laplace's principle fails — assigning 50/50 to total ignorance doesn't represent ignorance; it represents a specific claim; genuine ignorance should yield a range of priors, not a point estimate</span>The Savage framework, and more broadly the Bayesian approach, relies on the Principle of Insufficient Reason (Laplace) when no prior information is available: in the absence of a reason to favour any outcome over another, assign equal probability to all outcomes. But this principle is not innocent. To assign a probability of 0.5 to red in Urn II is not to represent ignorance. It is to make a specific claim &mdash; that red is as likely as black &mdash; that is no more warranted by the evidence than the claim that red is 0.9 likely. The Principle of Insufficient Reason transforms ignorance into a specific probability estimate, and then treats that estimate as if it were as well-grounded as a probability derived from knowledge. This is a mistake. Genuine ignorance should yield not a point estimate but a range &mdash; a set of priors over which we are genuinely indifferent &mdash; and this is precisely what the Maxmin approach of Gilboa and Schmeidler formalises.</span></p>
+        <span class="section">iv. weight of evidence and the normative justification for caution</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Weight justifies caution — low-weight probabilities warrant conservative decisions; this is rational, not risk-averse; the weight dimension grounds a normative case for ambiguity aversion</span>The weight of evidence provides a normative justification for caution that is independent of risk aversion. If my probability estimate of 0.5 for red from Urn II is based on no evidence at all, then acting as though it were as reliable as the 0.5 from Urn I would be epistemically overconfident. Just as a scientist who has run one trial should have less confidence in her estimate than one who has run a thousand, a decision-maker whose probability estimate is based on zero evidence should have less confidence than one whose estimate is based on direct knowledge of the generating mechanism. Ambiguity aversion &mdash; the preference for the high-weight probability over the zero-weight one &mdash; is not a cognitive bias but an appropriate response to the epistemic asymmetry between the two urns. The Savage framework, by insisting on a unique prior, forces the agent to act as if there were no such asymmetry. This is not rationality. It is false precision.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-keynes-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Two Dimensions of Probability: magnitude and weight are independent; SEU collapses them</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Probability has two distinct dimensions: magnitude (the numerical estimate) and weight (the quantity and quality of evidence underlying the estimate).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Two probability estimates can have the same magnitude but radically different weights: a well-evidenced 0.5 and an evidentially empty 0.5 are not the same rational state.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Savage framework reduces all beliefs to a single numerical magnitude, discarding the weight dimension and treating evidentially rich and evidentially empty estimates as identical.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>SEU systematically discards evidential weight, an epistemically relevant dimension of rational belief; any framework that does so is an impoverished account of rationality.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Urns Differ in Evidential Weight: Urn I is maximum-weight, Urn II is zero-weight</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Urn I: the probability 0.5 for red has maximum evidential weight &mdash; it is grounded in direct knowledge of the urn&rsquo;s composition.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Urn II: the probability 0.5 for red has zero evidential weight &mdash; it is grounded in nothing more than the Principle of Insufficient Reason applied to total ignorance.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A rational agent who prefers Urn I is responding to this real difference in evidential weight; her preference is not a logical error but an epistemically appropriate response.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Ellsberg preferences track a real and epistemically significant difference between the two urns that SEU cannot represent; ambiguity aversion is the rational response to this difference.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The Principle of Insufficient Reason is not innocent: it transforms ignorance into a specific claim</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Assigning 0.5 to red from Urn II (by the Principle of Insufficient Reason) is not representing ignorance; it is making a specific probability claim no more warranted than 0.9 or 0.1.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Genuine ignorance should yield a range of priors over which we are indifferent, not a specific point estimate treated as equally well-grounded as an evidence-based estimate.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Principle of Insufficient Reason disguises ignorance as knowledge by converting it into a specific probability; any framework that relies on it in this way is epistemically dishonest.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The Bayesian use of the Principle of Insufficient Reason misrepresents genuine ignorance as a specific probability claim; the set-of-priors approach is epistemically more honest.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Evidential Weight Grounds a Normative Case for Ambiguity Aversion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A zero-weight probability estimate warrants less confidence than a maximum-weight estimate of the same magnitude; acting as if they were equally reliable is epistemically overconfident.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Caution in the face of low-weight probability estimates is a rational response to epistemic asymmetry, not a cognitive bias.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Savage framework, by requiring a unique prior regardless of evidential weight, forces false precision onto genuine ignorance.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Ambiguity aversion is normatively grounded in the evidential weight dimension of probability; it represents appropriate epistemic caution, not cognitive error.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHMEIDLER PANEL -->
+    <div class="speaker-panel" id="prop-schmeidler-panel">
+      <div id="prop-schmeidler-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>My colleagues have established the philosophical case for ambiguity aversion. My role is to demonstrate that this case rests on rigorous mathematical foundations &mdash; that Ellsberg preferences can be accommodated within a fully axiomatised, internally consistent decision theory that does not require any sacrifice of logical coherence.</p>
+        <p>The claim that SEU is the uniquely rigorous decision theory has always rested on two pillars: that alternative frameworks lack axiomatisation and that they generate logical contradictions. My Choquet Expected Utility theory, presented in 1989, demolishes both pillars. CEU is fully axiomatised. And it does not generate logical contradictions. The opposition has no remaining formal argument.</p>
+        <div class="case-box">
+          <strong>From additive probabilities to non-additive capacities: the CEU framework.</strong><br><br>
+          Standard expected utility integrates payoffs against an additive probability measure P, where P(A) + P(not-A) = 1 for all events A. This additivity is the source of the impossibility of representing Ellsberg preferences within SEU: if P(red|II) + P(black|II) = 1, and you act as if both are below 0.5, you have an inconsistency.<br><br>
+          CEU replaces the additive probability measure with a <em>capacity</em> v &mdash; a function that is monotone (if A &supe; B then v(A) &ge; v(B)) and normalised (v(&empty;) = 0, v(S) = 1) but need not be additive. For Urn II, we can set v(red) = v(black) = 0.4 and v(red or black) = 1, with v(red) + v(black) = 0.8 &ne; 1. Expected utility is then computed as a Choquet integral against this capacity. The result: Urn II bets are worth less than Urn I bets, correctly representing ambiguity aversion. No contradiction arises.
+        </div>
+        <span class="section">i. the axiomatisation of CEU</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">CEU is axiomatised — Schmeidler's 1989 axioms replace Independence with Comonotonic Independence; internally consistent; Ellsberg preferences satisfy the axioms</span>Choquet Expected Utility is derived from a set of axioms that closely parallel Savage&rsquo;s own axioms, with one crucial modification. Savage&rsquo;s Independence Axiom requires that preferences between acts be independent of payoffs in states where the acts agree. CEU replaces this with the <em>Comonotonic Independence Axiom</em>: Independence is required only for acts that are comonotonic &mdash; that is, that rank outcomes in the same order across all states. This weakening is motivated precisely by the insight that Ellsberg intuitions reflect: in ambiguous situations, acts that agree in some states but not others cannot be evaluated independently of each other. The axiomatisation is complete, rigorous, and internally consistent. Ellsberg preferences satisfy the CEU axioms. The formal objection to ambiguity aversion is closed.</span></p>
+        <span class="section">ii. the Choquet integral and its properties</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Choquet integral — correctly aggregates non-additive beliefs; reduces to standard expected utility when probability is additive; generalises SEU rather than contradicting it</span>The Choquet integral is the appropriate tool for integrating payoffs against non-additive capacities. For a discrete act that yields payoff x in state s, the Choquet integral computes expected utility by ordering states from worst to best and weighting each increment in payoff by the capacity of the event that &lsquo;triggers&rsquo; that increment. This is a well-defined, mathematically rigorous procedure. When the capacity is additive &mdash; when it is a standard probability measure &mdash; the Choquet integral reduces exactly to standard expected utility. CEU therefore <em>generalises</em> SEU: SEU is the special case of CEU when the capacity happens to be additive. Far from contradicting the SEU framework, CEU contains it as a special case and extends it to handle ambiguity. The opposition is defending a special case against a more general theory.</span></p>
+        <span class="section">iii. uncertainty-aversion as an axiom, not a bias</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Uncertainty aversion axiom — CEU derives ambiguity aversion from an axiom of uncertainty aversion; preference for mixtures; this is a principled axiom not an ad hoc patch</span>Within the CEU framework, ambiguity aversion is characterised by the axiom of <em>uncertainty aversion</em>: for any two acts f and g between which the agent is indifferent, the agent weakly prefers any mixture &lambda;f + (1-&lambda;)g to either act alone. This axiom captures the intuition that averaging over uncertain outcomes is preferable to committing to either extreme &mdash; a principle of diversification under uncertainty. It is a substantive axiom with clear normative motivation, not an ad hoc patch applied to a damaged theory. The capacity v that represents the beliefs of a CEU-maximiser with uncertainty aversion is convex: v(A) + v(B) &le; v(A &cup; B) for all events A, B. This is the precise mathematical expression of ambiguity aversion within the CEU framework.</span></p>
+        <span class="section">iv. the money-pump objection is defused</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Money pump fails against CEU — Raiffa's dynamic money pump requires act-by-act separability; CEU agents evaluate sequences holistically; the pump doesn't work</span>Raiffa will argue that ambiguity-averse agents can be subjected to a money pump: a series of sequential bets that extract money from them. But this objection crucially assumes that the agent evaluates each bet in a sequence independently, using the same non-additive capacity at each stage. CEU does not require this: a sophisticated CEU agent can evaluate the entire sequence of bets as a compound act and apply the Choquet integral to the compound. When the sequence is evaluated holistically, the money pump argument fails. The pump works only against a CEU agent who naively applies her local preferences to each sequential choice without recognising that her preferences must be applied to the whole sequence. A rational CEU agent does not make this mistake.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-schmeidler-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; CEU is fully axiomatised: Comonotonic Independence replaces Standard Independence without logical contradiction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Schmeidler&rsquo;s (1989) axioms for CEU closely parallel Savage&rsquo;s, replacing Standard Independence with the weaker Comonotonic Independence Axiom.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Comonotonic Independence is motivated by the Ellsberg insight: in ambiguous situations, acts that agree in some states cannot be evaluated independently of payoffs in states where they disagree.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The axiomatisation is complete and internally consistent; Ellsberg preferences satisfy it; no logical contradiction arises.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>CEU is a fully axiomatised, internally consistent decision theory that accommodates Ellsberg preferences; the claim that ambiguity aversion lacks rigorous foundations is false.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; CEU generalises SEU: SEU is the additive special case of a more general theory</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When the capacity v in CEU is additive, the Choquet integral reduces exactly to standard expected utility; CEU contains SEU as a special case.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A more general theory that contains a special case is not contradicting that special case; it is extending the domain of rigorous analysis.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The opposition is defending a special case against the more general theory that supersedes it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>CEU is a generalisation of SEU, not an alternative; SEU is the case where ambiguity is absent; CEU handles the full range of epistemic situations including genuine ambiguity.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Uncertainty Aversion is an axiom with clear normative motivation, not an ad hoc patch</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The uncertainty aversion axiom (preference for mixtures of indifferent acts) captures the normative principle of diversification under uncertainty: averaging over uncertain outcomes is preferable to committing to either extreme.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is a substantive axiom with independent normative motivation, not an ad hoc modification to accommodate Ellsberg preferences.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Ambiguity aversion is derivable from this axiom within CEU; it is a theoretically grounded prediction, not an anomaly requiring explanation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Ambiguity aversion is axiomatically grounded in CEU; it is a principled feature of a rigorous decision theory, not a bias patched onto a damaged framework.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The Money Pump Fails: CEU agents evaluate sequences holistically and resist exploitation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The money pump argument assumes that CEU agents evaluate each sequential bet locally with the same non-additive capacity; this is not required by CEU.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A sophisticated CEU agent evaluates a sequence of bets as a compound act, applying the Choquet integral holistically to the full sequence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>When sequences are evaluated holistically, the money pump fails; no rational CEU agent is exploitable in the way Raiffa&rsquo;s argument requires.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The money pump objection fails against sophisticated CEU agents who apply holistic evaluation to sequences of bets; the exploitation argument proves only that naive local reasoning is vulnerable, not that CEU is.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GILBOA PANEL -->
+    <div class="speaker-panel" id="prop-gilboa-panel">
+      <div id="prop-gilboa-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I shall close the proposition&rsquo;s case by presenting the Maxmin Expected Utility framework and arguing that it not only accommodates Ellsberg preferences but provides the correct normative account of rational choice under genuine uncertainty &mdash; what Frank Knight called &lsquo;true uncertainty&rsquo; as distinct from measurable risk.</p>
+        <p>The MEU approach, which I developed with David Schmeidler in 1989, represents the beliefs of a rational agent who faces genuine ambiguity not as a single subjective probability distribution but as a set of probability distributions &mdash; the set of priors that the agent regards as epistemically plausible given her evidence. The agent then evaluates each act by the worst expected utility it yields across all priors in this set. She is not pessimistic; she is robust.</p>
+        <div class="case-box">
+          <strong>Maxmin Expected Utility: the formal structure.</strong><br><br>
+          Let C be a convex set of probability distributions (the agent&rsquo;s &lsquo;priors&rsquo;). For each act f, MEU assigns value: V(f) = min<sub>P &isin; C</sub> E<sub>P</sub>[u(f)].<br><br>
+          The agent maximises V(f) across available acts. For Urn I, C is the singleton {P: P(red) = 0.5}, and V equals standard expected utility. For Urn II, C contains all distributions over red and black &mdash; from all-red to all-black &mdash; and min<sub>P &isin; C</sub> E<sub>P</sub>[u(f)] assigns near-zero expected utility to any single-colour bet. The preference for Urn I over Urn II follows immediately, without any logical contradiction.
+        </div>
+        <span class="section">i. the axiomatisation of MEU and the set-of-priors representation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">MEU axiomatised — Gilboa-Schmeidler axioms; Uncertainty Aversion plus Certainty Independence yields the maxmin representation; fully rigorous</span>Our 1989 paper provides a complete axiomatisation of MEU. The key axioms are: Completeness, Transitivity, Continuity, Monotonicity (all shared with Savage), plus two distinctive axioms: <em>Uncertainty Aversion</em> (as in CEU) and <em>Certainty Independence</em>. Certainty Independence is a weakening of Savage&rsquo;s Independence Axiom: it requires that independence hold only when one of the acts being mixed is a constant act (a certain payoff). These axioms jointly imply the maxmin representation: the agent&rsquo;s preferences are represented by a utility function u and a convex set C of priors, with value function V(f) = min<sub>P &isin; C</sub> E<sub>P</sub>[u(f)]. This is a theorem, not an intuition. MEU is as rigorously grounded as SEU.</span></p>
+        <span class="section">ii. forcing a unique prior is an artificial imposition of false precision</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Unique prior is dogma — when evidence supports a range of priors, choosing one arbitrarily is not rational precision but false confidence; MEU is epistemically honest about the range</span>Savage&rsquo;s framework insists that a rational agent must have a unique subjective prior. But when the evidence genuinely supports a range of priors &mdash; as it does for Urn II, where every distribution from all-red to all-black is consistent with what the agent knows &mdash; why must she pick one? The requirement that she do so is not a deep truth about rationality. It is a technical convenience that simplifies the mathematics of the theory at the cost of misrepresenting the agent&rsquo;s epistemic situation. Choosing a unique prior from a range of equally plausible priors is not rational precision; it is arbitrary precision &mdash; precision that goes beyond what the evidence warrants. MEU is epistemically honest: it represents the agent&rsquo;s uncertainty by the full set of priors consistent with her evidence, and evaluates acts conservatively across that set.</span></p>
+        <span class="section">iii. maxmin is robust, not pessimistic</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Robustness not pessimism — MEU seeks decisions that perform well across all plausible scenarios; this is standard engineering and policy practice; it is rational caution, not irrational fear</span>Binmore will characterise the maxmin agent as irrationally pessimistic: she acts as if nature is always adversarial, always choosing the worst prior. But this is a mischaracterisation. The maxmin agent is not pessimistic; she is <em>robust</em>. She seeks decisions that perform acceptably across all plausible scenarios, not just the most likely one. This is precisely the standard of rational decision-making in engineering, medicine, finance, and public policy. A bridge engineer does not design for the average wind load; she designs for the worst plausible wind load within a specified envelope. A central bank does not set monetary policy only for the most likely economic scenario; it considers the full range. Robustness is not a bias. It is a rational strategy when the cost of catastrophic failure is high and the generating mechanism is unknown.</span></p>
+        <span class="section">iv. the normative force of multiple priors against the dogma of unique subjectivity</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against unique subjectivity — Bayesian personalism is a philosophical choice not a logical necessity; multiple priors is an equally valid and more epistemically honest representation of genuine ignorance</span>Bayesian personalism &mdash; the view that a rational agent always has a unique, personal, subjective probability distribution &mdash; is not a logical necessity. It is a philosophical choice, grounded in considerations of mathematical elegance and Dutch Book coherence. These are genuine virtues. But they do not establish that unique subjectivity is the only rational response to uncertainty. MEU shows that an equally rigorous, axiomatised, internally consistent decision theory can represent rational belief as a set of priors. The Bayesian dogma that unique priors are required for rationality is precisely that: a dogma. It is not a theorem. And once we see that multiple priors are theoretically coherent, the insistence on unique priors requires an argument that the opposition has not provided.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-gilboa-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; MEU is fully axiomatised; the maxmin representation is a theorem, not an intuition</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Gilboa-Schmeidler (1989) axioms &mdash; including Certainty Independence and Uncertainty Aversion &mdash; jointly imply the maxmin representation theorem.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is a mathematical theorem proven from axioms; MEU is as rigorously founded as SEU.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The claim that ambiguity-averse decision theories lack formal rigour is false; MEU has complete axiomatic foundations.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>MEU is rigorously axiomatised; Ellsberg preferences are consistent with it; the formal case against ambiguity aversion collapses.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Forcing a unique prior imposes false precision; MEU is epistemically honest about genuine ignorance</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When evidence supports a range of priors, choosing one arbitrarily goes beyond what the evidence warrants: it is false precision, not rational precision.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>MEU represents the agent&rsquo;s uncertainty by the full set of epistemically plausible priors and evaluates acts conservatively across that set.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Representing genuine ignorance honestly is more rational than transforming it into a specific claim through an unjustified arbitrary choice.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>MEU is epistemically more honest than SEU when facing genuine ambiguity; the Bayesian requirement of unique priors imposes false precision on genuine ignorance.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Maxmin is robust, not pessimistic; robustness is a standard of rational decision-making in engineering and policy</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The maxmin agent seeks decisions that perform acceptably across all plausible scenarios, not just the expected one; this is the standard of robustness used in engineering, medicine, and public policy.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Robustness is rational when the cost of catastrophic failure is high and the generating mechanism is unknown; it is not irrational pessimism.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Characterising the maxmin agent as irrationally pessimistic confuses the normative ideal of robustness with the cognitive bias of unwarranted pessimism.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>MEU&rsquo;s maxmin evaluation is a rational strategy of robustness, not irrational pessimism; it is the standard applied throughout risk management, engineering, and policy under genuine uncertainty.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Bayesian unique subjectivity is a philosophical choice, not a logical necessity; MEU is an equally valid alternative</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Bayesian personalism&rsquo;s requirement of unique priors is not a theorem but a philosophical commitment, grounded in Dutch Book coherence and mathematical elegance.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>MEU provides an equally rigorous, axiomatised, internally consistent alternative that represents rational belief as a set of priors.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>When two equally rigorous theories exist, choosing between them requires substantive normative argument, not mere assertion; the opposition has provided no such argument.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Unique Bayesian subjectivity is a dogma, not a theorem; MEU is an equally rigorous alternative; the normative debate between them is genuinely open and cannot be settled by appeal to SEU&rsquo;s formal elegance alone.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- RIGHT: Opposition (SEU Rules Supreme) -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','savage',this)">Savage</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','bradley',this)">Bradley</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','raiffa',this)">Raiffa</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','binmore',this)">Binmore</button>
+  </div>
+
+  <!-- SAVAGE HEADER -->
+  <div class="col-header" id="opp-savage-header">
+    <div class="col-header-top"><span class="pill opp">Leader of the Opposition &mdash; SEU Architecture</span><span class="col-subtitle">Leonard &ldquo;Jimmie&rdquo; Savage &mdash; The Foundations of Statistics, 1954</span></div>
+    <div class="col-position">A rational agent must possess a unique, coherent, personal probability distribution over all states of the world; this is not an empirical claim but a normative requirement derivable from compelling axioms including the Sure-Thing Principle; Ellsberg preferences violate these axioms and are therefore not rational regardless of how intuitively appealing they seem; the test of rationality is not whether a pattern of choices survives casual reflection but whether it survives rigorous axiomatic scrutiny &mdash; and Ellsberg preferences do not.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','savage','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','savage','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BRADLEY HEADER -->
+  <div class="col-header hidden" id="opp-bradley-header">
+    <div class="col-header-top"><span class="pill opp">Deputy Leader &mdash; The Framing Defence</span><span class="col-subtitle">Richard Bradley &mdash; &ldquo;Ellsberg&rsquo;s Paradox and the Value of Chances,&rdquo; Economics &amp; Philosophy, 2016</span></div>
+    <div class="col-position">Savage&rsquo;s theory is not broken; the apparent paradox arises because subjects are misdescribing their own outcomes; when people choose the known urn they are partly valuing the &lsquo;chance&rsquo; or &lsquo;certainty&rsquo; itself as a component of the outcome &mdash; they assign utility not merely to winning or losing but to the process by which the outcome is determined; once the utility of chances and the value of procedural certainty are properly incorporated into the outcome description, the Ellsberg choices are fully consistent with SEU and the paradox dissolves into a misdescription.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','bradley','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','bradley','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- RAIFFA HEADER -->
+  <div class="col-header hidden" id="opp-raiffa-header">
+    <div class="col-header-top"><span class="pill opp">Opposition Member &mdash; The Money Pump Attack</span><span class="col-subtitle">Howard Raiffa &mdash; &ldquo;Risk, Ambiguity, and the Savage Axioms: Comment,&rdquo; Quarterly Journal of Economics, 1961</span></div>
+    <div class="col-position">Any agent who strictly follows non-additive Ellsberg preferences in a dynamic sequential decision context can be subjected to a money pump: a series of sequential bets constructed so that the agent will trade away money at each step for no net gain, ending up poorer but having violated no local preference; an axiomatic decision framework that permits systematic financial self-destruction cannot be a standard of rationality; the Dutch Book argument shows that non-additive beliefs are incoherent and exploitable, just as inconsistent probability assignments are exploitable.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','raiffa','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','raiffa','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BINMORE HEADER -->
+  <div class="col-header hidden" id="opp-binmore-header">
+    <div class="col-header-top"><span class="pill opp">Opposition Whip &mdash; Descriptive Psychology vs Normative Truth</span><span class="col-subtitle">Ken Binmore &mdash; Natural Justice (2005) &bull; Binmore, Stewart &amp; Voorhoeve &mdash; &ldquo;An Experiment on the Laplace Principle,&rdquo; Geneva Risk and Insurance Review, 2012</span></div>
+    <div class="col-position">Ambiguity aversion is a psychological glitch, not a new standard of rationality: the Binmore-Stewart-Voorhoeve (2012) experiments demonstrate that when subjects are asked to locate their precise indifference point between risky and ambiguous bets &mdash; eliminating the confusion of choice framing &mdash; the Laplace Principle of Insufficient Reason completely outperforms maxmin and ambiguity-averse models; most people default to a 50/50 Bayesian prior when properly calibrated; however Voorhoeve&rsquo;s further work complicates this: for catastrophic or morally weighty decisions, a moral egalitarian may <em>rationally and deliberately</em> choose ambiguity aversion even at the cost of violating economic Pareto efficiency, in order to guarantee a safer floor for the worst-off &mdash; this is not standard rationality but moral priority.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','binmore','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','binmore','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- SAVAGE PANEL -->
+    <div class="speaker-panel active" id="opp-savage-panel">
+      <div id="opp-savage-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I must begin with a confession that will delight the other side: when Daniel Ellsberg first presented me with his two-urn problem, I initially chose as he predicted. I preferred the known urn. And then I caught myself &mdash; because I recognised that my choice violated the Sure-Thing Principle, an axiom I consider among the most compelling in the theory of rational choice. I corrected my preference. Not because I was pressured. Because, on reflection, the correction was right.</p>
+        <p>This is the crucial point. The test of rationality is not casual intuition but reflective scrutiny under axioms whose credentials have been examined. And the Sure-Thing Principle is one of those well-credentialed axioms. The proposition asks us to treat a violation of it as a new normative standard. I ask why we should.</p>
+        <div class="case-box">
+          <strong>The Sure-Thing Principle and the contradiction in Ellsberg preferences.</strong><br><br>
+          The Sure-Thing Principle: if you prefer act f to act g regardless of what happens in some event E, then you should prefer f to g full stop &mdash; the payoffs in E are irrelevant to the comparison.<br><br>
+          Applied to Ellsberg: let E be the event &lsquo;red is drawn.&rsquo; In Bet A vs Bet C, the payoffs if black is drawn are identical (£0). The choice turns entirely on what happens if red is drawn: A pays £100 from Urn I, C pays £100 from Urn II. The only thing that can rationally differentiate A from C is your probability for red from Urn II. If you think that probability is below 0.5, you prefer A. Fine. But then by the same reasoning you must think the probability of black from Urn II exceeds 0.5, so you should prefer D to B. The preference for B over D contradicts your preference for A over C. This is not intuition versus theory. It is a direct logical inconsistency.
+        </div>
+        <span class="section">i. the sure-thing principle is a minimal requirement of coherence</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Sure-Thing Principle — minimal coherence, not exotic axiom; if payoffs in a state are identical, they cannot influence the choice; denying this is logically incoherent</span>The Sure-Thing Principle is not an exotic theoretical construct. It is a minimal requirement of coherence: if two acts yield identical payoffs in some states, those states are irrelevant to the comparison between them. To deny this is to say that payoffs you receive regardless of the outcome can influence your choice &mdash; which is to say that irrelevant information influences your decisions. Any theory of rationality that permits irrelevant information to influence decisions is not a new kind of rationality. It is a failure of rationality. The proposition will say that ambiguity itself is the relevant information. But this is already to adopt the proposition&rsquo;s conclusion as a premise: it assumes that the source of the probability matters, which is precisely what the Sure-Thing Principle denies.</span></p>
+        <span class="section">ii. the unique prior is required for coherent planning</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Unique prior for planning — to deliberate, compare, and act over time you need a stable prior; multiple priors prevent coherent sequential decisions; practical reason requires uniqueness</span>The Savage framework does not merely impose uniqueness for mathematical elegance. It imposes it because coherent planning over time requires it. To deliberate, revise beliefs in response to evidence, and make sequential decisions in a consistent way, an agent needs a stable probability distribution that can be updated by Bayes&rsquo;s rule. A set of priors does not support Bayesian updating in any standard sense: which prior in the set do you update? Different priors updated on the same evidence yield different posteriors, and the agent is back with a set. The MEU agent has no coherent procedure for learning from evidence over time. Practical rationality &mdash; the capacity to plan and deliberate under uncertainty &mdash; requires exactly what MEU abandons: a unique prior.</span></div>
+        <span class="section">iii. the proposition conflates ignorance with a reason for aversion</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Ignorance is not a reason — not knowing P(red|II) is not evidence that P(red|II) is low; Keynes conflates low weight with low magnitude; the inference from ignorance to aversion is invalid</span>Keynes argues that the low evidential weight of the Urn II probability justifies aversion. But this inference is invalid. Not knowing what the probability is does not give you evidence that the probability is low. Ignorance is the absence of evidence; it is not evidence of a bad outcome. To act as if the worst case within the set of priors is the most likely is not epistemic caution; it is a pessimistic bias introduced without evidential justification. The proposition is not distinguishing between risk and a genuinely different kind of uncertainty; it is introducing an unjustified pessimistic weighting. If you genuinely have no evidence about Urn II, your best probability estimate for red is indeed 0.5 &mdash; not because the principle of insufficient reason is infallible, but because any other estimate would require positive evidence of a skew that you do not have.</span></p>
+        <span class="section">iv. the normative authority of SEU rests on its axioms, not its descriptive accuracy</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Normative vs descriptive — SEU doesn't claim to describe how people behave; it prescribes how they should; descriptive violations don't refute normative authority; the axioms must be challenged directly</span>Ellsberg and Gilboa repeatedly point to the descriptive prevalence of Ellsberg preferences as evidence for their normative legitimacy. But normative theories are not vindicated by their descriptive accuracy. The fact that most people, unreflectively, prefer the known urn no more establishes that this preference is rational than the fact that most people, unreflectively, commit various well-documented cognitive biases establishes that those biases are rational. Normative force must be argued for at the level of axioms. The proposition must challenge the Sure-Thing Principle directly &mdash; show that it is not a minimal requirement of coherence but a substantive and contestable claim. Until they do that, descriptive prevalence is irrelevant.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-savage-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The Sure-Thing Principle is a minimal coherence requirement; violating it introduces irrelevant factors into decisions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Sure-Thing Principle: if two acts yield identical payoffs in some states, those states cannot rationally influence the choice between them.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Ellsberg preferences violate this: the choice between A and C and between B and D implies inconsistent probability assignments to red from Urn II.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Any theory that permits logically inconsistent probability assignments is not a new kind of rationality; it is a failure of the minimal coherence requirement.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Ellsberg preferences are logically inconsistent within the Savage framework; the Sure-Thing Principle is a minimal coherence requirement that any normative theory of rationality must satisfy.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Coherent planning requires a unique prior; multiple priors cannot support Bayesian updating over time</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Sequential decision-making requires Bayesian updating: revising beliefs coherently in response to evidence over time.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A set of priors cannot be coherently updated by Bayes&rsquo;s rule: different priors updated on the same evidence yield different posteriors, regenerating the set without convergence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An agent with no coherent updating procedure cannot engage in rational planning and deliberation over time.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>MEU&rsquo;s multiple priors are incompatible with coherent learning and planning; practical rationality requires a unique updatable prior.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Ignorance is not evidence of adversity; the inference from low weight to aversion is invalid</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Not knowing P(red|II) is the absence of evidence; it is not evidence that P(red|II) is low or that the worst case within the prior set is probable.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Acting as if the worst case is most likely introduces an unjustified pessimistic bias without evidential support.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In the absence of evidence for a skew, the best probability estimate remains 0.5; this is not the Principle of Insufficient Reason as a dogma but as the minimally biased response to genuine ignorance.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The inference from ignorance to aversion is epistemically unjustified; low evidential weight does not support pessimistic weighting of outcomes; the Bayesian prior of 0.5 is less biased than the maxmin response.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Normative authority rests on axioms, not descriptive accuracy; the Sure-Thing Principle must be challenged directly</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Normative theories prescribe how agents should behave; their authority is not established or refuted by descriptive violations, however widespread.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Cognitive biases are descriptively prevalent but normatively invalid; descriptive prevalence of Ellsberg preferences does not establish their normative legitimacy.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition must challenge the Sure-Thing Principle directly at the axiom level; descriptive evidence is irrelevant to normative debate.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Descriptive prevalence of Ellsberg preferences is normatively irrelevant; the proposition must challenge the Sure-Thing Principle directly as an axiom; until they do, SEU retains its normative authority.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BRADLEY PANEL -->
+    <div class="speaker-panel" id="opp-bradley-panel">
+      <div id="opp-bradley-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I want to offer a more conciliatory but ultimately equally devastating response to the proposition. I do not insist, as Savage does, that Ellsberg subjects are simply making a logical error. I take their preferences seriously. My claim is that when we take those preferences seriously &mdash; when we ask exactly what outcomes the subjects are evaluating &mdash; we discover that they are not violating SEU at all. The paradox dissolves not by correcting the subjects but by correctly describing what they are choosing between.</p>
+        <p>The key insight is this: the subjects are not merely valuing winning or losing. They are also valuing &mdash; or disvaluing &mdash; the process by which the outcome is determined. They assign utility to <em>chances</em> themselves, not just to their results. When you choose Urn I, you are not just buying a 50% shot at &pound;100. You are buying a 50% shot at &pound;100 through a clearly defined, transparent mechanism that you fully understand. That &lsquo;transparency&rsquo; has value. And once we include it in the outcome description, SEU explains the choice perfectly.</p>
+        <div class="case-box">
+          <strong>The value of chances: Bradley&rsquo;s reformulation.</strong><br><br>
+          Standard outcome description: Win (£100) or Lose (£0).<br><br>
+          Revised outcome description: Win through a known mechanism, Win through an unknown mechanism, Lose through a known mechanism, Lose through an unknown mechanism. These are four distinct outcomes with potentially different utilities. If u(Win-known) &gt; u(Win-unknown) &mdash; if agents prefer winning through a known mechanism &mdash; then choosing A over C and B over D is entirely consistent with SEU applied to these enriched outcomes. The preferences are not paradoxical; they merely reflect a genuine preference for procedural transparency that has been omitted from the outcome description.
+        </div>
+        <span class="section">i. the outcome-redescription strategy</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Outcome redescription — outcomes include process features; winning through known probability has higher utility; SEU with enriched outcomes is consistent with Ellsberg choices</span>The standard formulation of the Ellsberg problem describes outcomes as simply winning or losing the prize. But this is too thin a description of what subjects actually value. Subjects value not just what they get but how they get it. The utility function in SEU operates over outcomes, and there is no principled reason why the outcome description must be limited to the monetary payoff. It can include any feature of the world that the agent cares about &mdash; including features of the chance mechanism itself. Once we recognise that subjects assign positive utility to &lsquo;winning through a transparent mechanism&rsquo; and lower utility to &lsquo;winning through an opaque mechanism,&rsquo; the Ellsberg choices are entirely SEU-consistent. No violation of the Sure-Thing Principle occurs when the outcomes are properly described.</span></p>
+        <span class="section">ii. the value of certainty and procedural preference</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Procedural preference — people value certainty of process; this is rational; SEU can represent it once outcomes are enriched; paradox is a misdescription not a refutation</span>Procedural preferences are well-documented and not irrational. We often care not just about the outcome of a process but about the process itself: about whether it is fair, transparent, and understandable. A subject who prefers to bet on a known urn may be expressing a genuine preference for procedural transparency &mdash; a preference that survives reflection. This preference is not a bias. It is a legitimate value that SEU, applied to suitably enriched outcomes, can represent. The proposition has argued that Ellsberg preferences refute SEU. I argue that they merely require a richer description of outcomes than the standard experimental setup provides. Once the description is enriched, SEU is vindicated.</span></p>
+        <span class="section">iii. the objection that outcome-redescription is too liberal</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Objection addressed — critics say redescription makes SEU unfalsifiable; but the constraint is that redescriptions must be independently motivated; Bradley's is independently motivated by procedural preference literature</span>The proposition will object that the outcome-redescription strategy makes SEU unfalsifiable: any preference can be accommodated by enriching the outcome description appropriately. This objection has force. The strategy must be constrained: we should only accept outcome redescriptions that are independently motivated &mdash; that can be justified on grounds other than the need to rescue SEU in this case. My proposal satisfies this constraint. Procedural preferences for transparency and known mechanisms are independently documented in economic psychology, philosophy of justice, and voting theory. The preference for winning through a known mechanism is not invented to save SEU; it is a real preference that the standard experimental setup artificially excludes.</span></p>
+        <span class="section">iv. against the proposition&rsquo;s Keynesian weight argument</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against weight argument — Keynes's weight dimension is correctly captured by procedural utility; no need for a separate axiomatic framework; SEU with enriched outcomes handles it</span>Keynes argues that a second dimension &mdash; evidential weight &mdash; is missing from SEU and requires a new framework. But the evidential weight of a probability is a property of the process that generates the outcome, and processes can be incorporated into outcome descriptions within SEU. An agent who cares about evidential weight can represent this by assigning utility to &lsquo;winning on a well-evidenced probability&rsquo; versus &lsquo;winning on a poorly evidenced probability.&rsquo; The weight dimension is not outside the scope of SEU; it has been mistakenly excluded from the outcome description. The Keynesian critique points to a genuine phenomenon &mdash; sensitivity to evidential quality &mdash; but the phenomenon is representable within SEU once the outcome description is properly enriched.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-bradley-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Outcome redescription: including process features in outcomes dissolves the paradox within SEU</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>SEU operates over outcomes, and there is no principled reason to restrict outcomes to monetary payoffs; the outcome description can include features of the chance mechanism.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If winning through a known mechanism has higher utility than winning through an unknown mechanism, Ellsberg preferences (A over C, B over D) are fully SEU-consistent with enriched outcomes.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The paradox arises from an artificially thin outcome description, not from a violation of SEU.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Ellsberg preferences are SEU-consistent under enriched outcome descriptions; the paradox is a misdescription of what subjects are choosing between, not a refutation of SEU.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Procedural preferences are legitimate and independently documented; they are not invented to save SEU</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Preferences for procedurally transparent mechanisms are documented in economic psychology, philosophy of justice, and voting theory; they are real and independently motivated.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These preferences survive reflection and are not clearly irrational; a preference for winning through a known mechanism can be articulated and defended.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Including independently motivated procedural preferences in the outcome description is not ad hoc but a genuine enrichment of what subjects are evaluating.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The outcome redescription is independently motivated and non-circular; procedural preferences are a legitimate component of rational evaluation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The unfalsifiability objection is met: independent motivation constrains the redescription strategy</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The objection that outcome redescription makes SEU unfalsifiable is valid as a general concern; the strategy must be constrained by independent motivation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Bradley&rsquo;s proposed redescription (including the value of procedural certainty) is independently motivated by the procedural preference literature and is not invented to rescue SEU in this case.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>When the redescription is independently motivated, the strategy does not make SEU unfalsifiable; it reveals that the outcome description was incomplete.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The redescription strategy is not viciously ad hoc when independently motivated; Bradley&rsquo;s enrichment of outcomes is justified by documented procedural preferences.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Keynesian evidential weight is a process feature representable within enriched-outcome SEU</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Evidential weight is a property of the process generating the probability estimate; processes can be included in outcome descriptions within SEU.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Agents who care about evidential weight can assign utility to &lsquo;winning on a well-evidenced probability&rsquo; versus &lsquo;winning on a poorly evidenced probability.&rsquo;</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Keynesian weight dimension points to a genuine preference that SEU can represent; a separate axiomatic framework is not needed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Keynesian evidential weight is a process preference representable within enriched-outcome SEU; the critique motivates outcome enrichment, not a new decision theory.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RAIFFA PANEL -->
+    <div class="speaker-panel" id="opp-raiffa-panel">
+      <div id="opp-raiffa-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>My role is to deploy the pragmatic hammer. I am not primarily interested in whether ambiguity aversion is philosophically appealing or whether it can be given some kind of post-hoc axiomatic dressing. I am interested in whether a decision-maker who follows non-additive, Ellsberg-type preferences in a real dynamic decision environment will end up better or worse off. And the answer is: worse off. Provably, demonstrably, unavoidably worse off.</p>
+        <p>The money pump argument &mdash; or, in the probability context, the Dutch Book argument &mdash; is not merely a theoretical curiosity. It is the acid test of a normative decision theory. A decision framework that allows an agent to be systematically exploited by a clever bookmaker or trading counterparty is not a framework for rational choice. It is a framework for rational self-destruction.</p>
+        <div class="case-box">
+          <strong>The Dynamic Money Pump for Ellsberg preferences: a schematic.</strong><br><br>
+          Step 1: You hold a bet on red from Urn II (bet C). You are indifferent between C and bet D (black from Urn II) but prefer both to having nothing (since both have positive expected value under any distribution).<br><br>
+          Step 2: I offer to swap your C for D plus &pound;&epsilon;. Since you prefer the known urn to either, and D + &pound;&epsilon; seems slightly better than D, you accept &mdash; paying &pound;&epsilon; to move from C to D.<br><br>
+          Step 3: I now offer to swap your D for C plus &pound;&epsilon;. By symmetric reasoning, you accept again &mdash; paying another &pound;&epsilon;.<br><br>
+          Step 4: You are back where you started (holding C) having paid 2&pound;&epsilon;. Repeat indefinitely. You are a money pump. Your non-additive preferences have made you systematically exploitable.
+        </div>
+        <span class="section">i. the dutch book argument generalised to ambiguity</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Dutch Book — non-additive capacities allow a clever bookmaker to construct a set of bets that guarantee a loss; this is the decision-theory analogue of logical inconsistency</span>The Dutch Book argument is the decision-theoretic analogue of logical consistency. A set of beliefs is probabilistically coherent if and only if no Dutch Book &mdash; no set of bets that guarantees a net loss regardless of the outcome &mdash; can be constructed against an agent who acts on those beliefs. De Finetti proved that this condition is equivalent to the additivity of probability. A non-additive capacity, by definition, violates additivity, and therefore a Dutch Book can be constructed against an agent who acts on it. The Ellsberg agent who assigns capacity 0.4 to both red from Urn II and black from Urn II (adding to 0.8 &ne; 1) can be sold bets on red and black simultaneously that cost her 0.4 + 0.4 = 0.8 per unit but guarantee a payoff of 1 per unit. She pays 0.8 to guarantee receiving 1 but appears to gain; in fact a clever bookmaker who understands her non-additive beliefs can arrange complementary bets that extract the 0.2 per unit surplus from her.</span></p>
+        <span class="section">ii. the dynamic money pump in sequential decisions</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Sequential pump — static Dutch Books may not apply; but dynamic money pump works sequentially; Ellsberg agent pays to cycle back to start; proven exploitability</span>Schmeidler will argue that the static Dutch Book does not apply cleanly to CEU because CEU agents can evaluate compound bets holistically. This is partially correct for the static case. But the dynamic money pump applies in sequential decision contexts and is not defeated by holistic evaluation. The pump works by exploiting the agent&rsquo;s preference at each step: at each stage, the agent makes a locally preferred trade. The full sequence is not presented to the agent at once; she evaluates each step as it comes. In any real-world decision environment &mdash; financial markets, insurance markets, contracting &mdash; decisions are made sequentially, not as whole-sequence compound acts. The Ellsberg agent in these environments is exploitable.</span></p>
+        <span class="section">iii. the normative standard: a good decision procedure must be robust to exploitation</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Normative robustness — any framework that permits systematic exploitation by a clever adversary fails the normative test; SEU passes this test; CEU and MEU do not in dynamic settings</span>A normative decision framework must satisfy what I call the <em>exploitation robustness criterion</em>: it must not permit a clever adversary, armed with knowledge of the agent&rsquo;s decision procedure, to systematically extract resources from the agent. SEU satisfies this criterion: Dutch Book arguments against additive probabilities fail because there is no set of bets that guarantees a net loss to a consistent Bayesian. CEU and MEU, applied naively to sequential decisions, do not satisfy this criterion: the dynamic money pump succeeds. The proposition&rsquo;s claim that their frameworks are epistemically rational is irrelevant if those frameworks make agents systematically exploitable. Rationality must include the capacity to protect oneself from exploitation.</span></p>
+        <span class="section">iv. against the &ldquo;rare one-shot decisions&rdquo; escape</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against one-shot escape — most important decisions are embedded in repeated interactions; the claim that all significant decisions are one-shot is false; the pump applies in real markets</span>Ellsberg argues that ambiguity aversion is especially rational in one-shot decisions where the law of large numbers does not apply. But very few real-world decisions are truly one-shot and isolated from a broader environment of interaction. Financial decisions, insurance decisions, business decisions &mdash; all are embedded in markets and repeated interactions where the money pump and Dutch Book arguments apply with full force. Even if we grant that a single isolated Ellsberg bet is not exploitable, the patterns of preference that generate ambiguity aversion will be applied across a range of decisions in a real market environment, and in that environment the exploitation argument holds.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-raiffa-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Dutch Book Argument: non-additive capacities allow guaranteed-loss bets; this is the decision-theoretic analogue of logical inconsistency</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>De Finetti: probabilistic coherence (no Dutch Book) is equivalent to additive probability; non-additive capacities violate additivity and therefore permit Dutch Books.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>An agent who acts on non-additive capacities (capacity(red) + capacity(black) &lt; 1) can be sold bets on complementary events at prices that guarantee the bookmaker a profit.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A decision framework that permits Dutch Books is not merely philosophically unattractive; it is practically self-destructive.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Non-additive capacities permit Dutch Books; an agent who acts on them is systematically exploitable; this is the decision-theoretic analogue of logical inconsistency.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Dynamic Money Pump: sequential Ellsberg preferences are exploitable even when holistic compound evaluation is not available</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In real sequential decision environments, choices are made step by step, not as whole-sequence compound acts; holistic evaluation is not available to the agent in practice.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The dynamic money pump exploits locally preferred trades at each step, cycling the agent back to her starting position while extracting payment at each cycle.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An agent whose sequential decision procedure leads to provable net losses is not rationally protected; the exploitation robustness criterion is violated.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Dynamic money pump arguments succeed against naive sequential application of Ellsberg preferences; in real-world sequential decision environments, ambiguity-averse agents are exploitable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Exploitation Robustness: a normative framework must protect agents from systematic adversarial extraction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A normative decision framework must satisfy the exploitation robustness criterion: no clever adversary armed with knowledge of the agent&rsquo;s procedure can systematically extract resources from her.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>SEU satisfies this criterion: no Dutch Book can be constructed against a consistent Bayesian agent.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>CEU and MEU applied to sequential decisions do not satisfy this criterion; the dynamic money pump succeeds.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>SEU passes the exploitation robustness criterion; ambiguity-averse frameworks do not in sequential settings; a framework that permits systematic exploitation is not a normative standard of rationality.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Most significant decisions are embedded in repeated interactions; the one-shot escape fails in real markets</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Ellsberg&rsquo;s one-shot defence requires that significant decisions be isolated from broader environments where repeated interactions occur.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Financial, insurance, and business decisions &mdash; the most consequential decisions in practice &mdash; are embedded in markets with repeated interactions; they are not isolated one-shot choices.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Patterns of ambiguity aversion applied across these market contexts are vulnerable to exploitation; the one-shot defence does not generalise.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The one-shot defence fails to generalise to real decision environments; in the markets where rationality most matters, ambiguity-averse preferences are exploitable by sophisticated counterparties.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BINMORE PANEL -->
+    <div class="speaker-panel" id="opp-binmore-panel">
+      <div id="opp-binmore-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I shall close the opposition&rsquo;s case with two distinct contributions. The first is empirical: I will present the Binmore-Stewart-Voorhoeve experimental results from 2012, which demonstrate that when the Ellsberg experiment is properly designed &mdash; designed to eliminate confusions about framing and to elicit subjects&rsquo; genuine indifference points &mdash; the ambiguity aversion that the proposition treats as a deep and rational phenomenon largely disappears. The second is a surprising concession with an equally surprising punchline: the one context in which Voorhoeve argues that something like ambiguity aversion may be rationally appropriate is not about individual decision-making rationality at all. It is about moral egalitarianism. And that distinction matters enormously.</p>
+        <p>The proposition has spent its time arguing that ambiguity aversion is a rational response to genuine epistemic uncertainty. I intend to show that in the economic domain of individual rationality it is a psychological glitch &mdash; and that the genuine normative case for something resembling it belongs to moral philosophy, not to decision theory.</p>
+        <div class="case-box">
+          <strong>The Binmore-Stewart-Voorhoeve Experiment (2012): key design and findings.</strong><br><br>
+          The standard Ellsberg experiment asks subjects to <em>choose</em> between bets &mdash; a discrete binary choice that conceals important information about the strength of the preference. Binmore, Stewart, and Voorhoeve instead asked subjects to locate their precise <em>indifference point</em>: the exact probability p at which they would be indifferent between a bet on red from the known urn (Urn I) and a bet on red from the unknown urn (Urn II).<br><br>
+          Under the maxmin (MEU) model, subjects should act as if P(red|II) = 0, so the indifference point should be far below 0.5 &mdash; subjects should require very low odds on the known urn before they would be willing to switch to the unknown urn. Under the Laplace Principle of Insufficient Reason (Bayesian prior), subjects should be indifferent at p = 0.5 exactly. The experimental finding: the Laplace Principle dramatically outperformed maxmin. The median indifference point was very close to 0.5 across the sample. Most subjects, when forced to reveal their true indifference points, were essentially applying Bayesian logic &mdash; treating the unknown probability as 50/50.
+        </div>
+        <span class="section">i. the ellsberg experiment reveals confusion, not ambiguity aversion</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">BSV 2012 — indifference-point elicitation outperforms binary choice; median indifference near 0.5; Laplace outperforms maxmin; ambiguity aversion is a framing artefact</span>The standard Ellsberg binary-choice experiment is a poor tool for measuring the depth of ambiguity aversion because it conflates many different phenomena: genuine aversion to ambiguity, confusion about the task, a preference for transparent mechanisms (Bradley&rsquo;s point), and a default tendency to choose the more &lsquo;obviously well-defined&rsquo; option. By eliciting indifference points rather than binary choices, our 2012 study removed these confounds. When subjects were asked to specify the exact probability of a known-urn bet that would make them indifferent to an unknown-urn bet, the majority placed this at or very near 0.5. They were not applying maxmin. They were not applying CEU with low capacities. They were applying the Bayesian prior. Ellsberg&rsquo;s paradox, at the level of genuine measured preferences, is largely a mirage created by the binary-choice framing of the original experiment.</span></p>
+        <span class="section">ii. when explicit instruction eliminates the paradox</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Instruction dissolves ambiguity aversion — when subjects are taught the math, they switch to SEU; this shows the aversion is a cognitive illusion not a deep rational commitment</span>The proposition argues that Ellsberg preferences survive reflection. But reflection in what sense? When subjects in various experiments &mdash; including those reviewed in Binmore&rsquo;s earlier work on game-theoretic rationality &mdash; are explicitly walked through the mathematical implications of their choices, shown the Sure-Thing Principle and its violation, and given time to deliberate, the great majority revise their preferences to align with SEU. This is reflection of the relevant kind: reflection that is informed by the full logical structure of the choice. Casual, unguided reflection on why the known urn &lsquo;feels safer&rsquo; is not philosophical reflection on the structure of rational choice. When subjects are given the tools to reflect properly, the Ellsberg preferences largely dissolve. This is the signature of a cognitive illusion, not a deep rational commitment.</span></p>
+        <span class="section">iii. the voorhoeve moral turn: when ambiguity aversion is morally appropriate but violates pareto</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Voorhoeve moral turn — in healthcare and climate policy, moral egalitarians may rationally choose ambiguity aversion to protect worst-off; this deliberately violates Pareto; it's moral priority not individual rationality</span>Here is where I must make a surprising and important concession &mdash; and an equally important qualification. Voorhoeve&rsquo;s further work, extending the BSV experimental programme into the domain of policy and collective choice, identifies a context in which something like ambiguity aversion is not only defensible but morally required. When a policy-maker faces catastrophic, unquantifiable risks &mdash; a healthcare crisis, a climate tipping point &mdash; applying a crisp 50/50 Bayesian prior may be morally reckless. A moral egalitarian who gives priority to protecting the worst-off may deliberately choose to apply ambiguity-averse decision criteria, guaranteeing a safer floor for the most vulnerable even if this means forgoing expected-utility gains for others. Crucially, Voorhoeve shows that this choice deliberately violates the economic Pareto Principle: there exist alternative policies that would make everyone better off in expected utility terms, but the moral egalitarian rejects them because they do not guarantee the floor. She accepts the Pareto violation as the price of protecting the worst-off.</span></p>
+        <span class="section">iv. the decisive distinction: individual rationality vs moral priority</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Decisive distinction — Voorhoeve's case is about moral choice not individual rationality; ambiguity aversion in policy is a moral commitment, not a new standard of economic rationality; SEU retains normative authority for individual choice</span>This Voorhoeve case is the most important thing I will say today, and the proposition has missed it entirely. There is a decisive distinction between two questions. First: is ambiguity aversion a rational strategy for an individual decision-maker seeking to maximise her own welfare? Answer: no, the BSV experiments show it is largely a cognitive framing artefact that dissolves under proper measurement. Second: is something like ambiguity aversion the appropriate standard for a policy-maker who is a moral egalitarian and who is making choices that will affect the distribution of welfare across the worst-off members of society? Answer: possibly yes &mdash; but not because of individual rationality. Because of moral priority. The proposition has conflated these two questions throughout. Ambiguity aversion as a moral commitment to protecting the worst-off is a genuine and important normative position &mdash; but it belongs to political philosophy, not to the theory of rational individual choice. SEU retains its authority as the standard of individual rationality.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-binmore-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; BSV 2012: Indifference-point elicitation shows Laplace outperforms maxmin; Ellsberg aversion is largely a framing artefact</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The standard binary-choice Ellsberg experiment conflates genuine ambiguity aversion with confusion, framing effects, and preference for transparent mechanisms; indifference-point elicitation removes these confounds.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>BSV (2012): when asked to specify the exact probability of a known-urn bet that makes them indifferent to an unknown-urn bet, the median subject placed this at approximately 0.5 &mdash; consistent with the Laplace Principle, not with maxmin.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Laplace Principle dramatically outperformed maxmin and ambiguity-averse models as a description of genuine underlying preferences.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Most people do not have deep-seated ambiguity aversion; when confusion is eliminated, they default to Bayesian 50/50 reasoning; Ellsberg aversion is largely a framing artefact, not a rational commitment.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Explicit mathematical instruction dissolves Ellsberg preferences; this is the signature of a cognitive illusion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When subjects are explicitly taught the Sure-Thing Principle, shown how their Ellsberg choices violate it, and given time to deliberate with full information, the great majority revise their preferences to align with SEU.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Preferences that dissolve under informed reflection are cognitive illusions, not deep rational commitments; genuine considered preferences survive being informed.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Ellsberg preferences dissolve under the kind of reflection that is relevant to normative assessment; this disconfirms their normative status.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Ellsberg preferences are a cognitive illusion that vanishes under informed reflection; they do not represent genuine considered judgments and cannot serve as the basis for a normative revision of SEU.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Voorhoeve: moral egalitarian ambiguity aversion deliberately violates Pareto to protect the worst-off; it is moral priority, not individual rationality</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In policy domains facing catastrophic unquantifiable risks (healthcare crises, climate tipping points), a moral egalitarian may apply ambiguity-averse criteria to guarantee a safer floor for the worst-off.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Voorhoeve demonstrates that this choice deliberately violates the Pareto Principle: alternative policies exist that would make everyone better off in expected utility terms, but the egalitarian rejects them to guarantee the floor.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This Pareto violation is not an economic irrationality but a moral commitment: the egalitarian accepts the economic cost as the price of her moral priority.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Voorhoeve identifies a legitimate domain for ambiguity-averse decision-making, but it is grounded in moral egalitarianism and the deliberate violation of Pareto, not in individual economic rationality; it is a moral-political commitment, not a new standard of rational choice.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The Decisive Distinction: individual rationality (SEU) vs moral priority (Voorhoeve); the proposition conflates both</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Individual rationality question: is ambiguity aversion a rational strategy for an agent maximising her own welfare? Answer: no &mdash; BSV shows it dissolves under measurement; it is a framing artefact.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Moral priority question: is ambiguity aversion appropriate for a moral egalitarian making collective policy under catastrophic uncertainty? Answer: possibly yes &mdash; but as a moral commitment, deliberately accepting Pareto violations, not as economic rationality.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The proposition has conflated these two distinct questions throughout; ambiguity aversion as moral priority belongs to political philosophy, not to the theory of individual rational choice.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>SEU retains its authority as the standard of individual rational choice; the genuine normative case for ambiguity aversion in collective policy is a matter of moral priority, not individual rationality; the proposition has conflated what must be kept distinct.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
+</div>
+
+<script>
+var state={
+  prop:{speaker:'descartes',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'locke',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
