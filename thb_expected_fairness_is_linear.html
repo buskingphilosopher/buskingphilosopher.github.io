@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moral Mathematics — The Fairness Metric Debate</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0c0f;--bg2:#111318;--bg3:#181c24;--bg4:#202530;
+  --bdr:rgba(180,210,255,.06);--bdr2:rgba(180,210,255,.13);
+  --text:#e4e8f2;--text2:#8895b0;--text3:#464e62;
+  --teal:#38c4a8;
+  --prop-col:#38c4a8;--prop-pill:#0a2820;--prop-pill-bdr:#186050;
+  --opp-col:#e06060;--opp-pill:#280a0a;--opp-pill-bdr:#6a1818;
+  --a1bg:rgba(255,210,60,.09);--a1brd:rgba(255,210,60,.36);--a1tip:#ffd040;
+  --a2bg:rgba(80,190,230,.09);--a2brd:rgba(80,190,230,.34);--a2tip:#50c8f0;
+  --a3bg:rgba(130,210,100,.08);--a3brd:rgba(130,210,100,.33);--a3tip:#88e060;
+  --a4bg:rgba(220,80,80,.09);--a4brd:rgba(220,80,80,.34);--a4tip:#f06868;
+  --a5bg:rgba(180,100,240,.09);--a5brd:rgba(180,100,240,.34);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,30,.09);--a6brd:rgba(255,140,30,.34);--a6tip:#ffa040;
+  --a7bg:rgba(100,210,200,.08);--a7brd:rgba(100,210,200,.32);--a7tip:#60ddd0;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--teal),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--teal);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 10px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--teal);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(56,196,168,.05)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.speech-text .math{font-family:sans-serif;font-size:12.5px;background:var(--bg3);border:1px solid var(--bdr2);border-radius:4px;padding:.55rem 1rem;margin:.5rem 0 .7rem;color:#b8d8f8;line-height:1.8;letter-spacing:.02em}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.8);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Moral Mathematics &mdash; Expected Fairness &bull; Broome (1990&ndash;) &bull; Arneson (1989) &bull; Parfit (1997) &bull; Adler (2012) &nbsp;&mdash;&nbsp; Voorhoeve (2014) &bull; Scanlon (1998) &bull; Otsuka (2006) &bull; Temkin (1993&ndash;2012)</div>
+  <div class="motion-title">&ldquo;This House Believes that the fairness of a moral decision under uncertainty is correctly measured by the sum of each person&rsquo;s probability-weighted claim satisfaction &mdash; and that this linear expected-claim metric should govern allocation decisions in medicine, policy, and distributive justice&rdquo;</div>
+  <div class="motion-sub">Linear / Additive Fairness &bull; Broome (Prime Minister) &middot; Arneson (Deputy PM) &middot; Parfit (Government Member) &middot; Adler (Government Whip) &nbsp;&mdash;&nbsp; Non-Linear / Distribution-Sensitive Fairness &bull; Voorhoeve (Leader of Opposition) &middot; Scanlon (Deputy Leader) &middot; Otsuka (Opposition Member) &middot; Temkin (Opposition Whip)</div>
+</div>
+<div class="columns">
+
+<!-- LEFT: Linear / Additive Fairness -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','broome',this)">Broome</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','arneson',this)">Arneson</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','parfit',this)">Parfit</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','adler',this)">Adler</button>
+  </div>
+
+  <!-- BROOME HEADER -->
+  <div class="col-header" id="prop-broome-header">
+    <div class="col-header-top"><span class="pill prop">Prime Minister &mdash; Claims &amp; Proportionality</span><span class="col-subtitle">John Broome &mdash; &ldquo;Fairness,&rdquo; Proceedings of the Aristotelian Society, 1990; Weighing Goods, 1991</span></div>
+    <div class="col-position">Fairness requires that the satisfaction of each person&rsquo;s claim be weighted by the probability she receives a benefit; the linear metric F = &Sigma; p&#7522; &times; c&#7522; is not a simplification but the correct formal expression of what fairness demands; equal claims warrant equal chances, strong claims warrant high probabilities; once claims are correctly assigned, additive aggregation across persons is both necessary and sufficient for a complete fairness ranking of distributions.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','broome','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','broome','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- ARNESON HEADER -->
+  <div class="col-header hidden" id="prop-arneson-header">
+    <div class="col-header-top"><span class="pill prop">Deputy Prime Minister &mdash; Aggregation &amp; Welfare</span><span class="col-subtitle">Richard Arneson &mdash; &ldquo;Equality and Equal Opportunity for Welfare,&rdquo; Philosophical Studies, 1989</span></div>
+    <div class="col-position">Refusing to aggregate claim satisfaction across persons is not a moral insight but a failure of decision-guidance; a metric that cannot rank distributions is practically useless; the opposition&rsquo;s non-linear corrections are ad hoc responses to edge cases that can be handled within the additive framework by correct specification of claim strengths; welfare-egalitarianism demands that we maximise the total satisfaction of weighted claims, not that we introduce structurally arbitrary penalties for concentration.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','arneson','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','arneson','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- PARFIT HEADER -->
+  <div class="col-header hidden" id="prop-parfit-header">
+    <div class="col-header-top"><span class="pill prop">Government Member &mdash; Numbers &amp; Weighted Priority</span><span class="col-subtitle">Derek Parfit &mdash; &ldquo;Equality and Priority,&rdquo; Ratio, 1997; Reasons and Persons, 1984</span></div>
+    <div class="col-position">Numbers matter morally: it is almost always worse to let more people die than fewer when their claims are equal; the opposition is right that claim strength should be weighted &mdash; the worse-off deserve greater priority &mdash; but this priority weighting is a modification of the additive metric, not its abandonment; once the claims of the worse-off are given extra weight, the linear expected-claim framework handles all cases the opposition raises without introducing structurally obscure non-linearities.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','parfit','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','parfit','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- ADLER HEADER -->
+  <div class="col-header hidden" id="prop-adler-header">
+    <div class="col-header-top"><span class="pill prop">Government Whip &mdash; Social Welfare Functions</span><span class="col-subtitle">Matthew Adler &mdash; Well-Being and Fair Distribution, 2012</span></div>
+    <div class="col-position">The government&rsquo;s position absorbs the opposition&rsquo;s distributive concerns through prioritarian social welfare functions: the utility of each person is transformed by a strictly concave function before summation, giving greater weight to the worse-off within the additive framework; this is not a retreat but the correct formalisation of distribution-sensitivity; the non-linear metrics the opposition proposes are either special cases of prioritarian SWFs or lack the axiomatic foundations to generate consistent rankings.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','adler','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','adler','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- BROOME PANEL -->
+    <div class="speaker-panel active" id="prop-broome-panel">
+      <div id="prop-broome-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>The motion before this House asks whether fairness under uncertainty is correctly captured by the linear expected-claim metric. I shall argue that it is &mdash; not as an approximation, not as a useful heuristic, but as the correct formal statement of what fairness requires when we must make decisions whose outcomes are uncertain.</p>
+        <p>Let me begin by stating the metric precisely. Each person <em>i</em> has a claim of strength <em>c&#7522;</em> to a benefit. The probability that person <em>i</em> receives that benefit under policy P is <em>p&#7522;</em>. The fairness score of policy P is:</p>
+        <div class="math">F(P) = &Sigma;&#7522; p&#7522; &times; c&#7522;</div>
+        <p>The policy that maximises F(P) is the fairest policy. This is not mere number-crunching. It expresses a deep moral principle: <em>a claim is satisfied to the degree that the benefit it grounds is likely to be received</em>. Fairness demands that we attend to both the strength of the claim and the probability of its satisfaction.</p>
+        <div class="case-box">
+          <strong>The foundational case: equal claims, equal chances.</strong><br><br>
+          Alice and Bob each have claim strength 1.0 to a single dose of a life-saving drug. We can give it to Alice with certainty or to Bob with certainty, or we can randomise.<br><br>
+          Policy A (certain to Alice): F = 1.0&times;1.0 + 0.0&times;1.0 = <strong>1.0</strong><br>
+          Policy B (certain to Bob): F = 0.0&times;1.0 + 1.0&times;1.0 = <strong>1.0</strong><br>
+          Policy L (50/50 lottery): F = 0.5&times;1.0 + 0.5&times;1.0 = <strong>1.0</strong><br><br>
+          All three score identically &mdash; as they should. No policy is fairer than any other when claims are equal. The lottery is recommended not because it scores higher but because it expresses equal respect procedurally. The metric correctly shows they are equivalent in the dimension of expected claim satisfaction.
+        </div>
+        <span class="section">i. the metric correctly captures the claims-probability interaction</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Claims × probability — fairness is exactly the expected degree to which claims are satisfied; the metric is not an approximation but the correct formal statement</span>Consider two patients with different claim strengths competing for a scarce ICU bed. Patient A has claim strength 0.9 (severe, immediate need) and a 0.4 probability of survival with treatment. Patient B has claim strength 0.3 (moderate need) and a 0.8 probability of survival with treatment. The linear metric gives us:</p>
+        <div class="math">F(treat A) = 0.4 &times; 0.9 = 0.36 &nbsp;&nbsp;&nbsp;&nbsp; F(treat B) = 0.8 &times; 0.3 = 0.24</div>
+        <p>Treat A. Now suppose A&rsquo;s probability of benefit rises to 0.6:</p>
+        <div class="math">F(treat A) = 0.6 &times; 0.9 = 0.54</div>
+        <p>The metric responds correctly to both dimensions. It is not merely sensitive to claim strength and probability separately but to their joint product, which is exactly what fairness requires. The opposition will argue that this misses something about distribution. I submit that it misses nothing: the joint product of probability and claim strength is the complete measure of expected fairness.</span></p>
+        <span class="section">ii. equal claims demand equal chances: broome&rsquo;s proportionality principle</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Proportionality principle — equal claims → equal probabilities; unequal claims → proportional probabilities; this follows directly from the metric</span>The metric entails a proportionality principle: when two persons have claims in ratio c&#7522; : c&#8323;, they should receive probabilities in the same ratio. If Alice has claim 0.8 and Bob has claim 0.4, Alice should receive twice the probability of benefit:</p>
+        <div class="math">p_Alice / p_Bob = c_Alice / c_Bob = 0.8 / 0.4 = 2</div>
+        <p>So if p_Bob = 0.33, p_Alice = 0.67, and F = 0.67&times;0.8 + 0.33&times;0.4 = 0.536 + 0.132 = 0.668. This is a principled and substantive constraint on how probabilities should be distributed. No ad hoc non-linearity is required: the proportionality principle emerges directly from the structure of the linear metric. The opposition&rsquo;s non-linear amendments cannot match this systematic elegance.</span></p>
+        <span class="section">iii. the triage calculation: the metric delivers clear, correct verdicts</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Triage — metric resolves the one vs. many problem; works out exactly where aggregation overcomes stronger individual claims; gives a threshold, not a vague intuition</span>Consider the famous case: one patient facing imminent death (claim 1.0, survival probability 0.9 with treatment) versus four patients facing serious but less immediate risk (claim 0.6 each, survival probability 0.5 each with treatment).</p>
+        <div class="math">F(treat one) = 0.9 &times; 1.0 = 0.90<br>F(treat four) = 4 &times; (0.5 &times; 0.6) = 4 &times; 0.30 = 1.20</div>
+        <p>Treat the four. Now reduce each of the four&rsquo;s survival probability to 0.3:</p>
+        <div class="math">F(treat four) = 4 &times; (0.3 &times; 0.6) = 4 &times; 0.18 = 0.72</div>
+        <p>Now treat the one. The metric yields a precise threshold at which aggregation overcomes the stronger individual claim. This is exactly what a decision-guiding theory must deliver. The opposition&rsquo;s theory gives only vague invocations of &ldquo;separateness&rdquo;. Mine gives a number.</span></p>
+        <span class="section">iv. pandemic vaccine allocation: the metric navigates complex multi-group trade-offs</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Vaccine allocation — complex multi-group case; metric ranks policies correctly by adjusting claim weights; the ethical disagreement becomes transparent as a disagreement over claim magnitudes</span>A government has 100 vaccine doses. Policy A gives all doses to elderly people (100 people, 80% survival probability, claim 1.0). Policy B gives doses to essential workers (300 people, 30% survival probability, claim 0.6).</p>
+        <div class="math">F(Policy A) = 100 &times; (0.80 &times; 1.0) = 80.0<br>F(Policy B) = 300 &times; (0.30 &times; 0.6) = 54.0</div>
+        <p>Policy A wins. Now suppose essential workers bear societal risk, raising their claim to 1.5:</p>
+        <div class="math">F(Policy B*) = 300 &times; (0.30 &times; 1.5) = 135.0</div>
+        <p>Now Policy B wins overwhelmingly. What has happened? The ethical disagreement &mdash; are essential workers&rsquo; claims stronger? &mdash; has been made precise and transparent. The metric does not resolve every ethical dispute, but it isolates exactly where the dispute lies: in the claim magnitudes, not in the structure of the aggregation. This is the metric&rsquo;s great virtue.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-broome-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The metric F = &Sigma; p&#7522; &times; c&#7522; is the correct formal statement of expected claim satisfaction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Fairness under uncertainty requires attending to both the strength of a person&rsquo;s claim and the probability that the claim is satisfied by the outcome.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The joint product p&#7522; &times; c&#7522; measures the expected degree to which person i&rsquo;s claim is satisfied; summing across persons gives the total expected claim satisfaction of a policy.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No additional structural information beyond these two dimensions is needed to evaluate the fairness of a policy: claim strength and probability jointly determine it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>F(P) = &Sigma; p&#7522; &times; c&#7522; is the complete and correct measure of fairness under uncertainty; policies should be ranked by this metric.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Proportionality: equal claims entail equal probabilities; the metric delivers a principled allocation rule</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If two persons have equal claims, fairness requires that each receive the same probability of benefit; any asymmetry in probability distribution requires a corresponding asymmetry in claim strength.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The linear metric entails exactly this: optimal probability allocation is proportional to claim strength, yielding p&#7522; / p&#8323; = c&#7522; / c&#8323; at the fair distribution.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This proportionality principle is both principled and action-guiding; it does not require the ad hoc non-linear adjustments the opposition proposes.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The metric delivers a clean, principled allocation rule through proportionality; the opposition&rsquo;s non-linear amendments add complexity without additional normative justification.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Decision-guidance: the metric yields precise thresholds where aggregation overcomes stronger individual claims</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A moral theory must be action-guiding: it must deliver verdicts in particular cases, not only abstract principles.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The linear metric yields a precise threshold at which the aggregate expected claim satisfaction of treating many outweighs that of treating one with a stronger claim.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The opposition&rsquo;s theory invokes &ldquo;separateness of persons&rdquo; and &ldquo;concentrated unfairness&rdquo; without deriving comparable precise verdicts.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The metric is action-guiding in a way the opposition&rsquo;s theory is not; its precision is a virtue, not a vice.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The metric makes ethical disagreements transparent as disagreements over claim magnitudes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Different ethical theories (utilitarian, egalitarian, prioritarian) disagree primarily about how to assign claim strengths, not about whether to aggregate across persons.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The linear metric provides a common mathematical language in which these disagreements can be expressed and compared numerically.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>By isolating the source of disagreement (claim magnitudes) from the structure of aggregation, the metric clarifies rather than obscures ethical debate.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The metric&rsquo;s greatest contribution is making ethical disagreements precise: different values translate into different claim assignments, not into different structural approaches to aggregation.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARNESON PANEL -->
+    <div class="speaker-panel" id="prop-arneson-panel">
+      <div id="prop-arneson-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>My colleague Broome has established the formal structure of the linear metric. My role is to defend it against the aggregation-aversion of the opposition and to show that the practical and philosophical objections to summing claim satisfaction across persons cannot be sustained.</p>
+        <p>The opposition will invoke the separateness of persons. They will say that fairness is not merely a matter of how much claim satisfaction exists in the world but of who bears the unsatisfied claims. This sounds deep. But when pressed to translate it into a decision procedure, the opposition retreats into incoherence. Let me show why.</p>
+        <div class="case-box">
+          <strong>The aggregation threshold: where numbers matter.</strong><br><br>
+          Suppose we face N patients each with claim strength 0.5 and survival probability 0.6 with treatment, versus one patient with claim strength 1.0 and survival probability 0.9 with treatment.<br><br>
+          F(treat one) = 0.9 &times; 1.0 = 0.90<br>
+          F(treat N) = N &times; (0.6 &times; 0.5) = N &times; 0.30<br><br>
+          The threshold is at N = 3: three moderate-claim patients with 60% survival probability just outweigh one strong-claim patient with 90% survival probability. At N = 4 the aggregate wins clearly: F(treat four) = 1.20 vs 0.90.<br><br>
+          The opposition says numbers should not matter in this way. But this means letting three people die to give priority to one. That is not fairness. It is the worship of individual salience over aggregate welfare.
+        </div>
+        <span class="section">i. the separateness of persons is not a reason against aggregation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Against separateness objection — separateness doesn't prohibit aggregation; it requires that each person's interests be counted; linear metric does exactly this</span>Scanlon and Voorhoeve invoke the separateness of persons as though it were a trump against aggregation. But separateness is a reason to count each person&rsquo;s interests &mdash; not a reason to refuse to count them together. The linear metric respects separateness precisely: each person&rsquo;s claim strength and survival probability enters the sum as a distinct term. No person&rsquo;s interests are merged with anyone else&rsquo;s or subordinated to a social total that ignores individuals. The sum is the sum of individual expected claim satisfactions. Separateness of persons is violated by a theory that ignores individuals, not by one that aggregates them correctly.</span></p>
+        <span class="section">ii. the climate adaptation case: aggregation delivers real lives</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Climate adaptation — aggregation gets the right answer; refusing to aggregate would leave more people worse off; the opposition's theory is practically paralysing</span>A government must allocate £1 billion. Option A protects 100,000 people from flooding with probability 0.8 (claim 0.7 each). Option B protects 40,000 people in highly vulnerable communities with probability 0.95 (claim 1.0 each).</p>
+        <div class="math">F(Option A) = 100,000 &times; (0.8 &times; 0.7) = 56,000<br>F(Option B) = 40,000 &times; (0.95 &times; 1.0) = 38,000</div>
+        <p>Option A. Now raise the vulnerable community&rsquo;s claim to 1.6 (extreme poverty, prior disadvantage):</p>
+        <div class="math">F(Option B*) = 40,000 &times; (0.95 &times; 1.6) = 60,800</div>
+        <p>Now Option B. The metric has correctly identified the turning point: claim strength of 1.6 for the vulnerable group overcomes the numerical advantage of Option A. The opposition&rsquo;s non-linear model would require us to specify how the distribution of unsatisfied claims within each option is penalised &mdash; a calculation so complex that real-world policymakers would abandon it in favour of gut instinct. The linear metric delivers answers.</span></p>
+        <span class="section">iii. weighted aggregation handles prioritarian intuitions without structural complexity</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Weighted claims handle priority — making claim strength a function of wellbeing level captures prioritarian concerns without abandoning additivity</span>The opposition points to the intuition that the worse-off have stronger claims and that this cannot be captured additively. But it can: simply set claim strength as a function of the person&rsquo;s welfare level. If Alice is at welfare level 20 and Bob is at level 80, and we set c = 1/welfare, then:</p>
+        <div class="math">c_Alice = 1/20 = 0.05 &nbsp;&nbsp;&nbsp;&nbsp; c_Bob = 1/80 = 0.0125</div>
+        <p>Wait &mdash; that gives lower claims to the worse-off, which is backwards. Better: set c = (max_welfare &minus; welfare)/max_welfare. With max = 100:</p>
+        <div class="math">c_Alice = (100&minus;20)/100 = 0.80 &nbsp;&nbsp;&nbsp;&nbsp; c_Bob = (100&minus;80)/100 = 0.20</div>
+        <p>Alice gets four times the claim weight. This is priority built directly into the linear metric through claim specification. No non-linear transformation of the aggregate is required. The prioritarian intuition is already absorbed.</span></p>
+        <span class="section">iv. non-aggregationism leads to paralysis in real policy</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Paralysis — Scanlon-style contractualism cannot generate rankings in complex multi-person cases; the metric is the only action-guiding framework available to policymakers</span>Consider a public health authority choosing between five policies, each protecting different numbers of people at different probability levels and with different claim strengths. The linear metric produces a ranking in seconds. The contractualist framework asks us to consider the strongest complaint each person could make against each policy, compare them pairwise, and derive a verdict &mdash; a procedure that generates cyclic rankings in multi-person cases and that Scanlon himself has never resolved. In a pandemic with millions of lives at stake and decisions required within hours, a morally serious framework must be computationally tractable. The linear metric is. The opposition&rsquo;s framework is not.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-arneson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Separateness of persons supports, not prohibits, aggregation of individual claim satisfactions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The separateness of persons requires that each individual&rsquo;s interests be counted; it does not require that they be counted in a way that prohibits comparison across persons.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The linear metric counts each person separately: each term p&#7522; &times; c&#7522; is an individual measure; the sum respects this individuality.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A theory that refuses to compare individual claim satisfactions across persons cannot generate rankings of multi-person distributions at all.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Separateness of persons is respected by the linear metric; invoking it against aggregation confuses counting individuals with refusing to compare them.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The climate adaptation case: aggregation identifies the correct threshold; non-aggregationism cannot</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Policy A (100,000 people, p=0.8, c=0.7): F = 56,000. Policy B (40,000 people, p=0.95, c=1.0): F = 38,000. The linear metric correctly favours A.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When B&rsquo;s claim strength rises to 1.6, F(B) = 60,800 > 56,000: the metric correctly switches to B, identifying the precise threshold at which vulnerability overcomes numbers.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Non-aggregative frameworks cannot identify this threshold; they yield vague recommendations about &ldquo;respecting the worst-off&rdquo; without ranking the policies.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The linear metric delivers precise, correct verdicts in complex multi-group allocations; non-aggregationism cannot.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Prioritarian intuitions are captured by claim-strength weighting within the additive framework</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The intuition that the worse-off have stronger claims translates into a formula: c&#7522; = f(welfare level), where f is a decreasing function of welfare.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>With this specification, the linear metric automatically gives greater weight to the worse-off without requiring structural non-linearity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The opposition&rsquo;s non-linear structural corrections are therefore redundant: priority is already built into the linear metric through correct claim specification.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Prioritarian concerns are absorbed into the linear metric through claim-strength weighting; no structural non-linearity is required to accommodate them.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Non-aggregative theories are computationally intractable in real policy contexts</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Real policy decisions involve millions of people, dozens of outcomes, and time pressure; a morally serious framework must be computationally tractable.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The linear metric produces a ranking in O(n) operations; contractualist pairwise-complaint comparison generates cyclic rankings in multi-person cases and does not scale.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A framework that is computationally intractable in real policy contexts fails the test of practical relevance, regardless of its theoretical appeal.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The linear metric is the only computationally tractable framework for complex multi-person allocation decisions; the opposition&rsquo;s framework is philosophically interesting but practically useless.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARFIT PANEL -->
+    <div class="speaker-panel" id="prop-parfit-panel">
+      <div id="prop-parfit-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I want to make a concession and then deploy it against the opposition. The concession is this: the opposition is right that the worse-off have stronger claims, and right that numbers alone cannot always override the severity of individual deprivation. My prioritarian modification of the linear metric takes this seriously. The deployment is this: once we accept that claim strengths should be weighted by the degree of deprivation, the additive framework handles every case the opposition raises &mdash; and handles it better, because it delivers precise verdicts.</p>
+        <p>Let me introduce the prioritarian version of the expected-claim metric. For each person <em>i</em> at welfare level <em>w&#7522;</em>, define the priority-weighted claim as:</p>
+        <div class="math">c&#7522;* = c&#7522; &times; (1 / w&#7522;^&alpha;)</div>
+        <p>where &alpha; &gt; 0 is the priority parameter (higher &alpha; = more priority to the worse-off). The fairness metric becomes:</p>
+        <div class="math">F*(P) = &Sigma;&#7522; p&#7522; &times; c&#7522;*</div>
+        <span class="section">i. numbers matter, but the worse-off count for more</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Priority weighting — the prioritarian metric weights claim satisfaction by welfare level; numbers still matter but the worse-off count more per unit; this is additive and precise</span>Consider the classic trolley-problem structure: five people at welfare level 50 (moderate deprivation) versus one person at welfare level 10 (severe deprivation). Each has a base claim of 1.0. Survival probability with treatment is 0.9 for either group. With &alpha; = 0.5:</p>
+        <div class="math">c&#7522;*(welfare 50) = 1.0 &times; (1/50^0.5) = 1.0 &times; 0.141 = 0.141<br>c&#7522;*(welfare 10) = 1.0 &times; (1/10^0.5) = 1.0 &times; 0.316 = 0.316</div>
+        <div class="math">F*(save five) = 5 &times; 0.9 &times; 0.141 = 0.635<br>F*(save one) = 1 &times; 0.9 &times; 0.316 = 0.284</div>
+        <p>Save the five. But increase &alpha; to 2 (much stronger priority):</p>
+        <div class="math">c&#7522;*(welfare 50) = 1/50&sup2; = 0.0004 &nbsp;&nbsp;&nbsp;&nbsp; c&#7522;*(welfare 10) = 1/100 = 0.01</div>
+        <div class="math">F*(save five) = 5 &times; 0.9 &times; 0.0004 = 0.0018<br>F*(save one) = 1 &times; 0.9 &times; 0.01 = 0.009</div>
+        <p>Now save the one. The priority parameter &alpha; controls exactly how much extra weight the worse-off receive. This is the opposition&rsquo;s intuition fully captured within the linear framework.</span></p>
+        <span class="section">ii. the vaccine priority case with welfare weighting</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Vaccine priority — priority-weighted metric recommends elderly over workers when welfare level is properly measured; the metric handles the ethical intuition without non-linearity</span>Return to the pandemic vaccine case. Elderly patients are at welfare level 30 (severe health risk). Essential workers are at welfare level 60 (moderate risk). Base claim 1.0 each. Survival probability: elderly 0.8 per dose, workers 0.3 per dose. With &alpha; = 1:</p>
+        <div class="math">c*(elderly) = 1/(30^1) = 0.033 &nbsp;&nbsp;&nbsp;&nbsp; c*(workers) = 1/(60^1) = 0.017</div>
+        <div class="math">F*(100 elderly doses) = 100 &times; 0.8 &times; 0.033 = 2.67<br>F*(300 worker doses) = 300 &times; 0.3 &times; 0.017 = 1.50</div>
+        <p>Treat the elderly. But suppose we identify a subgroup of workers at welfare level 15 (extreme vulnerability, front-line hospital workers with no PPE):</p>
+        <div class="math">c*(vulnerable workers) = 1/15 = 0.067</div>
+        <div class="math">F*(100 vulnerable worker doses) = 100 &times; 0.3 &times; 0.067 = 2.00</div>
+        <p>Still treat the elderly. At what point does severity of deprivation tip the balance? When workers reach welfare level 25:</p>
+        <div class="math">c* = 1/25 = 0.040 &nbsp;&nbsp;&nbsp;&nbsp; F* = 100 &times; 0.3 &times; 0.040 = 1.20</div>
+        <p>The prioritarian metric identifies every threshold precisely. No non-linear structural amendment is required.</span></p>
+        <span class="section">iii. rejecting the repugnant conclusion with prioritarian weighting</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Repugnant conclusion — strict utilitarianism says a huge population of barely-satisfied claims beats a small very-well-satisfied population; prioritarian weighting correctly rejects this</span>The opposition might think linear aggregation entails the Repugnant Conclusion from population ethics: that a vast number of people with minuscule claim satisfaction outweighs a small number with high satisfaction. Standard linear aggregation does imply this. But the priority-weighted metric does not. With &alpha; &gt; 0, the very small welfare levels of a marginally-surviving population receive <em>less</em> priority weight, not more, because they are calculating over a near-zero benefit to each person. Let N people each have welfare level 0.01 (barely surviving), claim 1.0, and probability 0.5:</p>
+        <div class="math">F*(N barely-satisfied) = N &times; 0.5 &times; (1/0.01) = 50N</div>
+        <p>Hmm &mdash; this actually inflates their score. The solution: use benefit received, not welfare level, in the priority function. If the benefit increment is tiny (say 0.001 units of welfare), then c* = 1/(0.001) &times; &epsilon; &rarr; 0 as the benefit approaches zero. The metric can be specified to avoid the Repugnant Conclusion while retaining additivity throughout.</span></p>
+        <span class="section">iv. the government&rsquo;s claim: additive metrics with priority weighting are strictly superior</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Superiority of additive + priority — captures all non-linear intuitions; delivers precise verdicts; avoids arbitrary threshold choices; generates consistent rankings</span>The opposition will present non-linear metrics &mdash; F = &Sigma; p&#7522; &times; (c&#7522;)^&beta; or F = &Sigma; p&#7522; &times; log(c&#7522;) &mdash; as improvements over the linear metric. But each of these requires the arbitrary specification of a curvature parameter (&beta;, the logarithm base) with no principled derivation. The priority parameter &alpha; in our metric is derived from the degree of prioritarian commitment, which has an independent moral interpretation. Non-linear structural corrections are therefore <em>less</em> principled than priority-weighted linear aggregation, not more. We absorb all the opposition&rsquo;s genuine insights while maintaining axiomatic rigour.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-parfit-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Priority weighting c* = c &times; 1/w&#945; captures the intuition that the worse-off count for more within the additive framework</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The intuition that the worse-off have stronger claims translates into c* = c &times; (1/w&#7522;^&alpha;), giving greater weight to persons at lower welfare levels.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The priority parameter &alpha; controls the degree of prioritarian commitment with a clear moral interpretation: higher &alpha; = more weight to the worse-off.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>With priority weighting, the metric correctly ranks distributions in all cases the opposition uses to challenge plain aggregation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Priority-weighted additive metrics capture all legitimate non-linear intuitions while maintaining axiomatic rigour and decision-guidance.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The trolley case: with priority weighting, the metric saves five when the gap is moderate but saves one when deprivation is extreme</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Five at welfare 50, one at welfare 10: with &alpha;=0.5, F*(five) = 0.635 > F*(one) = 0.284; save the five. With &alpha;=2, F*(five) = 0.0018 < F*(one) = 0.009; save the one.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The priority parameter determines at what level of deprivation the individual&rsquo;s stronger claim overrides the numerical advantage of the five; this is a precise and adjustable threshold.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The non-linear metric cannot specify this threshold more precisely; it merely penalises concentration without identifying the exact moral turning point.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Priority weighting delivers precise case-by-case verdicts in trolley-style dilemmas; no structural non-linearity is needed.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Non-linear curvature parameters (&beta;, log) are less principled than the priority parameter &alpha;</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Non-linear metrics require specifying a curvature parameter (&beta; or the log base) with no independent moral interpretation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The priority parameter &alpha; is derived from the degree of commitment to the principle that absolute gains matter more to the worse-off; it has a clear moral interpretation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A metric whose parameters have principled moral interpretations is superior to one with structurally arbitrary curvature choices.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Priority-weighted linear aggregation is more principled than non-linear structural corrections; the government&rsquo;s framework is both more rigorous and more morally transparent.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The prioritarian metric absorbs all opposition concerns while maintaining consistent ranking</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Every case the opposition presents as a counterexample to linear aggregation &mdash; concentrated unfairness, the severely deprived single person, the repugnant conclusion &mdash; is handled by correct priority weighting within the additive framework.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The opposition&rsquo;s non-linear metrics, when formalized, either reduce to special cases of prioritarian SWFs or generate inconsistent rankings across comparison classes.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A framework that absorbs its opponents&rsquo; genuine insights is stronger than one that requires structural modifications to accommodate every new counterexample.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The prioritarian expected-claim metric is strictly superior to non-linear alternatives; it captures all genuine intuitions while maintaining the tractability and consistency of the additive approach.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADLER PANEL -->
+    <div class="speaker-panel" id="prop-adler-panel">
+      <div id="prop-adler-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I close the government&rsquo;s case. My colleagues have established that linear expected-claim satisfaction, properly specified with priority weighting, delivers correct verdicts in every case the opposition raises. My role is to formalise this claim within the framework of social welfare functions and to show that the opposition&rsquo;s non-linear amendments are, at best, special cases of the government&rsquo;s framework and, at worst, structurally inconsistent.</p>
+        <p>The prioritarian social welfare function (SWF) approach applies a strictly concave transformation g to each person&rsquo;s individual welfare before aggregation:</p>
+        <div class="math">W(P) = &Sigma;&#7522; g(E&#7522;[u])</div>
+        <p>where E&#7522;[u] is person i&rsquo;s expected utility under policy P, and g is concave (g'' &lt; 0). This is the government&rsquo;s framework. It is linear at the SWF level (we sum g-transformed utilities) but non-linear at the individual utility level, giving diminishing marginal moral weight to each additional unit of welfare. It delivers all the distribution-sensitivity the opposition demands without abandoning additive aggregation.</p>
+        <div class="case-box">
+          <strong>Formally absorbing the opposition: distribution X vs distribution Y.</strong><br><br>
+          Temkin&rsquo;s challenge: Distribution X gives Alice deficit 1.0, Bob deficit 0.0. Distribution Y gives both deficit 0.5. Linear metric: both score F = 0.5 + 0.5 = 1.0. Temkin claims Y is fairer and the linear metric misses this.<br><br>
+          But with a concave g (say g(x) = &minus;x&sup2;):<br>
+          W(X) = g(&minus;1.0) + g(0.0) = &minus;1 + 0 = &minus;1.0<br>
+          W(Y) = g(&minus;0.5) + g(&minus;0.5) = &minus;0.25 + &minus;0.25 = &minus;0.50<br><br>
+          W(Y) = &minus;0.50 > W(X) = &minus;1.00: Y is correctly judged fairer.<br><br>
+          The concave SWF, which is a form of linear aggregation at the social level, captures Temkin&rsquo;s intuition. The opposition has won nothing; they have described a special case of our framework.
+        </div>
+        <span class="section">i. the concave SWF formally absorbs temkin&rsquo;s concentration objection</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Concave SWF absorbs Temkin — applying g(x) = −x² to deficits captures the intuition that concentration is worse; this is additive at the SWF level; opposition's objection is already inside our framework</span>Temkin&rsquo;s objection is that Distribution X (Alice bears all the unfairness) and Distribution Y (unfairness shared equally) score identically on the linear metric. This is correct for the plain F = &Sigma; p &times; c metric. But the prioritarian SWF handles this naturally. Using g(deficit) = &minus;deficit&sup2; as our concave transformation:</p>
+        <div class="math">Distribution X: W = &minus;(1.0)&sup2; + &minus;(0.0)&sup2; = &minus;1.00<br>Distribution Y: W = &minus;(0.5)&sup2; + &minus;(0.5)&sup2; = &minus;0.25 + &minus;0.25 = &minus;0.50</div>
+        <p>W(Y) = &minus;0.50 &gt; W(X) = &minus;1.00. Y is correctly identified as fairer. Now Temkin will introduce the general principle: any distribution with equal deficits is fairer than a distribution with the same total deficit concentrated on fewer people. The SWF with concave g confirms this for any concave function. The government&rsquo;s framework contains Temkin&rsquo;s objection as a special case.</span></p>
+        <span class="section">ii. the sufficientarian threshold case</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Sufficientarian threshold — adding a step-function to g captures the intuition that falling below a threshold is morally special; still additive at the SWF level</span>Otsuka will argue that fairness becomes especially urgent when someone falls below a moral threshold &mdash; that a person with deficit above 0.5 has a qualitatively worse situation than one with deficit below 0.5. This can be handled by a step function in g:</p>
+        <div class="math">g(deficit) = &minus;deficit&sup2; if deficit &le; 0.5<br>g(deficit) = &minus;deficit&sup2; &minus; 2 if deficit &gt; 0.5</div>
+        <p>Now consider Distribution X (deficit 1.0, deficit 0.0) vs Distribution Y (deficit 0.5, deficit 0.5):</p>
+        <div class="math">W(X) = (&minus;1 &minus; 2) + 0 = &minus;3.00<br>W(Y) = &minus;0.25 + &minus;0.25 = &minus;0.50</div>
+        <p>The threshold creates an enormous jump in moral cost when someone falls below the line. The sufficientarian intuition is captured perfectly within the additive SWF framework. Otsuka has described a special case of our g-function, not a challenge to additive aggregation.</span></p>
+        <span class="section">iii. the pandemic case with three-level prioritarian weighting</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Three-level pandemic case — SWF with priority handles all demographic groups simultaneously; delivers precise rankings; opposition's framework would require separate pairwise comparisons</span>A hospital must allocate 300 ICU beds across three patient groups: Group A (100 patients, welfare level 20, survival probability 0.9 each), Group B (150 patients, welfare level 40, survival probability 0.7 each), Group C (200 patients, welfare level 70, survival probability 0.4 each). Using g(E[u]) = log(E[u]) as the concave transformation (where E[u] = p &times; welfare gain of 10 each):</p>
+        <div class="math">E_A[u] = 0.9 &times; 10 = 9.0 &nbsp;&nbsp;&nbsp; E_B[u] = 0.7 &times; 10 = 7.0 &nbsp;&nbsp;&nbsp; E_C[u] = 0.4 &times; 10 = 4.0</div>
+        <div class="math">W(all three) = 100&times;log(9) + 150&times;log(7) + 200&times;log(4)<br>= 100&times;2.197 + 150&times;1.946 + 200&times;1.386<br>= 219.7 + 291.9 + 277.2 = 788.8</div>
+        <p>Now suppose we can only treat two groups (300 beds). Compare treating A+B vs A+C vs B+C:</p>
+        <div class="math">W(A+B) = 219.7 + 291.9 = 511.6<br>W(A+C) = 219.7 + 277.2 = 496.9<br>W(B+C) = 291.9 + 277.2 = 569.1</div>
+        <p>Treat B and C: 150 moderately-deprived and 200 less-deprived patients. The concave log function has given more weight to Group A&rsquo;s worse-off status, but the numerical advantage of B+C still wins. The SWF delivers a crisp ranking. The opposition would require us to identify the &ldquo;strongest complaint&rdquo; made by any excluded patient &mdash; a process that does not generate a ranking across three exclusion options.</span></p>
+        <span class="section">iv. the opposition&rsquo;s non-linear metrics reduce to special cases of the prioritarian SWF</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Opposition is a special case — every non-linear metric the opposition proposes (squared deficits, log claims, threshold functions) is a special case of the concave SWF; government already contains the opposition</span>Let me close by demonstrating that every non-linear amendment the opposition proposes is already inside the government&rsquo;s framework. Temkin&rsquo;s squared-deficit penalty: special case of g(d) = &minus;d&sup2;. Otsuka&rsquo;s threshold urgency: special case of a step-function g. Voorhoeve&rsquo;s claim that strong individual complaints cannot be traded off: representable as a lexicographic priority rule, which is the limit of the prioritarian SWF as &alpha; &rarr; &infin;. Scanlon&rsquo;s contractualism: approximately representable as a maximin SWF (g concave to the extreme, prioritising only the worst-off), which is the limit as g becomes increasingly concave. Every position on the opposition bench is a special case of the government&rsquo;s framework with a specific choice of concave transformation. The debate is not between linear and non-linear fairness. It is about which concave transformation to use.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-adler-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The concave SWF absorbs Temkin&rsquo;s concentration objection: W(Y) > W(X) with g(d) = &minus;d&sup2;</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Temkin: Distribution X (deficit 1.0, 0.0) and Y (0.5, 0.5) score equally on F = &Sigma;p&times;c. W(X) = &minus;1.00, W(Y) = &minus;0.50 with g(d) = &minus;d&sup2;: Y is correctly judged fairer.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The concave g function penalises concentrated deficits automatically, without requiring a structural departure from additive aggregation at the SWF level.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Temkin&rsquo;s objection describes a special case of the concave SWF with g(d) = &minus;d&sup2;; it is not a challenge to additive aggregation but a specification of the concavity parameter.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Temkin&rsquo;s concentration objection is absorbed within the additive SWF framework; no structural non-linearity is required.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The step-function SWF captures sufficientarian threshold urgency within the additive framework</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Otsuka&rsquo;s sufficientarian intuition: falling below a threshold is morally qualitatively worse. Captured by g(d) with a downward step at d = 0.5: W(X) = &minus;3.0, W(Y) = &minus;0.5.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The step function is a special case of the general concave g family; sufficientarianism is a parameter choice within the additive SWF, not a challenge to it.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The additive SWF with appropriate g function handles threshold urgency more precisely than vague invocations of &ldquo;special moral importance below the threshold.&rdquo;</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Sufficientarian threshold urgency is a special case of the concave SWF; the government&rsquo;s framework already contains this intuition.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The three-group pandemic case: the log SWF delivers a crisp ranking that non-aggregative frameworks cannot produce</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Three patient groups with different welfare levels and survival probabilities: W(B+C) = 569.1 > W(A+B) = 511.6 > W(A+C) = 496.9 under log SWF.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The log SWF automatically weights the worse-off more while producing a complete ranking across three allocation options in a single calculation.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Contractualist pairwise-complaint comparison generates no complete ranking across three exclusion options; the SWF does.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The prioritarian SWF delivers complete rankings in complex multi-group cases; the opposition&rsquo;s framework cannot.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Every opposition metric is a special case of the concave SWF; the debate is about parameter choice, not structure</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Temkin&rsquo;s squared penalty = g(d) = &minus;d&sup2;. Otsuka&rsquo;s threshold = step-function g. Voorhoeve&rsquo;s lexicographic priority = limit as &alpha; &rarr; &infin;. Scanlon&rsquo;s maximin = limit as g becomes maximally concave.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>All opposition positions are special cases of the government&rsquo;s framework with specific parameter choices; they do not challenge additive aggregation at the SWF level.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The genuine debate is about which concave transformation g is morally correct, not whether the additive SWF framework is the right structure.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The opposition has not challenged additive aggregation; they have proposed specific parameter choices within it. The government&rsquo;s framework wins because it is the general structure that contains all their positions.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- RIGHT: Non-Linear / Distribution-Sensitive Fairness -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','voorhoeve',this)">Voorhoeve</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','scanlon',this)">Scanlon</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','otsuka',this)">Otsuka</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','temkin',this)">Temkin</button>
+  </div>
+
+  <!-- VOORHOEVE HEADER -->
+  <div class="col-header" id="opp-voorhoeve-header">
+    <div class="col-header-top"><span class="pill opp">Leader of the Opposition &mdash; Separateness &amp; Strong Claims</span><span class="col-subtitle">Alex Voorhoeve &mdash; &ldquo;How Should We Aggregate Competing Claims?&rdquo; Ethics, 2014; Morality as Fairness, 2014</span></div>
+    <div class="col-position">The linear expected-claim metric is structurally defective: it treats the fairness of a distribution as entirely determined by the total expected claim satisfaction, ignoring <em>who</em> bears the unsatisfied claims; strong individual claims cannot always be traded off against weak aggregate gains; a person facing a 90% deficit has a complaint against the policy that is not captured by the per-person average; fairness requires attending to the distribution of satisfaction across persons, not merely to its sum.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','voorhoeve','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','voorhoeve','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- SCANLON HEADER -->
+  <div class="col-header hidden" id="opp-scanlon-header">
+    <div class="col-header-top"><span class="pill opp">Deputy Leader &mdash; Contractualism &amp; Individual Complaints</span><span class="col-subtitle">T. M. Scanlon &mdash; What We Owe to Each Other, 1998</span></div>
+    <div class="col-position">Morality is a matter of what principles could not be reasonably rejected by anyone whose interests they affect; the linear metric allows policies to be imposed on individuals with very strong claims so long as the aggregate claim satisfaction is higher; but the person with the strong claim could reasonably reject the policy, and no principle permitting this could be justified to her; fairness cannot be a matter of summing over persons: it must be justifiable to each person affected.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','scanlon','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','scanlon','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- OTSUKA HEADER -->
+  <div class="col-header hidden" id="opp-otsuka-header">
+    <div class="col-header-top"><span class="pill opp">Opposition Member &mdash; Equal Concern &amp; Relational Equality</span><span class="col-subtitle">Michael Otsuka &mdash; &ldquo;Prioritarianism and the Separateness of Persons,&rdquo; Utilitas, 2012</span></div>
+    <div class="col-position">Equal concern requires attending not only to how much unfairness exists in the aggregate but to how it is distributed across persons; the government&rsquo;s prioritarian absorption move fails because it merely reweights individual claims within the same additive structure without changing the fundamental question: two distributions with identical F scores but radically different shapes can be morally non-equivalent; concentrated unfairness is worse than distributed unfairness even when totals are equal, and this cannot be captured by any additive metric.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','otsuka','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','otsuka','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- TEMKIN HEADER -->
+  <div class="col-header hidden" id="opp-temkin-header">
+    <div class="col-header-top"><span class="pill opp">Opposition Whip &mdash; Distributional Shape &amp; Structural Non-Linearity</span><span class="col-subtitle">Larry Temkin &mdash; Inequality, 1993; Rethinking the Good, 2012</span></div>
+    <div class="col-position">Simple additive metrics &mdash; even with priority weighting &mdash; are insensitive to the shape of the distribution of unsatisfied claims; two distributions with identical totals can differ dramatically in fairness because fairness has structural properties that cannot be captured by summing individual term values; the non-linear metric F = &Sigma; p&#7522; &times; c&#7522;&sup2; (or log or threshold variants) is not an arbitrary technical amendment but the correct formal expression of the moral insight that concentrated unfairness is worse than distributed unfairness at equal totals.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','temkin','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','temkin','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- VOORHOEVE PANEL -->
+    <div class="speaker-panel active" id="opp-voorhoeve-panel">
+      <div id="opp-voorhoeve-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>The government&rsquo;s metric is elegant. It is tractable. It delivers numbers. And it is morally defective in a way that elegant tractable numbers have consistently obscured throughout the history of utilitarian ethics. Let me show exactly where it fails and what the correct framework looks like.</p>
+        <p>The government defines fairness as:</p>
+        <div class="math">F(P) = &Sigma;&#7522; p&#7522; &times; c&#7522;</div>
+        <p>I deny that this is the correct metric, not because it is wrong to multiply probabilities by claims, but because it is wrong to think that the sum of these products captures everything morally relevant about a distribution. The government&rsquo;s metric is blind to who bears the unsatisfied claims.</p>
+        <div class="case-box">
+          <strong>The core counterexample: equal F scores, radically unequal fairness.</strong><br><br>
+          Policy X: Alice receives p = 1.0 (claim 0.5 satisfied with certainty). Bob receives p = 0.0 (claim 0.5 completely frustrated). F(X) = 1.0&times;0.5 + 0.0&times;0.5 = 0.50<br><br>
+          Policy Y: Alice receives p = 0.5 (claim 0.5 half-satisfied). Bob receives p = 0.5 (claim 0.5 half-satisfied). F(Y) = 0.5&times;0.5 + 0.5&times;0.5 = 0.50<br><br>
+          The government declares these equally fair. But Policy X leaves Bob with a complete deficit — his claim is entirely frustrated, while Alice&rsquo;s is entirely satisfied. Policy Y distributes the frustration equally. Virtually every moral intuition, from every tradition, judges Y fairer. The government&rsquo;s metric cannot see this difference.
+        </div>
+        <span class="section">i. the distributive blindness of the linear metric</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Distributive blindness — F is blind to who bears the deficit; equal F scores can mask morally non-equivalent distributions; this is the metric's fundamental defect</span>The linear metric adds up individual expected satisfactions and reports a total. But fairness is not merely about how much satisfaction exists in the total; it is about how the satisfaction and frustration are distributed across persons. Policy X and Policy Y both yield F = 0.50. But in X, one person bears the entire burden of unsatisfied claims. In Y, no one bears a disproportionate burden. These are not morally equivalent situations. The government&rsquo;s metric is structurally blind to this difference because it sums individual terms without attending to their relative magnitudes and the pattern of their distribution. This is not a minor technical limitation. It is a fundamental moral error.</span></p>
+        <span class="section">ii. the one vs. five: where the linear metric gets the wrong answer</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">One vs. five — with equal claims and equal probabilities, the metric always chooses five; but if the one faces a vastly stronger individual complaint, the metric can be wrong; the number threshold is too low</span>Consider this case. One person faces certain death without treatment (claim 1.0, survival probability 0.9 with treatment). Five people each face a 20% chance of death without treatment (claim 0.2 each, survival probability 0.6 with treatment).</p>
+        <div class="math">F(treat one) = 0.9 &times; 1.0 = 0.90<br>F(treat five) = 5 &times; (0.6 &times; 0.2) = 5 &times; 0.12 = 0.60</div>
+        <p>Good, the metric correctly treats the one. But now scale the five up to eight:</p>
+        <div class="math">F(treat eight) = 8 &times; 0.12 = 0.96</div>
+        <p>The metric now treats the eight. But each of the eight has only a 20% risk &mdash; they are not imminently dying. The person facing certain death has the strongest individual complaint possible. Should the certain prevention of a person&rsquo;s death be overridden by small reductions in small risks across eight people? Many contractualists say no. The metric says yes, once the number crosses a threshold. That threshold is set by the arithmetic of the metric, not by the severity of individual complaints.</span></p>
+        <span class="section">iii. the correct framework: comparing strongest individual complaints</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Strongest complaint — Voorhoeve's contractualist metric: compare the strongest individual complaint against each policy; if Alice's complaint against Policy X exceeds anyone's complaint against Policy Y, Y is fairer</span>The correct approach compares the strongest individual complaints against each policy. For each policy P, compute the maximum deficit borne by any person:</p>
+        <div class="math">max_complaint(P) = max&#7522;(c&#7522; &times; (1 &minus; p&#7522;))</div>
+        <p>A policy Q is fairer than P if max_complaint(Q) &lt; max_complaint(P) &mdash; if no one&rsquo;s claim is as severely frustrated under Q as under P. Return to the core counterexample:</p>
+        <div class="math">max_complaint(X) = max(0.5&times;(1&minus;1.0), 0.5&times;(1&minus;0.0)) = max(0, 0.5) = 0.50<br>max_complaint(Y) = max(0.5&times;0.5, 0.5&times;0.5) = 0.25</div>
+        <p>max_complaint(Y) = 0.25 &lt; max_complaint(X) = 0.50. Policy Y is fairer. This is the verdict that is correct and that the linear metric cannot deliver. The size of the strongest complaint against a policy is a structural property of the distribution that no additive metric captures.</span></p>
+        <span class="section">iv. the government&rsquo;s absorption move fails: a different question, not a special case</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Absorption fails — the government claims their concave SWF contains the opposition's concerns; but the SWF is still asking the wrong question: how much total weighted unfairness? We ask: how large is the largest individual complaint?</span>Adler will claim that the concave SWF g(d) = &minus;d&sup2; absorbs my objection. Let me show it does not. Consider three distributions:<br>X: deficits (1.0, 0.0, 0.0). &nbsp; Y: deficits (0.5, 0.5, 0.0). &nbsp; Z: deficits (0.34, 0.33, 0.33).</p>
+        <div class="math">W_g(X) = &minus;1.0&sup2; + 0 + 0 = &minus;1.00<br>W_g(Y) = &minus;0.5&sup2; + &minus;0.5&sup2; + 0 = &minus;0.50<br>W_g(Z) = &minus;0.34&sup2; + &minus;0.33&sup2; + &minus;0.33&sup2; = &minus;0.116 + &minus;0.109 + &minus;0.109 = &minus;0.334</div>
+        <p>The SWF ranks Z &gt; Y &gt; X. My metric ranks them by strongest complaint: Z (0.34) &gt; Y (0.50) &gt; X (1.0), giving the same ranking here. But now consider X&rsquo; = deficits (0.8, 0.8, 0.0):</p>
+        <div class="math">W_g(X&rsquo;) = &minus;0.64 + &minus;0.64 + 0 = &minus;1.28 &nbsp;&lt;&nbsp; W_g(Y) = &minus;0.50</div>
+        <p>The SWF prefers Y to X&rsquo;. But max_complaint(X&rsquo;) = 0.80 &gt; max_complaint(Y) = 0.50. My metric also prefers Y. They agree here. The divergence comes when we ask: is it worse for two people each to have deficit 0.8 (X&rsquo;), or for one person to have deficit 0.9 and one to have deficit 0.7 (Y&rsquo;)? The SWF ranks them by total squared deficits; my metric by the single largest complaint. These are genuinely different questions, and the government has merely renamed my question as a special case of theirs.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-voorhoeve-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Distributive blindness: the linear metric cannot distinguish morally non-equivalent distributions with equal F scores</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Policy X (p=1 for Alice, p=0 for Bob) and Policy Y (p=0.5 for both) both yield F = 0.50 when claims are equal. But X leaves Bob entirely unfairly treated, while Y distributes the frustration equally.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A metric that cannot distinguish these two policies is morally blind to the most basic distributive question: who bears the unsatisfied claims?</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Fairness requires attending to the distribution of claim satisfaction, not merely to its total; the linear metric misses this essential dimension.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The linear metric is structurally blind to who bears the burden of unsatisfied claims; this is a fundamental moral defect, not a minor limitation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The number threshold is set by arithmetic, not by the severity of individual complaints</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the one (claim 1.0, survival p=0.9) vs. N moderate-risk cases (claim 0.2, survival p=0.6): the metric switches at N=7.5, purely as an arithmetic artefact.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The arithmetic threshold ignores the severity of the strongest individual complaint: the one person faces certain death, each of the N faces only a 20% risk.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Whether the severity of the one&rsquo;s complaint overrides the aggregate of small risks is a moral question; the arithmetic of the linear metric answers it with a number, bypassing the moral question.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The linear metric&rsquo;s aggregation threshold is morally arbitrary; it is determined by the arithmetic of the formula, not by a principled account of when strong individual complaints override aggregate gains.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The max-complaint metric correctly ranks distributions the linear metric cannot distinguish</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>max_complaint(P) = max&#7522;(c&#7522; &times; (1 &minus; p&#7522;)) identifies the strongest individual complaint against a policy.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Policy X: max_complaint = 0.50 (Bob is entirely unserved). Policy Y: max_complaint = 0.25 (frustration is shared). Y correctly ranked fairer.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This ranking is correct and cannot be produced by any additive metric with equal F scores; the max-complaint approach is structurally necessary to capture it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The max-complaint metric delivers correct fairness rankings that the linear metric cannot; it captures a morally real dimension of distributive justice that additivity conceals.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The government&rsquo;s concave SWF asks a different question; it does not absorb the opposition&rsquo;s concerns</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The concave SWF asks: what is the total weighted unfairness, with concentration penalised? The max-complaint metric asks: what is the largest individual complaint? These are different questions.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Cases exist where the SWF and max-complaint diverge: the SWF can prefer a distribution with a very large strongest complaint over one with a smaller strongest complaint, if the latter has higher total weighted deficits.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The government has renamed the opposition&rsquo;s question as a special case of their own framework; but renaming is not absorbing; the substantive moral question &mdash; what is the strongest individual complaint? &mdash; is not answered by computing a total.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The concave SWF does not absorb the opposition&rsquo;s concerns; it asks a different question; the strongest individual complaint is a structural property of a distribution that no additive metric, however concavely transformed, can fully capture.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCANLON PANEL -->
+    <div class="speaker-panel" id="opp-scanlon-panel">
+      <div id="opp-scanlon-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>Broome&rsquo;s metric asks: what is the expected degree to which this policy satisfies the claims of everyone affected? My contractualist framework asks a different question: could this policy be reasonably rejected by anyone whose claims it frustrates? These are not the same question, and the difference between them is the difference between morality as a matter of totals and morality as a matter of justification to persons.</p>
+        <p>Let me illustrate this with a worked case that shows exactly where the linear metric fails the contractualist test &mdash; and where the contractualist approach delivers a verdict the metric cannot.</p>
+        <div class="case-box">
+          <strong>The organ transplant case: contractualism vs. linear aggregation.</strong><br><br>
+          Alice needs a heart transplant; she will certainly die without it (claim 1.0). Bob needs a kidney transplant; he will likely die without it, probability 0.85 (claim 0.85). Charlie needs a liver transplant; he has a 70% chance of dying without it (claim 0.70). We have one surgical team that can complete one procedure today.<br><br>
+          Linear metric:<br>
+          F(treat Alice) = 1.0 &times; 1.0 = 1.00<br>
+          F(treat Bob) = 0.85 &times; 0.85 = 0.72<br>
+          F(treat Charlie) = 0.70 &times; 0.70 = 0.49<br><br>
+          Treat Alice. So far contractualism agrees. But now suppose we discover a fourth patient, David, who needs only a minor procedure (claim 0.1, survival probability 1.0 if treated).<br><br>
+          F(treat David) = 1.0 &times; 0.1 = 0.10<br><br>
+          Still treat Alice. Good. But add 12 Davids:<br>
+          F(treat 12 Davids) = 12 &times; 0.10 = 1.20 > F(treat Alice) = 1.00<br><br>
+          The metric says treat 12 people with minor conditions rather than Alice who will certainly die. But Alice could reasonably reject any principle that permits her certain death so that twelve people with trivial conditions receive minor procedures.
+        </div>
+        <span class="section">i. the contractualist test: reasonable rejection</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Reasonable rejection — Alice could reasonably reject a principle that permits her certain death for 12 trivial procedures; this is not captured by F(12 Davids) > F(Alice); the metric gets the wrong answer</span>The contractualist test asks: could the person who bears the unsatisfied claim reasonably reject the principle that governs the allocation? Alice, facing certain death, could reasonably reject the principle &ldquo;always treat the group that maximises aggregate expected claim satisfaction&rdquo; when that principle permits her death to benefit twelve people with minor conditions. Her claim is not merely stronger in magnitude; it is categorically different in kind. The linear metric treats all claims as commensurable on a single scale and allows any number of weak claims to aggregate past a strong one. Contractualism denies this: there are cases where the strongest individual complaint constitutes a reasonable rejection of any principle that overrides it.</span></p>
+        <span class="section">ii. the correct framework: pairwise comparison of complaints</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Pairwise complaints — compare Alice's complaint against treating any other individual; Alice beats each David (1.0 vs 0.1); this comparison drives the verdict, not aggregate totals</span>The contractualist procedure compares, for each person in the untreated group, the complaint they would have against being passed over, with the complaint Alice would have against being passed over. Alice&rsquo;s complaint: certain death, claim deficit = 1.0 &times; 1.0 = 1.0. Each David&rsquo;s complaint: minor condition untreated, claim deficit = 1.0 &times; 0.1 = 0.10. Alice&rsquo;s complaint dominates each David&rsquo;s complaint individually:</p>
+        <div class="math">complaint(Alice vs David&#7522;) = 1.0 &gt; 0.10 for all i</div>
+        <p>Since Alice beats each David in pairwise comparison, no David&rsquo;s complaint grounds a reasonable rejection of treating Alice. The fact that there are twelve Davids is irrelevant: we are comparing individual complaints, not summing them. Treat Alice. This is the correct verdict, and it is delivered by pairwise comparison, not by additive aggregation.</span></p>
+        <span class="section">iii. where aggregation is appropriate: the contractualist permission</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Aggregation sometimes permitted — when claims are equal or similar, numbers do count; contractualism is not anti-aggregation but restricts aggregation to cases where pairwise comparisons permit it</span>Contractualism is not absolutely anti-aggregationist. When claims are equal and similar in kind, aggregation is appropriate. Suppose five people each face a 60% survival probability with treatment (claim 0.6 each) versus one person facing a 70% survival probability with treatment (claim 0.7).</p>
+        <div class="math">F(treat five) = 5 &times; 0.6 &times; 0.6 = 1.80 &nbsp;&nbsp;&nbsp;&nbsp; F(treat one) = 0.7 &times; 0.7 = 0.49</div>
+        <p>Now compare pairwise: each of the five has complaint = 0.6 &times; 0.4 = 0.24. The one has complaint = 0.7 &times; 0.3 = 0.21. Each of the five beats the one pairwise (0.24 &gt; 0.21). Aggregation is permitted: treat the five. The numbers count here because each individual complaint among the five exceeds the individual complaint of the one. When pairwise dominance obtains, contractualism permits aggregation. The difference from the Broome approach is that the permission must be grounded in pairwise comparison, not derived from arithmetic totals.</span></p>
+        <span class="section">iv. against the government&rsquo;s computational tractability argument</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against tractability objection — pairwise comparison is O(n²) but still tractable; the government's real objection is that contractualism sometimes delivers verdicts their metric cannot reproduce; this is a feature, not a bug</span>Arneson argues that contractualism is computationally intractable. In the Alice vs. twelve Davids case, pairwise comparison is O(n&sup2;) in the number of comparisons, which is not O(n). But the relevant computation is between Alice and <em>each</em> David, not all pairwise comparisons across all persons &mdash; which is O(n) comparisons. The government&rsquo;s real objection is not computational: it is that contractualism delivers verdicts that conflict with their metric&rsquo;s verdicts. That is precisely the point. The metric says treat twelve Davids; contractualism says treat Alice. The contractualist answer is correct. A framework that delivers the wrong answer more quickly is not superior to one that delivers the right answer at slightly greater computational cost.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-scanlon-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Alice could reasonably reject any principle permitting her death for 12 trivial procedures; the metric delivers the wrong verdict</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>F(treat 12 Davids) = 1.20 > F(treat Alice) = 1.00: the linear metric recommends treating twelve people with minor conditions over saving Alice&rsquo;s life.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Alice faces certain death; her claim deficit under the metric&rsquo;s recommended policy is 1.0. She could reasonably reject any principle that generates this outcome for the sake of twelve trivial benefit gains.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A metric that generates policies that can be reasonably rejected by those they most severely harm is morally defective, regardless of its aggregate score.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The linear metric delivers the wrong verdict in the organ transplant case; contractualism correctly identifies that Alice&rsquo;s reasonable rejection overrides the aggregate gain to the twelve Davids.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Pairwise comparison: Alice beats each David individually (1.0 > 0.10); numbers are irrelevant when pairwise dominance obtains</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Contractualist procedure: compare Alice&rsquo;s complaint (deficit 1.0) with each David&rsquo;s complaint (deficit 0.10) individually. Alice dominates each David: 1.0 > 0.10 for all twelve.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>When the strongest individual complaint dominates every other individual complaint in pairwise comparison, no countervailing complaint grounds a reasonable rejection of serving the strongest claimant.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The number twelve is irrelevant: we are comparing individual complaints, not summing them; thirteen Davids would not change the verdict.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Pairwise dominance is the correct criterion; when Alice beats each David individually, aggregation is impermissible regardless of the number of Davids.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Contractualism permits aggregation when pairwise complaints are comparable; it is not anti-aggregationist</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Five people with complaint 0.24 each vs. one with complaint 0.21: each of the five beats the one pairwise (0.24 > 0.21); aggregation is permitted; treat the five.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Contractualism restricts aggregation to cases where pairwise dominance grounds the permission; it does not prohibit aggregation categorically.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The linear metric permits aggregation in all cases, including those (Alice vs Davids) where pairwise dominance prohibits it; contractualism is the more discriminating and correct framework.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Contractualism is not anti-aggregationist; it correctly restricts aggregation to cases where individual pairwise comparisons permit it, avoiding the morally arbitrary threshold of the linear metric.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The tractability objection fails: pairwise comparison is O(n) in the relevant case and delivers the right answer</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the Alice vs. Davids case, pairwise comparison requires n comparisons (Alice vs each David), not n&sup2;; the computational cost is the same order as the linear metric.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The government&rsquo;s real objection is that contractualism delivers verdicts that conflict with the metric&rsquo;s verdicts; this is precisely the point &mdash; the contractualist verdicts are correct.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A framework that delivers the wrong answer efficiently is not superior to one that delivers the right answer at comparable computational cost.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Computational tractability is a red herring; contractualism is tractable in relevant cases and delivers the correct verdicts that the linear metric gets wrong.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTSUKA PANEL -->
+    <div class="speaker-panel" id="opp-otsuka-panel">
+      <div id="opp-otsuka-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I want to engage directly with the government&rsquo;s strongest move: the claim that the prioritarian social welfare function absorbs all our concerns. I accept that the concave SWF is an improvement over the plain linear metric. But I deny that it resolves the fundamental problem, and I shall show this with two precise numerical demonstrations.</p>
+        <p>The government&rsquo;s absorption move proceeds as follows: take any distribution the opposition finds objectionable, apply a concave transformation g to the individual claim deficits, compute the weighted sum, and observe that the distribution the opposition prefers scores higher. They conclude that the opposition&rsquo;s intuition is &ldquo;captured&rdquo; by the SWF. But this is a non sequitur. The SWF produces the same ranking the opposition wants in these cases <em>because</em> concentrated deficits mechanically produce higher quadratic sums. It does not capture the moral reason why concentrated unfairness is worse.</p>
+        <div class="case-box">
+          <strong>The rank-reversal problem: where the SWF and equal concern diverge.</strong><br><br>
+          Distribution A: three people, deficits (0.8, 0.1, 0.1). Total deficit = 1.0.<br>
+          Distribution B: three people, deficits (0.4, 0.4, 0.2). Total deficit = 1.0.<br><br>
+          Linear metric: F(A) = 0 + 0 + 0 = 0 (all deficits equal unsatisfied claim, F = 0 for this presentation). Let&rsquo;s use fairness scores directly as 1 minus total deficit rate.<br><br>
+          Squared SWF: W(A) = &minus;(0.8&sup2;+0.1&sup2;+0.1&sup2;) = &minus;(0.64+0.01+0.01) = &minus;0.66<br>
+          W(B) = &minus;(0.4&sup2;+0.4&sup2;+0.2&sup2;) = &minus;(0.16+0.16+0.04) = &minus;0.36<br><br>
+          The SWF correctly prefers B to A (W(B) > W(A)). Good. Now consider:<br><br>
+          Distribution C: deficits (0.6, 0.6, 0.4). Total = 1.6<br>
+          Distribution D: deficits (0.9, 0.1, 0.1). Total = 1.1<br><br>
+          W(C) = &minus;(0.36+0.36+0.16) = &minus;0.88<br>
+          W(D) = &minus;(0.81+0.01+0.01) = &minus;0.83<br><br>
+          The SWF prefers D to C (W(D) > W(C)) because D&rsquo;s total is lower. But D has one person with a 0.9 deficit &mdash; a claim almost entirely frustrated &mdash; while C&rsquo;s worst-off person has only 0.6. Equal concern demands we rank C above D: nobody faces near-total claim frustration in C. The SWF gets this wrong.
+        </div>
+        <span class="section">i. equal concern is not captured by the concave swf</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Equal concern fails in SWF — the SWF can prefer a distribution with a near-total deficit for one person over one with moderate deficits for all; equal concern condemns this; the SWF cannot see it</span>Equal concern requires that each person&rsquo;s situation be attended to equally &mdash; not that welfare be equalised, but that each person&rsquo;s claim receives equal moral consideration. This implies that a person whose claim is 90% frustrated has a situation that demands serious moral attention, regardless of what others&rsquo; deficits are. In Distribution D, one person has deficit 0.9: their claim is almost entirely frustrated. In Distribution C, the worst-off person has deficit 0.6: serious, but not near-total. Equal concern ranks C above D because nobody in C is as badly served. The squared SWF ranks D above C because D&rsquo;s total squared deficits are lower. The SWF is attending to the total, and the equal-concern requirement is attending to the worst position. These are different moral questions, and the SWF gets this one wrong.</span></p>
+        <span class="section">ii. the separateness of persons means total-sensitivity is not enough</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Separateness — each person is a separate locus of concern; it is not enough that the social total is acceptable; each person's situation must be acceptable to her; the SWF conflates the total with the individual</span>The separateness of persons means that each person is a distinct locus of moral concern, not merely a contributor to an aggregate. A social total &mdash; however computed &mdash; can be perfectly acceptable from a bird&rsquo;s-eye view while being unacceptable from the perspective of the person who bears the largest deficit. Consider:</p>
+        <div class="math">Distribution E: (0.95, 0.02, 0.03). W_g = &minus;(0.9025 + 0.0004 + 0.0009) = &minus;0.904<br>Distribution F: (0.33, 0.34, 0.33). W_g = &minus;(0.109 + 0.116 + 0.109) = &minus;0.334</div>
+        <p>The SWF strongly prefers F (W = &minus;0.334 &gt; W = &minus;0.904), correctly. But now compare:</p>
+        <div class="math">Distribution G: (0.50, 0.50, 0.50). W_g = &minus;(0.25+0.25+0.25) = &minus;0.75<br>Distribution H: (0.40, 0.40, 0.80). W_g = &minus;(0.16+0.16+0.64) = &minus;0.96</div>
+        <p>The SWF correctly prefers G (&minus;0.75 &gt; &minus;0.96). But both G and H would be rejected by Person 3 in H, who has deficit 0.80. The SWF generates the right ranking but for the wrong reason: it penalises H because of the squared cost of 0.80, not because of equal concern for Person 3.</span></p>
+        <span class="section">iii. the correct metric: minimising the maximum deficit (leximin)</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Leximin — the correct metric first minimises the maximum deficit, then the second-largest, etc.; this is what equal concern requires; it captures distributional shape fully</span>Equal concern implies a leximin ordering of deficit distributions: first minimise the maximum deficit; among distributions with equal maximum deficits, minimise the second-largest; and so on. Applied to our cases:</p>
+        <div class="math">Leximin(A: 0.8,0.1,0.1) = sorted (0.8, 0.1, 0.1): worst = 0.8<br>Leximin(B: 0.4,0.4,0.2) = sorted (0.4, 0.4, 0.2): worst = 0.4<br>Leximin prefers B: 0.4 &lt; 0.8. Correct.</div>
+        <div class="math">Leximin(C: 0.6,0.6,0.4) = worst = 0.6<br>Leximin(D: 0.9,0.1,0.1) = worst = 0.9<br>Leximin prefers C: 0.6 &lt; 0.9. Correct (the SWF preferred D).</div>
+        <p>Leximin correctly ranks C above D, where the SWF fails. This is not a minor technical detail: it reflects the moral importance of ensuring nobody faces near-total claim frustration, even at a cost to the aggregate total of deficits.</span></p>
+        <span class="section">iv. the government has not absorbed equal concern; it has described a different metric</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Different metric — the SWF answers "what is total weighted unfairness?"; equal concern asks "is anyone's situation unacceptable to them?"; these are genuinely different moral questions</span>Adler&rsquo;s absorption move claims that every opposition metric is a special case of the concave SWF. The leximin ordering is not a special case of any weighted sum: it cannot be represented as &Sigma; g(d&#7522;) for any function g, because the leximin ordering is lexicographic and weighted sums are not. Leximin is the formal expression of the prioritarian commitment taken to its logical extreme &mdash; and at that extreme, it ceases to be a weighted sum and becomes a different kind of ranking. The government has demonstrated that some non-linear transformations approximate some of our cases. They have not absorbed the fundamental claim: that equal concern requires attending to the worst-off person&rsquo;s situation as a constraint, not merely as a heavily weighted term in a sum.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-otsuka-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The concave SWF can prefer a distribution where one person has 90% deficit over one where everyone has 60%; equal concern condemns this</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Distribution C (0.6, 0.6, 0.4): W_g = &minus;0.88. Distribution D (0.9, 0.1, 0.1): W_g = &minus;0.83. The SWF prefers D because D&rsquo;s total squared deficits are lower.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But in D, one person has deficit 0.9 &mdash; near-total claim frustration; in C, no one faces more than 0.6 deficit. Equal concern requires ranking C above D.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The SWF gets this ranking wrong; it attends to the total, not to the worst position; equal concern attends to the worst position.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The concave SWF fails the equal concern test in cases where total deficit is higher but no individual suffers near-total frustration; it is not an adequate metric for fairness.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Each person is a separate locus of moral concern; total-sensitivity conflates individual and aggregate perspectives</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Separateness of persons means each individual&rsquo;s situation must be morally acceptable to them, not just that the social total is acceptable from a bird&rsquo;s-eye view.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A person with deficit 0.95 has a situation that demands serious moral attention regardless of what others&rsquo; deficits are; the SWF penalises this deficit but for reasons of total reduction, not equal concern.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>These are different moral questions; the SWF can produce the right ranking for the wrong reason, concealing its failure to respect the correct moral principle.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Total-sensitivity is insufficient for equal concern; the SWF penalises concentration for the wrong reason; the correct metric must attend to each person&rsquo;s situation as an individual constraint.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Leximin correctly ranks all cases and cannot be represented as any weighted sum</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Leximin: rank distributions by worst deficit, then second-worst, etc. Leximin(B) = 0.4 < Leximin(A) = 0.8: B preferred. Leximin(C) = 0.6 < Leximin(D) = 0.9: C preferred (SWF preferred D).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Leximin cannot be represented as &Sigma; g(d&#7522;) for any function g; it is a lexicographic ordering, not a weighted sum; it lies outside the additive SWF family.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Therefore leximin is not a special case of the government&rsquo;s framework; Adler&rsquo;s absorption move fails.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Leximin is the correct expression of equal concern; it lies outside the additive SWF family; the government cannot absorb it; the opposition&rsquo;s framework is genuinely distinct.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The government answers &ldquo;total weighted unfairness&rdquo;; equal concern asks &ldquo;is anyone&rsquo;s situation unacceptable&rdquo;; these are genuinely different questions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The SWF asks: what is the total weighted unfairness of a distribution? Equal concern asks: is there any person whose situation is morally unacceptable by the standard of fair treatment?</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These questions can diverge: a distribution with low total weighted unfairness can still contain one person in a morally unacceptable situation (deficit 0.9).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Fairness requires answering the equal concern question, not merely the total-reduction question; the government&rsquo;s framework answers only the latter.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The government&rsquo;s framework and the opposition&rsquo;s are genuinely distinct; they answer different moral questions; equal concern requires the opposition&rsquo;s question, and no additive metric can answer it.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEMKIN PANEL -->
+    <div class="speaker-panel" id="opp-temkin-panel">
+      <div id="opp-temkin-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I want to close the opposition&rsquo;s case by returning to the mathematical heart of this debate and showing precisely why the government&rsquo;s additive framework &mdash; even with priority weighting and concave transformation &mdash; misses something that any adequate fairness metric must capture. My claim is simple: fairness has structural properties that cannot be captured by any function that adds up individual values.</p>
+        <p>I call this the shape problem. Two distributions can have identical additive scores &mdash; identical F values, identical W values under any concave g &mdash; and yet differ dramatically in fairness because of their distributional shape. Let me build up to this through a series of cases that becomes progressively more revealing.</p>
+        <div class="case-box">
+          <strong>The shape problem: four cases with identical squared-SWF scores but different fairness profiles.</strong><br><br>
+          All distributions have four people with total deficit = 2.0 and W_g = &minus;(sum of squared deficits).<br><br>
+          Case 1: (1.0, 1.0, 0.0, 0.0). W = &minus;(1+1+0+0) = &minus;2.00. Two entirely unsatisfied, two fully satisfied.<br>
+          Case 2: (0.8, 0.8, 0.2, 0.2). W = &minus;(0.64+0.64+0.04+0.04) = &minus;1.36. Concentrated moderate.<br>
+          Case 3: (0.5, 0.5, 0.5, 0.5). W = &minus;(0.25&times;4) = &minus;1.00. Equal moderate.<br>
+          Case 4: (0.9, 0.7, 0.3, 0.1). W = &minus;(0.81+0.49+0.09+0.01) = &minus;1.40. Graduated.<br><br>
+          The SWF ranks: Case 3 best (W=&minus;1.00), Case 2 (W=&minus;1.36), Case 4 (W=&minus;1.40), Case 1 worst (W=&minus;2.00).<br>
+          But consider: Cases 2 and 4 score nearly identically (&minus;1.36 vs &minus;1.40). Yet Case 4 has the most graduated distribution of deficits, which many people regard as fairer than Case 2&rsquo;s pattern where two people bear heavy burdens and two bear almost none. Cases 2 and 4 have very different shapes but nearly identical W scores. The SWF cannot see this difference.
+        </div>
+        <span class="section">i. the shape problem: identical swf scores, different fairness profiles</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Shape problem — Case 2 (0.8,0.8,0.2,0.2) and Case 4 (0.9,0.7,0.3,0.1) have nearly equal SWF scores but very different shapes; the SWF cannot distinguish them; fairness can</span>Cases 2 and 4 represent genuinely different distribution shapes. Case 2 creates two distinct groups: the heavily-burdened (0.8) and the lightly-burdened (0.2). Case 4 creates a graduated spectrum: (0.9, 0.7, 0.3, 0.1), where the deficits form a roughly uniform spread. Many theories of fairness &mdash; from egalitarianism to sufficientarianism &mdash; would judge Case 4 fairer because the spread of burden is more graduated and no sharp division between &ldquo;those who bear it&rdquo; and &ldquo;those who don&rsquo;t&rdquo; exists. The squared SWF gives Case 2 a marginal advantage (&minus;1.36 vs &minus;1.40) purely because two of the deficit terms are smaller (0.2&sup2; &lt; 0.3&sup2;), not because it has identified any morally relevant structural difference between the shapes. Fairness attends to shapes; the SWF attends to total weighted values.</span></p>
+        <span class="section">ii. the non-linear metric: fairness as a function of the gini coefficient of deficits</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Gini-adjusted fairness — F* = F × (1 − G_deficits) where G is the Gini coefficient of the deficit distribution; this captures distributional shape; government's metric cannot</span>A structurally adequate fairness metric must be sensitive to the distribution of deficits, not merely to their weighted sum. One way to do this: compute the Gini coefficient G of the deficit distribution and adjust:</p>
+        <div class="math">F*(P) = F(P) &times; (1 &minus; G_deficits(P))</div>
+        <p>where G = 0 means all deficits equal (perfectly equal frustration) and G = 1 means all deficit concentrated on one person. For Case 3 (0.5, 0.5, 0.5, 0.5): G = 0, so F* = F &times; 1.0 = maximum. For Case 1 (1.0, 1.0, 0.0, 0.0): G = 0.50, so F* = F &times; 0.5 = half the unadjusted score. For Case 4 (0.9, 0.7, 0.3, 0.1): G = (|0.9&minus;0.7| + |0.9&minus;0.3| + |0.9&minus;0.1| + |0.7&minus;0.3| + |0.7&minus;0.1| + |0.3&minus;0.1|) / (2 &times; 4 &times; mean_deficit). With mean = 0.5: G = (0.2+0.6+0.8+0.4+0.6+0.2)/(2&times;4&times;0.5) = 2.8/4.0 = 0.70. F*(Case 4) = F &times; (1&minus;0.70) = F &times; 0.30. This is lower than Case 2&rsquo;s Gini-adjusted score, correctly reflecting that Case 4&rsquo;s more unequal spread of deficits (despite the graduated appearance) actually has higher inequality of burden.</span></p>
+        <span class="section">iii. the pandemic case: gini-adjusted metric delivers the correct policy ranking</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Pandemic ranking — Gini-adjusted metric correctly ranks three vaccine policies by attending to both total expected claim satisfaction and the equality of its distribution; linear metric cannot</span>Consider three pandemic vaccine allocation policies with the following expected deficit distributions across 100 people each:<br>Policy A: all 100 elderly patients receive deficit 0.2 each (uniform treatment). Gini = 0. F = 100 &times; (0.8 &times; 1.0 &times; 0.8) = ...let me use net expected satisfaction scores.</p>
+        <div class="math">Policy A (uniform elderly): 100 people, expected satisfaction = 0.8 each. F = 100 &times; 0.8 = 80. G_deficit = 0. F* = 80 &times; 1.0 = 80.<br><br>Policy B (unequal elderly): 50 get 0.9, 50 get 0.3. F = 50&times;0.9 + 50&times;0.3 = 45+15 = 60. G &approx; 0.5. F* = 60 &times; 0.5 = 30.<br><br>Policy C (targeted vulnerable): 40 very high-need patients, satisfaction = 0.95 each. F = 40&times;0.95 = 38. G = 0. F* = 38 &times; 1.0 = 38.</div>
+        <p>Ranking: Policy A (F*=80) &gt; Policy C (F*=38) &gt; Policy B (F*=30). The Gini adjustment correctly penalises Policy B for its unequal distribution of treatment outcomes even though its raw F score (60) exceeds Policy C&rsquo;s (38). The government&rsquo;s plain metric would rank B above C; the Gini-adjusted metric correctly ranks C above B because B imposes concentrated deficit on half its patients.</span></p>
+        <span class="section">iv. the fundamental conclusion: fairness is not additive</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Fairness is non-additive — the shape of the deficit distribution is morally relevant; this cannot be captured by any additive metric; the government has conflated total weighted deficits with fairness</span>I close with the fundamental point. The government has consistently assumed that fairness is a property of the total of individual values, however cleverly weighted. They have shown that with a careful enough weighting function, many of our counterexamples can be handled. But they have not shown that fairness <em>is</em> a total. Two distributions with the same total weighted deficit can differ in their distributional shape &mdash; in the Gini coefficient of their deficit distribution, in the gap between the highest and lowest deficits, in the presence or absence of threshold violations &mdash; and these differences are morally real. The government&rsquo;s framework attends to totals; fairness attends to shapes. No additive metric can be equivalent to a shape-sensitive metric, because shape information is systematically lost in the summation. The non-linear fairness metric &mdash; whether expressed through Gini adjustment, leximin, max-complaint, or threshold functions &mdash; is not an ad hoc technical amendment. It is the correct formal expression of a moral insight that the government&rsquo;s framework was designed to suppress: that concentrated unfairness is worse than distributed unfairness, even at equal totals.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-temkin-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The shape problem: Cases 2 and 4 have nearly equal SWF scores but different distributional shapes; fairness can distinguish them</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Case 2 (0.8, 0.8, 0.2, 0.2): W = &minus;1.36. Creates two groups: heavily-burdened and lightly-burdened. Case 4 (0.9, 0.7, 0.3, 0.1): W = &minus;1.40. Creates a graduated spectrum.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The SWF marginally prefers Case 2 (&minus;1.36 vs &minus;1.40) because smaller terms in Case 2 (0.2&sup2; &lt; 0.3&sup2;) lower the total, not because it identifies a morally relevant structural advantage in Case 2 over Case 4.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Distributional shape &mdash; graduated vs bimodal deficit distribution &mdash; is morally relevant and cannot be captured by comparing the magnitude of the total weighted deficit.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The SWF cannot distinguish morally non-equivalent distributions with similar total squared deficits; the shape problem shows fairness is not a total.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The Gini-adjusted metric F* = F &times; (1&minus;G) captures distributional shape; the plain and SWF metrics cannot</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Gini coefficient of the deficit distribution captures how equally or unequally the frustration of claims is spread; G=0 means equal distribution, G=1 means all deficit on one person.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>F* = F &times; (1&minus;G) penalises distributions where the burden of unsatisfied claims is concentrated, using a shape-sensitive adjustment that no additive metric can replicate.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Case 1 (G=0.5): F* = F/2. Case 3 (G=0): F* = F. The Gini adjustment correctly ranks Case 3 much higher than Case 1 in a way the SWF alone cannot fully capture in all cases.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The Gini-adjusted fairness metric correctly penalises concentrated deficits using shape information that additive metrics systematically discard.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The Gini-adjusted metric correctly ranks the pandemic policies; the plain metric ranks Policy B above C incorrectly</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Policy A (uniform, G=0): F*=80. Policy B (unequal, G=0.5): F*=30. Policy C (targeted, G=0): F*=38. Correct ranking: A > C > B.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The plain linear metric ranks A (80) > B (60) > C (38): incorrect, because B&rsquo;s unequal treatment of identical patients generates unjustified concentration of deficit.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The Gini adjustment captures the moral significance of equal treatment within groups; the plain metric cannot.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The Gini-adjusted metric delivers correct rankings in the pandemic case; the plain linear metric gets the ranking wrong by ignoring distributional shape within groups.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Fairness is not additive: shape information is lost in summation; non-linear metrics are the correct formal expression of distribution-sensitive fairness</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Any additive metric &Sigma; f(d&#7522;) loses shape information: two distributions with the same set of individual values but different assignments to persons are treated as equivalent.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Shape information &mdash; Gini coefficient, max deficit, gap between best and worst &mdash; is morally real and cannot be recovered from the sum of individual terms.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Non-linear metrics (Gini-adjusted F*, leximin, max-complaint) are not ad hoc amendments but the correct formal expressions of the moral principle that concentrated unfairness is worse than distributed unfairness at equal totals.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Fairness is fundamentally non-additive; no additive metric, however cleverly specified, can capture the moral significance of distributional shape; the opposition&rsquo;s non-linear metrics are the correct formal framework for distribution-sensitive fairness.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+var state={
+  prop:{speaker:'broome',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'voorhoeve',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
