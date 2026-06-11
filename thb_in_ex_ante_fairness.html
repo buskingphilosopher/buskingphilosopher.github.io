@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Value of Chances</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 10px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.math{font-family:'Courier New',monospace;font-size:12px;background:rgba(200,169,90,.08);border:1px solid rgba(200,169,90,.2);border-radius:3px;padding:6px 10px;margin:.5rem 0 .75rem;color:#d4c08a;line-height:1.7;display:block;overflow-x:auto;white-space:pre}
+.math-inline{font-family:'Courier New',monospace;font-size:11.5px;background:rgba(200,169,90,.08);border:1px solid rgba(200,169,90,.18);border-radius:2px;padding:1px 5px;color:#d4c08a;white-space:nowrap}
+.verdict-box{background:var(--bg3);border:1px solid rgba(255,255,255,.13);border-radius:4px;padding:.6rem 1rem;margin:.5rem 0 .75rem;font-family:'Courier New',monospace;font-size:12px;color:#e0ddd6;line-height:1.8}
+.verdict-box .v-label{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:4px;display:block}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">The Value of Chances &mdash; Broome (1990&ndash;91) &bull; Otsuka (2006, 2017) &bull; Wasserman (1996) &bull; Voorhoeve &amp; Fleurbaey (2012) &bull; Diamond (1967) &bull; Taurek (1977) &bull; Lazenby (2014) &bull; Vong (2015) &bull; Scanlon (1998)</div>
+  <div class="motion-title">&ldquo;This House Believes That Chances Have Moral Value Independent of Whether They Result in the Good Being Received &mdash; Ex Ante Fairness Is Genuine Fairness&rdquo;</div>
+  <div class="motion-sub">Proposition (Pro-chance value) &bull; Otsuka &middot; Broome &middot; Voorhoeve &nbsp;&mdash;&nbsp; Opposition (Ex post / anti-chance value) &bull; Wasserman &middot; Lazenby &middot; Scanlon</div>
+</div>
+
+<div class="columns">
+
+<!-- ══════════════ PROPOSITION — PRO-CHANCE VALUE ══════════════ -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','otsuka',this)">Otsuka</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','broome',this)">Broome</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','voorhoeve',this)">Voorhoeve</button>
+  </div>
+
+  <!-- OTSUKA HEADER -->
+  <div class="col-header" id="prop-otsuka-header">
+    <div class="col-header-top"><span class="pill prop">Intrinsic Value of Equal Chances</span><span class="col-subtitle">Michael Otsuka &bull; &ldquo;Saving Lives&rdquo; (2006) &bull; &ldquo;Determinism and the Value of Equal Chances&rdquo; (2017)</span></div>
+    <div class="col-position">When two people have equal claims to an indivisible life-saving resource, fairness requires giving each an equal chance &mdash; not because chances causally improve the probability of getting the good, but because equality of chances is itself a fair distribution of something rationally valuable. Even if a chance turns out to yield nothing, it is better to have had a genuine equal chance than to have been cut out entirely. This holds even under determinism, where &ldquo;chances&rdquo; are merely epistemic.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','otsuka','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','otsuka','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BROOME HEADER -->
+  <div class="col-header hidden" id="prop-broome-header">
+    <div class="col-header-top"><span class="pill prop">Fairness, Claims &amp; Surrogate Satisfaction</span><span class="col-subtitle">John Broome &bull; &ldquo;Fairness&rdquo; (1990&ndash;91) &bull; <em>Weighing Goods</em> (1991)</span></div>
+    <div class="col-position">Fairness requires satisfying competing claims in proportion to their strength. When an indivisible good cannot be shared, a weighted lottery provides surrogate satisfaction: entering a person&rsquo;s claim into a lottery proportionate to its strength is the morally required next-best substitute for direct proportional satisfaction. The chance is not nothing &mdash; it partially satisfies the requirement of fairness even if the claimant loses. If a person was never in with a chance, their claim was not respected at all.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','broome','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','broome','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- VOORHOEVE HEADER -->
+  <div class="col-header hidden" id="prop-voorhoeve-header">
+    <div class="col-header-top"><span class="pill prop">Separateness of Persons &amp; The Distribution of Chances</span><span class="col-subtitle">Alex Voorhoeve &bull; Voorhoeve &amp; Fleurbaey (2012) &bull; &ldquo;How Should We Aggregate&rdquo; (2014)</span></div>
+    <div class="col-position">The separateness of persons demands that the distribution of chances matters independently of expected outcomes. When individuals face competing risks, how those risks are distributed across distinct persons carries moral weight that cannot be captured by summing expected values. A policy that gives five people a 20% chance of being saved is not equivalent to saving one person with certainty, even when expected numbers saved are equal &mdash; because the distribution of who bears risk and who holds hope is morally significant.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','voorhoeve','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','voorhoeve','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- ─── OTSUKA ─── -->
+    <div class="speaker-panel active" id="prop-otsuka-panel">
+      <div id="prop-otsuka-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to begin with the simplest possible case, because it is the one that the opposition must confront most directly: two people with equal claims to one indivisible life-saving resource. Call them Alice and Bob. We can save one but not both. They have equally strong claims. What should we do?</p>
+        <p>The answer most people give immediately is: toss a coin. Give each a 50% chance. But the opposition will say this is mere procedure &mdash; a ritual that comforts but delivers no genuine moral value to the loser. If the coin comes up tails and Alice dies, her 50% chance did her no good. She is dead. The chance was an empty consolation.</p>
+        <p>I say this is wrong. And I want to show why through a series of cases.</p>
+        <div class="case-box">
+          <strong>The Rock Cases (Otsuka 2006).</strong><br><br>
+          Rock 1: Alice is stranded, will drown without rescue. You can reach her.<br>
+          Rock 2: Bob is stranded, will drown without rescue. You cannot reach both.<br><br>
+          Their claims are equal. You must choose. What does morality require?<br><br>
+          Otsuka&rsquo;s answer: you must toss a fair coin, giving each a 0.5 chance. This is not merely procedural. It is morally required because failing to give Bob any chance would fail to acknowledge his equal moral status as a person whose claim was as strong as Alice&rsquo;s. If you simply walk past Bob without any coin toss, you have treated him as someone whose claim was never in the running &mdash; as if he were not equally worthy of rescue.
+        </div>
+        <span class="section">i. the coin toss is not merely procedural</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Equal chances are intrinsically required — not just procedural comfort; failing to give Bob any chance treats him as having no claim</span>The opposition will say: the coin toss is merely expressive or procedural. It shows respect but delivers nothing real to the loser. But this misunderstands what we are doing when we toss the coin. Consider the counterfactual: suppose I decide in advance to save Alice and then, for appearances, toss a coin that I know is loaded &mdash; a coin that always lands heads and always selects Alice. I tell Bob &ldquo;we tossed a coin.&rdquo; Has fairness been achieved? Clearly not. The mere appearance of a chance has not satisfied anything. This shows that what matters is not the procedure but the actual distribution of the chance: the genuine 0.5 probability that it is actually Bob who gets saved. The chance is morally real, not merely expressive. And this means that when the coin lands tails and Bob dies, something of genuine moral value was given to him &mdash; a genuine 0.5 probability of survival &mdash; even though he did not in fact survive.</span></p>
+        <span class="section">ii. the deterministic case and epistemic chances</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Epistemic chances suffice — even if determinism is true and the coin was always going to land one way, the epistemic equal chance has moral value because it is rationally equal; the veil of ignorance makes things fairer</span>Here is a deeper point that I develop in my 2017 paper. Suppose determinism is true. Then the coin was always going to land heads. Bob&rsquo;s &ldquo;50% chance&rdquo; was never genuinely 0.5 in the objective, metaphysical sense &mdash; it was 0 all along. Does this mean the coin toss achieved nothing morally? I argue it does not. The epistemic probability &mdash; the probability from the perspective of our ignorance &mdash; is what matters for the rational value of a chance. Before the coin landed, neither Bob nor anyone else knew that the outcome was determined. From behind a veil of ignorance about the coin&rsquo;s actual outcome, each person rationally valued their chance equally at 0.5. This epistemic equality is sufficient for the moral value of the equal chance. The descent of a veil of ignorance that deprives us of knowledge of who is fated to live and die makes things fairer &mdash; even if in objective terms nothing metaphysically probabilistic has occurred.</span></p>
+        <span class="section">iii. the three-rock asymmetric case and weighted chances</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Weighted chances — when claims differ in strength, proportional weighting of chances is required; giving a stronger claimant a higher probability respects both claims</span>Now consider a three-person case. Alice on Rock 1 will certainly drown (claim strength: 1.0). Bob on Rock 2 faces a 40% risk of drowning (claim strength: 0.4, since his claim is weakened by the lower severity of his situation). You can rescue at most one. What does fairness require?</p>
+        <code class="math">Proportional chance allocation:
+  Alice:  p_A = c_A / (c_A + c_B) = 1.0 / (1.0 + 0.4) = 0.714
+  Bob:    p_B = c_B / (c_A + c_B) = 0.4 / (1.0 + 0.4) = 0.286
+
+Weighted lottery: a coin with P(heads)=0.714 in Alice's favour</code>
+        <p>This is not equivalent to simply saving Alice automatically. Bob&rsquo;s 0.286 chance is morally real. It acknowledges that Bob too has a claim, even if a weaker one. If Bob loses the lottery, something was genuinely given to him &mdash; a 28.6% chance of rescue. This is better than nothing, even though he did not receive the good.</span></p>
+        <span class="section">iv. the asymmetry with pure instrumentalism</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against pure instrumentalism — if chances had only instrumental value (value via getting the good), then a losing lottery would be worth exactly the same as no lottery at all; this is false</span>The pure instrumentalist about chances says: a chance has value only as a means to getting the good. Its value = p &times; V(good). So Bob&rsquo;s 0.5 chance of being saved has value 0.5 &times; V(saved). But if Bob loses, his chance&rsquo;s actual contribution to his welfare is zero. He is as dead as if he had been given no chance. Therefore, says the instrumentalist, the loser should be indifferent between having had a 50% chance and having been excluded altogether.</p>
+        <code class="math">Pure instrumentalist calculus (ex post evaluation):
+  Bob given 50% chance, loses:     Welfare gained = 0
+  Bob given 0% chance (excluded):  Welfare gained = 0
+  Difference:                       0
+
+Verdict: The losing lottery and exclusion are identical in value.</code>
+        <p>This is the reductio of pure instrumentalism. It licenses an outcome in which the rescuer, knowing in advance who will survive (say, because the coin is already determined), may as well not bother giving Bob a chance at all. The pre-determined loser&rsquo;s chance is literally worthless on this view. This consequence is morally unacceptable. It shows that chances must have some value independent of their causal role in producing the good.</p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-otsuka-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Equal chances are morally required, not merely procedurally comforting: the biased coin shows that the content of the chance matters</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A secretly biased coin that always selects Alice does not satisfy fairness, even if it looks like a fair toss. This shows that what matters is not the procedure but the actual probability distribution.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Therefore, genuine fairness requires that Bob actually has a 0.5 probability of being saved &mdash; not the mere appearance of it. The genuine probability is what fairness demands.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If genuine probability is what fairness demands, and Bob loses, then something of genuine moral value &mdash; a real 0.5 chance &mdash; was given to him. It was not empty consolation but a real distribution of a morally required good.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Equal chances are morally required in equal-claim cases because the genuine probability distribution is what fairness demands; when the loser loses, they received something of genuine moral value &mdash; the required equal chance &mdash; even though they did not receive the ultimate good.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Under determinism, epistemic equal chances are rationally valuable and morally sufficient for the fairness of a lottery</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Under determinism, the coin was always going to land one way. Bob&rsquo;s &ldquo;objective&rdquo; chance was 0 or 1, not 0.5. Yet the epistemic probability &mdash; 0.5 from behind the veil of our ignorance about the outcome &mdash; is what each person rationally valued equally before the toss.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A thing is rationally valuable to the degree that it is rational to value it. Since both claimants rationally value the epistemic 0.5 chance equally, the epistemic chance is equally valuable to each of them, regardless of its objective metaphysical status.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Therefore, the descent of a veil of epistemic ignorance about the coin&rsquo;s outcome makes the distribution fairer, even under determinism. Fairness operates on what we rationally know and can value, not on metaphysical facts about objective chance that may not exist.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Epistemic equal chances are morally sufficient for fair lotteries even under determinism; the rational value of a 0.5 epistemic probability is equal for both claimants; this equality is what fairness requires and delivers.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Proportional chances respect unequal claims without nullifying weaker ones: c_A/(c_A+c_B) weighting is morally required</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Alice: claim strength 1.0 (certain drowning). Bob: claim strength 0.4 (40% risk). Proportional allocation: P(Alice) = 1.0/1.4 = 0.714; P(Bob) = 0.4/1.4 = 0.286.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Broome&rsquo;s principle: it is implausible that a claim marginally weaker than another should count for nothing. Bob&rsquo;s 0.4 claim is real; it deserves a proportional positive chance, not zero.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A winning lottery outcome for Alice is consistent with Bob&rsquo;s claim having been fully respected in the only way possible given scarcity: by entering it into the lottery at its proportional weight. Bob lost, but his claim was respected.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Proportional chance allocation respects unequal claims without nullifying weaker ones; a person whose weaker claim yields them 28.6% has been treated more fairly than one given 0%; the chance difference is morally real and significant.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Pure instrumentalism about chances reduces to the absurdity that a losing lottery is worth exactly as much as exclusion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Pure instrumentalism: V(chance) = p × V(good). If Bob loses, his chance&rsquo;s realised value = 0. A 0% chance also yields realised value = 0. Therefore the pure instrumentalist must say: Bob excluded &equiv; Bob given 50% chance and losing.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This consequence licenses a rescuer who knows in advance (say, under determinism) who will survive to skip the coin toss entirely. The pre-determined loser&rsquo;s chance contributes nothing on the instrumentalist view.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>But a person pre-determined to die who is excluded from the lottery without being given any chance has been treated worse than one who was given a genuine equal chance. This difference is morally real; the instrumentalist account cannot capture it.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Pure instrumentalism about chances is false: it entails that losing a fair lottery is no different from exclusion, which is plainly wrong; chances have value that is not exhausted by their causal role in delivering the ultimate good.</span></div>
+        </div>
+      </div>
+    </div><!-- end otsuka -->
+
+    <!-- ─── BROOME ─── -->
+    <div class="speaker-panel" id="prop-broome-panel">
+      <div id="prop-broome-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My position on the value of chances is best understood through the framework of claims and their satisfaction. Fairness is, at its core, the proportional satisfaction of competing claims. When a good is divisible, this is easy: give each claimant a share proportional to their claim. But when the good is indivisible &mdash; one kidney, one ventilator, one lifeboat seat &mdash; proportional division is impossible. And this is where the moral value of chances becomes essential.</p>
+        <div class="case-box">
+          <strong>Broome&rsquo;s kidney case (adapted from <em>Fairness</em>, 1990&ndash;91).</strong><br><br>
+          Alice needs a kidney. Her claim strength: 0.9 (she will die without it, matches perfectly).<br>
+          Bob needs the same kidney. His claim strength: 0.6 (he will suffer severe disability without it).<br><br>
+          The kidney is indivisible. Fairness ideally requires each person to receive a share of the kidney proportional to their claim &mdash; but a split kidney saves neither.<br><br>
+          What to do? A weighted lottery with P(Alice wins) = 0.9/1.5 = 0.60 and P(Bob wins) = 0.6/1.5 = 0.40.
+        </div>
+        <span class="section">i. surrogate satisfaction: the lottery as fairness proxy</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Surrogate satisfaction — the lottery partially satisfies fairness even though it cannot perfectly satisfy claims in outcome; each claim enters the lottery at its proportional weight</span>The weighted lottery does not give each person their proportional share of the kidney. What it does is give each person their proportional share of the <em>chance</em> of receiving the kidney. This is what I call surrogate satisfaction of fairness: it is the best available approximation of proportional satisfaction when the good is indivisible. Let me be precise about what &ldquo;partially satisfying fairness&rdquo; means.</p>
+        <code class="math">Direct proportional satisfaction (impossible):
+  Alice receives 0.9/1.5 = 60% of the kidney → infeasible (kidney is indivisible)
+  Bob receives   0.6/1.5 = 40% of the kidney → infeasible
+
+Surrogate satisfaction via lottery:
+  Alice receives P = 0.9/1.5 = 0.60 chance of getting the whole kidney
+  Bob receives   P = 0.6/1.5 = 0.40 chance of getting the whole kidney
+
+Fairness score under surrogate satisfaction:
+  Each person's claim is entered at its proportional weight.
+  The lottery is fair iff P_i ∝ c_i for all i.</code>
+        <p>The opposition says that because only one person will actually receive the kidney, the loser&rsquo;s 40% chance contributed nothing to his welfare. But this is a confusion. The question is not whether the loser received the kidney (he did not) but whether his claim was respected (it was). The 40% chance is the respect owed to his claim. It is not a consolation prize for losing &mdash; it is the only form in which his claim could be satisfied given the indivisibility of the good.</span></p>
+        <span class="section">ii. the complaint of one who was never in with a chance</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Never on the cards — if a claimant was never given a positive chance, their complaint is not merely that they lost, but that they were never a genuine contender; this complaint is different in kind from the complaint of a lottery loser</span>Here is the key asymmetry that the opposition must explain. Consider three scenarios for Bob, all of which end with Bob not receiving the kidney:</p>
+        <code class="math">Scenario A: Kidney given to Alice with certainty (no lottery).
+  Bob's chance: P = 0.0
+  Bob's complaint: "My claim was never considered. I had no chance."
+  Severity of complaint: MAXIMAL
+
+Scenario B: Fair weighted lottery run, Bob loses.
+  Bob's chance: P = 0.40
+  Bob's complaint: "I had a real chance but lost fairly."
+  Severity of complaint: REDUCED — claim was respected
+
+Scenario C: Biased lottery (rigged in Alice's favour), Bob loses.
+  Bob's stated chance: 0.40, actual chance: 0.0
+  Bob's complaint: Same as Scenario A, plus deception.
+  Severity: MAXIMAL + DECEPTION</code>
+        <p>Scenario A and Scenario C are identical in moral complaint-severity. Scenario B is genuinely different. The difference between B and A is precisely the value of the 40% chance. If the opposition says that value is zero (because Bob didn&rsquo;t get the kidney), they must say Scenario B is no better for Bob than Scenario A. But it clearly is better &mdash; Bob was treated as a genuine claimant in B, not in A.</span></p>
+        <span class="section">iii. the Diamond case: equal claims, equal chances</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Diamond (1967) — two equally deserving people, one indivisible good; a coin toss is better than choosing either person directly, even though expected outcome is equal in all three options</span>Peter Diamond&rsquo;s classic 1967 case provides the sharpest test. Two equally deserving people, one good. Three options: (i) give to person A; (ii) give to person B; (iii) toss a fair coin.</p>
+        <code class="math">Option (i): Give to A
+  A receives good: P = 1.0  →  Expected value for A = 1.0 × V(good)
+  B excluded:       P = 0.0  →  Expected value for B = 0.0 × V(good)
+  Total expected welfare: 1.0 × V(good)
+
+Option (ii): Give to B
+  A excluded:       P = 0.0  →  Expected value for A = 0.0
+  B receives good:  P = 1.0  →  Expected value for B = 1.0 × V(good)
+  Total expected welfare: 1.0 × V(good)
+
+Option (iii): Fair coin toss
+  A gets 50% chance: Expected value for A = 0.5 × V(good)
+  B gets 50% chance: Expected value for B = 0.5 × V(good)
+  Total expected welfare: 1.0 × V(good)
+
+All three options produce identical TOTAL expected welfare.</code>
+        <p>A pure expected-welfare maximiser is indifferent between all three options. Yet virtually everyone judges option (iii) to be better &mdash; fairer &mdash; than options (i) or (ii). Why? Because the equal distribution of the chance is itself a good that the pure welfare calculus does not capture. The equal-chance distribution in (iii) treats both claimants as equal in a way that (i) and (ii) do not, and this equality has genuine moral value over and above its contribution to expected welfare.</span></p>
+        <span class="section">iv. the lexical structure of surrogate versus direct satisfaction</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Lazenby's lexical objection — surrogate satisfaction via lottery is lexically posterior to direct satisfaction; but Broome disagrees: in equal-claim cases surrogate can outweigh direct</span>Lazenby argues that fairness in outcome is lexically prior to fairness through lotteries: we should always prefer the option that is fairer in outcome, and only use lotteries as a tie-breaker. But this gets the structure of fairness wrong in equal-claim cases. Consider:</p>
+        <code class="math">Option X: Give kidney to Alice (no lottery).
+  Alice gets good: certain.   Bob: nothing, no chance.
+  Outcome fairness: ZERO (one person gets everything)
+
+Option Y: Run weighted lottery, Bob wins.
+  Bob gets good.   Alice: nothing, but had a 60% chance.
+  Outcome fairness: ZERO (one person gets everything)
+
+But Option Y is fairer than Option X for the following reason:
+  Under Y, Alice had a genuine P=0.60 chance.
+  Under X, Bob had no chance (P=0.0).
+
+Lexical priority for outcome would say X and Y are equally unfair in outcome,
+but the lottery adds fairness value — contradicting Lazenby's view.</code>
+        <p>The reason Option Y is fairer overall, even though the outcome unfairness score is the same, is that the distribution of chances counts independently. The person who lost the lottery but was in with a genuine chance was treated more fairly than the person who was never given a chance at all. Lexical priority of outcome fairness cannot capture this distinction.</p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-broome-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Fairness requires proportional satisfaction of claims; when the good is indivisible, weighted lotteries provide surrogate proportional satisfaction</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Fairness requires claims to be satisfied in proportion to their strength. Alice (c=0.9) and Bob (c=0.6) should ideally receive 60% and 40% of the good respectively &mdash; but this is impossible for an indivisible good.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A weighted lottery with P(Alice)=0.60 and P(Bob)=0.40 gives each person a chance proportional to their claim strength. This is surrogate satisfaction: the best available approximation of proportional satisfaction under indivisibility.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If Bob loses, his claim has still been satisfied in the only way possible given indivisibility: his 0.40 claim was entered into the lottery at its full proportional weight. The satisfaction is of the fairness requirement, not of the claim in outcome.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Weighted lotteries provide genuine surrogate satisfaction of fairness: each claim is entered at its proportional weight; losing a fairly weighted lottery is consistent with having had one&rsquo;s claim fully respected.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The person never given a chance has a complaint categorically different from the person who lost a fair lottery</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Scenario A (no lottery): Bob&rsquo;s claim was never considered. He was never a genuine contender. His complaint: maximal severity. He was excluded from the morally required process entirely.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Scenario B (fair lottery, Bob loses): Bob had a genuine P=0.40 chance. His claim was respected proportionally. His complaint: reduced, because the fairness requirement was met even though the outcome went against him.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the opposition says Scenario B is morally identical to Scenario A (because Bob received no good in either), they must say that whether a claim was respected is morally irrelevant. This is indefensible.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The person excluded entirely and the person who lost a fair lottery have categorically different moral complaints; this categorical difference is exactly the value of the chance; denying it makes the respect owed to claims morally vacuous.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The Diamond case: all three options have equal expected welfare but option (iii) (coin toss) is fairer; the fairness of equal chances is a distinct value</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In Diamond&rsquo;s case, options (i), (ii), and (iii) all yield the same total expected welfare: 1.0 × V(good). A pure welfarist is indifferent. But virtually everyone judges (iii) to be fairer.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The only difference between (iii) and (i) or (ii) is the distribution of chances: (iii) gives each a 0.5 chance; (i) and (ii) give one person a 0.0 chance. This equal distribution of chances is what makes (iii) fairer.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Since the equal distribution of chances is what makes (iii) fairer, and since this is a moral advantage not captured by the welfare calculus, the equal distribution of chances has moral value independent of its contribution to expected welfare.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Diamond case demonstrates that equal distribution of chances is a distinct moral value not reducible to expected welfare; all three options have equal expected welfare, yet the coin toss is fairer because the equal distribution of the chance is itself morally valuable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Lazenby&rsquo;s lexical priority of outcome fairness is wrong: surrogate satisfaction via lottery can outweigh worse outcome fairness</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Under lexical priority: outcomes of equal unfairness (both involve one person getting everything) would make lotteries irrelevant. But this ignores the morally significant difference between having had a genuine chance and being excluded entirely.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Option X (give to Alice, no lottery) and Option Y (fair lottery, Bob wins): both have outcome unfairness = 0 by Lazenby&rsquo;s metric. But Y is fairer overall because Alice had a genuine P=0.60 chance under Y and no chance under X.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The surplus fairness that Y has over X comes from the lottery&rsquo;s distribution of chances. This cannot be lexically posterior to outcome fairness because it is a distinct dimension of fairness that outcome metrics cannot capture.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Lazenby&rsquo;s lexical priority of outcome fairness is wrong; surrogate satisfaction via lottery adds genuine fairness value that is incommensurable with &mdash; not lexically posterior to &mdash; outcome fairness; the distribution of chances is an independent moral dimension.</span></div>
+        </div>
+      </div>
+    </div><!-- end broome -->
+
+    <!-- ─── VOORHOEVE ─── -->
+    <div class="speaker-panel" id="prop-voorhoeve-panel">
+      <div id="prop-voorhoeve-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to extend the case for the value of chances in a direction that neither Otsuka nor Broome has fully developed: the claim that the separateness of persons demands sensitivity to how risks are distributed across individuals, not merely to expected sums of welfare or aggregate claim satisfaction. When we face choices under uncertainty that affect different persons differently, the distribution of chances is a morally fundamental datum that cannot be collapsed into expected-value comparisons.</p>
+        <div class="case-box">
+          <strong>The central case: certain one vs. uncertain five (Voorhoeve, adapted).</strong><br><br>
+          Option A: Save one person (Ernesto) with certainty from death.<br>
+          Option B: Give five people (each currently facing a 20% risk of death) treatment that eliminates their risk entirely.<br><br>
+          Expected lives saved: both options save exactly one expected life.<br>
+          Option A: 1 × 1.0 = 1.0 expected lives saved.<br>
+          Option B: 5 × 0.2 = 1.0 expected lives saved.<br><br>
+          Are these options morally equivalent? I argue they are not, and the reason involves the value of the distribution of chances.
+        </div>
+        <span class="section">i. the separateness of persons and cross-person aggregation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Separateness — cross-person aggregation of risk-benefits ignores that each person faces her own risk alone; you can't pool Ernesto's certain death with five people's smaller risks without crossing the interpersonal boundary</span>The utilitarian view says Options A and B are equivalent because they have the same expected welfare sum. But this aggregation crosses the separateness of persons in a morally problematic way. Ernesto faces <em>certain death</em> if Option B is chosen. Each of the five faces a 20% risk that the treatment would have eliminated. From Ernesto&rsquo;s perspective, Option A is better. From each of the five&rsquo;s perspective, Option B is better. The aggregationist says these individual perspectives can be summed: 5 × 0.2 = 1 × 1.0 = equal. But summing across persons is not like summing within a single person&rsquo;s life. Ernesto cannot be compensated by the reduction in risk to five other people. He will be dead.</p>
+        <code class="math">Interpersonal comparison forbidden by separateness:
+  Ernesto's loss (certain death) vs. each of five's gain (20% risk eliminated)
+  
+  These cannot be directly compared because:
+  - If Option B and treatment fails for all five, Ernesto is dead AND five had 20% risk
+  - There is no mechanism by which the five's risk-reduction compensates Ernesto
+  - The separateness of persons prohibits the cross-person arithmetic</code>
+        <span class="section">ii. who has the strongest interpersonal complaint?</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Strongest complaint — Ernesto's certain-death complaint is stronger than any of the five's 20%-risk complaint; a contractualist cannot reasonably reject saving Ernesto</span>The contractualist question is: who can make the strongest individual complaint against which option? Ernesto&rsquo;s complaint against Option B is categorical: it condemns him to certain death. Each of the five&rsquo;s complaint against Option A is probabilistic: it leaves them with a 20% risk of death rather than none.</p>
+        <code class="math">Complaints against each option:
+  Option B (save five at risk):
+    Ernesto's complaint: Certain death. Complaint strength = 1.0 × V(life).
+    Each of five's complaint: None (they are saved from their 20% risk).
+
+  Option A (save Ernesto):
+    Each of five's complaint: 20% risk not eliminated.
+                               Complaint strength = 0.2 × V(life) per person.
+    Aggregate complaint of five: 5 × 0.2 × V(life) = 1.0 × V(life).
+
+The aggregationist says these sum to equality.
+The contractualist says: compare INDIVIDUAL complaints, not sums.
+    Strongest individual complaint against Option B: Ernesto, strength 1.0.
+    Strongest individual complaint against Option A: any of the five, strength 0.2.
+    Ernesto's complaint OUTWEIGHS any individual in the five.
+    Therefore: Option A is required.</code>
+        <span class="section">iii. the value of a chance: why each of the five has a weaker claim even given aggregation</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Value of chance in Voorhoeve case — each of the five has a genuine chance-based claim; but when chance is small (20%) and the alternative is certain death for one, the chance's moral weight is less</span>Here is where the value of chances enters most sharply. Each of the five does have a morally significant claim: a 20% chance of death is a real risk that deserves recognition. Their claims are not nothing. But the moral weight of a chance-based claim is proportional to the probability it concerns. A 20% chance of dying grounds a weaker claim than a 100% chance of dying.</p>
+        <code class="math">Chance-weighted claim strengths:
+  Ernesto (100% risk): claim = 1.0 × V(life) = V(life)
+  Each of five (20% risk): claim = 0.2 × V(life)
+  
+  Ratio: Ernesto's claim is 1.0/0.2 = 5× stronger than each of the five.
+  
+  This is why a contractualist cannot reasonably reject saving Ernesto:
+  no individual in the five group can say their claim outweighs his.
+  
+  The chance MATTERS in determining claim strength:
+    A 20% chance of death grounds a claim of strength 0.2.
+    A 100% chance of death grounds a claim of strength 1.0.
+    These are not morally equivalent per person.</code>
+        <span class="section">iv. the Fleurbaey&ndash;Voorhoeve extension: competing claims view</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Competing claims — chance-based inequality is morally significant independently; inequality in expected utilities grounds competing claims that have moral weight even before outcome is known</span>In our 2012 paper with Marc Fleurbaey, I argue that inequality in individuals&rsquo; expected utilities &mdash; in the chances they hold &mdash; generates moral claims that matter independently of outcome. An egalitarian view that considers only outcome inequality misses something: the fairness of how risks are distributed before outcomes are known.</p>
+        <code class="math">Competing Claims View (Voorhoeve &amp; Fleurbaey 2012):
+
+  Policy P1: Ernesto faces 100% risk; five face 0% risk.
+    Expected utility inequality: Ernesto holds EU=0; five hold EU=1.
+    Inequality in chances: Gini-like measure = very high.
+
+  Policy P2: Equal risk distribution: each of six faces 16.7% risk.
+    Expected utility: each holds EU = 0.833.
+    Inequality in chances: zero.
+
+  P2 is fairer even if P1 saves the same number in expectation,
+  because inequality in the distribution of chances is itself unjust,
+  grounds competing claims, and matters independently of outcomes.
+  
+  This is the Competing Claims View: how chances are distributed OVER PERSONS
+  is a morally fundamental datum, not merely an instrumental means to welfare.</code>
+        <p>The opposition&rsquo;s ex-post view cannot account for the moral significance of Policy P2&rsquo;s equal risk distribution if no one ends up dying. If everyone survives, ex-post analysis says all policies were equivalent &mdash; no bad outcome occurred. But Policy P2 was fairer before outcomes were known, and this ex-ante fairness is real moral value.</p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-voorhoeve-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The separateness of persons prohibits collapsing Ernesto&rsquo;s certain death against five people&rsquo;s 20% risk into an equal expected-value comparison</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Ernesto faces certain death under Option B. He cannot be compensated by the five other people&rsquo;s risk reduction. Their risk reduction happens to other persons; it does nothing for Ernesto.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Aggregating across persons treats the interpersonal boundary as morally irrelevant. But the separateness of persons requires this boundary to be morally significant: each person&rsquo;s prospect matters independently.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Therefore Options A and B are not morally equivalent even though they have equal expected welfare sums. The separateness of persons demands we compare individual-level claims, not aggregated expected values.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The separateness of persons prohibits the aggregationist equivalence of Options A and B; each person&rsquo;s individual prospect must be evaluated separately, and Ernesto&rsquo;s certain death cannot be offset by the five&rsquo;s risk reduction.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Contractualist reasoning: Ernesto&rsquo;s individual complaint strength (1.0) outweighs each of the five&rsquo;s (0.2); Option A is required</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Ernesto&rsquo;s complaint against Option B: certain death; complaint strength = 1.0 × V(life). This is the strongest individual complaint in the case.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Each of the five&rsquo;s complaint against Option A: 20% risk uneliminated; complaint strength = 0.2 × V(life). No individual can make a complaint stronger than Ernesto&rsquo;s.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No one can reasonably reject Option A (save Ernesto) because Ernesto&rsquo;s complaint against Option B outweighs any individual complaint against Option A. The contractualist test favours Option A.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Contractualist comparison of individual complaint strengths requires Option A; Ernesto&rsquo;s claim (strength 1.0) outweighs each of the five&rsquo;s (strength 0.2); numbers alone do not determine the outcome when individual claim strengths differ so dramatically.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Chance-based claim strength is proportional to probability: a 20% risk grounds a 0.2-strength claim, not a 1.0-strength claim</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Each of the five has a morally significant claim based on their 20% risk. This claim is real and has positive moral weight: 0.2 × V(life) per person.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But the moral weight of a chance-based claim is proportional to the probability it concerns. A 100% risk grounds a claim five times stronger than a 20% risk, per person.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is why the value of chances matters for moral reasoning: the size of the chance determines the weight of the claim, and claim weight determines fairness obligations. Treating all positive chances as morally equivalent regardless of size is a theoretical error.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Chance-based claims have strength proportional to the probability they concern; a 20% chance of death grounds a claim of strength 0.2; a 100% chance grounds a claim of strength 1.0; this proportionality is essential to any adequate theory of fairness under risk.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The Competing Claims View: inequality in the distribution of chances is unjust independently of outcomes</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Policy P1 (Ernesto faces 100% risk; five face 0%): maximum inequality in the distribution of chances across persons. Inequality measure is maximised.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Policy P2 (equal risk distribution at 16.7% each): zero inequality in the distribution of chances. This is fairer ex ante, before outcomes are known.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>An ex-post view says P1 and P2 are equally fair if all persons survive (no bad outcome occurred). But P2 was fairer before outcomes were known; this ex-ante fairness is real moral value that the ex-post view cannot capture.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The Competing Claims View captures what the ex-post view misses: inequality in the distribution of chances across persons is unjust independently of outcomes; equal risk distribution is morally superior to concentrated risk even when all outcomes are equal.</span></div>
+        </div>
+      </div>
+    </div><!-- end voorhoeve -->
+
+  </div><!-- end prop col-body -->
+</div><!-- end prop col -->
+
+
+<!-- ══════════════ OPPOSITION — EX POST / ANTI-CHANCE VALUE ══════════════ -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','wasserman',this)">Wasserman</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','lazenby',this)">Lazenby</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','scanlon',this)">Scanlon</button>
+  </div>
+
+  <!-- WASSERMAN HEADER -->
+  <div class="col-header" id="opp-wasserman-header">
+    <div class="col-header-top"><span class="pill opp">You Cannot Eat Chances</span><span class="col-subtitle">David Wasserman &bull; &ldquo;Let Them Eat Chances&rdquo; (1996)</span></div>
+    <div class="col-position">Chances are a consolation that fails to console anyone who loses. They have no intrinsic value: a chance benefits its holder only if it results in the person receiving the good. An equal chance to a scarce resource is not a genuine good &mdash; it is a placeholder for the possibility of a good that may never arrive. The losers of fair lotteries are genuinely worse off than winners; giving them an equal chance does not actually give them anything. Fairness must be evaluated ex post, in terms of who actually receives goods and burdens.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','wasserman','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','wasserman','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- LAZENBY HEADER -->
+  <div class="col-header hidden" id="opp-lazenby-header">
+    <div class="col-header-top"><span class="pill opp">Lexical Priority of Outcome Fairness</span><span class="col-subtitle">Hugh Lazenby &bull; &ldquo;Broome on Fairness and Lotteries&rdquo; (2014)</span></div>
+    <div class="col-position">Whatever fairness value lotteries provide is lexically posterior to fairness in outcome. We should always choose the option that is fairest in terms of who actually receives the good, and only deploy lotteries as tie-breakers when outcome fairness scores are equal. Broome&rsquo;s view that lottery fairness can outweigh outcome fairness is a mistake: it means we could reach worse outcomes for the sake of procedural fairness, which is not what fairness is for. The surrogate satisfaction that lotteries provide is real but second-order.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','lazenby','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','lazenby','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- SCANLON HEADER -->
+  <div class="col-header hidden" id="opp-scanlon-header">
+    <div class="col-header-top"><span class="pill opp">Ex Post Contractualism &amp; The Complaint of Actual Losers</span><span class="col-subtitle">T.M. Scanlon &bull; <em>What We Owe to Each Other</em> (1998) &bull; Response to Otsuka</span></div>
+    <div class="col-position">Contractualist reasoning is ex post, not ex ante: what matters is whether actual outcomes can be justified to the persons who bear them. The loser of a fair lottery still has a genuine complaint &mdash; they did not receive the good they needed. Justifying the loss by appeal to the fairness of the ex ante procedure dodges the question of whether the outcome itself can be justified to the loser. Numbers matter, claims matter, but the standard contractualist framework can handle saving the greater number without appealing to the intrinsic value of chances.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','scanlon','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','scanlon','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- ─── WASSERMAN ─── -->
+    <div class="speaker-panel active" id="opp-wasserman-panel">
+      <div id="opp-wasserman-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>The title of my 1996 paper is &ldquo;Let Them Eat Chances,&rdquo; and the allusion is deliberate. To tell a starving person that they will receive a 50% chance of getting food is to offer them something that can neither nourish nor console them if the coin comes up tails. You cannot eat chances. A chance to receive a life-saving resource is not itself a life-saving resource. And while I acknowledge that lotteries have expressive and procedural value, I deny that they have genuine fairness value independent of their outcomes.</p>
+        <div class="case-box">
+          <strong>The core intuition: the loser&rsquo;s perspective.</strong><br><br>
+          Alice and Bob each need one kidney. There is one kidney. We run a fair lottery. Alice wins. Bob dies.<br><br>
+          Otsuka and Broome say: Bob received genuine moral value &mdash; a genuine 50% chance of the kidney. His claim was respected. The fairness requirement was met.<br><br>
+          I say: Bob is dead. From his perspective &mdash; the perspective that matters for welfare &mdash; his 50% chance contributed nothing to his welfare. He received no good, no benefit, no satisfaction of his need. His being &ldquo;in with a chance&rdquo; was, from the standpoint of his ultimate situation, an empty gesture.<br><br>
+          The question is whether fairness is about what people <em>receive</em> or about what <em>procedure</em> was used to decide who receives. I maintain it is primarily about what people receive.
+        </div>
+        <span class="section">i. the ex post point: actual welfare is what fairness is for</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Ex post — fairness is ultimately evaluated by who receives goods and burdens; ex ante chances are instrumentally valuable but their ultimate moral test is the outcome they produce</span>Fairness matters because it concerns the distribution of goods and burdens among persons. A world in which Bob is dead is a worse world for Bob than one in which he is alive, regardless of whether a fair coin was tossed. If fairness is the value we are trying to realise, and fairness is about what persons receive, then ex post assessment &mdash; assessment of who actually receives goods and burdens &mdash; is fundamental. Ex ante chances are instrumentally valuable: they are the best we can do when we cannot distribute the good directly. But their instrumental value is exhausted by their contribution to the probability of the good outcome. When they fail to produce the good outcome, their contribution to Bob&rsquo;s welfare is literally zero.</p>
+        <code class="math">Wasserman's ex post welfare calculation:
+  Bob's welfare under fair lottery (wins): +V(kidney)   [saved]
+  Bob's welfare under fair lottery (loses): 0           [dead]
+  Bob's welfare under no lottery (excluded): 0          [dead]
+  
+  Difference between losing fair lottery and exclusion:
+    W(lost lottery) - W(excluded) = 0 - 0 = 0
+  
+  From Bob's welfare perspective: no difference.
+  The chance itself contributed 0 to Bob's actual welfare.</code>
+        <span class="section">ii. the expressive vs. fairness distinction</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Expressive value only — lotteries express respect for equal claims; but expressing respect is not the same as achieving fairness; we should not confuse the expression of a value with its realisation</span>I concede that lotteries have expressive value. Running a fair coin toss expresses the decision-maker&rsquo;s acknowledgment that both Bob&rsquo;s and Alice&rsquo;s claims are equally serious. This expression is important: it communicates equal moral status. But expressing the equal status of Bob&rsquo;s claim is not the same as satisfying it. Bob&rsquo;s claim was a claim on the kidney. The only way to satisfy that claim is for Bob to receive the kidney. Expressing that his claim was equally serious by running a lottery, and then not giving him the kidney, is like expressing sympathy for someone&rsquo;s hunger without giving them food. The expression is appropriate and valuable; it does not nourish anyone.</p>
+        <code class="math">Expressive value vs. fairness value:
+  Lottery outcome for Bob:
+    Expressive value received: Acknowledgment of equal claim status.
+    Fairness value received (if fairness = getting the good): 0.
+    
+  For Alice:
+    Expressive value received: Acknowledgment of equal claim status.
+    Fairness value received: +V(kidney).
+
+  If "fairness" just means "the good was distributed fairly" (outcome sense):
+    Alice = fairly served.
+    Bob = fairly processed but unfairly served in outcome.
+    
+  The lottery expresses fairness but cannot achieve it for both parties simultaneously
+  when the good is indivisible. The loser was fairly processed but not fairly served.</code>
+        <span class="section">iii. the Diamond case reanalysed: why the coin toss might not be better</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Diamond case reanalysis — the preference for coin toss over giving to A or B directly may reflect procedural preferences, not genuine fairness gains; the expected welfare is the same in all three options</span>Broome appeals to Diamond&rsquo;s 1967 case to show that the coin toss is better than giving the good to A or B directly, despite equal expected welfare. I want to press back on this. Suppose we ask: from whose perspective, and over what time horizon, is the coin toss better?</p>
+        <code class="math">Diamond case: one good, two claimants A and B, equal claims.
+  Option (i): Give to A.  Outcome welfare: W(A)=V(good), W(B)=0.
+  Option (ii): Give to B.  Outcome welfare: W(A)=0, W(B)=V(good).
+  Option (iii): Fair coin.  Expected welfare: W(A)=0.5×V, W(B)=0.5×V.
+
+  After outcome is known:
+    If A wins under (iii): W(A)=V(good), W(B)=0. SAME as (i).
+    If B wins under (iii): W(A)=0, W(B)=V(good). SAME as (ii).
+  
+  The only difference between (iii) and (i) or (ii) is:
+    - Before the coin is tossed: ex ante expected welfare is equal.
+    - After the coin is tossed: outcomes are identical to (i) or (ii).
+  
+  If the preference for (iii) is based on ex ante equal distribution of
+  expected welfare, this is a preference for epistemic symmetry,
+  not a preference for a genuinely better OUTCOME.
+  
+  The ex ante equal distribution of expected welfare is good for the
+  decision-PROCESS; it is not clear it is good for either PERSON after the fact.</code>
+        <span class="section">iv. the allocation question: we should favour the claimant with the strongest need, not run a lottery</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against weighted lotteries — if claims differ, we should give the good to the person with the strongest claim, not run a weighted lottery that gives the weaker claimant a chance of defeating the stronger</span>Broome&rsquo;s weighted lottery with P(Alice)=0.60 and P(Bob)=0.40 allows Bob, with a weaker claim (0.6 vs Alice&rsquo;s 0.9), to win the kidney 40% of the time. But this means that 40% of the time, the person with the weaker medical need gets the kidney over the person with the stronger need. This is not fairer &mdash; it is less fair in the only sense that ultimately matters.</p>
+        <code class="math">Weighted lottery evaluation (ex post):
+  P(Alice wins) = 0.60. If Alice wins: good goes to stronger claimant. ✓
+  P(Bob wins) = 0.40.   If Bob wins: good goes to WEAKER claimant.    ✗
+  
+  40% of the time, the lottery produces a WORSE outcome than simply
+  giving the kidney to Alice.
+  
+  Alternative: Give kidney to Alice with certainty.
+    Outcome: 100% of the time, kidney goes to strongest claimant. ✓
+    Bob's complaint: maximal, but his claim was genuinely weaker.
+  
+  The weighted lottery introduces a 40% chance of a worse outcome
+  in order to give Bob a 40% chance of receiving a good to which
+  his claim is weaker. This is not self-evidently fairer in outcome terms.</code>
+        <p>The proposition has assumed that the intrinsic value of the chance offsets the risk of the worse outcome. I deny this. The worse outcome is genuinely worse; the chance is genuinely not a good in itself.</p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-wasserman-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Ex post welfare assessment is fundamental: Bob&rsquo;s actual welfare gain from losing a fair lottery is zero, identical to exclusion</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Fairness is ultimately about what persons receive &mdash; about the distribution of actual goods and burdens. An assessment that ignores actual outcomes in favour of procedural propriety has failed to address what fairness is for.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Bob&rsquo;s welfare contribution from losing a fair lottery: 0. Bob&rsquo;s welfare contribution from being excluded entirely: 0. The difference in Bob&rsquo;s actual welfare between losing and being excluded is zero.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If something has zero contribution to a person&rsquo;s welfare regardless of the process that generated it, it has zero welfare value to that person. The chance, from the perspective of the loser&rsquo;s welfare, contributed nothing.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The losing lottery and exclusion are identical from the perspective of actual welfare; if fairness concerns what people receive, a fair lottery that produces nothing for the loser has produced nothing fair for the loser; ex post assessment is the correct standard.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Lotteries have expressive value, not fairness value; expressing equal respect is not the same as achieving equal treatment</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Running a fair lottery expresses that both claimants&rsquo; claims are taken equally seriously. This expression is appropriate and valuable. But expressing respect is not satisfying a claim.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Bob&rsquo;s claim was a claim on the kidney, not a claim to be treated respectfully in the allocation process. The kidney is the substance of the claim; the process is the vehicle. Confusing the vehicle with the destination leads to the view that fairness can be achieved for a loser without the loser receiving anything.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A view of fairness on which the loser can be said to have had her claim &ldquo;satisfied&rdquo; because she was entered into a lottery that she lost has confused the expression of fairness with its realisation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Lotteries have expressive value (they express respect for equal claims) but not genuine fairness value for losers; the loser&rsquo;s claim to the good was not satisfied by being entered into a lottery; expressing respect for a claim is not the same as satisfying it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The preference for coin toss in Diamond&rsquo;s case reflects procedural preferences, not a genuine welfare improvement for either person</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>After the coin lands: Option (iii) (coin toss) produces identical outcomes to (i) or (ii). A wins or B wins. Total welfare is V(good) in all cases. There is no welfare improvement from the lottery after the fact.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The preference for (iii) is a preference for epistemic symmetry before the coin lands: equal expected welfare reflects the decision-maker&rsquo;s impartiality, not a genuine welfare gain for either person.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the value of the coin toss is exhausted by its expression of impartiality, it has expressive value, not welfare-based fairness value. The loser cannot derive any welfare benefit from the equal expected welfare she held before the coin was tossed.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The preference for the coin toss in Diamond&rsquo;s case reflects procedural preferences for epistemic symmetry; it does not reveal a genuine welfare advantage for either person over the direct allocation options; the intrinsic value of the chance cannot be derived from Diamond&rsquo;s case.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Weighted lotteries produce worse outcomes 40% of the time: giving a weaker claimant a positive chance degrades outcome fairness</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In Broome&rsquo;s kidney case, the weighted lottery gives Bob (weaker claim, c=0.6) a P=0.40 chance of winning. 40% of the time, the kidney goes to the weaker claimant. This is 40% worse than the direct allocation, from the standpoint of outcome fairness.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Broome justifies this 40% chance of a worse outcome by appealing to the intrinsic value of including Bob&rsquo;s claim in the lottery. But if Bob&rsquo;s claim is genuinely weaker, the outcome in which he wins is genuinely worse. There is no intrinsic value in the lottery that compensates for this.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If we must weigh the intrinsic value of Bob&rsquo;s chance against the probability of producing a worse outcome, the worse outcome weighs more heavily: it is the substance of what fairness is trying to achieve.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Weighted lotteries introduce a probability of worse outcomes for the sake of intrinsic chance value that is a mere procedure; outcome fairness &mdash; the good going to the strongest claimant &mdash; is the primary value; the weighted lottery degrades it 40% of the time without compensating gain.</span></div>
+        </div>
+      </div>
+    </div><!-- end wasserman -->
+
+    <!-- ─── LAZENBY ─── -->
+    <div class="speaker-panel" id="opp-lazenby-panel">
+      <div id="opp-lazenby-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>My argument is more targeted than Wasserman&rsquo;s. I am not denying that lotteries have fairness value of any kind. I am arguing that Broome has misidentified where that value sits in the lexical ordering of moral considerations. Fairness in outcome is primary. Fairness through lotteries is secondary: it applies only when we cannot do better in terms of outcome fairness. Broome&rsquo;s mistake is to allow the second-order fairness of lotteries to outweigh the first-order fairness of outcomes.</p>
+        <div class="case-box">
+          <strong>The lexical structure (Lazenby 2014).</strong><br><br>
+          First-order fairness (lexically prior): The direct satisfaction of claims in outcome. A is fairer than B in the first-order sense if more claims are directly satisfied in A than in B.<br><br>
+          Second-order fairness (lexically posterior): The surrogate satisfaction of claims through lotteries, when direct satisfaction is impossible. This is valuable only as a tie-breaker when first-order fairness is equal across options.<br><br>
+          Broome&rsquo;s error: he allows second-order (lottery) fairness to outweigh first-order (outcome) fairness, producing scenarios in which we should run a lottery even when we could achieve a fairer outcome by not doing so.
+        </div>
+        <span class="section">i. where Broome&rsquo;s theory goes wrong: lotteries over direct allocation</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Broome's error — his theory implies we should sometimes prefer a lottery to a direct allocation even when the direct allocation is fairer in outcome; this reverses the correct lexical priority</span>Here is the structural problem with Broome&rsquo;s view. Suppose Alice (c=0.9) and Bob (c=0.6) are competing for the kidney. Broome says fairness requires a weighted lottery with P(Alice)=0.60, P(Bob)=0.40. Now suppose the kidney could be given to Alice directly. Compare:</p>
+        <code class="math">Option D (Direct): Give kidney to Alice.
+  Outcome fairness: Strongest claimant served. First-order fairness score = HIGH.
+  Lottery fairness for Bob: 0 (no chance entered).
+  
+  Option L (Lottery): Run weighted lottery.
+  Outcome fairness (if Alice wins): Same as Option D.
+  Outcome fairness (if Bob wins): Weaker claimant served. First-order score = LOWER.
+  Lottery fairness: Bob's claim entered at weight 0.40.
+
+Broome's evaluation:
+  The lottery fairness gain (+0.40 for Bob) outweighs the 40% chance
+  of a worse first-order outcome. Therefore prefer Option L.
+
+Lazenby's evaluation:
+  Lexical priority: First-order fairness always wins unless tied.
+  Direct allocation (Option D) is at least as good in first-order terms.
+  Therefore Option D is at least as fair as Option L.
+  The lottery adds only second-order value, which cannot outweigh first-order.</code>
+        <span class="section">ii. the irreversibility of first-order outcomes</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Irreversibility — first-order outcomes are irreversible; if the lottery produces the wrong outcome (weaker claimant wins), the first-order injustice cannot be undone by the fact that a fair procedure was used</span>Here is why first-order fairness must be lexically prior. If the lottery produces the wrong outcome &mdash; Bob wins the kidney despite Alice having the stronger claim &mdash; no amount of procedural propriety can undo this first-order injustice. Alice is dead, and she died despite having the stronger claim. The fact that she had a 60% chance cannot console her, cannot undo her death, and cannot retroactively make the outcome fair. First-order fairness is concerned with irreversible facts about who receives the good. Second-order fairness is concerned with the procedure that decided this. The procedure&rsquo;s fairness cannot override the outcome&rsquo;s unfairness because the outcome is what actually happened to actual persons.</p>
+        <code class="math">Irreversibility argument:
+  P(Bob wins lottery despite weaker claim) = 0.40
+  
+  If Bob wins: Alice is dead despite having the strongest claim.
+    First-order injustice: OCCURRED (irreversible).
+    Second-order justice: ACHIEVED (lottery was fair).
+    Net: First-order injustice dominates because it cannot be undone.
+  
+  If Alice wins: First-order justice achieved.
+    Second-order: Also achieved (lottery was fair).
+    
+  Expected first-order injustice under lottery = P(Bob wins) × V(injustice)
+                                               = 0.40 × V(injustice)
+  
+  Expected first-order injustice under direct allocation = 0.0
+  
+  Therefore: Direct allocation is better in first-order terms; the lottery
+  introduces a 40% probability of first-order injustice for no compensating gain.</code>
+        <span class="section">iii. when lotteries are appropriate: the tie-breaking function</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Tie-breaking function — lotteries are appropriate when first-order fairness scores are tied; in equal-claim cases, neither direct allocation is better, so the lottery adds genuine value as a tie-breaker</span>I want to be clear about when I think lotteries <em>are</em> appropriate. When Alice and Bob have <em>equal</em> claims, no direct allocation is first-order fairer than the other. Either Alice or Bob could receive the kidney without either allocation being more or less fair in the first-order sense. In this case &mdash; and only in this case &mdash; the lottery&rsquo;s second-order fairness is genuinely decision-relevant.</p>
+        <code class="math">Equal-claim case: c_A = c_B = 0.9
+
+Option (i): Give to Alice. First-order fairness: equal claims, Alice served.
+Option (ii): Give to Bob. First-order fairness: equal claims, Bob served.
+
+First-order fairness comparison:
+  Both options serve a claimant of equal strength.
+  Neither option is first-order fairer than the other.
+  First-order tie.
+
+Tie-breaker: Second-order fairness (lottery).
+  Option (iii): Fair coin. P(A wins) = P(B wins) = 0.5.
+  Each has an equal chance. This is genuinely second-order fairer than
+  either (i) or (ii), which give one person P=0 and the other P=1.
+  
+  Therefore: Option (iii) is the right choice as a tie-breaker.
+  
+  But this does NOT show that lotteries are first-order valuable.
+  It shows they are valuable as tie-breakers when first-order analysis
+  is exhausted. This is Lazenby's position.</code>
+        <span class="section">iv. against Broome&rsquo;s claim that lottery fairness can outweigh outcome fairness</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Against Broome's outweighing — if lottery fairness could outweigh outcome fairness, it would imply that running a lottery is better than giving the good to its strongest claimant; this is implausible</span>Broome explicitly maintains that the contribution to fairness from a lottery can outweigh what fairness can be achieved directly in outcome. But this leads to deeply implausible implications. Consider a case where Alice&rsquo;s claim is overwhelmingly stronger than Bob&rsquo;s:</p>
+        <code class="math">Extreme case: c_Alice = 1.0 (dying), c_Bob = 0.01 (mild inconvenience).
+
+Proportional lottery: P(Alice) = 1.0/1.01 = 0.990, P(Bob) = 0.01/1.01 = 0.010.
+
+Broome's view: The lottery is fairer than giving Alice the good directly,
+because entering Bob's 0.010 claim into the lottery gives him 1% surrogate
+satisfaction of fairness that the direct allocation denies him.
+
+Implication: There is a 1% chance that a dying person loses the kidney
+to someone with a trivially mild condition, and Broome considers this
+MORE FAIR than the direct allocation. This is not plausible.
+
+Lazenby's view: The direct allocation (to Alice) has a higher first-order
+fairness score. The 0.010 lottery fairness value for Bob is lexically
+posterior to Alice's first-order claim. Alice should receive the kidney
+directly. The lottery adds only expressive value in this case.</code>
+        <p>The extreme case reveals that Broome&rsquo;s framework, applied consistently, produces a recommendation to gamble with the most urgent needs for the sake of token recognition of trivially weaker claims. This is the reductio of treating lottery fairness as first-order valuable.</p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-lazenby-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Broome&rsquo;s theory implies preferring a lottery to direct allocation even when direct allocation is fairer in outcome: this reverses correct lexical priority</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Broome: run a weighted lottery with P(Alice)=0.60, P(Bob)=0.40 for claims 0.9 and 0.6 respectively. The lottery fairness gain for Bob (entering his claim at 0.40) outweighs the 40% chance of the weaker claimant winning.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But direct allocation to Alice achieves first-order fairness (strongest claimant served) with probability 1.0, while the lottery achieves first-order fairness only with probability P(Alice wins) = 0.60. The lottery strictly degrades expected first-order fairness.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If first-order fairness is what matters, and the lottery degrades it for the sake of second-order (lottery) fairness, then Broome has reversed the correct lexical ordering.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Broome&rsquo;s theory inverts the correct lexical priority: direct allocation achieves first-order fairness with certainty; the lottery degrades it for the sake of second-order lottery fairness; first-order fairness should be lexically prior.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; First-order outcomes are irreversible; lottery procedural fairness cannot undo a first-order injustice</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If the lottery produces a worse first-order outcome (Bob wins despite weaker claim), Alice is dead. No procedural fairness can undo this. The first-order injustice is irreversible; the second-order justice is cold comfort.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Expected first-order injustice under the lottery = P(Bob wins) × V(injustice) = 0.40 × V(injustice). Under direct allocation, expected first-order injustice = 0.0. The lottery is strictly worse in expected first-order terms.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Since first-order injustices are irreversible and no procedural fairness can compensate for them, first-order fairness must be lexically prior to lottery fairness in any acceptable fairness framework.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>First-order outcomes are irreversible; lottery fairness cannot compensate for first-order injustice; expected first-order injustice under Broome&rsquo;s lottery is 0.40 × V(injustice) while direct allocation yields 0.0; direct allocation is strictly better in first-order terms.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Lotteries are appropriate as tie-breakers in equal-claim cases; they have genuine second-order value only when first-order analysis is exhausted</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In equal-claim cases (c_A = c_B), no direct allocation is first-order fairer than the other. A coin toss is genuinely second-order fairer than either direct allocation because it gives each person an equal chance rather than P=0 to one.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The lottery&rsquo;s genuine fairness value as a tie-breaker in equal-claim cases does not generalise to unequal-claim cases where direct allocation to the stronger claimant is first-order better.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Lotteries are the right tool in the right place: they are appropriate when and only when first-order analysis yields a tie and a tie-breaker is needed. Their value is conditional on this context, not absolute.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Lotteries are appropriate tie-breakers in equal-claim cases where direct allocation does not produce a first-order improvement; their second-order value is real but conditional; it does not generalise to unequal-claim cases where direct allocation is first-order better.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The extreme case reductio: Broome&rsquo;s view implies gambling with urgent needs to give token recognition to trivial claims</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Extreme case: c_Alice=1.0 (dying), c_Bob=0.01 (trivial). Weighted lottery: P(Alice)=0.990, P(Bob)=0.010. Broome: the lottery is fairer than direct allocation to Alice because it enters Bob&rsquo;s 0.010 claim.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This implies a 1% chance that Alice dies and Bob receives the kidney despite her dying need, and Broome must call this fairer than the direct allocation. This is deeply implausible: the urgency of Alice&rsquo;s need is not outweighed by the token recognition of Bob&rsquo;s trivial claim.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The extreme case shows that treating lottery fairness as first-order valuable generates absurd recommendations when claim-strength differentials are large. This is a reductio of the view.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The extreme case is a reductio of Broome&rsquo;s first-order lottery fairness: a 1% chance for a trivially weak claim should not outweigh certainty for a dying person; this shows that lottery fairness is not first-order valuable but is always second-order and conditional.</span></div>
+        </div>
+      </div>
+    </div><!-- end lazenby -->
+
+    <!-- ─── SCANLON ─── -->
+    <div class="speaker-panel" id="opp-scanlon-panel">
+      <div id="opp-scanlon-speech" class="speech-text">
+        <p class="salut">Chair,</p>
+        <p>I want to approach the value of chances from the direction of contractualist moral reasoning. My concern is not primarily with the metaphysics of probability but with the question of what we owe to each other when our choices under uncertainty affect different people differently. And I want to argue that the contractualist approach handles these questions without needing to posit the intrinsic value of chances.</p>
+        <div class="case-box">
+          <strong>What contractualism requires in the saving-lives cases.</strong><br><br>
+          Contractualism, as I develop it in <em>What We Owe to Each Other</em>, holds that an act is wrong if it fails to accord with principles that no one could reasonably reject. The test for a principle is whether any person affected by it could reasonably reject it.<br><br>
+          In a conflict case &mdash; save Alice or save Bob, equal claims &mdash; the question is: can Alice reasonably reject a principle that sometimes saves Bob instead of her? Can Bob reasonably reject a principle that sometimes saves Alice instead of him?<br><br>
+          The key is that &ldquo;reasonably reject&rdquo; is evaluated from the perspective of persons, not probability distributions. What matters is whether a person in each position can make a reasonable complaint.
+        </div>
+        <span class="section">i. the contractualist test and saving the greater number</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Contractualism handles numbers — the person on the smaller side cannot reasonably reject being outnumbered; their complaint is met by the single strongest complaint on the other side; numbers matter via pairwise comparison</span>Otsuka uses the coin-toss requirement to argue for the intrinsic value of chances. But the contractualist approach handles the numbers problem without any such appeal. Suppose you can save either one person (Carol) or two people (Alice and Bob). Each has an equally strong claim to be saved.</p>
+        <code class="math">Contractualist analysis: Can Carol reasonably reject the principle
+"save the two rather than the one"?
+
+Carol's complaint: She is not saved.
+  Complaint strength: full, since she would die.
+  
+Against Carol's complaint: Alice and Bob each have an equally strong
+  claim to be saved. Compare Carol's complaint against each of theirs:
+    Carol vs. Alice: Each has equal claim. Carol cannot reasonably
+                     reject Alice&rsquo;s equal claim outweighing hers.
+    Carol vs. Bob:   Each has equal claim. Carol cannot reasonably
+                     reject Bob&rsquo;s equal claim outweighing hers.
+  
+  Since Carol cannot make her complaint stick against either Alice or Bob
+  individually, and since both are present on the other side, she cannot
+  reasonably reject the principle that saves the two.
+  
+This gives us "save the greater number" without any appeal to the
+intrinsic value of chances. Numbers matter via pairwise comparison.</code>
+        <span class="section">ii. the coin toss case: when does contractualism require a lottery?</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Coin toss may be required by fairness but not by intrinsic chance value — contractualism can require a lottery procedure in equal-claim cases as an expression of equal concern, not because chances are intrinsically valuable</span>What about the two-person equal-claim case? Alice and Bob each need the resource with equal urgency. Here, contractualism can indeed require a coin toss &mdash; but not because chances are intrinsically valuable. Rather, any principle that saves Alice with certainty could be reasonably rejected by Bob (and vice versa). A coin toss is a principle that neither can reasonably reject, because each has an equal chance of being saved.</p>
+        <code class="math">Two-person equal-claim case:
+  Principle P1: "Save Alice."
+    Alice: Cannot reject. Bob: CAN reasonably reject (he is disadvantaged
+    relative to Alice despite equal claim).
+  
+  Principle P2: "Save Bob."
+    Alice: CAN reasonably reject. Bob: Cannot reject.
+  
+  Principle P3: "Toss a fair coin."
+    Alice: Cannot reasonably reject (equal chance given equal claim).
+    Bob: Cannot reasonably reject (equal chance given equal claim).
+  
+  Only Principle P3 is reasonably non-rejectable by both parties.
+  Contractualism requires P3.
+  
+  BUT: What P3 achieves is not the intrinsic value of equal chances,
+  but the EQUAL TREATMENT of equal claimants as required by the
+  contractualist test. The lottery is the means; equal treatment is the end.</code>
+        <span class="section">iii. the loser&rsquo;s complaint is not dissolved by the lottery</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Loser's complaint persists — even after a fair lottery, the loser still has a genuine complaint about the outcome; the lottery satisfies procedural fairness but does not eliminate the complaint of the person who didn&rsquo;t get the good</span>Otsuka and Broome argue that the lottery satisfies the loser&rsquo;s complaint by giving her a genuine equal chance. But I want to press back on this. The loser of a fair lottery still has a genuine complaint about the outcome: she needed the resource and did not receive it. The fair procedure may be the best we could do; but it does not eliminate the complaint.</p>
+        <code class="math">The loser's complaint post-lottery:
+
+  Before lottery: Bob's complaint (potential): "I might not get the resource."
+  After lottery, Bob loses: Bob's complaint (actual): "I did not get the resource."
+  
+  Broome/Otsuka say: Bob's ex ante complaint is satisfied by the fair lottery.
+                     After losing, Bob has no FURTHER complaint.
+  
+  Scanlon says: Bob's ex post complaint is DISTINCT from his ex ante complaint.
+    - Ex ante: Was the allocation procedure fair? YES (fair lottery).
+    - Ex post: Did Bob receive what he needed? NO.
+    
+  These are two separate questions. Answering "yes" to the first does not
+  answer "no" to the second. Bob still has an unmet need, and an unmet
+  need is a genuine moral remainder that a fair procedure cannot dissolve.
+  
+  The ex ante satisfaction via lottery is not the same as ex post satisfaction
+  of the underlying need. Both matter, and neither dissolves the other.</code>
+        <span class="section">iv. claims, numbers, and why the intrinsic value of chances is not needed</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Intrinsic value of chances unnecessary — contractualism handles all the cases that motivate Otsuka and Broome without positing that chances are intrinsically valuable; Occam's razor favours the simpler account</span>The motivation for positing the intrinsic value of chances comes from cases where the alternative &mdash; straightforwardly maximising welfare or satisfying the strongest claim &mdash; seems to produce the wrong result. But the contractualist approach handles each of these cases without any such postulation.</p>
+        <code class="math">Contractualist account vs. Intrinsic-chance account:
+
+Case 1: Two equal claimants, one good.
+  Intrinsic chance: Fair lottery required because equal chances are intrinsically valuable.
+  Contractualism: Fair lottery required because no other principle is reasonably
+                  non-rejectable by both parties.
+  → Both give the same verdict. Contractualism needs no extra postulation.
+
+Case 2: One dying person vs. five with 20% risk.
+  Intrinsic chance: Chance-weighted claims compare 1.0 vs 5×0.2 = 1.0. Tie.
+  Contractualism: Pairwise comparison. Dying person's complaint (strength 1.0)
+                  outweighs each of the five's (strength 0.2). Save the dying person.
+  → Contractualism gives the right answer (save Ernesto) without requiring
+     the intrinsic value of chances.
+
+Case 3: Weighted lottery for unequal claims.
+  Intrinsic chance: Lottery enters all claims at proportional weights.
+  Contractualism: Gives the good to the strongest claimant; the weaker
+                  claimant cannot reasonably reject this.
+  → Contractualism gives the direct allocation; no lottery needed.
+  
+Occam's razor: Contractualism handles all the relevant cases without positing
+  intrinsic value of chances. The intrinsic-chance postulation is theoretically
+  unnecessary.</code>
+        <p>The proposition&rsquo;s case for the intrinsic value of chances adds theoretical complexity without explanatory gain. Contractualism handles all the relevant cases more simply and without requiring us to posit a novel category of intrinsic value that, as Wasserman shows, cannot be consumed by its holder.</p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-scanlon-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; Contractualism handles the numbers problem via pairwise comparison without appealing to the intrinsic value of chances</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the save-one-or-two case, Carol cannot reasonably reject a principle that saves the two, because her equal-claim complaint against Alice and her equal-claim complaint against Bob are each individually rebuffed by their equal claims. Numbers count via pairwise comparison.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This result is achieved without any appeal to the intrinsic value of chances. The contractualist test operates on individual complaints, not on probability distributions or aggregated expected welfare.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Since the relevant verdict (save the greater number) is achieved without positing intrinsic chance value, the postulation of such value is theoretically unnecessary for this case.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Contractualism handles the numbers problem via pairwise comparison without positing intrinsic chance value; the proposition&rsquo;s motivation from this case does not succeed in showing that chances must be intrinsically valuable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Contractualism requires a lottery in equal-claim cases not because chances are intrinsically valuable but because no other principle is reasonably non-rejectable</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Principle P1 (save Alice) is reasonably rejectable by Bob. Principle P2 (save Bob) is reasonably rejectable by Alice. Only P3 (fair coin) is non-rejectable by both. Therefore contractualism requires P3.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The reason P3 is required is not that equal chances are intrinsically valuable but that P3 is the unique principle that treats both equal claimants equally. The lottery is the means; equal treatment is the end.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This contractualist derivation of the lottery requirement produces the same verdict as the intrinsic-chance view but without positing any novel category of intrinsic chance value. It is the simpler and equally adequate account.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The lottery in equal-claim cases is required by contractualism as the unique reasonably non-rejectable principle; this derivation does not require positing intrinsic chance value; the contractualist account is equally adequate and more parsimonious.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The loser&rsquo;s ex post complaint is distinct from and not dissolved by ex ante procedural fairness</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The ex ante question (was the procedure fair?) and the ex post question (did Bob receive what he needed?) are distinct. Answering yes to the first does not answer no to the second.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Bob still has an unmet need after the lottery. An unmet need is a genuine moral remainder. The fair procedure is morally appropriate but it does not dissolve Bob&rsquo;s ex post complaint about not having received the resource.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the proposition claims that ex ante fairness (the equal chance) fully satisfies Bob&rsquo;s moral claim, they are conflating procedural justice with distributive justice. Bob&rsquo;s distributive complaint persists even when procedural justice is achieved.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The loser&rsquo;s ex post complaint is not dissolved by ex ante procedural fairness; both dimensions of fairness are real; but this shows that ex ante chances are not the complete story of fairness, not that they are intrinsically valuable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Occam&rsquo;s razor: contractualism handles all the relevant cases without positing intrinsic chance value</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Case 1 (equal claimants): Contractualism requires the lottery via reasonable-rejectability test. Same verdict as intrinsic-chance view, no extra postulation needed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Case 2 (1 certain vs. 5 at 20% risk): Pairwise comparison gives Ernesto the stronger individual complaint; contractualism saves Ernesto without aggregating chance-weighted claims.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Case 3 (unequal claims): Contractualism gives the good to the strongest claimant without needing a weighted lottery, because the weaker claimant cannot reasonably reject this. Again, same or better verdict without positing intrinsic chance value.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Contractualism handles all the cases that motivate the intrinsic-chance postulation, giving the same or better verdicts with simpler theoretical apparatus; Occam&rsquo;s razor favours the contractualist account; the intrinsic value of chances is theoretically unnecessary.</span></div>
+        </div>
+      </div>
+    </div><!-- end scanlon -->
+
+  </div><!-- end opp col-body -->
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'otsuka',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'wasserman',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
