@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Science of Fair Division — The Symposium</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1c;--bg2:#242424;--bg3:#2c2c2c;--bg4:#363636;
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.16);
+  --text:#e0ddd6;--text2:#9e9b93;--text3:#5c5a55;
+  --gold:#c8a95a;
+  --prop-green:#4e9a6a;--prop-pill:#1e3a2a;--prop-pill-bdr:#3a6b4a;
+  --opp-red:#b85050;--opp-pill:#3a1e1e;--opp-pill-bdr:#6b3a3a;
+  --a1bg:rgba(255,210,0,.14);--a1brd:rgba(255,210,0,.45);--a1tip:#ffe066;
+  --a2bg:rgba(56,195,200,.13);--a2brd:rgba(56,195,200,.42);--a2tip:#56d8dc;
+  --a3bg:rgba(80,195,100,.12);--a3brd:rgba(80,195,100,.4);--a3tip:#6edd82;
+  --a4bg:rgba(215,80,80,.13);--a4brd:rgba(215,80,80,.42);--a4tip:#f08080;
+  --a5bg:rgba(165,100,225,.13);--a5brd:rgba(165,100,225,.42);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,0,.13);--a6brd:rgba(255,140,0,.42);--a6tip:#ffaa44;
+  --a7bg:rgba(180,220,255,.1);--a7brd:rgba(180,220,255,.38);--a7tip:#a8d8ff;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 9px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-green)}
+.opp  .speaker-btn.active{color:var(--opp-red)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-green)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-red)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-green)}.opp .tab.active{color:var(--opp-red)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--gold);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(200,169,90,.06)}
+.tbl{width:100%;border-collapse:collapse;font-family:sans-serif;font-size:11.5px;margin:.5rem 0 .9rem;background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;overflow:hidden}
+.tbl th{background:var(--bg4);color:var(--text);font-weight:600;padding:5px 9px;text-align:left;border-bottom:1px solid var(--bdr2);letter-spacing:.04em;font-size:10.5px;text-transform:uppercase}
+.tbl td{padding:5px 9px;color:var(--text2);border-bottom:1px solid var(--bdr);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl .winner{color:var(--prop-green);font-weight:700}
+.tbl .loser{color:var(--opp-red)}
+.tbl .hi{color:var(--a1tip);font-weight:600}
+.tbl .note{font-size:10px;color:var(--text3);font-style:italic;margin-top:2px}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}
+.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}
+.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}
+.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-block[data-arg="7"]{border-left-color:var(--a7brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}
+.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}
+.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}
+.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-block[data-arg="7"] .arg-title{color:var(--a7tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}
+.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}
+.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}
+.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.arg-block[data-arg="7"] .conclusion{color:var(--a7tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.hl[data-arg="7"]{background:var(--a7bg);border-bottom:1px solid var(--a7brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.6);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}
+.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}
+.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}
+.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hl[data-arg="7"] .tooltip{color:var(--a7tip)}
+.realworld{font-family:sans-serif;font-size:11px;background:rgba(200,169,90,.08);border:1px solid rgba(200,169,90,.25);border-radius:4px;padding:6px 10px;margin:.6rem 0 .85rem;color:var(--text2);line-height:1.65}
+.realworld strong{color:var(--gold);font-weight:600}
+.piechart{display:flex;gap:14px;align-items:center;margin:.6rem 0 .9rem;flex-wrap:wrap}
+.piechart svg{flex-shrink:0}
+.pielegend{font-family:sans-serif;font-size:11px;color:var(--text2);line-height:1.7}
+.pielegend .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.diagram{margin:.6rem 0 .9rem;background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.8rem;font-family:sans-serif}
+.diagram svg{display:block;margin:0 auto}
+.diagram-cap{font-size:10px;color:var(--text3);text-align:center;margin-top:6px;font-style:italic}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="motion-header">
+  <div class="motion-eyebrow">Foley (1967) &bull; Varian (1974) &bull; Pazner &amp; Schmeidler (1978) &bull; Moulin (1990s&ndash;2003) &bull; Thomson (2011) &bull; Maniquet (1999) &bull; Fleurbaey &amp; Voorhoeve (2012&ndash;) &bull; Steinhaus / Dubins &amp; Spanier (cake-cutting) &bull; Roemer (1996)</div>
+  <div class="motion-title">&ldquo;This House Believes that no-envy and the envy-free / efficient frontier best capture the formal ideal of a fair division &mdash; and that egalitarian-equivalent, welfarist, and responsibility-sensitive alternatives systematically distort it in ways their proponents have not overcome&rdquo;</div>
+  <div class="motion-sub">Proposition &bull; Foley/Varian (No-Envy) &middot; Thomson (Axiomatics of Resource Allocation) &middot; Moulin (Strategyproof Fair Division) &nbsp;&mdash;&nbsp; Opposition &bull; Pazner &amp; Schmeidler (Egalitarian-Equivalence) &middot; Maniquet (Responsibility-Sensitive Efficiency) &middot; Fleurbaey &amp; Voorhoeve (Separateness of Persons) &middot; Roemer (Equality of Opportunity)</div>
+</div>
+
+<div class="columns">
+
+<!-- LEFT — PROPOSITION -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','foley',this)">Foley &amp; Varian</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','thomson',this)">Thomson</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','moulin',this)">Moulin</button>
+  </div>
+
+  <!-- FOLEY/VARIAN HEADER -->
+  <div class="col-header" id="prop-foley-header">
+    <div class="col-header-top"><span class="pill prop">No-Envy / Equity</span><span class="col-subtitle">Duncan Foley (1967) &middot; Hal Varian, &ldquo;Equity, Envy, and Efficiency&rdquo;, JET 1974</span></div>
+    <div class="col-position">A division is fair if and only if no agent prefers any other agent&rsquo;s bundle to her own; this &ldquo;no-envy&rdquo; condition is the only formal criterion that requires nothing beyond the agents&rsquo; own ordinal preferences over the actual goods being divided; egalitarian-equivalent rules purchase their guarantees by comparing every agent to a fictitious reference bundle that nobody actually receives, which is a sleight of hand dressed up as equity.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','foley','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','foley','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- THOMSON HEADER -->
+  <div class="col-header hidden" id="prop-thomson-header">
+    <div class="col-header-top"><span class="pill prop">Axiomatic Resource Allocation</span><span class="col-subtitle">William Thomson &mdash; <em>Fair Allocation Rules</em>, Handbook of Social Choice and Welfare, 2011</span></div>
+    <div class="col-position">When the full menu of fairness axioms is laid out &mdash; no-envy, equal-split lower bound, resource and population monotonicity, consistency, strategyproofness &mdash; the Walrasian-equal-incomes correspondence and its no-envy descendants satisfy more of them, more robustly, across more domains, than any egalitarian-equivalent or welfarist rule; egalitarian-equivalence buys resource monotonicity by sacrificing no-envy, and that trade is the wrong one.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','thomson','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','thomson','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- MOULIN HEADER -->
+  <div class="col-header hidden" id="prop-moulin-header">
+    <div class="col-header-top"><span class="pill prop">Strategyproof Fair Division</span><span class="col-subtitle">Herv&eacute; Moulin &mdash; <em>Fair Division and Collective Welfare</em>, 2003; &ldquo;Fair Division in the Age of the Internet&rdquo;</span></div>
+    <div class="col-position">In the domains that matter for implementation &mdash; cake-cutting, cloud computing, rent division, course allocation &mdash; the competitive (Walrasian) rule is the unique rule that is simultaneously efficient, envy-free, group-strategyproof, and resource- and population-monotonic; egalitarian-equivalent rules either fail strategyproofness or require a numeraire that is itself an arbitrary normative choice masquerading as a technical convenience.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','moulin','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','moulin','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- FOLEY/VARIAN -->
+    <div class="speaker-panel active" id="prop-foley-panel">
+      <div id="prop-foley-speech" class="speech-text">
+        <p class="salut">Let me begin with the question that every theory of fair division must answer before it does anything else: what does it mean for a division of goods to be fair, given only the preferences of the people among whom the goods are divided?</p>
+        <p>The answer I proposed in 1967, and which Varian sharpened into the modern equity literature, is disarmingly simple. A division is <strong>envy-free</strong> if no agent, looking at the bundle assigned to any other agent, would rather have that bundle than her own. Equivalently: every agent (weakly) prefers her own allocation to every other agent's allocation. This condition uses nothing but the actual bundles that are actually handed out, and the agents' actual preferences over those actual bundles. It requires no fictitious reference point, no numeraire, no interpersonal comparison of utility levels. It is, in the precise sense, the minimal formalisation of the idea that a division treats people as equals.</p>
+
+        <span class="section">i. the cake-cutting paradigm and what no-envy delivers</span>
+        <p>Consider the oldest fair-division problem of all: dividing a cake (or an estate, or a set of chores) among <em>n</em> people with different tastes. Suppose three heirs &mdash; call them 1, 2, and 3 &mdash; must divide an estate consisting of a house, a painting collection, and a cash reserve. Each has different relative valuations:</p>
+        <table class="tbl">
+          <tr><th>Heir</th><th>Values House at</th><th>Values Paintings at</th><th>Values Cash at</th></tr>
+          <tr><td>Heir 1</td><td>50%</td><td>20%</td><td>30%</td></tr>
+          <tr><td>Heir 2</td><td>20%</td><td>60%</td><td>20%</td></tr>
+          <tr><td>Heir 3</td><td>30%</td><td>20%</td><td>50%</td></tr>
+          <tr><td colspan="4" class="note">Each row sums to 100% — each heir's personal valuation of the whole estate, split across the three asset classes.</td></tr>
+        </table>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Equal-split benchmark — every agent guaranteed 1/n by their own valuation; no-envy strictly stronger and implies this</span>The most primitive fairness guarantee is the <strong>equal-split lower bound</strong>: each of the three heirs should receive a bundle they value at least as much as one-third of the entire estate, by their own valuation. An allocation that gives Heir 1 the house (worth 50% to her) clears this bar easily. But the equal-split bound is weak &mdash; it says nothing about how the heirs compare to <em>each other</em>. No-envy is strictly stronger: it requires that Heir 1 doesn't merely get something she values, she gets something she values <em>at least as much as what Heirs 2 and 3 received</em>, evaluated by Heir 1's own preferences. An allocation that gives the house to Heir 1, the paintings to Heir 2, and the cash to Heir 3 is envy-free here precisely because each heir's most-valued asset class went to the person who valued it most &mdash; nobody looks across the table and wants to trade.</span></p>
+
+        <div class="piechart">
+          <svg viewBox="0 0 120 120" width="110" height="110">
+            <circle cx="60" cy="60" r="54" fill="var(--bg4)" stroke="var(--bdr2)"/>
+            <path d="M60 60 L60 6 A54 54 0 0 1 102.4 78.7 Z" fill="var(--a3bg)" stroke="var(--a3brd)"/>
+            <path d="M60 60 L102.4 78.7 A54 54 0 0 1 31.0 105.1 Z" fill="var(--a1bg)" stroke="var(--a1brd)"/>
+            <path d="M60 60 L31.0 105.1 A54 54 0 0 1 60 6 Z" fill="var(--a2bg)" stroke="var(--a2brd)"/>
+          </svg>
+          <div class="pielegend">
+            <strong style="color:var(--text);font-weight:600">Heir 1's own valuation of the estate</strong><br>
+            <span class="sw" style="background:var(--a3bg);border:1px solid var(--a3brd)"></span>House — 50% (received)<br>
+            <span class="sw" style="background:var(--a1bg);border:1px solid var(--a1brd)"></span>Cash — 30% (went to Heir 3)<br>
+            <span class="sw" style="background:var(--a2bg);border:1px solid var(--a2brd)"></span>Paintings — 20% (went to Heir 2)
+          </div>
+        </div>
+
+        <span class="section">ii. why the reference bundle is a fiction</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Egalitarian-equivalence requires a numeraire/reference bundle nobody receives; choice of numeraire is not derivable from the problem itself</span>The egalitarian-equivalent (EE) rule, which Pazner and Schmeidler will defend, asks each agent to be indifferent between her actual bundle and some common fraction <em>t</em> of a reference bundle &mdash; often the entire social endowment, scaled down. Notice what this requires: a reference bundle that <em>nobody actually receives</em>. The EE criterion compares Heir 1's actual allocation not to what Heirs 2 and 3 actually got, but to a hypothetical "1/3 share of everything," a bundle that exists only as an accounting device. Where does this reference bundle come from? It must be specified exogenously &mdash; by the analyst, the arbitrator, the planner &mdash; and different choices of reference bundle produce different "fair" allocations from the very same set of preferences. No-envy requires no such choice. It is defined entirely in terms of the bundles on the table.</span></p>
+
+        <span class="section">iii. existence: the competitive equilibrium from equal incomes</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">CEEI — competitive equilibrium from equal incomes is always envy-free and efficient; existence theorem (Varian 1974)</span>Varian proved that envy-freeness is not merely a desirable property in isolated examples &mdash; it is <em>generically achievable together with efficiency</em>. Give every agent an equal share of every good (an equal endowment), then let agents trade to a competitive equilibrium. The resulting allocation &mdash; the Competitive Equilibrium from Equal Incomes, or CEEI &mdash; is always both Pareto-efficient and envy-free, under standard convexity assumptions. This is a remarkable theorem: it shows that the demanding combination of "no agent prefers anyone else's bundle" and "no further mutually beneficial trade is possible" is not a contradiction in terms but the predictable output of a simple, decentralised, and computable procedure. EE rules enjoy no comparably clean existence and computation story across the full range of economic domains.</span></p>
+
+        <span class="section">iv. real-world divorce settlements and the adjusted winner procedure</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Adjusted Winner and Spliddit — implementations of envy-free/proportional fair division in real disputes</span>This is not merely an academic abstraction. The "Adjusted Winner" procedure (Brams and Taylor) and the online platform Spliddit, built on the no-envy and proportionality tradition, have been used to divide marital property in divorce settlements, allocate rent among roommates, and split inherited goods among heirs &mdash; precisely the house/paintings/cash example above is a stylised version of cases Spliddit has actually processed. In every one of these applications, the criterion that users intuitively reach for, and that the software guarantees, is some variant of "nobody would rather have someone else's share." Nobody asks for a comparison to a fictitious 1/3-of-everything bundle. The lived practice of fair division confirms the no-envy intuition.</span></p>
+        <div class="realworld"><strong>Real-world parallel:</strong> Divorce mediation and inheritance disputes routinely use procedures (Adjusted Winner, Spliddit's "divide the dollar") whose guarantee to each party is stated in terms of "you wouldn't prefer your ex-spouse's / sibling's share to your own" &mdash; not in terms of a hypothetical equal share of a notional joint estate that neither party ever held.</div>
+
+        <p><em>No-envy asks only: would you rather have what someone else has? When the answer is universally no, the division is fair. Everything else is decoration. I yield the floor.</em></p>
+      </div>
+      <div id="prop-foley-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — No-envy is strictly stronger than, and subsumes, the equal-split lower bound</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The equal-split lower bound requires each agent to value her bundle at least as much as 1/n of the total endowment, by her own preferences — a guarantee relative to a hypothetical equal physical division.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No-envy requires each agent to value her bundle at least as much as every other agent's actual bundle — a guarantee relative to the allocations that were actually made.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>In the three-heir estate example, the allocation (House→1, Paintings→2, Cash→3) satisfies no-envy because each heir's favoured asset class went to whoever valued it most; this simultaneously satisfies the equal-split bound, but the converse does not generally hold.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>No-envy is the more demanding and more informative criterion; any allocation satisfying it automatically addresses the weaker equal-split concern, while the reverse is not guaranteed — making no-envy the natural baseline requirement.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Egalitarian-equivalence requires an arbitrary reference bundle that no-envy does not need</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The EE criterion judges fairness by comparing each agent's bundle to a common fraction of a reference bundle — a bundle that no agent actually receives and that must be specified exogenously.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Different choices of reference bundle (the social endowment, a fixed numeraire good, a "1/n of everything" bundle) generate different EE allocations from identical preference profiles — the ranking of allocations as "fair" depends on a choice not derivable from the economic problem itself.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No-envy makes no such choice: it is defined entirely in terms of the actual bundles assigned to actual agents, using only the preference information already present in the problem.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>No-envy is the assumption-minimal fairness criterion; egalitarian-equivalence imports an external normative choice (the reference bundle) that is not derivable from the agents' preferences, and different such choices yield different "fair" outcomes from the same data.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — CEEI shows envy-freeness and efficiency are jointly and generically achievable</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Varian's theorem: under standard convexity assumptions, giving every agent an equal endowment and allowing competitive trade yields an allocation (CEEI) that is both Pareto-efficient and envy-free.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This existence result holds across a wide class of economic domains (divisible goods, many agents, heterogeneous preferences) without requiring any externally chosen reference bundle.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>EE rules require choosing and computing indifference to a reference bundle for each agent, a more demanding informational and computational requirement with no comparably general existence guarantee across domains.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The combination of efficiency and no-envy is not a rare or contrived possibility but the generic output of a simple decentralised procedure (CEEI); this gives no-envy a constructive, computable foundation that EE rules lack in comparable generality.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Practical fair-division tools encode no-envy / proportionality, not egalitarian-equivalence</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Real-world implementations of fair division — Adjusted Winner, Spliddit's estate and rent-division tools — state their guarantees in terms of each party not preferring another party's actual share.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These tools are used in genuine disputes (divorce, inheritance, roommate rent) where the parties' intuitive sense of fairness is "I wouldn't want what they got," not "I am indifferent to a notional equal share of the joint estate."</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No widely deployed dispute-resolution tool frames its guarantee in egalitarian-equivalent terms, because the reference-bundle comparison is not what disputing parties intuitively care about.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The no-envy tradition is not merely theoretically cleaner; it is the criterion that practical fair-division mechanisms actually implement and that disputants actually find persuasive, which is strong evidence that it captures the operative notion of fairness.</span></div>
+        </div>
+      </div>
+    </div><!-- end foley -->
+
+    <!-- THOMSON -->
+    <div class="speaker-panel" id="prop-thomson-panel">
+      <div id="prop-thomson-speech" class="speech-text">
+        <p class="salut">My colleagues sometimes present this debate as a clash of two competing intuitions, with no way to adjudicate between them except taste. I want to resist that framing. The axiomatic method gives us a way to be precise: state the properties we want a fair allocation rule to have, and ask which rules satisfy which combinations. When we do this systematically &mdash; across the variable-population, variable-resource, single-good, and multi-good domains &mdash; a clear pattern emerges, and it does not favour egalitarian-equivalence.</p>
+
+        <span class="section">i. the axiom menu</span>
+        <table class="tbl">
+          <tr><th>Axiom</th><th>Informal meaning</th><th>No-Envy / CEEI</th><th>Egalitarian-Equivalent (EE)</th></tr>
+          <tr><td>No-Envy (NE)</td><td>No agent prefers another's bundle</td><td class="winner">Satisfied</td><td class="loser">Generally fails</td></tr>
+          <tr><td>Equal-Split Lower Bound</td><td>Everyone weakly prefers their bundle to 1/n of endowment</td><td class="winner">Satisfied (implied by NE)</td><td class="winner">Satisfied (by construction)</td></tr>
+          <tr><td>Resource Monotonicity (RM)</td><td>More total resources → nobody worse off</td><td class="loser">Can fail</td><td class="winner">Satisfied (Pazner–Schmeidler rules)</td></tr>
+          <tr><td>Population Monotonicity (PM)</td><td>Fewer claimants → nobody worse off</td><td class="loser">Can fail</td><td class="winner">Satisfied</td></tr>
+          <tr><td>Pareto Efficiency</td><td>No further mutually beneficial trade</td><td class="winner">Satisfied (CEEI)</td><td class="winner">Satisfied (PEEEA)</td></tr>
+          <tr><td colspan="4" class="note">PEEEA = Pareto-efficient egalitarian-equivalent allocation. The trade-off is genuine: Moulin and Thomson (1988) show efficient + resource-monotonic rules generally violate no-envy.</td></tr>
+        </table>
+        <p><span class="hl" data-arg="1"><span class="tooltip">The Moulin–Thomson incompatibility — efficiency + resource monotonicity rules out no-envy in general; trade-off is real but I argue NE is the axiom worth keeping</span>I do not dispute the mathematics here, because some of it is my own. Moulin and I showed in 1988 that no allocation rule can be simultaneously efficient, resource-monotonic, <em>and</em> envy-free across the full domain of economies. Something has to go. The egalitarian-equivalent family resolves this by sacrificing no-envy and keeping resource monotonicity. My argument is that this is the wrong axiom to sacrifice &mdash; because no-envy is the axiom that directly encodes the comparative, interpersonal notion of fairness that motivated the whole enterprise, while resource monotonicity is a comparative-statics property about how a rule responds to a hypothetical change in the size of the pie, which is rarely the actual question facing a divider.</span></p>
+
+        <span class="section">ii. the worked case: when more resources make someone envious</span>
+        <p>Consider a simple illustration with two agents and two goods, where preferences are such that the CEEI allocation changes discontinuously as the total endowment of one good increases. Before the increase, agent A's bundle and agent B's bundle satisfy no-envy. After the endowment of good 2 increases, the new CEEI allocation can leave agent A strictly worse off in absolute terms even though more is available &mdash; a violation of resource monotonicity. The EE rule, by contrast, guarantees both agents benefit from the increase (since both are being compared to a reference bundle that itself grows), but at the cost that, in either the before or the after allocation, one agent may prefer the other's bundle.</p>
+        <table class="tbl">
+          <tr><th>Property under examination</th><th>CEEI / No-Envy rule</th><th>Pazner–Schmeidler EE rule</th></tr>
+          <tr><td>Does increasing the endowment ever make someone worse off?</td><td class="loser">Yes — possible</td><td class="winner">No — guaranteed not to</td></tr>
+          <tr><td>Does any agent ever prefer another's actual bundle?</td><td class="winner">No — never</td><td class="loser">Yes — possible</td></tr>
+          <tr><td>Which failure is more visible/contestable to the agents themselves?</td><td colspan="2" class="hi">Envy is directly observable by comparing actual bundles; RM violation requires comparing across counterfactual endowments the agents never experience side-by-side.</td></tr>
+        </table>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Envy is observable in the actual allocation; RM violation requires a counterfactual comparison agents never directly experience</span>This asymmetry matters. A violation of no-envy is something an agent can <em>discover by looking at the room</em>: she sees what her neighbour got, and she would rather have that. A violation of resource monotonicity requires comparing the allocation she actually received to one she would have received under a different, counterfactual total endowment &mdash; a comparison she has no direct experiential access to. If we are choosing which axiom to give up, we should give up the one whose violation is invisible to the parties, not the one whose violation is a live grievance at the negotiating table.</span></p>
+
+        <span class="section">iii. consistency and the variable-population domain</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Consistency axiom — no-envy rules satisfy it more robustly across sub-populations than EE rules in many domains</span>A further axiom, <strong>consistency</strong>, asks: if we take a fair allocation for a group and restrict attention to a subgroup together with their share of the resources, is the restricted allocation still fair for the subgroup? No-envy-based rules, particularly the egalitarian division of single goods and the CEEI on classical economies, satisfy consistency robustly: fairness among the whole group implies fairness among any sub-group examined on its own terms. Egalitarian-equivalent rules, because they reference a numeraire fixed by the size and composition of the <em>original</em> group, can fail consistency when the group is partitioned &mdash; the reference bundle computed for the full population may not correspond to any natural reference bundle for the sub-population.</span></p>
+
+        <span class="section">iv. political application: the bankruptcy problem and the talmud rule</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Bankruptcy / claims problems — the no-envy-consistent solutions (Talmud rule) dominate practical legal application; EE-style solutions less used</span>The axiomatic approach has had its clearest real-world vindication in the theory of claims problems &mdash; how to divide a bankrupt estate among creditors whose claims exceed the available assets. The "Talmud rule" (formalised by Aumann and Maschler, and extensively axiomatised in the Thomson tradition) satisfies a no-envy-like self-duality and consistency property, and is increasingly recognised in legal and regulatory contexts as the principled solution &mdash; for instance, in proposals for dividing limited disaster-relief funds among claimants with different losses. Egalitarian-equivalent solutions to the bankruptcy problem exist in principle, but they have not achieved comparable axiomatic dominance or practical adoption, precisely because the relevant numeraire (a reference "full satisfaction" bundle) is contested in a way that the no-envy/consistency-based solutions are not.</span></p>
+        <div class="realworld"><strong>Real-world parallel:</strong> Insolvency law and disaster-relief fund allocation frequently invoke proportional and Talmud-rule-style divisions, whose axiomatic justification rests on consistency and self-duality properties in the no-envy tradition, rather than on comparison to a hypothetical reference claim that no creditor actually holds.</div>
+        <p><em>The axiomatic ledger is not a tie. No-envy survives more of the tests that matter, and fails the one whose violation nobody in the room can ever actually see.</em></p>
+      </div>
+      <div id="prop-thomson-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The Moulin–Thomson trade-off should be resolved in favour of no-envy, not resource monotonicity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Moulin and Thomson (1988): no rule is simultaneously efficient, resource-monotonic, and envy-free across the full domain of economies; one of these must be sacrificed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The egalitarian-equivalent family sacrifices no-envy to preserve resource monotonicity and efficiency.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No-envy is the axiom that directly encodes the comparative, interpersonal fairness intuition motivating the entire field; resource monotonicity is a comparative-statics property about counterfactual endowments.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Given that some axiom must be sacrificed, no-envy is the wrong one to give up, because it is the axiom that most directly operationalises "fairness" as a relation among the actual people in the actual division.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Envy violations are observable to the parties; resource-monotonicity violations are not</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A violation of no-envy is detectable by an agent simply by comparing her actual bundle to another agent's actual bundle — both are present in the room.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A violation of resource monotonicity requires comparing an agent's actual bundle to a counterfactual bundle she would have received under a different total endowment — a comparison with no direct experiential analogue.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Axioms whose violations are directly observable and contestable by the affected parties have stronger claims to being the operative notion of procedural fairness than axioms whose violations are only visible to a theorist comparing counterfactual scenarios.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>No-envy violations constitute live, observable grievances; resource-monotonicity violations do not. This asymmetry favours preserving no-envy when a trade-off between the two is unavoidable.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — No-envy-based rules satisfy consistency more robustly across sub-populations than EE rules</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Consistency requires that an allocation fair for a group remains fair for any sub-group, given their collective share of resources.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>CEEI and related no-envy rules on classical economies satisfy consistency: restricting a fair allocation to a sub-group and its resources preserves the no-envy property within the sub-group.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>EE rules reference a numeraire computed for the full population; when the population is partitioned, the original reference bundle may not correspond to any natural reference for the sub-population, risking consistency failures.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>No-envy-based allocation rules extend more robustly to variable-population settings via consistency, whereas EE rules' dependence on a population-wide numeraire creates fragility under re-partitioning.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Practical claims-problem solutions in the no-envy/consistency tradition dominate real-world adoption</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Talmud rule for bankruptcy/claims problems is axiomatised via self-duality and consistency, properties closely related to the no-envy tradition, and has substantial recognition in legal and regulatory practice.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Egalitarian-equivalent solutions to claims problems exist formally but require specifying a reference "full satisfaction" bundle that is contested among claimants with heterogeneous claims.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Practical adoption in legal and institutional settings is evidence about which fairness concepts are perceived as legitimate by the parties subject to them.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The greater real-world traction of no-envy/consistency-based solutions in claims problems is evidence that these concepts better track perceived legitimacy than egalitarian-equivalence, which remains comparatively confined to theoretical treatments.</span></div>
+        </div>
+      </div>
+    </div><!-- end thomson -->
+
+    <!-- MOULIN -->
+    <div class="speaker-panel" id="prop-moulin-panel">
+      <div id="prop-moulin-speech" class="speech-text">
+        <p class="salut">I come to this debate from the side of mechanism design: I care about fairness criteria that survive contact with strategic agents who might misreport their preferences to get a better deal. This is not a peripheral concern. It is the central constraint on any fairness criterion that aspires to be <em>implemented</em> rather than merely admired.</p>
+
+        <span class="section">i. the competitive rule's strategic guarantees</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Competitive (Walrasian) rule — efficient, envy-free, group-strategyproof, resource and population monotonic in the relevant domains</span>In the classical exchange economy with equal initial shares, the competitive rule is efficient, envy-free, <strong>group-strategyproof</strong> (no coalition of agents can jointly misreport their preferences to obtain a uniformly preferred outcome for all its members), and both resource- and population-monotonic <em>within the domains where it applies</em>. This is an extraordinary package of properties for a single, decentralised, computationally tractable rule. The egalitarian-equivalent rules, by contrast, are known to be manipulable in a wide range of settings: an agent who understates her true valuation of the reference-bundle-equivalent can sometimes secure a larger real bundle, because the EE criterion fixes a utility <em>level</em> (indifference to t·ω) rather than a comparison to what others actually hold, and utility levels reported by agents are exactly the kind of private information that strategic agents have an incentive to distort.</span></p>
+
+        <span class="section">ii. cake-cutting: the cut-and-choose lineage</span>
+        <p>The oldest fair-division procedure in recorded use is "I cut, you choose" &mdash; a two-person cake division in which one party divides the cake into two pieces and the other selects first. This procedure is envy-free by construction: the cutter, not knowing which piece will be chosen, has an incentive to make both pieces equally valuable by her own lights, and the chooser picks whichever piece she prefers, guaranteeing she does not envy the other.</p>
+        <div class="diagram">
+          <svg viewBox="0 0 360 130" width="340" height="123" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="20" width="160" height="50" fill="var(--a3bg)" stroke="var(--a3brd)" rx="4"/>
+            <text x="90" y="50" fill="var(--a3tip)" font-size="12" text-anchor="middle" font-family="sans-serif">Piece A (cutter's view: 50%)</text>
+            <rect x="180" y="20" width="160" height="50" fill="var(--a1bg)" stroke="var(--a1brd)" rx="4"/>
+            <text x="260" y="50" fill="var(--a1tip)" font-size="12" text-anchor="middle" font-family="sans-serif">Piece B (cutter's view: 50%)</text>
+            <text x="180" y="14" fill="var(--text3)" font-size="10" text-anchor="middle" font-family="sans-serif">Cutter divides so both pieces are equal in her own eyes</text>
+            <path d="M50 85 L50 100 L150 100 L150 85" fill="none" stroke="var(--a2brd)" stroke-width="2"/>
+            <text x="100" y="115" fill="var(--a2tip)" font-size="11" text-anchor="middle" font-family="sans-serif">Chooser picks whichever piece she prefers</text>
+            <path d="M220 85 L220 100 L320 100 L320 85" fill="none" stroke="var(--a2brd)" stroke-width="2" stroke-dasharray="3,2"/>
+          </svg>
+          <div class="diagram-cap">Cut-and-choose: the canonical envy-free, strategyproof two-agent division procedure.</div>
+        </div>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Cut-and-choose generalises to n agents via moving-knife and Selfridge–Conway procedures; all target no-envy, not egalitarian-equivalence</span>This two-person procedure generalises &mdash; via the moving-knife procedures and the Selfridge&ndash;Conway procedure for three agents &mdash; to envy-free divisions among any finite number of agents, using a bounded number of cuts. Every one of these procedures targets no-envy as its termination criterion. None of them is designed to make every agent indifferent to a reference share of the whole cake; they are designed so that, at the end, nobody wants to swap pieces with anybody else. The entire constructive tradition of cake-cutting &mdash; arguably the most empirically grounded and algorithmically developed branch of fair division &mdash; has organised itself around no-envy, not egalitarian-equivalence, because no-envy is the criterion that admits simple, bounded, manipulation-resistant procedures.</span></p>
+
+        <span class="section">iii. the cloud computing application: dominant resource fairness</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Dominant Resource Fairness — Ghodsi et al. 2011 — applies egalitarian-equivalent logic to datacenter scheduling, but Moulin notes it is the EE rule's strategyproofness under Leontief preferences specifically, not a general EE victory</span>I should be fair to the other side here, because the example is instructive. In datacenter resource allocation, Ghodsi and colleagues (2011) proposed "Dominant Resource Fairness" &mdash; which turns out to be exactly the Pazner&ndash;Schmeidler egalitarian-equivalent rule, applied to the specific domain of Leontief (fixed-proportion) preferences over CPU, memory, and bandwidth. In that <em>specific</em> domain, the EE rule happens to be efficient, strategyproof, <em>and</em> envy-free simultaneously &mdash; the Moulin&ndash;Thomson trade-off does not bind under Leontief preferences. But notice what this concession actually shows: the EE rule's success in cloud computing is a special-case coincidence of the Leontief domain, in which EE and no-envy align. It is not evidence that egalitarian-equivalence is the right criterion <em>in general</em> &mdash; it is evidence that, in the one prominent application where EE has been practically deployed, it was deployed precisely because it satisfies no-envy too.</span></p>
+        <table class="tbl">
+          <tr><th>Domain</th><th>EE rule satisfies no-envy?</th><th>Practical deployment</th></tr>
+          <tr><td>Leontief preferences (datacenter scheduling)</td><td class="winner">Yes — coincidentally</td><td class="winner">Dominant Resource Fairness, widely studied/deployed</td></tr>
+          <tr><td>General classical exchange economies</td><td class="loser">No — Moulin–Thomson trade-off binds</td><td class="loser">No comparable deployment</td></tr>
+          <tr><td>Cake-cutting / chore division</td><td class="loser">EE rarely targeted</td><td class="loser">Selfridge–Conway and moving-knife procedures all target no-envy</td></tr>
+        </table>
+
+        <span class="section">iv. political application: participatory budgeting and proportionality</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Participatory budgeting and fair allocation of public funds — no-envy / proportionality criteria used in practice; method of equal shares</span>The "Method of Equal Shares," now used in participatory budgeting processes in several European cities, allocates a public budget across project proposals so that no group of voters can point to an alternative allocation that every member of the group would prefer using only their proportional share of the budget &mdash; a direct descendant of the no-envy and proportionality tradition applied to public goods. The method's guarantee is stated in exactly the comparative terms Foley and Varian articulated: no identifiable group is left envying a reallocation it could have funded with its fair share. I am aware of no participatory budgeting scheme whose stated guarantee is egalitarian-equivalent in form.</span></p>
+        <div class="realworld"><strong>Real-world parallel:</strong> The Method of Equal Shares (used in participatory budgeting in Wieliczka, Poland, and piloted in other European municipalities) and the broader proportionality literature in computational social choice both frame their core fairness guarantees in no-envy / proportional-share terms, not by reference to a fictitious common share of a notional aggregate.</div>
+        <p><em>Strategyproofness is not a luxury. It is the test that separates a fairness criterion that survives contact with real agents from one that exists only on the blackboard. No-envy passes this test across the widest range of domains. I yield the floor.</em></p>
+      </div>
+      <div id="prop-moulin-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The competitive rule's group-strategyproofness has no comparably general EE analogue</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In classical exchange economies with equal initial shares, the competitive (CEEI) rule is efficient, envy-free, and group-strategyproof.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>EE rules generally fix a utility level relative to a reference bundle; because the relevant comparison depends on each agent's reported preferences over the reference bundle, EE rules are manipulable in many domains outside the Leontief special case.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Group-strategyproofness is a much stronger and more practically important guarantee than the resource monotonicity that EE rules purchase at the cost of no-envy.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The competitive rule's combination of efficiency, no-envy, and group-strategyproofness across general domains is a stronger overall package than what EE rules deliver, even granting EE's resource-monotonicity advantage.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — The entire constructive cake-cutting tradition targets no-envy, not egalitarian-equivalence</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Cut-and-choose, the Selfridge–Conway procedure, and moving-knife procedures all terminate in envy-free divisions using a bounded number of cuts.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>None of these widely studied and practically applicable procedures is designed to produce egalitarian-equivalent allocations; the EE criterion does not admit comparably simple bounded procedures in the cake-cutting domain.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The choice of target criterion in the most developed constructive branch of fair division is strong evidence about which criterion is procedurally tractable and intuitively compelling.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The dominance of no-envy as the target criterion across the constructive cake-cutting literature reflects its procedural tractability and intuitive appeal relative to egalitarian-equivalence, which has not generated a comparable constructive tradition.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — DRF's success is a Leontief-domain coincidence where EE and no-envy align, not a general vindication of EE</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Dominant Resource Fairness, the deployed cloud-computing application of the Pazner–Schmeidler EE rule, is efficient, strategyproof, and envy-free — but only under Leontief (fixed-proportion) preferences.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Under general preferences, the Moulin–Thomson trade-off shows EE rules generally sacrifice no-envy; the Leontief domain is the special case where this trade-off does not bind.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The one prominent real-world deployment of an EE rule succeeds precisely because, in that domain, it also satisfies no-envy — not because egalitarian-equivalence per se is the operative fairness criterion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>DRF's deployment is evidence for no-envy's centrality, not against it: the EE rule was adopted in the one setting where it coincides with no-envy, while in general domains the two diverge and no-envy is the criterion the constructive and applied literatures continue to target.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Participatory budgeting and public-fund allocation frame fairness in no-envy/proportional terms</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Method of Equal Shares, deployed in participatory budgeting, guarantees that no group of voters can identify an alternative allocation funded by their proportional share that every member of the group would prefer.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This guarantee is a direct extension of the no-envy and proportionality tradition to public-good allocation, not an egalitarian-equivalent guarantee.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No comparable participatory mechanism frames its core fairness property in egalitarian-equivalent terms.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The extension of fair-division theory into real political institutions (participatory budgeting) has proceeded via the no-envy/proportionality tradition, reinforcing that this tradition — not egalitarian-equivalence — is the one that translates into implementable, legitimacy-conferring public procedures.</span></div>
+        </div>
+      </div>
+    </div><!-- end moulin -->
+
+  </div>
+</div><!-- end prop col -->
+
+
+<!-- RIGHT — OPPOSITION -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','pazner',this)">Pazner &amp; Schmeidler</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','maniquet',this)">Maniquet</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','fleurbaey',this)">Fleurbaey &amp; Voorhoeve</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','roemer',this)">Roemer</button>
+  </div>
+
+  <!-- PAZNER/SCHMEIDLER HEADER -->
+  <div class="col-header" id="opp-pazner-header">
+    <div class="col-header-top"><span class="pill opp">Egalitarian-Equivalence</span><span class="col-subtitle">Elisha Pazner &amp; David Schmeidler, &ldquo;Egalitarian Equivalent Allocations: A New Concept of Economic Equity&rdquo;, QJE 1978</span></div>
+    <div class="col-position">No-envy is neither necessary nor sufficient for fairness: it can be vacuously satisfied by allocations that are unanimously regarded as terrible, and it is generally incompatible with the one property that any sensible fairness criterion must have &mdash; that more resources for society cannot make any individual worse off; egalitarian-equivalence fixes both problems by comparing each agent's bundle to a common, explicit, and transparent standard of reference, and resource-monotonicity is not an optional extra but the bedrock requirement that &ldquo;more for everyone&rdquo; cannot itself be a source of injustice.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','pazner','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','pazner','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- MANIQUET HEADER -->
+  <div class="col-header hidden" id="opp-maniquet-header">
+    <div class="col-header-top"><span class="pill opp">Responsibility-Sensitive Efficiency</span><span class="col-subtitle">Fran&ccedil;ois Maniquet &mdash; &ldquo;A Theory of Fairness and Social Welfare&rdquo;, w/ Fleurbaey, 2011; egalitarian-equivalent characterisations, 1999&ndash;</span></div>
+    <div class="col-position">Once we move beyond the textbook exchange economy &mdash; to economies with production, with differential talents and effort, with public goods &mdash; no-envy becomes either too weak (satisfied by allocations that reward talent rather than effort) or impossible to satisfy without violating efficiency; egalitarian-equivalent rules, by contrast, can be tailored via the choice of reference bundle to embody exactly the normative distinction between circumstances for which agents are not responsible and choices for which they are &mdash; a distinction no-envy cannot express at all.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','maniquet','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','maniquet','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- FLEURBAEY/VOORHOEVE HEADER -->
+  <div class="col-header hidden" id="opp-fleurbaey-header">
+    <div class="col-header-top"><span class="pill opp">Separateness of Persons / Ex Ante vs Ex Post</span><span class="col-subtitle">Marc Fleurbaey &amp; Alex Voorhoeve, &ldquo;Egalitarianism and the Separateness of Persons&rdquo;, Utilitas 2012</span></div>
+    <div class="col-position">No-envy and the entire CEEI tradition are <em>outcome</em>-egalitarian: they compare bundles people actually end up with, full stop. But fairness has an essential <em>ex ante</em> dimension &mdash; what each person could reasonably expect, and how risks and prospects were distributed before the dust settled &mdash; that a purely ex post, bundle-comparing criterion like no-envy cannot capture; a division can be no-envy ex post while having been radically unfair in the gamble that produced it, and vice versa.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','fleurbaey','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','fleurbaey','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- ROEMER HEADER -->
+  <div class="col-header hidden" id="opp-roemer-header">
+    <div class="col-header-top"><span class="pill opp">Equality of Opportunity</span><span class="col-subtitle">John Roemer &mdash; <em>Equality of Opportunity</em>, 1998; &ldquo;Equality of Talent&rdquo;, Economics &amp; Philosophy 1985</span></div>
+    <div class="col-position">The deepest problem with no-envy is that it takes agents' preferences &mdash; including their preferences <em>over their own talents and circumstances</em> &mdash; as the sole input, with no room for the prior question of which differences between people are matters of brute luck (circumstance) that justice should neutralise, and which are matters of choice (effort) that justice should respect; egalitarian-equivalent and reward-respecting rules can be built around exactly this circumstance/effort distinction, while no-envy treats a talented agent's higher-valued bundle and an untalented agent's lower-valued bundle as equally "fair" so long as neither envies the other.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','roemer','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','roemer','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- PAZNER/SCHMEIDLER -->
+    <div class="speaker-panel active" id="opp-pazner-panel">
+      <div id="opp-pazner-speech" class="speech-text">
+        <p class="salut">Foley and Varian have presented no-envy as though it were a free lunch: a criterion that requires nothing beyond the agents' own preferences and delivers fairness automatically. I want to show that this is not so. No-envy has two serious defects, and egalitarian-equivalence was designed precisely to address both.</p>
+
+        <span class="section">i. no-envy can be satisfied by allocations everyone regards as bad</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Vacuous no-envy — equal division of a useless or harmful endowment is trivially envy-free but not obviously "fair" in any substantive sense</span>Here is the simplest possible counter-example. Suppose two agents must divide a single, identical, useless object &mdash; say, a poisoned apple that neither wants any part of. <em>Any</em> division of this object satisfies no-envy trivially, because both agents are indifferent among all the divisions: nobody envies anybody, because nobody wants anything. More substantively: take any allocation in which every agent receives an <em>identical</em> bundle. This is always envy-free, by definition &mdash; nobody can envy a bundle identical to their own &mdash; regardless of whether the bundle is good, bad, efficient, or wildly wasteful. No-envy alone says nothing about whether the common bundle is a good one. Egalitarian-equivalence, by contrast, is always stated <em>together with</em> efficiency (the "PEEEA" &mdash; Pareto-Efficient Egalitarian-Equivalent Allocation), so the comparison to the reference bundle is never divorced from the requirement that the allocation actually be a good one to begin with.</span></p>
+
+        <span class="section">ii. the resource monotonicity argument: more for everyone cannot be unfair</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Resource monotonicity as bedrock — Moulin &amp; Thomson 1988 prove no efficient envy-free rule is resource monotonic; EE rules satisfy RM by construction</span>Consider what it would mean for a fairness criterion to be violated by an <em>increase</em> in the total resources available to society, with nothing else changing. Moulin and Thomson proved in 1988 that this is exactly what happens to no-envy: there exist economies in which the unique efficient, envy-free allocation before a resource increase becomes infeasible (or ceases to be envy-free) after the increase, such that <em>some agent is strictly worse off with more total resources available to divide</em>. I submit that this is not a minor technical wrinkle. It is a reductio. A fairness criterion under which "society becomes richer" can translate into "you personally become poorer," holding your own preferences fixed, has failed at the most basic level. The egalitarian-equivalent rule satisfies resource monotonicity by construction: each agent's allocation is pinned to a fraction of the (growing) reference bundle, so when the reference bundle grows, every agent's guaranteed reference-equivalent utility grows too.</span></p>
+        <div class="piechart">
+          <svg viewBox="0 0 120 120" width="100" height="100">
+            <circle cx="60" cy="60" r="54" fill="var(--bg4)" stroke="var(--bdr2)"/>
+            <path d="M60 60 L60 6 A54 54 0 1 1 13.6 87 Z" fill="var(--a4bg)" stroke="var(--a4brd)"/>
+            <path d="M60 60 L13.6 87 A54 54 0 0 1 60 6 Z" fill="var(--a3bg)" stroke="var(--a3brd)"/>
+          </svg>
+          <div class="pielegend">
+            <strong style="color:var(--text);font-weight:600">Before vs. after a resource increase (CEEI)</strong><br>
+            <span class="sw" style="background:var(--a4bg);border:1px solid var(--a4brd)"></span>Agent A's utility level — <em>falls</em> after society gets richer (≈68% of the circle = relative loss)<br>
+            <span class="sw" style="background:var(--a3bg);border:1px solid var(--a3brd)"></span>Agent A's utility level — under EE: monotonically non-decreasing
+          </div>
+        </div>
+
+        <span class="section">iii. the numeraire is a feature, not a bug</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Numeraire as transparency — the reference bundle makes explicit what implicit standard is being used; no-envy has an implicit and arbitrary standard too (each other's bundles)</span>Foley and Varian object that the EE reference bundle must be "specified exogenously." But every fairness criterion specifies <em>some</em> standard of comparison exogenously &mdash; the question is only whether that standard is made explicit or left implicit. No-envy's implicit standard is "each other's actual bundles" &mdash; which is itself an exogenous choice, and a strange one: why should the relevant comparison class for agent 1 be agents 2 and 3's <em>particular</em> bundles, which were themselves the output of the very allocation procedure under evaluation? The egalitarian-equivalent rule makes its standard explicit and, crucially, allows the analyst to choose a standard that reflects the actual social endowment &mdash; the literal total of what is being divided &mdash; which is a far less arbitrary benchmark than "whatever the procedure happened to give to your neighbour."</span></p>
+
+        <span class="section">iv. cloud computing: dominant resource fairness as the real-world proof of concept</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Dominant Resource Fairness — Ghodsi et al. 2011 — EE rule deployed at scale in datacenter schedulers (Mesos, YARN); strategyproof and envy-free in this domain</span>Moulin is right that Dominant Resource Fairness is the Pazner&ndash;Schmeidler rule applied to Leontief preferences &mdash; and he is right that in this domain it happens to also satisfy no-envy. But he draws the wrong conclusion. DRF is deployed, at scale, in production datacenter schedulers (Apache Mesos, Hadoop's YARN fair scheduler) precisely <em>because</em> it was derived from the egalitarian-equivalent framework &mdash; the engineers who designed these schedulers explicitly cite the Pazner&ndash;Schmeidler 1978 paper as their theoretical foundation, not the 1974 Varian paper. The fact that EE coincides with no-envy in this domain does not diminish EE's claim to having generated the result; it is EE's framework &mdash; "give everyone an equal share of a reference bundle of resources" &mdash; that engineers found intuitive enough to implement, generalise, and ship.</span></p>
+        <div class="realworld"><strong>Real-world parallel:</strong> Apache Mesos and Hadoop YARN's fair schedulers implement Dominant Resource Fairness, explicitly citing the egalitarian-equivalent framework of Pazner and Schmeidler (1978) as their theoretical basis for allocating CPU, memory, and other resources fairly among competing jobs.</div>
+        <p><em>No-envy is fairness with the standard left unstated. We propose to state it. I yield the floor.</em></p>
+      </div>
+      <div id="opp-pazner-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — No-envy is trivially satisfiable by allocations with no substantive merit; EE is always paired with efficiency</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Any allocation in which every agent receives an identical bundle is envy-free by definition, regardless of whether that bundle is good, bad, wasteful, or efficient.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No-envy alone places no constraint on the quality of the common standard; it is a purely relational property among the agents present, blind to absolute quality.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The egalitarian-equivalent criterion is always invoked jointly with Pareto efficiency (as PEEEA), ensuring the reference-bundle comparison is never divorced from a substantive quality requirement on the allocation.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>No-envy in isolation is too weak to do the normative work claimed for it; egalitarian-equivalence's pairing with efficiency gives it a substantive guarantee that no-envy alone lacks.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Resource monotonicity is a bedrock requirement that no-envy generally violates</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Moulin and Thomson (1988): no rule is simultaneously efficient, resource-monotonic, and envy-free; in economies satisfying this incompatibility, efficient envy-free allocations can make some agent strictly worse off after a resource increase.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>A criterion under which society becoming objectively richer can make a specific individual worse off (holding her preferences fixed) violates an intuitively bedrock requirement of distributive justice.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Egalitarian-equivalent rules satisfy resource monotonicity by construction, because each agent's guaranteed utility is pinned to a fraction of a reference bundle that itself grows with total resources.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Resource monotonicity is the axiom that should not be sacrificed; since no-envy is incompatible with it (given efficiency), no-envy is the axiom that must yield, and egalitarian-equivalence is the family of rules that correctly preserves resource monotonicity.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — No-envy's comparison class (other agents' bundles) is itself an unexplained exogenous standard</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>No-envy compares each agent's bundle to other agents' actual bundles — bundles that are themselves outputs of the allocation procedure under evaluation, not independent benchmarks.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Egalitarian-equivalence makes its comparison standard explicit (a stated fraction of a stated reference bundle, typically the social endowment), allowing scrutiny and justification of the standard itself.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A criterion whose standard of comparison is explicit and independently specifiable is more transparent and contestable than one whose standard is implicitly "whatever the other agents happen to receive."</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>No-envy does not avoid the need for an exogenous standard; it merely leaves that standard implicit and circular (other agents' procedure-dependent bundles), whereas egalitarian-equivalence's explicit reference bundle is a more defensible and transparent choice.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Dominant Resource Fairness is deployed at scale because it was derived from the EE framework</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Production datacenter schedulers (Mesos, YARN) implement Dominant Resource Fairness, which is the Pazner–Schmeidler egalitarian-equivalent rule applied to Leontief preferences over compute resources.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The engineers and researchers who designed these schedulers explicitly cite the egalitarian-equivalent framework as their theoretical foundation, not the no-envy/CEEI tradition.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>That EE coincides with no-envy in this domain does not change which framework generated, motivated, and justified the deployed rule.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The most consequential real-world deployment of fair-division theory at scale (cloud resource scheduling) traces its lineage to the egalitarian-equivalent framework, giving EE a practical pedigree at least equal to no-envy's.</span></div>
+        </div>
+      </div>
+    </div><!-- end pazner -->
+
+    <!-- MANIQUET -->
+    <div class="speaker-panel" id="opp-maniquet-panel">
+      <div id="opp-maniquet-speech" class="speech-text">
+        <p class="salut">The debate so far has stayed within the comfortable confines of the pure exchange economy: a fixed bundle of goods, agents with preferences, nothing produced, nobody responsible for anything. Real distributive questions are not like this. They involve production, in which some agents contribute more than others; they involve talents, which agents did not choose; and they involve effort, which (at least partly) agents did choose. Any adequate theory of fair division must say something about how to treat these different kinds of differences between people. No-envy says nothing.</p>
+
+        <span class="section">i. the economy with production: no-envy's silence on talent</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Economy with production — no-envy on outputs can reward talent differences that egalitarian-equivalent/reward rules explicitly neutralise or preserve by design</span>Consider an economy with production: two workers, Alice and Bob, who can each produce output by working, but Alice is twice as productive as Bob for the same effort &mdash; a difference in <em>talent</em>, not effort. Suppose the allocation gives each worker the output of their own labour. Is this envy-free? It can be: if Bob, knowing he is half as productive, simply doesn't envy Alice's larger bundle because he values leisure differently, no-envy is satisfied. But notice what no-envy is silent about: it has nothing whatsoever to say about whether it is <em>fair</em> that Alice ends up with twice Bob's resources purely because of a talent difference neither of them chose. An egalitarian-equivalent rule can be explicitly constructed so that the reference bundle reflects <em>equal-talent</em> production &mdash; comparing each worker's actual bundle to what they would have received had everyone been equally talented and exercised the same effort. No-envy has no analogous construction available to it, because it has no vocabulary for "what would have happened under counterfactually equal circumstances."</span></p>
+
+        <span class="section">ii. characterisation results: egalitarian-equivalence and the reward principle</span>
+        <table class="tbl">
+          <tr><th>Principle</th><th>Informal statement</th><th>No-Envy</th><th>EE with talent-neutral reference</th></tr>
+          <tr><td>Compensation</td><td>Differences due to circumstance (talent) should be neutralised</td><td class="loser">Not expressible</td><td class="winner">Directly built into reference bundle</td></tr>
+          <tr><td>Reward / Liberal Reward</td><td>Differences due to effort/choice should be respected, not neutralised</td><td class="loser">Not expressible</td><td class="winner">Reference bundle holds circumstance fixed, lets effort vary</td></tr>
+          <tr><td>Solidarity</td><td>A change affecting only "circumstance" technology should affect all agents of that type alike</td><td class="loser">Not guaranteed</td><td class="winner">Satisfied by construction in Fleurbaey–Maniquet characterisations</td></tr>
+          <tr><td colspan="4" class="note">Fleurbaey &amp; Maniquet (1996, 1999, 2011): egalitarian-equivalent rules with appropriately chosen reference bundles are characterised by compensation + reward axioms that no-envy cannot even state.</td></tr>
+        </table>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Compensation and reward — the central normative distinction in responsibility-sensitive justice; EE reference bundle is the natural vehicle; no-envy lacks the expressive power</span>The compensation principle says: two agents identical in every respect except for circumstances beyond their control (talent, health, family background) should not end up with different welfare as a result of that difference. The reward principle says: two agents identical in circumstances but differing in effort or choice <em>should</em> be allowed to end up with different outcomes, and a rule that flattens such differences fails to respect responsibility. Both principles are central to contemporary theories of distributive justice &mdash; and both can be formalised, with mathematical precision, using egalitarian-equivalent rules whose reference bundle is defined in terms of a hypothetical "equal circumstance" economy. No-envy, defined purely on actual bundles without any reference to a counterfactual circumstance-equalised economy, simply cannot express either principle. It is not that no-envy gets compensation and reward wrong; it is that no-envy cannot even ask the question.</span></p>
+
+        <span class="section">iii. public goods and the limits of no-envy</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Public goods — no-envy is often vacuous or impossible with non-excludable goods; EE rules extend naturally via reference levels of public good provision</span>In economies with public goods &mdash; a public park, a vaccination programme, a piece of infrastructure &mdash; every agent consumes the <em>same</em> level of the public good by definition. No-envy over the public component is therefore either automatically satisfied (everyone gets the same park) or, when combined with private good allocation, can become impossible to satisfy alongside efficiency (a classical result going back to the literature on public goods and fair allocation). Egalitarian-equivalent rules extend gracefully to this setting: each agent is compared to a reference bundle consisting of a reference level of the public good plus a reference share of private goods, and the rule asks each agent to be indifferent between their actual consumption and this reference bundle. This extension is natural precisely because EE never relied on inter-agent bundle comparison in the first place.</span></p>
+
+        <span class="section">iv. political application: disability and healthcare resource allocation</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Disability and healthcare — compensation principle directly informs resource allocation formulas; no-envy criterion not used in these policy domains</span>The compensation principle has direct policy application in disability benefits and healthcare resource allocation. A disability benefit formula that aims to compensate individuals for circumstances (a disability) they did not choose, while not fully equalising outcomes that depend on subsequent effort (labour market participation, given the disability), is implementing exactly the compensation/reward distinction that egalitarian-equivalent rules with appropriately specified reference bundles formalise. No actual disability-benefit or healthcare-allocation formula that I am aware of is designed around a no-envy criterion &mdash; "does this claimant prefer another claimant's package?" &mdash; because the relevant ethical question is not interpersonal comparison of bundles but compensation for unchosen circumstance.</span></p>
+        <div class="realworld"><strong>Real-world parallel:</strong> Disability benefit schedules and healthcare resource-allocation formulas in several European welfare states are explicitly designed around compensating for circumstances (health status, disability) while preserving incentives tied to effort (work participation) — the compensation/reward structure that responsibility-sensitive egalitarian-equivalent theory formalises, and that no-envy has no machinery to address.</div>
+        <p><em>No-envy is a criterion for a world with no production, no talent, and no responsibility. We do not live in that world.</em></p>
+      </div>
+      <div id="opp-maniquet-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — No-envy is silent on whether talent-driven inequality is fair; EE rules can encode talent-neutrality</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In an economy with production, an allocation giving each worker the output of their own labour can be envy-free even when output differences are driven entirely by unchosen talent differences.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No-envy has no vocabulary for comparing an agent's actual bundle to a counterfactual "equal talent" allocation; it compares only actual bundles to other actual bundles.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Egalitarian-equivalent rules can define the reference bundle as the outcome of a hypothetical equal-talent economy, making the talent/effort distinction directly expressible.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>No-envy cannot distinguish fair inequality (due to effort) from unfair inequality (due to talent); egalitarian-equivalent rules with appropriately chosen reference bundles can, giving them strictly greater expressive power for the central question of responsibility-sensitive justice.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Compensation and reward principles can only be formalised via egalitarian-equivalent (counterfactual-reference) rules</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The compensation principle requires neutralising welfare differences due to circumstance; the reward principle requires preserving welfare differences due to effort/choice.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Both principles require comparing an agent's actual outcome to a counterfactual outcome under equalised circumstances — a comparison that egalitarian-equivalent rules with circumstance-neutral reference bundles directly formalise.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No-envy, defined purely on actual bundles, has no mechanism for constructing or referencing such counterfactuals.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Compensation and reward — the central axes of responsibility-sensitive distributive justice — are expressible only within the egalitarian-equivalent framework; no-envy is not merely weaker on this dimension, it is categorically unable to address it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — No-envy is vacuous or impossible in economies with public goods; EE extends naturally</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In public goods economies, all agents consume the same level of the public good, making no-envy over the public component automatically satisfied (and hence uninformative) or, combined with private goods, impossible alongside efficiency.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Egalitarian-equivalent rules extend by defining a reference bundle including a reference public-good level plus reference private goods, asking each agent to be indifferent between actual and reference consumption.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This extension requires no modification to the EE framework's core logic, whereas no-envy requires ad hoc fixes or becomes vacuous.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Egalitarian-equivalence generalises to public-goods economies — a domain of central practical importance — far more gracefully than no-envy, which is either vacuous or in tension with efficiency in this domain.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Disability and healthcare allocation formulas implement compensation/reward, not no-envy</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Disability benefit and healthcare resource-allocation formulas in several welfare states are designed to compensate for unchosen circumstances while preserving effort-based incentives.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This compensation/reward structure is exactly what egalitarian-equivalent rules with circumstance-neutral reference bundles formalise.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No disability or healthcare allocation policy is framed around a no-envy criterion — interpersonal comparison of claimants' actual packages — because that is not the relevant ethical question in these domains.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The policy domains where responsibility-sensitive fairness questions are most pressing (disability, healthcare) are organised around principles formalisable only by egalitarian-equivalent rules, while no-envy plays no role — evidence of EE's superior applicability to real distributive questions.</span></div>
+        </div>
+      </div>
+    </div><!-- end maniquet -->
+
+    <!-- FLEURBAEY/VOORHOEVE -->
+    <div class="speaker-panel" id="opp-fleurbaey-panel">
+      <div id="opp-fleurbaey-speech" class="speech-text">
+        <p class="salut">Every speaker on the proposition side has discussed fair division as though it were a problem about dividing a fixed, known set of goods among agents whose preferences over those goods are given and certain. I want to introduce a complication that the no-envy framework, by its very structure, cannot accommodate: <strong>uncertainty</strong>, and the distinction between fairness <em>ex ante</em> &mdash; before uncertainty resolves &mdash; and fairness <em>ex post</em> &mdash; after it does.</p>
+
+        <span class="section">i. a case where ex post no-envy hides ex ante unfairness</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Ex ante vs ex post — a fair lottery can produce an ex post no-envy outcome from an ex ante unfair procedure, and vice versa</span>Consider a simple case. Two patients, Ann and Beth, both need a scarce treatment that can save one life with certainty, or be split so that each has a 50% chance of survival. Suppose a hospital runs a fair coin flip: Ann wins, receives the full treatment, and survives; Beth receives nothing and does not survive. Compare the two final outcomes &mdash; "alive" and "dead." Does Beth envy Ann's outcome? Of course &mdash; trivially, anyone would prefer being alive to being dead, so in a sense "envy" is not even the right word; the no-envy framework, built for divisible goods over which agents have smooth preferences, simply does not have a natural application here. But suppose instead we ask the <em>ex ante</em> question: before the coin was flipped, did the procedure treat Ann and Beth fairly? The fair coin flip gave each of them an equal <em>chance</em>. The no-envy framework, applied to final outcomes, is blind to this entirely &mdash; it can only ever compare realised bundles, never the fairness of the process that generated the realisation.</span></p>
+
+        <span class="section">ii. the separateness of persons argument</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Separateness of persons — outcome-egalitarianism (no-envy) cannot capture the moral significance of the shift from intrapersonal to interpersonal tradeoffs</span>In our 2012 paper, we argue that there is a fundamental moral asymmetry between tradeoffs <em>within</em> one person's life (intrapersonal) and tradeoffs <em>between different people's lives</em> (interpersonal) &mdash; what we call the separateness of persons. An allocation rule that is purely concerned with the extent of outcome inequality &mdash; which is what no-envy, at bottom, is &mdash; treats a situation in which one person bears all of a risk and a situation in which the risk is spread equally across many people as differing only in their final inequality of outcomes. But these situations differ in something morally important that outcome comparison cannot see: in the first, one person's life has been sacrificed for others without any compensating distribution of the risk itself; in the second, everyone shared the risk. No-envy, defined on final allocations, registers only the inequality of the outcome &mdash; not the distribution of the risk that produced it.</span></p>
+
+        <table class="tbl">
+          <tr><th>Framework</th><th>What it compares</th><th>Captures distribution of risk/prospects?</th><th>Captures realised outcome inequality?</th></tr>
+          <tr><td>No-envy (ex post, outcomes)</td><td>Final bundles agents actually receive</td><td class="loser">No</td><td class="winner">Yes</td></tr>
+          <tr><td>Egalitarian-equivalence (ex post, outcomes)</td><td>Final bundles vs. reference bundle</td><td class="loser">No</td><td class="winner">Yes</td></tr>
+          <tr><td class="winner">Fleurbaey–Voorhoeve "egalitarianism re expected utility"</td><td class="winner">Both final outcomes and ex ante expected prospects</td><td class="winner">Yes</td><td class="winner">Yes</td></tr>
+        </table>
+
+        <span class="section">iii. against ex ante pareto</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Argument against ex ante Pareto — a policy can be ex ante Pareto-improving for everyone yet produce ex post outcomes that are clearly unfair by any outcome-based criterion including no-envy</span>One might think the fix is simply to apply no-envy or egalitarian-equivalence to <em>expected</em> bundles rather than realised ones &mdash; i.e., apply the ex post criteria "ex ante." We have argued at length ("Decide As You Would With Full Information!") that this "ex ante Pareto" approach is also inadequate. A policy can be a Pareto improvement in expectation for every individual &mdash; satisfying ex ante versions of no-envy or efficiency &mdash; while being certain to produce, ex post, an outcome that is starkly unequal and that the disadvantaged party would never have agreed to had the uncertainty already resolved. The fixation on bundles &mdash; whether actual, expected, or compared to a reference &mdash; throughout the no-envy/EE debate misses that what matters is the full <em>profile of prospects</em>, evaluated with appropriate concern for the worst-off, not merely whether bundles (real or expected) satisfy a comparison test.</span></p>
+
+        <span class="section">iv. political application: organ allocation and triage</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Organ allocation — real policy debates explicitly weigh ex ante fairness of the allocation procedure (equal chances, lottery) against ex post outcome distributions; neither no-envy nor EE captures this debate</span>Organ transplant allocation systems and pandemic triage protocols are the clearest real-world domain where this distinction is not academic. Policy debates over kidney allocation algorithms explicitly weigh "give everyone an equal chance via lottery" (an ex ante fairness consideration) against "prioritise those who will benefit most" (an outcome-oriented consideration), and ethics committees recognise these as distinct, sometimes conflicting, considerations. Neither no-envy nor egalitarian-equivalence, both defined on realised or reference bundles, has the conceptual machinery to represent the "equal chance" consideration at all &mdash; it simply does not appear as a variable in either framework.</span></p>
+        <div class="realworld"><strong>Real-world parallel:</strong> National organ allocation policies (e.g., kidney allocation systems debated by transplant ethics committees) and COVID-19 ventilator triage protocols explicitly discuss "fair chances" (a lottery-like, ex ante consideration) separately from "best outcomes" (an ex post, outcome-comparison consideration) — a distinction central to the Fleurbaey–Voorhoeve framework and invisible to both no-envy and egalitarian-equivalence.</div>
+        <p><em>A theory of fair division that can only ever look at the bundles on the table after the dust has settled has already missed half of what fairness requires.</em></p>
+      </div>
+      <div id="opp-fleurbaey-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — No-envy and EE are ex post frameworks that cannot represent the fairness of a risk-distributing procedure</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the coin-flip treatment example, the ex post outcomes (Ann alive, Beth not) are radically unequal, but the ex ante procedure (a fair coin flip giving each an equal chance) was fair.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No-envy and egalitarian-equivalence are defined on realised (or reference-compared realised) bundles; they have no representation of "chance" or "prospect" as distinct from realised outcome.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A complete theory of fair division must be able to assess the fairness of the procedure that generates outcomes under uncertainty, not merely the realised outcomes themselves.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Neither no-envy nor egalitarian-equivalence can represent a core dimension of fairness under uncertainty — the ex ante distribution of chances — making both frameworks incomplete for any fair division problem involving risk.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — The separateness of persons shows outcome-inequality comparison (no-envy's core) misses morally relevant information about how risk was distributed</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Two scenarios can have identical final outcome inequality — one where a single person bears all the risk, another where the risk is spread equally across many people — yet differ in whether any individual's prospects were sacrificed without compensation.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No-envy and EE, being purely outcome-comparative, cannot distinguish these scenarios because they look only at final bundles.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The moral significance of the separateness of persons requires attention to each individual's expected prospects, not merely the realized distribution of outcomes.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>No-envy's exclusive focus on outcome comparison is a significant normative limitation: it cannot register the morally important difference between fairly-distributed risk and unfairly-concentrated risk that happen to produce the same outcome inequality.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — Ex ante Pareto / expected-bundle versions of no-envy and EE are also inadequate</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A policy can satisfy ex ante Pareto improvement (and ex ante no-envy / EE on expected bundles) for every individual while being certain to produce a starkly unequal ex post outcome.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The disadvantaged party in such an ex post outcome would not have agreed to the policy had the uncertainty already resolved — yet ex ante criteria endorse the policy.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>What matters is the full profile of prospects evaluated with concern for the worst-off, not merely whether expected bundles satisfy a comparison test.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Simply moving the no-envy/EE comparison from realized to expected bundles does not rescue either framework; the inadequacy is structural, arising from the bundle-comparison approach itself rather than the timing of the comparison.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Organ allocation policy debates demonstrate a fairness dimension invisible to both no-envy and EE</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Transplant ethics committees explicitly weigh "equal chance via lottery" (ex ante fairness) against "best outcome" (ex post outcome quality) as distinct considerations in allocation policy.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No-envy and egalitarian-equivalence, both defined on bundles (realized or reference-compared), have no variable corresponding to "equal chance" and cannot represent this consideration.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A fair division framework that cannot represent a consideration central to real allocation policy debates is missing something essential to fairness as practiced.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>Real-world high-stakes allocation policy operates with a concept of fairness — the distribution of chances — that neither no-envy nor egalitarian-equivalence can express, showing both frameworks to be incomplete accounts of fair division as actually practiced.</span></div>
+        </div>
+      </div>
+    </div><!-- end fleurbaey -->
+
+    <!-- ROEMER -->
+    <div class="speaker-panel" id="opp-roemer-panel">
+      <div id="opp-roemer-speech" class="speech-text">
+        <p class="salut">I want to return to first principles and ask a question that the no-envy framework never asks: <em>which</em> of the differences between agents should a fairness criterion be sensitive to, and which should it not? No-envy treats all preference differences symmetrically &mdash; it asks only whether agents prefer their own bundles to others', without asking <em>why</em> their preferences, talents, or circumstances differ in the first place. I will argue that this symmetry is not neutrality. It is a substantive &mdash; and often objectionable &mdash; normative choice.</p>
+
+        <span class="section">i. the circumstance/effort partition</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Circumstance vs effort — Roemer's partition of the determinants of an outcome; equality of opportunity requires equalising across circumstance-types while preserving effort-based differences within types</span>My framework for equality of opportunity partitions the determinants of any individual's outcome into two categories: <strong>circumstances</strong> &mdash; factors beyond the individual's control, such as parental education, native talent, or the socioeconomic environment of childhood &mdash; and <strong>effort</strong> &mdash; factors within the individual's control, such as how hard they work, given their circumstances. The central claim of equality-of-opportunity theory is that a just allocation rule should equalise outcomes <em>across circumstance-types</em>, holding the <em>degree</em> of effort fixed (e.g., comparing individuals at the same percentile of the effort distribution within their own circumstance-type), while allowing outcomes to vary <em>within</em> a circumstance-type according to effort.</span></p>
+
+        <span class="section">ii. why no-envy cannot implement this partition</span>
+        <table class="tbl">
+          <tr><th>Two agents</th><th>Circumstance (talent)</th><th>Effort exerted</th><th>Outcome</th><th>Envy-free?</th><th>Equality of opportunity satisfied?</th></tr>
+          <tr><td>Agent 1</td><td>High talent</td><td>Low effort</td><td>Bundle worth 60 (to her)</td><td rowspan="2" class="winner">Yes — neither prefers the other's bundle</td><td rowspan="2" class="loser">No — Agent 1's circumstance advantage is not neutralised</td></tr>
+          <tr><td>Agent 2</td><td>Low talent</td><td>High effort</td><td>Bundle worth 60 (to her, but reflects much more effort)</td></tr>
+          <tr><td colspan="6" class="note">No-envy is satisfied (each values their own bundle at 60 and is indifferent to swapping). But Agent 1 achieved this with low effort due to high talent (an unchosen circumstance), while Agent 2 needed high effort to reach the same level — equality of opportunity is violated even though no-envy holds.</td></tr>
+        </table>
+        <p><span class="hl" data-arg="2"><span class="tooltip">No-envy compatible with circumstance-driven inequality of opportunity even when outcomes look symmetric; EOp requires looking inside the outcome at how it was achieved</span>The table above illustrates the gap precisely. No-envy is a relation between <em>outcomes</em> &mdash; bundles and the preferences over them. Equality of opportunity is a relation between <em>outcomes and the process that produced them</em>, specifically the role that circumstance versus effort played. Two allocations can be identical in terms of outcomes and preferences &mdash; and therefore identical with respect to no-envy &mdash; while differing completely in terms of whether they reflect a just allocation of opportunity. No-envy is, in the relevant sense, <em>blind</em> to the circumstance/effort distinction, not merely silent about which side of a trade-off to favour.</span></p>
+
+        <span class="section">iii. egalitarian-equivalent reward functions and the roemer mechanism</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Roemer mechanism — explicit construction comparing each type's outcome to a reference based on the type-distribution of effort; an egalitarian-equivalent-style construction</span>The mechanism I have proposed for implementing equality of opportunity in practice &mdash; used, for instance, in empirical studies of educational achievement and health outcomes across socioeconomic groups &mdash; works by comparing individuals at the same <em>percentile of the effort distribution within their own circumstance-type</em> to a reference outcome: the outcome that an individual at that percentile would have achieved <em>under the circumstance-type that produces the best outcomes overall</em>. This is, structurally, an egalitarian-equivalent construction: each individual's actual outcome is compared to a reference outcome defined by a counterfactual (a different circumstance-type, same relative effort). No-envy, which never constructs counterfactuals across circumstance-types, has no analogous implementation.</span></p>
+
+        <span class="section">iv. political application: educational policy and the equalisation of opportunity</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Educational policy — resource allocation across schools/regions explicitly framed in equality-of-opportunity terms, using egalitarian-equivalent-style reference comparisons across circumstance groups</span>School funding formulas in several jurisdictions allocate additional resources to schools serving disadvantaged populations &mdash; an explicit attempt to compensate for circumstance (family background, neighbourhood poverty) so that students exerting comparable effort achieve comparable outcomes regardless of circumstance. The empirical and policy literature evaluating these formulas uses equality-of-opportunity metrics directly descended from the Roemer framework: comparing outcomes across circumstance-types at matched effort percentiles. I am not aware of any educational funding formula evaluated using a no-envy metric &mdash; "do students at School A prefer the bundle of resources given to students at School B?" &mdash; because that is simply not the question that matters for opportunity.</span></p>
+        <div class="realworld"><strong>Real-world parallel:</strong> Progressive school funding formulas (e.g., pupil premium funding in England, Title I funding in the United States) allocate additional resources to schools serving disadvantaged students, and are evaluated using equality-of-opportunity metrics comparing outcomes across circumstance-groups at matched effort levels — a framework descended from Roemer's circumstance/effort partition and structurally akin to egalitarian-equivalence, not no-envy.</div>
+        <p><em>No-envy answers the question "would you swap?" Equality of opportunity asks the prior question: "should the difference between your bundle and theirs exist at all, given how each of you got here?" No-envy cannot ask that question. I yield the floor.</em></p>
+      </div>
+      <div id="opp-roemer-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I — The circumstance/effort partition is the central question of distributive justice and no-envy cannot represent it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Equality-of-opportunity theory partitions outcome determinants into circumstance (unchosen) and effort (chosen), requiring equalisation across circumstance-types at matched effort levels.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>No-envy is defined purely on bundles and preferences over bundles, with no reference to how those bundles came to be — it cannot distinguish a bundle achieved through high talent and low effort from one achieved through low talent and high effort.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A fairness criterion that cannot represent the circumstance/effort distinction cannot evaluate whether an allocation reflects a just distribution of opportunity.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>No-envy is blind to the circumstance/effort distinction that is central to contemporary distributive justice; this is not a minor omission but a categorical inability to address the question equality-of-opportunity theory considers primary.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II — Two allocations identical with respect to no-envy can differ completely with respect to equality of opportunity</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>In the worked example, both agents value their own bundle at 60 and neither envies the other — no-envy is satisfied.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Agent 1 reached this outcome via high talent and low effort; Agent 2 via low talent and high effort — a clear violation of equality of opportunity, since circumstance (talent) determined who needed to work harder for the same result.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No-envy returns the same verdict ("fair") for this allocation as it would for one in which both agents had identical circumstances and identical effort.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>No-envy conflates allocations that are, from an equality-of-opportunity standpoint, completely different; its verdicts are uninformative about the dimension of fairness that responsibility-sensitive theories consider most important.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III — The Roemer mechanism is structurally an egalitarian-equivalent construction, with no no-envy analogue</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The Roemer mechanism compares each individual's outcome to a reference outcome: what someone at the same effort-percentile would have achieved under the best-performing circumstance-type.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This reference-outcome comparison is structurally identical to the egalitarian-equivalent logic of comparing actual outcomes to a counterfactual reference.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No-envy, which never constructs counterfactuals across circumstance-types (only compares actual bundles to other actual bundles), has no implementation of this mechanism.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The most influential practical implementation of equality-of-opportunity theory is an egalitarian-equivalent-style construction; no-envy's framework offers no parallel tool for this widely used and empirically applied approach.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV — Progressive funding formulas use equality-of-opportunity metrics descended from EE-style reference comparisons, not no-envy</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Progressive school funding formulas allocate extra resources to disadvantaged schools to compensate for circumstance, evaluated via outcomes at matched effort levels across circumstance-groups.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These evaluation metrics are structurally descended from the Roemer circumstance/effort framework, which is itself an egalitarian-equivalent-style reference construction.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>No major educational funding policy is evaluated by asking whether students at one school envy the resource bundle given to students at another.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">∴</span><span>The policy domain where fair division of resources is most consequential and most studied (education) is evaluated using frameworks descended from egalitarian-equivalence and equality-of-opportunity theory, not no-envy — further evidence that no-envy fails to capture the operative notion of fairness in practice.</span></div>
+        </div>
+      </div>
+    </div><!-- end roemer -->
+
+  </div>
+</div><!-- end opp col -->
+
+</div><!-- end columns -->
+</div><!-- end page -->
+
+<script>
+var state={
+  prop:{speaker:'foley',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'pazner',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
