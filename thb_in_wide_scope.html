@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wide vs Narrow Scope — Broome's Rationality Debate</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f13;--bg2:#131620;--bg3:#191d2a;--bg4:#222636;
+  --bdr:rgba(160,180,255,.065);--bdr2:rgba(160,180,255,.13);
+  --text:#e0e5f5;--text2:#8090b8;--text3:#454e68;
+  --indigo:#7080e0;
+  --prop-col:#68b8e8;--prop-pill:#0a1828;--prop-pill-bdr:#1a4870;
+  --opp-col:#e07878;--opp-pill:#280a0a;--opp-pill-bdr:#6a2020;
+  --a1bg:rgba(255,210,60,.09);--a1brd:rgba(255,210,60,.36);--a1tip:#ffd040;
+  --a2bg:rgba(90,195,230,.09);--a2brd:rgba(90,195,230,.34);--a2tip:#55cce8;
+  --a3bg:rgba(130,210,100,.08);--a3brd:rgba(130,210,100,.33);--a3tip:#88e060;
+  --a4bg:rgba(220,80,80,.09);--a4brd:rgba(220,80,80,.34);--a4tip:#f06868;
+  --a5bg:rgba(180,100,240,.09);--a5brd:rgba(180,100,240,.34);--a5tip:#cc88ff;
+  --a6bg:rgba(255,140,30,.09);--a6brd:rgba(255,140,30,.34);--a6tip:#ffa040;
+  --a7bg:rgba(100,210,200,.08);--a7brd:rgba(100,210,200,.32);--a7tip:#60ddd0;
+}
+body{font-family:Georgia,serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
+.motion-header{padding:.85rem 2rem .7rem;border-bottom:1px solid var(--bdr);text-align:center;background:var(--bg);position:relative;flex-shrink:0}
+.motion-header::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,var(--indigo),transparent);opacity:.45}
+.motion-eyebrow{font-family:sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--indigo);margin-bottom:4px;font-weight:500}
+.motion-title{font-size:15px;font-weight:400;color:var(--text);font-style:italic;letter-spacing:.01em}
+.motion-sub{font-family:sans-serif;font-size:11px;color:var(--text3);margin-top:3px}
+.page{display:flex;flex-direction:column;height:100vh}
+.columns{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.col{display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.col.prop{border-right:1px solid var(--bdr)}
+.speaker-bar{display:flex;align-items:center;border-bottom:1px solid var(--bdr);background:var(--bg3);flex-shrink:0;overflow-x:auto}
+.speaker-btn{font-family:sans-serif;font-size:11px;font-weight:500;padding:7px 10px;cursor:pointer;white-space:nowrap;border-right:1px solid var(--bdr);color:var(--text3);background:transparent;border-top:none;border-bottom:none;border-left:none;transition:color .15s,background .15s;flex-shrink:0}
+.speaker-btn:last-child{border-right:none}
+.speaker-btn.active{background:var(--bg2);color:var(--text)}
+.prop .speaker-btn.active{color:var(--prop-col)}
+.opp .speaker-btn.active{color:var(--opp-col)}
+.col-header{padding:.6rem 1.2rem 0;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--bg2)}
+.col-header-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem;flex-wrap:wrap}
+.pill{font-family:sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:4px}
+.pill.prop{background:var(--prop-pill);border:1px solid var(--prop-pill-bdr);color:var(--prop-col)}
+.pill.opp{background:var(--opp-pill);border:1px solid var(--opp-pill-bdr);color:var(--opp-col)}
+.col-subtitle{font-family:sans-serif;font-size:12px;font-style:italic;color:var(--text2)}
+.col-position{font-family:sans-serif;font-size:10px;color:var(--text3);margin-top:1px;line-height:1.4}
+.tabs{display:flex;gap:0;margin-top:4px}
+.tab{font-family:sans-serif;padding:5px 14px;font-size:12px;color:var(--text3);cursor:pointer;border:1px solid var(--bdr);border-bottom:none;border-radius:5px 5px 0 0;background:var(--bg);margin-right:3px;user-select:none;transition:color .15s,background .15s}
+.tab.active{background:var(--bg2);font-weight:500}
+.prop .tab.active{color:var(--prop-col)}.opp .tab.active{color:var(--opp-col)}
+.col-body{flex:1;overflow-y:auto;padding:1.1rem 1.4rem;font-size:13.5px;line-height:1.95;color:var(--text2)}
+.col-body::-webkit-scrollbar{width:3px}
+.col-body::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.speaker-panel{display:none}.speaker-panel.active{display:block}
+.speech-text p{margin-bottom:.85rem}
+.speech-text .salut{color:var(--text3);font-style:italic}
+.speech-text em{color:var(--text3)}
+.speech-text .section{font-family:sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:1.4rem 0 .3rem;display:block}
+.speech-text .pull{font-style:italic;color:var(--text);border-left:2px solid var(--indigo);padding:.5rem .9rem;margin:.8rem 0 .85rem;font-size:13px;line-height:1.75;background:rgba(112,128,224,.06)}
+.speech-text .case-box{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:.7rem 1rem;margin:.5rem 0 .85rem;font-family:sans-serif;font-size:12px;color:var(--text2);line-height:1.7}
+.speech-text .case-box strong{color:var(--text);font-weight:600;display:block;margin-bottom:.3rem}
+.speech-text .fml{font-family:sans-serif;font-size:12.5px;background:var(--bg3);border:1px solid var(--bdr2);border-radius:4px;padding:.55rem 1rem;margin:.5rem 0 .7rem;color:#a8c8f8;line-height:1.9;letter-spacing:.01em}
+.logic-view{display:flex;flex-direction:column;gap:.9rem}
+.arg-block{border-left:2px solid;background:var(--bg2);overflow:hidden}
+.arg-block[data-arg="1"]{border-left-color:var(--a1brd)}.arg-block[data-arg="2"]{border-left-color:var(--a2brd)}
+.arg-block[data-arg="3"]{border-left-color:var(--a3brd)}.arg-block[data-arg="4"]{border-left-color:var(--a4brd)}
+.arg-block[data-arg="5"]{border-left-color:var(--a5brd)}.arg-block[data-arg="6"]{border-left-color:var(--a6brd)}
+.arg-title{padding:7px 11px;font-family:sans-serif;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bdr)}
+.arg-block[data-arg="1"] .arg-title{color:var(--a1tip)}.arg-block[data-arg="2"] .arg-title{color:var(--a2tip)}
+.arg-block[data-arg="3"] .arg-title{color:var(--a3tip)}.arg-block[data-arg="4"] .arg-title{color:var(--a4tip)}
+.arg-block[data-arg="5"] .arg-title{color:var(--a5tip)}.arg-block[data-arg="6"] .arg-title{color:var(--a6tip)}
+.arg-premises{padding:9px 11px 5px}
+.premise{display:flex;gap:9px;margin-bottom:7px;font-family:sans-serif;font-size:12px;line-height:1.6;color:var(--text2)}
+.plabel{font-weight:600;min-width:16px;font-size:10.5px;color:var(--text3);padding-top:1px;flex-shrink:0}
+.conclusion{display:flex;gap:9px;padding:7px 11px;font-family:sans-serif;font-size:12px;line-height:1.6;border-top:1px solid var(--bdr);background:var(--bg3);font-weight:500}
+.arg-block[data-arg="1"] .conclusion{color:var(--a1tip)}.arg-block[data-arg="2"] .conclusion{color:var(--a2tip)}
+.arg-block[data-arg="3"] .conclusion{color:var(--a3tip)}.arg-block[data-arg="4"] .conclusion{color:var(--a4tip)}
+.arg-block[data-arg="5"] .conclusion{color:var(--a5tip)}.arg-block[data-arg="6"] .conclusion{color:var(--a6tip)}
+.hl{border-radius:2px;padding:1px 2px;position:relative;display:inline;cursor:default}
+.hl[data-arg="1"]{background:var(--a1bg);border-bottom:1px solid var(--a1brd)}
+.hl[data-arg="2"]{background:var(--a2bg);border-bottom:1px solid var(--a2brd)}
+.hl[data-arg="3"]{background:var(--a3bg);border-bottom:1px solid var(--a3brd)}
+.hl[data-arg="4"]{background:var(--a4bg);border-bottom:1px solid var(--a4brd)}
+.hl[data-arg="5"]{background:var(--a5bg);border-bottom:1px solid var(--a5brd)}
+.hl[data-arg="6"]{background:var(--a6bg);border-bottom:1px solid var(--a6brd)}
+.tooltip{display:none;position:fixed;font-family:sans-serif;font-size:11px;font-weight:500;white-space:nowrap;z-index:200;pointer-events:none;background:var(--bg4);border:1px solid var(--bdr2);border-radius:5px;padding:5px 10px;box-shadow:0 2px 10px rgba(0,0,0,.8);color:var(--text);transform:translateX(-50%)}
+.hl[data-arg="1"] .tooltip{color:var(--a1tip)}.hl[data-arg="2"] .tooltip{color:var(--a2tip)}
+.hl[data-arg="3"] .tooltip{color:var(--a3tip)}.hl[data-arg="4"] .tooltip{color:var(--a4tip)}
+.hl[data-arg="5"] .tooltip{color:var(--a5tip)}.hl[data-arg="6"] .tooltip{color:var(--a6tip)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="motion-header">
+  <div class="motion-eyebrow">Philosophy of Rationality &mdash; Wide vs Narrow Scope &bull; Broome (1999&ndash;2013) &bull; Way (2011) &bull; Worsnip (2015&ndash;2021) &bull; Rippon (2011) &nbsp;&mdash;&nbsp; Kolodny (2005) &bull; Schroeder (2004&ndash;2009) &bull; Kiesewetter (2017) &bull; Brunero (2010&ndash;2012)</div>
+  <div class="motion-title">&ldquo;This House Believes that requirements of rationality have wide scope &mdash; one is rationally required to make true the whole conditional &lsquo;if I believe I ought to &Phi;, I intend to &Phi;&rsquo; &mdash; and that the principle of detachment, which would move from this wide-scope requirement to a narrow-scope requirement to &Phi;, is not a requirement of rationality&rdquo;</div>
+  <div class="motion-sub">Wide Scope &bull; Broome (Prime Minister) &middot; Way (Deputy PM) &middot; Worsnip (Government Member) &middot; Rippon (Government Whip) &nbsp;&mdash;&nbsp; Narrow Scope &bull; Kolodny (Leader of Opposition) &middot; Schroeder (Deputy Leader) &middot; Kiesewetter (Opposition Member) &middot; Brunero (Opposition Whip)</div>
+</div>
+<div class="columns">
+
+<!-- LEFT: Wide Scope (Proposition) -->
+<div class="col prop" id="col-prop">
+  <div class="speaker-bar prop" id="prop-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('prop','broome',this)">Broome</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','way',this)">Way</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','worsnip',this)">Worsnip</button>
+    <button class="speaker-btn" onclick="switchSpeaker('prop','rippon',this)">Rippon</button>
+  </div>
+
+  <!-- BROOME HEADER -->
+  <div class="col-header" id="prop-broome-header">
+    <div class="col-header-top"><span class="pill prop">Prime Minister &mdash; Wide Scope &amp; Normative Requirements</span><span class="col-subtitle">John Broome &mdash; &ldquo;Normative Requirements,&rdquo; Ratio, 1999; &ldquo;Wide or Narrow Scope?&rdquo; Mind, 2007; Rationality Through Reasoning, 2013</span></div>
+    <div class="col-position">Requirements of rationality have wide scope: they are requirements to make true a whole conditional, not requirements to make true its consequent; the instrumental principle is not &ldquo;if you intend an end E, intend the necessary means M&rdquo; but &ldquo;rationality requires (if you intend E and believe M is necessary for E, intend M)&rdquo;; the wide-scope formulation avoids the bootstrapping problem that afflicts narrow-scope accounts, and the detachment principle that would move from wide to narrow scope is not a requirement of rationality.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','broome','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','broome','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- WAY HEADER -->
+  <div class="col-header hidden" id="prop-way-header">
+    <div class="col-header-top"><span class="pill prop">Deputy Prime Minister &mdash; Defending Wide Scope Against Symmetry</span><span class="col-subtitle">Jonathan Way &mdash; &ldquo;Defending the Wide-Scope Approach,&rdquo; Philosophical Studies, 2011; &ldquo;Reasons and Rationality,&rdquo; 2018</span></div>
+    <div class="col-position">The main objection to wide-scope accounts is the symmetry objection: that wide scope permits satisfying a rational requirement by abandoning an end rather than adopting a means, treating these as equally rational options; but this objection conflates the content of a rational requirement (which is wide-scope) with basing permissions and prohibitions (which are narrow); wide-scopers can and should maintain independent basing constraints that explain why adopting means is typically the more rational response, without collapsing back into narrow scope.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','way','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','way','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- WORSNIP HEADER -->
+  <div class="col-header hidden" id="prop-worsnip-header">
+    <div class="col-header-top"><span class="pill prop">Government Member &mdash; Structural Rationality &amp; Coherence</span><span class="col-subtitle">Alex Worsnip &mdash; &ldquo;Narrow-Scoping for Wide-Scopers,&rdquo; Synthese, 2015; The Conflict of Evidence and Coherence, 2021</span></div>
+    <div class="col-position">Structural rationality &mdash; the coherence of one&rsquo;s attitudes &mdash; is genuinely normative without requiring detachment; the normativity of coherence is not the normativity of reasons: there need be no reasons to satisfy structural requirements; the wide-scope requirement captures exactly what is required of a structurally rational agent; even narrow-scopers must eventually appeal to wide-scope constraints to explain the normativity of basing; Worsnip&rsquo;s &ldquo;narrow-scoping for wide-scopers&rdquo; shows that wide-scope accounts can accommodate the genuine asymmetries narrow-scopers care about.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','worsnip','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','worsnip','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- RIPPON HEADER -->
+  <div class="col-header hidden" id="prop-rippon-header">
+    <div class="col-header-top"><span class="pill prop">Government Whip &mdash; Wide-Scope Reasons &amp; The Facilitative Principle</span><span class="col-subtitle">Simon Rippon &mdash; &ldquo;In Defence of the Wide-Scope Instrumental Principle,&rdquo; J. of Ethics &amp; Social Philosophy, 2011</span></div>
+    <div class="col-position">Wide-scope reasons &mdash; reasons to make true the whole conditional &mdash; are the correct account of instrumental rationality; critics of wide scope who invoke the Facilitative Principle (that having a reason to &Phi; and believing that &Psi;-ing is necessary for &Phi;-ing gives you a reason to &Psi;) are making a logical error: the facilitative principle is neither trivially true nor derivable from wide-scope reasons alone; once this error is identified, the main arguments for narrow scope and detachment lose their force, and the wide-scope account stands as the most defensible account of rational requirement.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('prop','rippon','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('prop','rippon','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="prop-body">
+
+    <!-- BROOME PANEL -->
+    <div class="speaker-panel active" id="prop-broome-panel">
+      <div id="prop-broome-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>The question before this House is deceptively simple to state and deeply difficult to answer: when rationality requires something of you, what exactly does it require? I shall argue that it requires you to make true a certain conditional &mdash; a wide-scope requirement &mdash; and that the move from this requirement to a narrower requirement to perform a specific action is a step that rationality does not license.</p>
+        <p>Let me begin with the instrumental principle, since it is the clearest case. There is a requirement of rationality that concerns means and ends. The narrow-scope version states it as:</p>
+        <div class="fml">(N) If you intend an end E, rationality requires you to intend the necessary means M.</div>
+        <p>The wide-scope version states it as:</p>
+        <div class="fml">(W) Rationality requires: (if you intend E and believe M is necessary for E, intend M).</div>
+        <p>These look similar. But the logical scope of the modal operator &ldquo;rationality requires&rdquo; differs crucially. In (N), the requirement is inside the conditional: it attaches to the consequent. In (W), the requirement is outside the conditional: it governs the whole. This difference has enormous consequences.</p>
+        <div class="case-box">
+          <strong>The scope distinction: a logical anatomy.</strong><br><br>
+          Let R = &ldquo;rationality requires,&rdquo; B(p) = &ldquo;you believe p,&rdquo; I(&Phi;) = &ldquo;you intend to &Phi;.&rdquo;<br><br>
+          Narrow scope: B(M is necessary for E) &amp; I(E) &rarr; R[I(M)]<br>
+          Wide scope: R[B(M necessary for E) &amp; I(E) &rarr; I(M)]<br><br>
+          In the narrow-scope reading, once the antecedent conditions hold, you are under a freestanding rational requirement to intend M. The requirement has <em>detached</em> from its conditional context and lands on you as a direct obligation to act.<br><br>
+          In the wide-scope reading, you are required to make the whole conditional true. You can satisfy this requirement in multiple ways: by intending M (satisfying the consequent), by abandoning E (dropping part of the antecedent), or by revising your belief that M is necessary (dropping another part). The requirement never detaches to place a freestanding demand on any particular attitude.
+        </div>
+        <span class="section">i. the bootstrapping catastrophe: why narrow scope must be wrong</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Bootstrapping — narrow scope + rationality is normative → crazy beliefs give you reasons to do crazy things; Ava must intend to exterminate humanity; narrow scope generates this catastrophe</span>Consider Ava, who has formed the crazy belief that she ought to exterminate all human life. The narrow-scope enkratic principle (N) says: rationality requires that, if you believe you ought to &Phi;, you intend to &Phi;. Applied to Ava:</p>
+        <div class="fml">Premise 1: Ava believes she ought to exterminate human life.<br>Premise 2 (N): Rationality requires that if Ava believes she ought to &Phi;, she intends to &Phi;.<br>Conclusion: Rationality requires that Ava intend to exterminate human life.</div>
+        <p>Now if rationality is normative &mdash; if one ought to satisfy rational requirements &mdash; we reach: Ava ought to intend to exterminate human life. This is a reductio of narrow scope. The conclusion follows validly from premises that narrow-scopers must accept. The wide-scope formulation avoids this entirely: (W) requires Ava to make true the conditional &lsquo;if I believe I ought to exterminate human life, I intend to exterminate human life.&rsquo; She can satisfy this wide-scope requirement by revising her crazy belief. No detachment to a freestanding obligation to exterminate occurs.</span></p>
+        <span class="section">ii. what detachment requires and why it is not a requirement of rationality</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Detachment is not licensed — moving from wide to narrow scope requires a further controversial principle; rationality does not include this principle; the move is not valid</span>The opposition will argue that the wide-scope formulation is unsatisfying because it never tells you what to do. When you actually have the belief that you ought to &Phi;, you satisfy the wide-scope requirement only by &Phi;-ing or by revising the belief. But the wide-scope requirement does not specify which. Surely, says the opposition, rationality must give you a directive here. I deny that rationality does this. Rationality is a structural matter: it concerns the coherence of your attitudes. It does not generate freestanding demands on which particular attitude to have. To move from &ldquo;rationality requires (if B then I)&rdquo; to &ldquo;given B, rationality requires I&rdquo; is to invoke the detachment principle &mdash; and detachment is not a requirement of rationality. It requires the further claim that rationality licenses modus ponens on requirements. Broome&rsquo;s view is precisely that this further claim is not part of rational requirement.</span></p>
+        <span class="section">iii. the enkratic requirement: wide scope preserves the right content</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Enkratic requirement — rationality requires: if you believe you ought to Φ, intend to Φ; wide scope correctly makes this a coherence requirement; narrow scope wrongly makes it a directive to act</span>The enkratic requirement is perhaps the central case. In my earlier formulation, it states:</p>
+        <div class="fml">(Enkratic-W) Rationality requires: (if you believe you ought to &Phi;, intend to &Phi;).</div>
+        <p>This is a coherence requirement: it demands that your intentions be aligned with your normative beliefs. An agent who believes she ought to pay back her debt but has no intention of doing so violates this requirement. The wide-scope formulation correctly captures this as a structural property of the agent&rsquo;s attitude-set, not as a directive to take any particular action. The narrow-scope version:</p>
+        <div class="fml">(Enkratic-N) If you believe you ought to &Phi;, rationality requires you to intend to &Phi;.</div>
+        <p>...makes it a freestanding directive. Once you have the belief, rationality commands the intention. This is too strong: it implies that all your normative beliefs are action-guiding through rationality alone, which would mean that rationality is doing the work that reasons are supposed to do. Rationality should govern coherence, not substitute for substantive normative justification.</span></p>
+        <span class="section">iv. reasoning through rationality: wide scope and the process of reasoning</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Reasoning — wide scope correctly models reasoning as a process that can reach intention by traversing the conditional; the wide-scope requirement is what reasoning satisfies; narrow scope confuses the product with the requirement</span>In <em>Rationality Through Reasoning</em> I argue that reasoning is a process by which wide-scope requirements come to be satisfied. When you reason from your belief that you ought to &Phi; to the intention to &Phi;, you traverse the conditional that the wide-scope requirement governs. The output of successful reasoning is the intention &mdash; but the requirement that governed the reasoning was wide-scope throughout. The opposition confuses the product of reasoning (the intention, which is narrow-scope in content) with the requirement that the reasoning satisfies (which is wide-scope). There is no inconsistency in having wide-scope requirements be satisfied through reasoning processes that generate narrow-scope attitudes as their outputs. The detachment principle would make the output of the reasoning a direct requirement before the reasoning has occurred &mdash; which is precisely the bootstrapping that must be avoided.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-broome-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The bootstrapping reductio: narrow scope + normative rationality → absurd obligations from crazy beliefs</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Narrow-scope enkratic: if you believe you ought to &Phi;, rationality requires you to intend to &Phi;.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Ava believes she ought to exterminate humanity. By (N): rationality requires Ava to intend to exterminate humanity.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If rationality is normative (you ought to satisfy its requirements), then: Ava ought to intend to exterminate humanity. This is a reductio.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Narrow scope must be rejected; it generates absurd obligations from crazy beliefs via modus ponens once rationality is taken to be normative.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Wide scope avoids bootstrapping by keeping the requirement outside the conditional</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Wide-scope enkratic: rationality requires (if you believe you ought to &Phi;, intend to &Phi;). The requirement governs the whole conditional; no detachment is licensed.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Ava can satisfy this requirement by revising her crazy belief; no conclusion about what she ought to intend follows from the wide-scope requirement plus her having the belief.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Wide scope correctly locates rational requirement as a structural property of attitude-sets, not as a content-generating directive to act.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Wide scope avoids the bootstrapping reductio; rationality imposes coherence demands, not freestanding action directives.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Detachment is not a requirement of rationality; it requires an independent and controversial principle</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Moving from &ldquo;R(if B then I)&rdquo; to &ldquo;given B, R(I)&rdquo; requires the detachment principle: that rational requirements license modus ponens on their content.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The detachment principle is not a requirement of logic (modus ponens applies to propositions, not to deontic operators without bridging axioms) and is not a requirement of rationality.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Without detachment, wide-scope requirements do not yield narrow-scope directives; the instrumental and enkratic principles remain wide-scope.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Detachment requires an independent controversial principle that Broome denies; without it, wide-scope requirements do not yield the narrow-scope directives the opposition claims.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Reasoning traverses the conditional; the product (intention) is narrow-scope but the requirement is wide-scope throughout</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Reasoning from a normative belief to an intention traverses the conditional that the wide-scope requirement governs; the output is a narrow-scope intention.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The requirement that governed the reasoning was wide-scope throughout; the narrow-scope intention is the product, not the requirement itself.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The detachment principle would wrongly make the intention a requirement before reasoning has occurred, generating bootstrapping from unexamined beliefs.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Wide scope and the process of reasoning are entirely compatible; reasoning generates narrow-scope intentions by satisfying wide-scope requirements, not by detaching them.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WAY PANEL -->
+    <div class="speaker-panel" id="prop-way-panel">
+      <div id="prop-way-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>My colleague Broome has established the wide-scope position and its central virtue: avoiding the bootstrapping catastrophe that afflicts narrow-scope accounts. My role is to address the opposition&rsquo;s strongest objection: the symmetry problem. This objection holds that wide scope is not merely too permissive in one direction but structurally broken &mdash; that it treats giving up an end as rationally on a par with taking the means to it, and that this symmetry is unacceptable.</p>
+        <p>I shall argue that the symmetry objection conflates two distinct questions: the content of a rational requirement and the basing norms that govern how that requirement is to be satisfied. Wide scope correctly answers the first question while leaving the second to independent norms. Once the distinction is clear, the symmetry objection loses all force.</p>
+        <div class="case-box">
+          <strong>The symmetry objection stated.</strong><br><br>
+          You intend to run a marathon and believe that buying running shoes is necessary for running the marathon. The wide-scope instrumental requirement says: rationality requires (if you intend to run the marathon and believe shoes are necessary, intend to buy shoes).<br><br>
+          You can satisfy this requirement by intending to buy shoes, or by abandoning your intention to run the marathon, or by revising your belief that shoes are necessary. Schroeder and Kolodny object: surely it is more rational to intend to buy shoes than to abandon the marathon intention. Wide scope treats these as equally rational ways of satisfying the requirement. This seems wrong.
+        </div>
+        <span class="section">i. the symmetry objection conflates requirement-content with basing norms</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Basing distinction — content of wide-scope requirement is symmetric; basing norms are not; the objection misidentifies what wide scope claims; way separates these two questions</span>The symmetry objection correctly observes that the wide-scope requirement is satisfied by any combination of attitudes that makes the conditional true. It incorrectly infers that wide scope therefore treats all satisfaction routes as equally rational. The wide-scope requirement specifies what coherence pattern the agent&rsquo;s attitudes must exhibit. It does not specify which attitudes should be formed or revised to achieve that pattern. The latter question &mdash; which revision is the rational one &mdash; is answered by basing norms: norms about which attitudes it is rational to hold on the basis of which others. Basing norms are separate from, and not in tension with, wide-scope requirements. A wide-scope theorist can maintain both that the requirement is wide-scope (symmetric content) and that basing norms make it irrational to satisfy the requirement by abandoning one&rsquo;s end without reason (asymmetric basing). The symmetry objection treats the first claim as excluding the second; it does not.</span></p>
+        <span class="section">ii. basing permissions and prohibitions: the wide-scoper&rsquo;s tools</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Basing permissions and prohibitions — you are not permitted to base the abandonment of an end merely on the absence of an intention to take the means; this is a basing prohibition, not part of requirement content; wide scope uses this correctly</span>Consider the prohibition: you may not revise your intention to run the marathon on the basis of your failure to intend to buy shoes, when the failure to intend shoes is not itself grounded in anything about the marathon. This is a basing prohibition: certain attitude revisions are not permissible as responses to the wide-scope requirement when they are grounded only in other attitudes whose absence triggered the requirement. This prohibition does not contradict the wide-scope requirement. The requirement says: make the conditional true. The prohibition says: do not make it true by means of certain attitude revisions that are only permissible on independent grounds. Together, these two norms &mdash; the wide-scope requirement and the basing prohibition &mdash; explain exactly what the narrow-scoper wants to explain, without collapsing into narrow scope or licensing the bootstrapping catastrophe.</span></p>
+        <span class="section">iii. the narrow-scoper cannot avoid symmetry either</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Narrow scope has symmetry too — Schroeder's narrow-scope principle also permits satisfying the requirement by revising the antecedent belief; narrow scope cannot avoid symmetry without additional constraints; so the objection doesn't favour narrow over wide</span>Schroeder and Kolodny press the symmetry objection against wide scope. But narrow scope has an analogous problem. The narrow-scope enkratic principle says: if you believe you ought to &Phi;, rationality requires you to intend to &Phi;. But what if your belief that you ought to &Phi; is based on false or weak grounds? Surely in that case rationality requires you to revise the belief, not to form the intention. The narrow-scoper must say: yes, and in that case you are also rationally required to revise the belief (by some further narrow-scope requirement). But then narrow scope also has multiple routes to satisfying or circumventing requirements &mdash; multiple ways of avoiding the irrational state. The symmetry the objector complains about is a feature of any account that allows multiple incoherent states to be resolved by revising any member of the incoherent set. Wide scope faces it no more than narrow scope.</span></p>
+        <span class="section">iv. the positive case for asymmetric wide scope: reasons explain what revision is warranted</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Reasons explain revision — when you have reasons to maintain E and no reasons to abandon it, you have reason to intend M; this is a reasons-based asymmetry, not a rationality-based one; the two-level view is correct</span>The correct account of why intending the means is typically more rational than abandoning the end is not that rationality itself mandates it &mdash; that would be narrow scope. The correct account is that you have reasons to maintain your ends that you do not have reasons to abandon. When you have no reason to abandon the marathon intention, rationality-plus-reasons delivers the verdict: intend the shoes. The wide-scope requirement operates at the structural level; reasons operate at the substantive level. Together, they explain the intuitively asymmetric result without the bootstrapping liability. The opposition collapses this two-level structure into a single normative demand, losing both the anti-bootstrapping virtue of wide scope and the substantive guidance of reasons.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-way-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The symmetry objection conflates requirement-content with basing norms; these are separate questions</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The content of a rational requirement specifies what coherence pattern must obtain; it does not specify which attitudes should be formed or revised to achieve it.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Basing norms specify which attitude revisions are rational given the agent&rsquo;s reasons; they are independent of requirement-content.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The symmetry objection treats requirement-content as if it were the only normative constraint; it ignores basing norms, which are available to the wide-scoper as separate constraints.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The symmetry objection misfires; wide-scopers have the resources to explain why certain satisfaction routes are more rational without abandoning wide scope.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Basing prohibitions explain why abandoning ends without reason is irrational, consistent with wide scope</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Basing prohibition: you may not revise your end-intention merely on the basis of your failure to intend the means, unless there are independent reasons for revising the end.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This prohibition does not contradict the wide-scope requirement; it specifies which satisfaction routes are permissible given your other attitudes and reasons.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The combination of wide-scope requirement and basing prohibition explains exactly the asymmetry the opposition wants, without narrow scope and without bootstrapping.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Wide scope plus basing prohibitions yields the right verdicts without narrow scope; the symmetry objection is dissolved by the two-level structure of requirements and basing norms.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Narrow scope faces an analogous symmetry problem; the objection does not favour narrow over wide</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Narrow-scope enkratic requires you to intend to &Phi; if you believe you ought to &Phi;. But if the belief is unwarranted, a further narrow-scope requirement may require revision of the belief; multiple routes remain.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The symmetry the objection identifies &mdash; multiple permissible routes to satisfying or escaping requirements &mdash; is a feature of any account that allows incoherent sets to be resolved by revising any member.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If both accounts face analogous symmetry considerations, the objection provides no differential reason to prefer narrow scope over wide scope.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The symmetry objection applies to narrow scope as much as to wide scope; it does not provide a reason to prefer narrow scope; wide scope retains its bootstrapping-avoidance advantage undiminished.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Reasons explain the asymmetry between taking means and abandoning ends; this is a two-level account, not a collapse into narrow scope</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When you have reasons to maintain your end and none to abandon it, reasons plus wide-scope structural requirements jointly recommend taking the means.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This is a two-level account: structural rationality governs coherence; reasons govern which particular attitude is warranted; neither level alone generates the verdict.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The narrow-scoper collapses this to a single level, losing both the anti-bootstrapping virtue of wide scope and the explanatory role of reasons.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The two-level account is superior: reasons explain asymmetry of rational revision, wide scope governs structural coherence, and bootstrapping is avoided throughout.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORSNIP PANEL -->
+    <div class="speaker-panel" id="prop-worsnip-panel">
+      <div id="prop-worsnip-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I want to contribute a more recent and in some ways more radical defence of the wide-scope position. My argument proceeds in two steps. First, I shall show that coherence &mdash; the satisfaction of wide-scope rational requirements &mdash; is genuinely normative, in the sense that there is something genuinely amiss with an incoherent agent, even if this normativity is not the normativity of reasons. Second, I shall show that narrow-scopers, when they try to capture the asymmetries they care about, are forced to appeal to constraints that are, at bottom, wide-scope.</p>
+        <p>The first step addresses Kolodny&rsquo;s challenge: why be rational if rationality does not give you reasons? My answer: because the normativity of structural coherence is its own kind of normativity, not reducible to or derivable from the normativity of reasons. An incoherent agent is criticisable not because she has failed to respond to reasons but because her attitudes are in structural conflict.</p>
+        <div class="case-box">
+          <strong>The conflict between evidence-responsiveness and coherence.</strong><br><br>
+          Anna believes she ought to call her friend. She fails to intend to call. She is incoherent: her belief and intention are in structural conflict &mdash; she violates the enkratic wide-scope requirement. This is a genuine rational failing, but notice it is not necessarily a failure to respond to reasons. Anna might have excellent evidence that she ought to call; she might have excellent reasons to call; she might even recognise those reasons. The failing is specifically structural: her attitudes are in conflict with each other. This is the domain of structural rationality, which is governed by wide-scope requirements and is not the same domain as reasons-responsiveness.
+        </div>
+        <span class="section">i. the normativity of coherence is independent of the normativity of reasons</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Coherence normativity — being incoherent is genuinely bad in its own right, not merely because it reflects badly on your reasons-responsiveness; wide-scope captures this; Kolodny's challenge is met</span>Kolodny argues that there are no reasons to satisfy structural requirements, and therefore that structural rationality has no normative authority. My response is to distinguish two kinds of normativity: the normativity of reasons (you ought to have the attitudes you have conclusive reasons to have) and the normativity of coherence (you ought not to have attitudes that are in structural conflict with each other). These are different normative domains. A detective who has excellent evidence that the butler did it but refuses to form the corresponding belief is criticisable under the normativity of reasons. An agent who believes she ought to &Phi; but fails to intend to &Phi; without revising the belief is criticisable under the normativity of coherence. The latter criticism is not captured by any reasons-based account, because no reasons are necessarily involved in the incoherence.</span></p>
+        <span class="section">ii. narrow-scopers must appeal to wide-scope constraints after all</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Narrow scope smuggles wide scope — to avoid bootstrapping, narrow-scopers must restrict when narrow-scope requirements apply; those restrictions are wide-scope constraints in disguise</span>Here is my central claim about the narrow-scope position: it cannot be maintained consistently without smuggling in wide-scope constraints. The narrow-scope enkratic principle says: if you believe you ought to &Phi;, rationality requires you to intend to &Phi;. But narrow-scopers recognise that this generates bootstrapping with crazy beliefs. To avoid it, they typically add a restriction: the narrow-scope requirement applies only when the belief is reasonable, or warranted, or formed on adequate grounds. But these restrictions are themselves wide-scope constraints in disguise: they say that the requirement as a whole &mdash; the full conditional &mdash; applies only under certain conditions. The narrow-scoper has not escaped wide scope; she has presupposed it as a condition on her narrow-scope claim.</span></p>
+        <span class="section">iii. narrow-scoping for wide-scopers: the convergence result</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Convergence — Worsnip shows wide-scopers can derive narrow-scope verdicts in specific cases without narrow-scope requirements; narrow scope is derivable from wide scope plus substantive facts; the opposition's view is not independent</span>In my 2015 paper I argue for a convergence result: wide-scopers can derive narrow-scope verdicts in specific cases without invoking narrow-scope requirements. Suppose you believe you ought to &Phi;, your belief is well-grounded, you have no reason to revise it, and there are no obstacles to intending to &Phi;. In this case, the wide-scope requirement plus these substantive facts jointly entail that the only rational way to satisfy the requirement is to intend to &Phi;. The narrow-scope conclusion is derivable without a narrow-scope premise. The opposition&rsquo;s narrow-scope requirement is therefore not a further primitive but a derived result that wide-scopers can explain. When the narrow-scope conclusion does not hold &mdash; because the belief is unwarranted &mdash; the wide-scope account correctly withholds the narrow-scope conclusion. This is exactly what we want.</span></p>
+        <span class="section">iv. the conflict of evidence and coherence: why structural rationality matters</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Conflict of evidence and coherence — an agent can be coherent but respond badly to evidence, or respond well to evidence but be incoherent; these are genuinely different normative assessments; wide scope captures this</span>The deepest reason to prefer wide scope over narrow scope is this: structural rationality and evidence-responsiveness are genuinely different normative domains, and conflating them generates confusion. An agent who has brilliant evidence that she ought to &Phi; and promptly intends to &Phi; may satisfy the narrow-scope enkratic requirement. But she satisfies it for the right reason only if she intends to &Phi; because she has that evidence. The wide-scope account, by keeping structural coherence separate from reasons-responsiveness, correctly captures the two independent dimensions of rational assessment. An agent can fail on one dimension while succeeding on the other. The narrow-scope collapse of these dimensions into a single requirements structure loses this fine-grained assessment. Wide scope is the more discriminating and therefore the more adequate account.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="prop-worsnip-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The normativity of coherence is independent of the normativity of reasons; Kolodny&rsquo;s challenge does not succeed</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>There are two kinds of normativity: the normativity of reasons (ought to have attitudes one has conclusive reasons to have) and the normativity of coherence (ought not to have attitudes in structural conflict).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Structural incoherence &mdash; believing one ought to &Phi; while failing to intend to &Phi; &mdash; is genuinely criticisable even in the absence of any reasons-failure; the criticism is structural, not reasons-based.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Kolodny&rsquo;s argument that there are no reasons to be structurally rational does not show that structural rationality has no normative authority; it shows that its authority is not derived from reasons.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The normativity of coherence is genuine and independent; wide-scope requirements have normative authority that is not undermined by the absence of reasons to comply with them.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Narrow-scopers must appeal to wide-scope constraints to avoid bootstrapping; narrow scope is not independent of wide scope</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>To avoid bootstrapping with crazy beliefs, narrow-scopers must restrict the application of their requirements to cases where the antecedent belief is reasonable or well-grounded.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These restrictions are wide-scope constraints: they apply conditions to the whole requirement, not just to its consequent.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Narrow-scopers cannot maintain their position consistently without presupposing wide-scope constraints; their view is not a genuine alternative to wide scope.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Narrow scope smuggles wide scope in to avoid bootstrapping; the apparently opposed positions are not symmetric alternatives; wide scope is the more principled foundation.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Narrow-scoping for wide-scopers: narrow-scope verdicts are derivable from wide scope plus substantive facts</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>When an agent has a well-grounded belief that she ought to &Phi;, no reasons to revise it, and no obstacles to &Phi;-ing, the only rational way to satisfy the wide-scope requirement is to intend to &Phi;.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This narrow-scope verdict is derivable from wide-scope requirements plus substantive facts; no narrow-scope primitive is needed.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>When the belief is unwarranted, wide scope correctly withholds the narrow-scope verdict; this is precisely the anti-bootstrapping result we want.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Narrow-scope verdicts are derivable from wide scope; the opposition&rsquo;s narrow-scope requirements are not primitives but derived results; wide scope is the more fundamental account.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Wide scope correctly separates structural coherence from evidence-responsiveness; narrow scope conflates them</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Structural rationality (coherence) and evidence-responsiveness are genuinely different normative dimensions; an agent can fail on one while succeeding on the other.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Wide scope keeps these dimensions separate: structural requirements govern coherence independently of whether particular attitudes are warranted by reasons.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Narrow scope conflates these dimensions by making structural requirements conditional on the warrantedness of the antecedent belief; this loses the fine-grained two-dimensional assessment.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Wide scope is the more discriminating and adequate account; it correctly separates coherence from evidence-responsiveness and provides independent assessments on both dimensions.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIPPON PANEL -->
+    <div class="speaker-panel" id="prop-rippon-panel">
+      <div id="prop-rippon-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I close the government&rsquo;s case. My colleagues have established the wide-scope position and defended it against the symmetry and normativity objections. My role is to address the opposition&rsquo;s claim that wide-scope rational requirements can nevertheless generate narrow-scope verdicts through the Facilitative Principle &mdash; the principle that a reason to &Phi; combined with the belief that &Psi;-ing is necessary for &Phi;-ing generates a reason to &Psi;. The opposition uses this principle to argue that wide-scope reasons entail narrow-scope reasons via the Facilitative Principle, so that the distinction between wide and narrow scope ultimately collapses.</p>
+        <p>I shall show that this argument rests on a logical error in how it applies the Facilitative Principle, and that once the error is identified, the opposition&rsquo;s strategy fails. Wide-scope reasons do not entail narrow-scope reasons via any valid application of the Facilitative Principle.</p>
+        <div class="case-box">
+          <strong>The Facilitative Principle and the opposition&rsquo;s strategy.</strong><br><br>
+          Facilitative Principle (FP): If you have a reason to &Phi;, and you believe that &Psi;-ing is necessary for &Phi;-ing, then you have a reason to &Psi;.<br><br>
+          The opposition&rsquo;s argument: (1) You have a wide-scope reason to make true: (if you believe you ought to &Phi;, intend to &Phi;). (2) You believe that intending to &Phi; is necessary for making that conditional true when you already believe you ought to &Phi;. (3) By FP: you have a (narrow-scope) reason to intend to &Phi;. (4) Therefore wide-scope reasons entail narrow-scope reasons, and the distinction collapses.<br><br>
+          The error: premise (2) misidentifies what intending to &Phi; is necessary <em>for</em>. It is necessary for making true the consequent of the conditional, but that is not the same as being necessary for making true the conditional as a whole. The conditional can also be made true by revising the antecedent belief.
+        </div>
+        <span class="section">i. the facilitative principle is not violated by wide scope</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">FP doesn't apply — intending to Φ is not necessary for making the wide-scope conditional true; you can make it true by revising the belief; the opposition's application of FP rests on confusing the consequent with the whole conditional</span>The opposition&rsquo;s application of the Facilitative Principle to wide-scope reasons rests on the following inference: &ldquo;you have reason to make true (if B, then I); you believe that I-ing is necessary for making it true; therefore you have reason to I.&rdquo; But the premise is false: I-ing is not necessary for making the conditional true. The conditional (B &rarr; I) is made true by making I true (given B), but it is also made true by making B false. When you have a wide-scope reason to make true (B &rarr; I), and you can make it true either by forming I or by revising B, I-ing is not a necessary means to satisfying the reason. Therefore the Facilitative Principle does not apply, and no narrow-scope reason to I is generated. The opposition&rsquo;s collapse argument fails at this step.</span></p>
+        <span class="section">ii. wide-scope reasons and their proper object</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Wide-scope reasons — the object of a wide-scope reason is the whole conditional; reasons do not transfer through the conditional to the consequent; this is the crucial logical point</span>The proper object of a wide-scope reason is the whole conditional: the reason is to make true &ldquo;(B &rarr; I).&rdquo; Reasons transfer through necessary means by the Facilitative Principle only when the necessary means is truly necessary for the reason&rsquo;s object. Since the reason&rsquo;s object is a material conditional, and material conditionals can be made true by falsifying the antecedent, no single element of the consequent is a necessary means to satisfying the reason. The Facilitative Principle therefore generates no specific narrow-scope reason from a wide-scope reason. This is not a limitation of the wide-scope position; it is its strength. The wide-scope reason imposes a structural constraint without generating specific action directives &mdash; and this is precisely the right level of normative force for structural rationality.</span></p>
+        <span class="section">iii. wide-scope reasons without detachment: the independence of rationality from reasons</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Rationality independent of reasons — Broome argues rationality requirements are not reasons; there is no bridge principle; even if you have wide-scope reasons, detachment to narrow-scope action-guidance requires an independent controversial premise</span>There is a deeper point underlying the opposition&rsquo;s strategy. They assume that if you have a wide-scope rational requirement to make true (B &rarr; I), and B holds, you must have some further normative pressure to I. This assumes that rational requirements generate reasons &mdash; that if rationality requires R, then you have (at least some) reason to R. Broome&rsquo;s later view denies this: the normativity of rationality is not derived from reasons. Rational requirements are not reasons. They are structural constraints on attitude coherence. Therefore even if the opposition&rsquo;s application of FP were valid (which it is not), it would not follow that the wide-scope rational requirement generates a narrow-scope reason to I, because rational requirements are not reasons to which FP applies.</span></p>
+        <span class="section">iv. conclusion: detachment requires two controversial moves, not one</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Two controversial moves — detachment from wide to narrow scope requires (a) a bridge principle from rational requirements to reasons, and (b) a valid application of FP; both are contested; neither is obviously correct; wide scope is safe from detachment</span>Let me summarise the government&rsquo;s position. Moving from wide-scope rational requirements to narrow-scope action directives via detachment requires two controversial moves: first, a bridge principle from rational requirements to reasons (denied by Broome&rsquo;s later view); second, a valid application of the Facilitative Principle (which I have shown does not apply to wide-scope conditionals). Both moves are contested; neither is obviously correct. The opposition has the burden of defending both. Wide scope, by contrast, requires neither move. It specifies structural constraints on attitude coherence without generating action directives, and it avoids bootstrapping by leaving the rational revision route open. The wide-scope position is both philosophically cleaner and normatively safer. The distinction between wide and narrow scope is not a distinction between a view that works and one that does not; it is a distinction between the correct account of structural rationality and an incorrect one.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="prop-rippon-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The FP does not apply: intending to &Phi; is not necessary for making the wide-scope conditional true</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>FP: a reason to &Phi;, plus belief that &Psi; is necessary for &Phi;, gives a reason to &Psi;. The opposition applies this to: reason to make true (B &rarr; I), belief that I is necessary for making it true.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But I is not necessary for making (B &rarr; I) true: making B false (revising the antecedent belief) also makes the conditional true.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Since I is not a necessary means to satisfying the wide-scope reason, FP does not generate a reason to I from the wide-scope reason.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The opposition&rsquo;s collapse argument fails: FP does not apply to wide-scope reasons because intending the consequent is not necessary for making the conditional true.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The object of a wide-scope reason is the conditional, not its consequent; reasons do not transfer through the conditional</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A wide-scope reason has a conditional as its object; FP transfers reasons to necessary means to the reason&rsquo;s object.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Since a conditional can be made true by falsifying its antecedent, no element of the consequent is a necessary means to making the conditional true.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>FP therefore generates no specific narrow-scope reason from any wide-scope reason; wide-scope reasons impose structural constraints without generating action directives.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Reasons do not transfer through the conditional from wide-scope to narrow-scope; the logical structure of wide-scope reasons is incompatible with FP-based transfer.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Rational requirements are not reasons; the bridge principle required for FP to apply is denied by Broome</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>FP applies to reasons; to apply it to rational requirements, a bridge principle is needed: if rationality requires R, then you have a reason to R.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Broome explicitly denies this bridge principle in his later work: rational requirements have their own normativity that is not derived from or equivalent to reasons.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Without the bridge principle, FP cannot be applied to rational requirements; even a valid FP inference about wide-scope reasons would not transfer to wide-scope rational requirements.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The bridge principle is denied by Broome; FP cannot be applied to rational requirements without it; the collapse argument requires a premise that the government explicitly rejects.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Detachment requires two controversial moves; wide scope requires neither; the government&rsquo;s view is the safer and more principled position</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Detachment from wide to narrow scope requires: (a) a bridge from rational requirements to reasons (contested), and (b) a valid FP inference from wide-scope reasons to narrow-scope reasons (shown to be invalid).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Wide scope requires neither move; it specifies structural constraints on attitude coherence without generating action directives.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The safer, more principled position is the one that requires fewer controversial premises; wide scope wins on this criterion.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Wide scope is philosophically safer and more principled: it requires no bridge principle from requirements to reasons and no FP inference; the government&rsquo;s position is the correct account of structural rational requirements.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- RIGHT: Narrow Scope (Opposition) -->
+<div class="col opp" id="col-opp">
+  <div class="speaker-bar opp" id="opp-speaker-bar">
+    <button class="speaker-btn active" onclick="switchSpeaker('opp','kolodny',this)">Kolodny</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','schroeder',this)">Schroeder</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','kiesewetter',this)">Kiesewetter</button>
+    <button class="speaker-btn" onclick="switchSpeaker('opp','brunero',this)">Brunero</button>
+  </div>
+
+  <!-- KOLODNY HEADER -->
+  <div class="col-header" id="opp-kolodny-header">
+    <div class="col-header-top"><span class="pill opp">Leader of the Opposition &mdash; Why Be Rational?</span><span class="col-subtitle">Niko Kolodny &mdash; &ldquo;Why Be Rational?&rdquo; Mind, 2005; &ldquo;State or Process Requirements?&rdquo; Mind, 2007</span></div>
+    <div class="col-position">The wide-scope formulation does not rescue rationality from the bootstrapping problem &mdash; it merely relocates the problem and, in doing so, drains rational requirements of any normative significance; if wide-scope requirements give us no reason to do anything in particular, then satisfying them is not something we have reason to care about; the real lesson of the bootstrapping puzzle is that there are no reasons, deriving from rationality alone, to have any particular combination of attitudes &mdash; rationality is not normative in the way Broome needs it to be.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','kolodny','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','kolodny','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- SCHROEDER HEADER -->
+  <div class="col-header hidden" id="opp-schroeder-header">
+    <div class="col-header-top"><span class="pill opp">Deputy Leader &mdash; The Symmetry Objection</span><span class="col-subtitle">Mark Schroeder &mdash; &ldquo;The Scope of Instrumental Reason,&rdquo; Philosophical Perspectives, 2004; &ldquo;Means-End Coherence, Stringency, and Subjective Reasons,&rdquo; 2009</span></div>
+    <div class="col-position">Wide-scope requirements are satisfied by giving up an end exactly as much as by adopting a means to it; but there is a deep asymmetry between these two ways of resolving incoherence that any adequate theory must capture &mdash; basing an intention on a normative belief is a recognisably rational process, while abandoning a normative belief merely because one lacks the corresponding intention is not; Way and Worsnip&rsquo;s appeal to basing norms does not rescue wide scope, because those basing norms are themselves doing all the work that the wide-scope requirement was supposed to do, rendering it explanatorily idle.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','schroeder','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','schroeder','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- KIESEWETTER HEADER -->
+  <div class="col-header hidden" id="opp-kiesewetter-header">
+    <div class="col-header-top"><span class="pill opp">Opposition Member &mdash; The Normativity of Rationality Requires Narrow Scope</span><span class="col-subtitle">Benjamin Kiesewetter &mdash; The Normativity of Rationality, 2017</span></div>
+    <div class="col-position">Rationality is genuinely normative: there is a sense in which we ought to be rational, and this ought is not merely the ought of coherence considered as a brute structural fact but is grounded in our reasons; the correct account of rational requirements must explain why irrationality is a failure to respond correctly to one&rsquo;s reasons; this requires narrow-scope requirements that connect directly to the reasons an agent actually has, not merely wide-scope conditionals that remain silent about which attitude is supported by reasons.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','kiesewetter','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','kiesewetter','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <!-- BRUNERO HEADER -->
+  <div class="col-header hidden" id="opp-brunero-header">
+    <div class="col-header-top"><span class="pill opp">Opposition Whip &mdash; The Scope of Rational Requirements</span><span class="col-subtitle">John Brunero &mdash; &ldquo;The Scope of Rational Requirements,&rdquo; Philosophical Quarterly, 2010; &ldquo;Instrumental Rationality, Symmetry, and Scope,&rdquo; Philosophical Studies, 2012</span></div>
+    <div class="col-position">The wide vs narrow scope debate has been mischaracterised as a binary choice; the correct view is that some rational requirements have narrow scope and others do not, depending on the specific requirement in question; the instrumental principle in particular has a structure that, on close examination, supports detachment in ordinary cases without generating bootstrapping, because the antecedent conditions of the instrumental principle (intending an end, believing a means necessary) are not themselves typically irrational in the way that crazy normative beliefs are; the government&rsquo;s blanket defence of wide scope over-generalises from the special case of the enkratic requirement.</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('opp','brunero','speech',this)">Speech</div>
+      <div class="tab" onclick="sw('opp','brunero','logic',this)">Logical Arguments</div>
+    </div>
+  </div>
+
+  <div class="col-body" id="opp-body">
+
+    <!-- KOLODNY PANEL -->
+    <div class="speaker-panel active" id="opp-kolodny-panel">
+      <div id="opp-kolodny-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>Broome believes that the wide-scope formulation rescues rationality from the bootstrapping problem while preserving its normative significance. I shall argue that it cannot do both. Either wide-scope requirements are normative &mdash; in which case bootstrapping returns in a different form &mdash; or they avoid bootstrapping only by becoming normatively idle, telling us nothing about what we have reason to do. The wide-scope manoeuvre does not solve the problem Broome thinks it solves; it merely changes which horn of the dilemma we are impaled on.</p>
+        <p>My argument has three steps. First, I show that wide-scope requirements, taken as normative, generate a structurally identical bootstrapping problem at the level of the conditional itself. Second, I show that if wide-scope requirements are not normative &mdash; if there is no sense in which we ought to satisfy them &mdash; then satisfying or failing to satisfy them is not the kind of thing we have any reason to care about, contrary to the entire motivation for the rationality debate. Third, I argue that the only stable position is to deny that rationality, in the structural sense Broome describes, generates reasons at all &mdash; which undermines the normative weight the wide-scope formulation was meant to preserve.</p>
+        <div class="case-box">
+          <strong>The dilemma for wide scope.</strong><br><br>
+          Horn 1 (Normative wide scope): Rationality requires (B &rarr; I), and you ought to satisfy this requirement. Since Ava can satisfy &ldquo;(B &rarr; I)&rdquo; either by intending to exterminate humanity or by not believing she ought to, and since she in fact believes she ought to (B holds), the conditional (B &rarr; I) is true just in case I holds (given B is fixed as true in the actual world). If you ought to make (B &rarr; I) true, and B is in fact true and not under your direct voluntary control at this moment, then you ought to make I true. Bootstrapping returns.<br><br>
+          Horn 2 (Non-normative wide scope): Rationality requires (B &rarr; I), but you have no reason to satisfy this requirement. Then the fact that Ava is incoherent &mdash; that she violates (B &rarr; I) &mdash; gives us no reason to think anything has gone wrong with her, normatively speaking. But this seems false: surely there is something rationally amiss with Ava, in a sense that matters.
+        </div>
+        <span class="section">i. horn one: bootstrapping returns even for wide scope</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Bootstrapping returns — if you ought to make the conditional true, and the antecedent is currently true and fixed, then you ought to make the consequent true; this is detachment via modus ponens on the 'ought', which wide scope cannot block if it is normative</span>Suppose, as Broome wants, that rationality is normative: you ought to satisfy rational requirements. The wide-scope requirement is: rationality requires (B &rarr; I). So: you ought to make (B &rarr; I) true. Now, B is a fact about Ava&rsquo;s current psychology: she believes she ought to exterminate humanity. This fact obtains. Given that B obtains, the material conditional (B &rarr; I) is true if and only if I is true. So &ldquo;you ought to make (B &rarr; I) true,&rdquo; combined with the fact that B is true, entails &ldquo;you ought to make I true&rdquo; &mdash; <em>unless</em> you also ought to make B false. But suppose, for the sake of argument, that revising B is not presently available to Ava &mdash; she cannot simply will away a belief at will. Then the only way available to her to make (B &rarr; I) true is to make I true. And &ldquo;ought&rdquo; implies &ldquo;can&rdquo; with respect to available options: among her available options, the one that satisfies her obligation is I. Bootstrapping returns, restricted to the agent&rsquo;s available options &mdash; but this restriction does not help Broome, because forming intentions (unlike forming beliefs) often <em>is</em> within an agent&rsquo;s direct voluntary control. Ava can simply form the intention to exterminate humanity. On Horn 1, she ought to.</span></p>
+        <span class="section">ii. horn two: non-normative wide scope is normatively idle</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Idle requirements — if there's no sense in which you ought to satisfy wide-scope requirements, then incoherence per se is not a failing; this contradicts the entire motivation for caring about rational requirements</span>Suppose instead that Broome retreats: rationality requires (B &rarr; I), but this requirement does not generate any reason or any &ldquo;ought&rdquo; for the agent. Ava&rsquo;s incoherence &mdash; her violation of (B &rarr; I) &mdash; is then simply a fact about her, like the fact that she is left-handed. It is not a fact that counts against her in any normative sense. But this seems to abandon the entire motivating idea behind talk of &ldquo;requirements&rdquo; of rationality. When we say that an agent is irrational, we mean to be criticising her &mdash; pointing to something that has gone wrong, something she has reason to fix. If wide-scope requirements carry no such normative weight, then &ldquo;Ava is irrational&rdquo; becomes merely a descriptive label with no more critical force than &ldquo;Ava is six feet tall.&rdquo; This cannot be what Broome intends, and yet it is the only way to avoid Horn 1.</span></p>
+        <span class="section">iii. the dilemma is not resolved by the structural/substantive distinction</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Distinction doesn't help — Worsnip's two kinds of normativity doesn't escape the dilemma; either coherence-normativity implies ought-to-comply (Horn 1) or it doesn't (Horn 2); the distinction relabels the dilemma without resolving it</span>Worsnip will respond by distinguishing the normativity of coherence from the normativity of reasons, arguing that coherence has its own normative force that escapes my dilemma. But this distinction does not escape the dilemma; it relabels it. Either &ldquo;coherence is normative&rdquo; means &ldquo;there is some sense in which you ought to be coherent,&rdquo; in which case Horn 1 applies to this &ldquo;ought&rdquo; just as before &mdash; the formal structure of the bootstrapping argument does not care what flavour of &ldquo;ought&rdquo; is involved, only that there is one and that the antecedent is satisfied and fixed. Or &ldquo;coherence is normative&rdquo; means something that does not involve any &ldquo;ought&rdquo; at all, in which case it is unclear what work the word &ldquo;normative&rdquo; is doing, and Horn 2 applies. Worsnip has not identified a third option; he has given the first two options new names.</span></p>
+        <span class="section">iv. the conclusion: rationality gives us no reasons, full stop</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">No reasons from rationality — the only stable position is that rationality (in Broome's structural sense) gives us no reasons whatsoever; this is consistent and avoids both horns; but it means structural rationality has no normative authority of the kind the debate presupposes</span>The only stable position, I submit, is the one I originally defended: rationality, in the structural sense that Broome describes, gives us no reasons at all &mdash; not wide-scope reasons, not narrow-scope reasons, nothing. The fact that an agent&rsquo;s attitudes are incoherent is not, in itself, a normative failing that she has reason to correct. What we actually care about, when we care about an agent&rsquo;s &ldquo;rationality,&rdquo; is whether her attitudes are responsive to her reasons &mdash; a substantive matter, not a structural one. This is consistent: it generates no bootstrapping, because there is no &ldquo;ought to be coherent&rdquo; from which anything could be detached. But it has a cost that the entire wide-scope research programme has been trying to avoid: it means that structural rationality, as such, has no normative authority. The wide-scope manoeuvre does not purchase what Broome thinks it purchases.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-kolodny-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; If wide-scope requirements are normative, bootstrapping returns restricted to the agent&rsquo;s available options</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If rationality requires (B &rarr; I) and this is normative, then you ought to make (B &rarr; I) true.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>B (Ava&rsquo;s crazy belief) is currently true and, ex hypothesi, not revisable at will; (B &rarr; I) is therefore true iff I is true, given B fixed.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Forming an intention (unlike forming a belief) is often within direct voluntary control; among Ava&rsquo;s available options, making (B&rarr;I) true requires making I true.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Ava ought to intend to exterminate humanity, restricted to her available options; the bootstrapping result returns for normative wide scope.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; If wide-scope requirements are non-normative, incoherence carries no critical force, contrary to ordinary usage of &ldquo;irrational&rdquo;</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>If &ldquo;rationality requires (B&rarr;I)&rdquo; does not generate any ought or reason, then violating it is merely a descriptive fact, not a normative failing.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But calling an agent &ldquo;irrational&rdquo; is ordinarily understood as a criticism &mdash; pointing to something that has gone wrong and that the agent has reason to fix.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Non-normative wide scope cannot deliver this critical force; &ldquo;Ava is irrational&rdquo; becomes as normatively neutral as &ldquo;Ava is six feet tall.&rdquo;</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Non-normative wide scope abandons the critical force that motivates the entire debate about rational requirements; this horn is unacceptable to anyone who thinks irrationality matters.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The structural/substantive distinction relabels the dilemma without resolving it</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Worsnip distinguishes the normativity of coherence from the normativity of reasons, claiming coherence escapes the dilemma.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>If &ldquo;coherence is normative&rdquo; involves any &ldquo;ought,&rdquo; Horn 1 applies to that ought regardless of its label; if it involves no &ldquo;ought&rdquo; at all, Horn 2 applies.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The bootstrapping argument&rsquo;s formal structure is indifferent to which flavour of normativity is at issue; relabelling the normativity does not block the inference.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Worsnip&rsquo;s distinction does not provide a genuine third option; the dilemma remains, merely under new terminology.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The only stable position denies that structural rationality generates any reasons; this undermines the wide-scope research programme&rsquo;s normative aspirations</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The position &ldquo;structural rationality generates no reasons whatsoever&rdquo; avoids both horns: there is no &ldquo;ought to be coherent&rdquo; from which anything could be detached, and the consistency of this position is not threatened.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>But this position means that incoherence, as such, is not a normative failing; what matters is substantive responsiveness to reasons, not structural coherence.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This is precisely the conclusion the wide-scope research programme was designed to avoid: it was meant to preserve the normative significance of rational requirements while avoiding bootstrapping.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The wide-scope manoeuvre does not achieve what Broome wants: either it generates bootstrapping (Horn 1) or it abandons the normative significance of structural rationality (Horn 2); there is no stable middle ground.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHROEDER PANEL -->
+    <div class="speaker-panel" id="opp-schroeder-panel">
+      <div id="opp-schroeder-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I want to press the symmetry objection in its sharpest form, because I believe Way and Worsnip have not actually answered it &mdash; they have redescribed it. The objection is not merely that wide scope &ldquo;permits&rdquo; satisfying a requirement by abandoning an end. The objection is that wide scope, by its very logical form, is constitutively incapable of explaining a basic asymmetry that any adequate theory of practical rationality must explain: the asymmetry between processes of reasoning that are recognisably rational and processes that, while logically resulting in coherence, are not rational at all.</p>
+        <p>Consider two agents. Agent One believes she ought to call her mother, and on this basis, comes to intend to call her mother. Agent Two believes she ought to call her mother, fails to form any intention to call, and resolves the resulting tension by abandoning the belief that she ought to call &mdash; not because she has acquired any new evidence, but simply because she finds it easier to give up the belief than to act on it. Both agents end up coherent. Wide scope treats both as satisfying the same requirement. But Agent One has reasoned well, and Agent Two has rationalised &mdash; in the pejorative sense. This is not a subtle point; it is the most basic distinction in the theory of practical reason, and wide scope cannot draw it.</p>
+        <div class="case-box">
+          <strong>Why basing norms cannot rescue wide scope.</strong><br><br>
+          Way and Worsnip say: the wide-scope requirement explains what coherence pattern is required; basing norms explain which route to coherence is rational.<br><br>
+          But consider what the basing norm must say to distinguish Agent One from Agent Two. It must say something like: &ldquo;it is rational to form an intention on the basis of a normative belief, but it is not rational to abandon a normative belief merely on the basis of a felt absence of motivation to act on it.&rdquo;<br><br>
+          This basing norm, by itself, fully determines which of the two coherence-restoring processes is rational. The wide-scope requirement &mdash; &ldquo;make (B&rarr;I) true&rdquo; &mdash; plays no role in distinguishing Agent One from Agent Two; the basing norm does all the work. The wide-scope requirement is explanatorily idle.
+        </div>
+        <span class="section">i. the basing norm does all the explanatory work; wide scope is idle</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Explanatory idleness — the basing norm alone explains why Agent One is rational and Agent Two is not; the wide-scope requirement contributes nothing to this explanation; it is explanatorily superfluous</span>Take the basing norm Way and Worsnip need: &ldquo;forming an intention on the basis of a normative belief is rational; abandoning a normative belief merely on the basis of lacking the corresponding intention is not.&rdquo; This norm, on its own, completely explains the asymmetry between Agent One and Agent Two. It does not mention or depend on the wide-scope requirement &ldquo;make (B&rarr;I) true&rdquo; at all. We could delete the wide-scope requirement from the theory entirely, retain only the basing norm, and explain everything we needed to explain. A component of a theory that can be deleted without loss of explanatory power is not doing any work. The wide-scope requirement is such a component. Way and Worsnip have not defended wide scope; they have shown that it is dispensable.</span></p>
+        <span class="section">ii. the narrow-scope alternative explains the same data without the idle wheel</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Narrow scope without the idle wheel — narrow scope directly states the rational requirement on the relevant attitude; combined with basing facts about when the requirement is in force, it explains the data without a separate wide-scope conditional</span>Compare the narrow-scope alternative: &ldquo;if you believe you ought to &Phi; (and this belief is suitably based/warranted), rationality requires you to intend to &Phi;.&rdquo; This requirement directly targets the intention &mdash; it is a requirement on I, conditional on B (and on B being suitably grounded). Agent One, whose belief is suitably grounded and who forms the intention on its basis, satisfies this requirement in the way that matters. Agent Two, who instead abandons B, has not satisfied the requirement on I; she has escaped the requirement&rsquo;s application by changing the antecedent &mdash; and we can independently say that changing the antecedent in this unmotivated way is itself irrational, perhaps via a separate requirement governing belief-revision. Notice: this account requires no idle wide-scope conditional. Each requirement does its own work, targeting the attitude it governs.</span></p>
+        <span class="section">iii. against worsnip&rsquo;s convergence result</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Convergence concedes the point — Worsnip's derivation of narrow-scope verdicts from wide scope plus substantive facts shows that the substantive facts are doing the work; the wide-scope premise adds nothing once those facts are in place</span>Worsnip argues that wide-scopers can derive narrow-scope verdicts in specific cases &mdash; when the belief is well-grounded, when there is no reason to revise it, and so on &mdash; from wide scope plus these substantive facts. But notice what this concession amounts to: once we specify the substantive facts (well-grounded belief, no reason to revise, no obstacles), <em>those facts alone</em> generate the narrow-scope verdict. The substantive facts plus a basing norm of the kind I described are sufficient. The wide-scope premise is not doing any additional work in Worsnip&rsquo;s derivation; it is along for the ride. Worsnip&rsquo;s &ldquo;convergence result&rdquo; is, from my perspective, simply a demonstration that narrow scope (suitably qualified) is what is actually doing the explanatory work, dressed in wide-scope clothing.</span></p>
+        <span class="section">iv. the diagnosis: wide scope solves a problem nobody needs solved this way</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Misdiagnosis — the bootstrapping problem is solved by restricting narrow-scope requirements to warranted beliefs, not by going wide-scope; this is a simpler and more natural fix that wide scope's defenders have overlooked</span>Here is my final diagnosis. The bootstrapping problem &mdash; Ava and her crazy belief &mdash; motivated the move to wide scope. But the natural and simple solution to bootstrapping is not to abandon narrow scope; it is to restrict the narrow-scope enkratic requirement to warranted or suitably-based normative beliefs. &ldquo;If you have a warranted belief that you ought to &Phi;, rationality requires you to intend to &Phi;.&rdquo; Ava&rsquo;s belief is not warranted (it is crazy), so the requirement does not apply to her, and no narrow-scope obligation to exterminate humanity is generated. This solution is simpler than wide scope, does not require basing norms to do all the explanatory work while a wide-scope conditional sits idle, and directly captures the asymmetry between Agent One and Agent Two. Wide scope is a complicated solution to a problem that has a simple solution.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-schroeder-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The basing norm fully explains the asymmetry between rational and irrational coherence-restoration; the wide-scope requirement is explanatorily idle</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The basing norm needed by Way/Worsnip (&ldquo;forming an intention on a normative belief is rational; abandoning the belief merely from lacking the intention is not&rdquo;) fully explains the Agent One/Agent Two asymmetry on its own.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This explanation does not mention or depend on the wide-scope requirement &ldquo;make (B&rarr;I) true.&rdquo;</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A theoretical component that can be deleted without loss of explanatory power contributes nothing to the theory.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The wide-scope requirement is explanatorily idle once basing norms are introduced; Way and Worsnip have shown wide scope is dispensable, not defended it.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; Narrow scope, suitably qualified, explains the same data without an idle wide-scope conditional</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>A narrow-scope requirement directly targets the consequent attitude, conditional on the antecedent belief being suitably grounded.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Agent One satisfies this requirement (grounded belief, intention formed on its basis); Agent Two escapes its application by revising the antecedent, which is independently assessable as irrational via a belief-revision norm.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This account requires no wide-scope conditional; each requirement targets the attitude it governs directly.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Qualified narrow scope explains the data with fewer theoretical components than wide scope plus basing norms; it is the more parsimonious account.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; Worsnip&rsquo;s convergence result shows the substantive facts (not the wide-scope premise) generate the narrow-scope verdict</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Worsnip derives narrow-scope verdicts from wide scope plus substantive facts (grounded belief, no reason to revise, no obstacles).</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>These substantive facts, combined with a basing norm, are independently sufficient to generate the narrow-scope verdict without the wide-scope premise.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The wide-scope premise therefore adds nothing to Worsnip&rsquo;s own derivation; the convergence result is better described as a vindication of qualified narrow scope.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Worsnip&rsquo;s convergence result, properly understood, supports narrow scope rather than wide scope: the explanatory work is done by substantive facts and basing norms, not by the wide-scope conditional.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Restricting narrow scope to warranted beliefs is a simpler solution to bootstrapping than going wide-scope</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The bootstrapping problem arises because narrow scope, unrestricted, applies to crazy beliefs as much as warranted ones.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Restricting the narrow-scope enkratic requirement to warranted/suitably-based beliefs blocks the bootstrapping inference for Ava without requiring any wide-scope apparatus.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This restricted narrow-scope requirement directly captures the Agent One/Agent Two asymmetry, which wide scope cannot capture without an additional idle conditional and a basing norm doing all the work.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Restricted narrow scope is a simpler, more direct solution to the bootstrapping problem than wide scope; the government&rsquo;s entire apparatus solves a problem that has a more economical solution.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KIESEWETTER PANEL -->
+    <div class="speaker-panel" id="opp-kiesewetter-panel">
+      <div id="opp-kiesewetter-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I want to develop the positive case for narrow scope by addressing the question that the government has, I think, never adequately answered: in what sense, if any, ought we to be rational? My view is that rationality is genuinely normative &mdash; there is a sense in which we ought to comply with rational requirements &mdash; but that this normativity is grounded in our reasons, not independent of them. And this grounding requires narrow-scope requirements, because only narrow-scope requirements connect directly to the reasons an agent actually has.</p>
+        <p>Worsnip distinguishes the normativity of coherence from the normativity of reasons and treats this as a virtue of wide scope. I think it is the central defect of wide scope. An account of rationality that floats free of reasons cannot explain why irrationality is a criticism worth making.</p>
+        <div class="case-box">
+          <strong>The transparency of rational requirements to reasons.</strong><br><br>
+          When an agent believes she ought to &Phi; and yet does not intend to &Phi;, what exactly has gone wrong? The wide-scope answer: her attitudes fail to satisfy a coherence pattern. The narrow-scope answer (suitably developed): if her belief that she ought to &Phi; is correct &mdash; if she really does have conclusive reason to &Phi; &mdash; then she has failed to respond to that reason by intending to &Phi;. If her belief is incorrect, then she has formed a false normative belief, and that is the failure (a failure of theoretical, not practical, reason).<br><br>
+          The narrow-scope answer explains the badness of incoherence by reference to a more fundamental failure: failure to respond to reasons (practical or theoretical) that the agent in fact has. The wide-scope answer posits a free-floating coherence requirement whose badness is not explained by anything more fundamental.
+        </div>
+        <span class="section">i. transparency: rational requirements should be explained by reasons</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Transparency — the wrongness of incoherence is explained by the agent's failure to respond to her actual reasons; wide scope posits coherence as a brute, unexplained requirement; narrow scope is more explanatory</span>Consider an agent who believes (correctly) that she has conclusive reason to donate to charity, but does not intend to donate. Wide scope says: she violates a coherence requirement. But this seems to miss the point of the criticism. The real criticism is: she has conclusive reason to donate, and she is not responding to it. The coherence-violation is merely a symptom of this deeper failure. If we ask &ldquo;what would make her rational again?&rdquo; the answer that matters is: respond correctly to her reason by intending to donate &mdash; not &ldquo;restore coherence by any means, including revising the (true) belief that she has reason to donate.&rdquo; Narrow scope, by directly targeting the intention as a response to the reason (via the true belief), captures this. Wide scope, by treating belief-revision and intention-formation as interchangeable routes to coherence, obscures it.</span></p>
+        <span class="section">ii. against the structural/substantive distinction: it does not earn its keep</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Distinction doesn't earn its keep — Worsnip's two normativities require us to care about coherence-normativity even when it conflicts with reasons-normativity; but we have no independent reason to care about coherence as such; the distinction is unmotivated</span>Worsnip posits two independent normative domains: reasons and coherence. But what, independently of reasons, makes coherence valuable? Suppose an agent is perfectly coherent: all her normative beliefs match her intentions, all her means-end beliefs match her intentions about means. But suppose all of her normative beliefs are false &mdash; she believes she has reason to do all sorts of things she has no reason to do, and she dutifully intends to do them. She is perfectly coherent and yet thoroughly irrational in the sense that matters &mdash; her attitudes are wildly unresponsive to her actual reasons. If coherence-normativity is supposed to be a virtue distinct from reasons-normativity, this agent should come out well on the coherence dimension. But intuitively this agent is not doing well at all. The coherence dimension, considered independently of reasons, does not track anything we actually care about.</span></p>
+        <span class="section">iii. the enkratic principle, correctly understood, is narrow-scope and conditional on warrant</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Correct enkratic principle — narrow scope, restricted to warranted beliefs, is both action-guiding and reasons-tracking; this is the correct formulation; it avoids bootstrapping (Ava's belief is unwarranted) while explaining why coherence-with-warranted-beliefs matters</span>The correct formulation of the enkratic principle is: if you have a warranted (or correct) belief that you ought to &Phi;, rationality requires you to intend to &Phi;. This is narrow-scope: the requirement targets the intention directly, conditional on the warranted belief. It avoids bootstrapping: Ava&rsquo;s belief that she ought to exterminate humanity is not warranted (indeed it is about as unwarranted as a belief can be), so the requirement simply does not apply to her &mdash; no conclusion about what Ava ought to intend follows. And it is reasons-tracking: when the antecedent belief is warranted, satisfying the requirement is satisfying a demand that connects to the agent&rsquo;s actual reasons. This formulation captures everything Broome wants (no bootstrapping) and everything Broome cannot deliver (a direct connection between rational requirement and an agent&rsquo;s reasons).</span></p>
+        <span class="section">iv. the cost of wide scope: rationality becomes a merely formal property</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Formal property objection — wide scope makes rationality a matter of formal coherence among attitudes, detached from their content's relationship to reasons; this makes 'why be rational' unanswerable in the way that matters</span>The deepest cost of wide scope is this: it makes rationality a purely formal property of an agent&rsquo;s attitude-set &mdash; a matter of the logical relations among attitudes, considered independently of their content&rsquo;s relationship to the agent&rsquo;s reasons. Two agents could have identical formal coherence properties while one of them is exquisitely sensitive to her reasons and the other is a monster of self-serving rationalisation, as long as both satisfy the relevant conditionals. Kolodny&rsquo;s &ldquo;why be rational?&rdquo; question becomes, on the wide-scope view, deeply puzzling: why should I care about the formal coherence of my attitude-set, considered independently of whether my attitudes track what I actually have reason to do? Narrow scope, by tying rational requirement directly to reasons (via the warrant condition on normative beliefs), gives a straightforward answer: you should care because your reasons matter, and the requirement is a direct expression of what responding to those reasons looks like.</span></p>
+        <p><em>I yield the floor.</em></p>
+      </div>
+      <div id="opp-kiesewetter-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The wrongness of incoherence is explained by failure to respond to actual reasons; wide scope posits an unexplained brute requirement</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>An agent with a correct normative belief who fails to form the corresponding intention is failing to respond to a reason she actually has.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This failure-to-respond is the deeper explanation of why her incoherence is bad; the coherence-violation is a symptom, not the fundamental failing.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>Wide scope treats the coherence-violation itself as the fundamental failing, without explaining it by reference to anything more basic.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Narrow scope (with a warrant condition) is more explanatory: it grounds the badness of incoherence in failure to respond to actual reasons; wide scope leaves this badness unexplained.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; The coherence/reasons distinction does not track anything valuable independently; a perfectly coherent agent with false normative beliefs is not doing well</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Imagine an agent who is perfectly coherent (all normative beliefs match intentions) but whose normative beliefs are uniformly false and unresponsive to her actual reasons.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>This agent scores perfectly on Worsnip&rsquo;s &ldquo;coherence&rdquo; dimension, yet is intuitively thoroughly irrational in the sense that matters.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If the coherence dimension, independently of reasons, does not track this agent&rsquo;s obvious irrationality, it is not tracking anything we actually care about.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The independent normativity of coherence that Worsnip posits does not correspond to anything valuable; rationality must be explained by reference to reasons, which requires narrow scope.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; The warrant-restricted enkratic principle is narrow-scope, avoids bootstrapping, and is reasons-tracking</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>&ldquo;If you have a warranted belief that you ought to &Phi;, rationality requires you to intend to &Phi;&rdquo; is narrow-scope: it directly targets the intention.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>It avoids bootstrapping: Ava&rsquo;s unwarranted belief does not trigger the requirement; no conclusion follows about what she ought to intend.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>It is reasons-tracking: when the antecedent is warranted, the requirement connects directly to the agent&rsquo;s actual reasons, unlike wide scope&rsquo;s free-floating conditional.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The warrant-restricted narrow-scope enkratic principle achieves everything wide scope achieves (no bootstrapping) while also achieving what wide scope cannot (direct connection to reasons); it is strictly superior.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; Wide scope reduces rationality to a formal property detached from reasons, making &ldquo;why be rational?&rdquo; unanswerable in the relevant sense</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Wide scope characterises rationality as formal coherence among attitudes, independent of whether those attitudes track the agent&rsquo;s actual reasons.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Two agents with identical formal coherence can differ enormously in how well their attitudes track their reasons (one reason-responsive, one a rationalising monster).</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>If rationality is merely this formal property, &ldquo;why be rational?&rdquo; has no good answer; narrow scope (warrant-restricted) answers it by tying rationality to reasons.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Wide scope cannot answer &ldquo;why be rational?&rdquo; in the way that matters; narrow scope, by connecting rational requirements directly to an agent&rsquo;s reasons via the warrant condition, can.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BRUNERO PANEL -->
+    <div class="speaker-panel" id="opp-brunero-panel">
+      <div id="opp-brunero-speech" class="speech-text">
+        <p class="salut">Mr Speaker,</p>
+        <p>I want to close the opposition&rsquo;s case by stepping back from the all-or-nothing framing that has dominated this debate. Both sides have argued as if the choice were binary: either all rational requirements have wide scope, or all have narrow scope. I think this framing is itself a mistake, and that recognising this is the most important contribution the opposition can make.</p>
+        <p>My view, developed across several papers, is that different requirements of rationality have different logical structures, and that the instrumental principle in particular &mdash; the principle that has dominated this debate &mdash; supports narrow-scope detachment in a way that the enkratic principle does not. The government has over-generalised from the enkratic case, where bootstrapping is a genuine worry, to the instrumental case, where it is not.</p>
+        <div class="case-box">
+          <strong>Why the instrumental principle is different from the enkratic principle.</strong><br><br>
+          The enkratic principle&rsquo;s antecedent is a normative belief: &ldquo;you believe you ought to &Phi;.&rdquo; Normative beliefs can be wildly mistaken &mdash; Ava&rsquo;s belief that she ought to exterminate humanity is a normative belief that is about as wrong as a normative belief can be. This is what makes narrow-scope enkratic bootstrapping so vivid: the antecedent itself can already be crazy.<br><br>
+          The instrumental principle&rsquo;s antecedent is different: &ldquo;you intend E, and you believe M is necessary for E.&rdquo; Intending an end is not, in general, the kind of attitude that can be &ldquo;crazy&rdquo; in the way a normative belief can be. Intending to run a marathon, intending to buy groceries, intending to learn a language &mdash; these are not normative claims that could be wildly mistaken about the moral structure of the universe. They are plans. And believing that a particular means is necessary for a particular end is typically a matter of ordinary means-end cognition, not metaethical commitment.
+        </div>
+        <span class="section">i. the asymmetry between enkratic and instrumental antecedents</span>
+        <p><span class="hl" data-arg="1"><span class="tooltip">Different antecedents — enkratic antecedent (normative belief) can be crazy in a way that instrumental antecedent (intention + means-belief) generally cannot; bootstrapping worry doesn't transfer</span>The bootstrapping worry trades on the fact that a normative belief can be radically mistaken while still being a belief the agent actually has &mdash; Ava&rsquo;s belief is a paradigm case. But intentions are not beliefs about how things stand morally; they are plans for action, and the space of &ldquo;crazy intentions&rdquo; that could fuel an analogous bootstrapping argument for the instrumental principle is much more constrained. Could someone intend to exterminate humanity, believe that some action M is necessary for this, and thereby be narrow-scope-required to intend M? Yes &mdash; but in this case, the badness is already fully present in the antecedent: the agent already intends something monstrous. The instrumental principle does not manufacture new badness; it merely says that, given this already-monstrous intention, intending the necessary means is what coherence with that intention would involve. This is a very different situation from the enkratic case, where the normative belief alone (without any intention yet in place) generates an intention to do something monstrous.</span></p>
+        <span class="section">ii. detachment for the instrumental principle is mostly benign</span>
+        <p><span class="hl" data-arg="2"><span class="tooltip">Benign detachment — in ordinary cases (intend to run marathon, believe shoes necessary), detaching to 'rationality requires intending to buy shoes' is exactly the action-guidance we want; the government's blanket rejection of detachment throws this out too</span>Consider the overwhelming majority of instances of the instrumental principle: an agent intends some ordinary, non-monstrous end (running a marathon, finishing a degree, cooking dinner) and believes some ordinary means is necessary. In these cases, detachment &mdash; &ldquo;given that you intend the marathon and believe shoes are necessary, rationality requires you to intend to buy shoes&rdquo; &mdash; is exactly the action-guiding conclusion we want from a theory of practical rationality. The government&rsquo;s blanket rejection of detachment, motivated by the enkratic bootstrapping worry, throws out this overwhelming majority of benign cases along with the rare problematic ones. A theory that cannot tell us, in the ordinary case, that we are rationally required to buy the shoes &mdash; full stop, not merely required to satisfy some conditional that could equally be satisfied by abandoning the marathon &mdash; is not doing the job a theory of practical rationality is supposed to do.</span></p>
+        <span class="section">iii. a unified treatment: detachability tracks the badness already present in the antecedent</span>
+        <p><span class="hl" data-arg="3"><span class="tooltip">Unified treatment — detachment is safe exactly when the antecedent doesn't itself encode something that could be 'crazy' in the relevant sense; this explains both the enkratic worry and the instrumental safety with one principle</span>Here is the unifying generalisation. Detachment from a wide-scope requirement &ldquo;rationality requires (A &rarr; C)&rdquo; to a narrow-scope requirement &ldquo;given A, rationality requires C&rdquo; is safe exactly when A does not itself encode a normative error that the detachment would then propagate into a positive requirement. The enkratic antecedent (a normative belief) can encode exactly this kind of error, which is why enkratic detachment is dangerous. The instrumental antecedent (an intention plus a means-belief) typically does not encode a normative error of the relevant kind &mdash; intending to buy groceries is not a normative error, even if eating implies all sorts of further normative commitments about animal welfare or environmental impact that the agent hasn&rsquo;t considered. This unifying generalisation explains both why the government is right to worry about enkratic detachment and why they are wrong to extend that worry to the instrumental principle.</span></p>
+        <span class="section">iv. the upshot: a mixed view is correct, and it vindicates the spirit of detachment</span>
+        <p><span class="hl" data-arg="4"><span class="tooltip">Mixed view — some requirements (enkratic) are wide-scope or warrant-restricted narrow-scope; others (instrumental, in ordinary cases) support detachment; the government's blanket defence of wide scope is the over-generalisation, not the opposition's view</span>The correct view of rational requirements is mixed: the enkratic requirement should indeed be handled carefully, perhaps along the lines Kiesewetter suggests (narrow scope restricted to warranted beliefs) or with the wide-scope formulation Broome favours &mdash; reasonable people can disagree about the enkratic case specifically. But the instrumental principle, in the vast majority of its applications, supports detachment to narrow-scope, action-guiding conclusions, and this is exactly what we want from a theory of practical reason. The government&rsquo;s position &mdash; that <em>all</em> rational requirements have wide scope and detachment is never licensed &mdash; is the over-generalisation in this debate, not the opposition&rsquo;s view. The motion before this House asks us to endorse wide scope and reject detachment <em>simpliciter</em>. Given that detachment is benign and action-guiding for the instrumental principle in ordinary cases, this motion is too strong, and the House should reject it.</span></p>
+        <p><em>Thank you.</em></p>
+      </div>
+      <div id="opp-brunero-logic" class="logic-view hidden">
+        <div class="arg-block" data-arg="1">
+          <div class="arg-title">Argument I &mdash; The enkratic antecedent (a normative belief) can be crazy in a way the instrumental antecedent (intention + means-belief) generally cannot</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Normative beliefs can be radically and freely mistaken about the moral structure of the universe (Ava&rsquo;s belief is a paradigm case); this is what fuels enkratic bootstrapping.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>Intentions are plans for action, not claims about moral reality; the space of &ldquo;crazy&rdquo; instrumental antecedents is far more constrained, and where it exists, the badness is already present in the antecedent intention itself.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The instrumental principle, when its antecedent already contains a monstrous intention, does not manufacture new badness via detachment; it merely makes explicit what coherence with that intention requires.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The bootstrapping worry that motivates wide scope for the enkratic principle does not transfer to the instrumental principle in the same way; the government has over-generalised.</span></div>
+        </div>
+        <div class="arg-block" data-arg="2">
+          <div class="arg-title">Argument II &mdash; In ordinary cases, detachment for the instrumental principle delivers exactly the action-guidance a theory of practical rationality should provide</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The overwhelming majority of instances of the instrumental principle involve ordinary, non-monstrous ends and ordinary means-beliefs.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>In these cases, detachment yields conclusions like &ldquo;rationality requires intending to buy shoes&rdquo; &mdash; exactly the kind of action-guiding verdict we want.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>A blanket rejection of detachment throws out this overwhelming majority of benign, useful cases to avoid a problem that arises only in rare, structurally different (enkratic) cases.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>Blanket wide scope sacrifices action-guidance in the overwhelming majority of cases to address a problem specific to the enkratic principle; this is a poor trade.</span></div>
+        </div>
+        <div class="arg-block" data-arg="3">
+          <div class="arg-title">Argument III &mdash; A unifying generalisation: detachment is safe when the antecedent does not itself encode a normative error</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>Detachment from (A&rarr;C) to &ldquo;given A, C is required&rdquo; is dangerous exactly when A can encode a normative error that detachment would convert into a positive requirement.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The enkratic antecedent (a normative belief) can encode such an error; the instrumental antecedent (intention + means-belief) typically does not.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>This single generalisation explains both the enkratic bootstrapping worry and the safety of instrumental detachment, without requiring a blanket rejection of detachment for all requirements.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>A principled, unified criterion distinguishes safe from unsafe detachment; it vindicates instrumental detachment while explaining the enkratic worry, doing better explanatory work than a blanket wide-scope policy.</span></div>
+        </div>
+        <div class="arg-block" data-arg="4">
+          <div class="arg-title">Argument IV &mdash; The correct view is mixed; the motion&rsquo;s blanket endorsement of wide scope and rejection of detachment is the over-generalisation</div>
+          <div class="arg-premises">
+            <div class="premise"><span class="plabel">1.</span><span>The enkratic principle may reasonably be treated via wide scope or warrant-restricted narrow scope; this is a genuinely contested case.</span></div>
+            <div class="premise"><span class="plabel">2.</span><span>The instrumental principle, in the vast majority of cases, supports narrow-scope detachment to action-guiding conclusions without bootstrapping.</span></div>
+            <div class="premise"><span class="plabel">3.</span><span>The motion asks the House to endorse wide scope and reject detachment for rational requirements in general; given the instrumental case, this blanket claim is false.</span></div>
+          </div>
+          <div class="conclusion"><span class="plabel">&#8756;</span><span>The motion over-generalises from the enkratic case; a mixed view, which the opposition defends, is correct, and the House should reject the motion as stated.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+var state={
+  prop:{speaker:'broome',view:'speech',speechScroll:0,logicScroll:0},
+  opp:{speaker:'kolodny',view:'speech',speechScroll:0,logicScroll:0}
+};
+function switchSpeaker(side,speaker,btn){
+  var st=state[side];
+  saveScroll(side);
+  document.getElementById(side+'-'+st.speaker+'-panel').classList.remove('active');
+  document.getElementById(side+'-'+st.speaker+'-header').classList.add('hidden');
+  st.speaker=speaker;st.view='speech';st.speechScroll=0;st.logicScroll=0;
+  document.getElementById(side+'-'+speaker+'-panel').classList.add('active');
+  document.getElementById(side+'-'+speaker+'-header').classList.remove('hidden');
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  hdr.querySelectorAll('.tab')[0].classList.add('active');
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  if(sp)sp.classList.remove('hidden');
+  if(lg)lg.classList.add('hidden');
+  document.getElementById(side+'-body').scrollTop=0;
+  document.getElementById(side+'-speaker-bar').querySelectorAll('.speaker-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+}
+function sw(side,speaker,view,el){
+  var st=state[side];
+  saveScroll(side);
+  var hdr=document.getElementById(side+'-'+speaker+'-header');
+  hdr.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  st.view=view;
+  var sp=document.getElementById(side+'-'+speaker+'-speech');
+  var lg=document.getElementById(side+'-'+speaker+'-logic');
+  var body=document.getElementById(side+'-body');
+  if(view==='speech'){if(sp)sp.classList.remove('hidden');if(lg)lg.classList.add('hidden');body.scrollTop=st.speechScroll||0;}
+  else{if(sp)sp.classList.add('hidden');if(lg)lg.classList.remove('hidden');body.scrollTop=st.logicScroll||0;}
+}
+function saveScroll(side){
+  var st=state[side];
+  var body=document.getElementById(side+'-body');
+  if(st.view==='speech')st.speechScroll=body.scrollTop;
+  else st.logicScroll=body.scrollTop;
+}
+document.addEventListener('mouseover',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(!tip)return;
+  var r=hl.getBoundingClientRect();var cx=r.left+r.width/2;var vw=window.innerWidth;var m=8;
+  tip.style.display='block';var tw=tip.offsetWidth;
+  var cx2=Math.min(Math.max(cx,tw/2+m),vw-tw/2-m);
+  tip.style.left=cx2+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+});
+document.addEventListener('mouseout',function(e){
+  var hl=e.target.closest('.hl');if(!hl)return;
+  var tip=hl.querySelector('.tooltip');if(tip)tip.style.display='none';
+});
+</script>
+</body>
+</html>
