@@ -276,7 +276,22 @@
     const s = Math.floor(secs % 60);
     return m + ':' + String(s).padStart(2, '0');
   }
-  
+
+  function updateTrackScroll() {
+    // Reset first so any in-progress animation stops and restarts from 0
+    nameEl.classList.remove('scrolling');
+    nameEl.style.removeProperty('--scroll-dist');
+    void nameEl.offsetWidth; // force reflow
+
+    if (!isPlaying) return;
+
+    const overflow = nameEl.scrollWidth - nameEl.parentElement.clientWidth;
+    if (overflow > 0) {
+      nameEl.style.setProperty('--scroll-dist', -(overflow + 24) + 'px');
+      nameEl.classList.add('scrolling');
+    }
+  }
+
   function updateSeek() {
     if (!player.duration) return;
     seekBar.value = (player.currentTime / player.duration) * 100;
@@ -288,6 +303,7 @@
     player.src = PLAYLIST[i].src;
     nameEl.textContent = PLAYLIST[i].title;
     numEl.textContent  = 'Track ' + (i + 1) + ' of ' + PLAYLIST.length;
+    updateTrackScroll();
   }
    
   function setPlayState(state) {
@@ -295,8 +311,7 @@
     icon.className = state ? 'ti ti-player-pause' : 'ti ti-player-play';
     btn.setAttribute('aria-label', state ? 'Pause' : 'Play');
     dot.className  = 'live-dot' + (state ? '' : ' off');
-    if (state) nameEl.classList.add('playing');
-    else       nameEl.classList.remove('playing');
+    updateTrackScroll();
     document.querySelector('.radio-controls').classList.toggle('visible', state);
     document.querySelector('.station-tabs').classList.toggle('visible', state);
   }
